@@ -5,7 +5,7 @@
 #
 
 #
-# 1.1 Install Updates, Patches and Additional Security Software (Not Scored)
+# Hardening script skeleton replace this line with proper point treated
 #
 
 set -e # One error, it's over
@@ -37,4 +37,5 @@ else
     fi
 fi 
 
+# Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 [ -r $CIS_ROOT_DIR/lib/main.sh ] && . $CIS_ROOT_DIR/lib/main.sh

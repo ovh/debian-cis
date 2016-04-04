@@ -9,14 +9,17 @@ case $LOGLEVEL in
     warning )
         MACHINE_LOG_LEVEL=2
         ;;
-    info )
+    ok )
         MACHINE_LOG_LEVEL=3
         ;;
-    debug )
+    info )
         MACHINE_LOG_LEVEL=4
         ;;
+    debug )
+        MACHINE_LOG_LEVEL=5
+        ;;
     *)
-        MACHINE_LOG_LEVEL=3 ## Default loglevel value to info
+        MACHINE_LOG_LEVEL=4 ## Default loglevel value to info
 esac
 
 _logger() {
@@ -33,18 +36,22 @@ cecho () {
     echo -e "${COLOR}$*${NC}"
 }
 
-info () { 
-    [ $MACHINE_LOG_LEVEL -ge 3 ] && _logger $BWHITE "[INFO] $*"
+crit () {
+    [ $MACHINE_LOG_LEVEL -ge 1 ] && _logger $BRED "[ KO ] $*"
 }
 
 warn () {
     [ $MACHINE_LOG_LEVEL -ge 2 ] && _logger $BYELLOW "[WARN] $*"
 }
 
-crit () {
-    [ $MACHINE_LOG_LEVEL -ge 1 ] && _logger $BRED "[ KO ] $*"
+ok () {
+    [ $MACHINE_LOG_LEVEL -ge 3 ] && _logger $BGREEN "[ OK ] $*"
+}
+
+info () {
+    [ $MACHINE_LOG_LEVEL -ge 4 ] && _logger $BWHITE "[INFO] $*"
 }
 
 debug () {
-    [ $MACHINE_LOG_LEVEL -ge 4 ] && _logger $GRAY "[DBG ] $*"
+    [ $MACHINE_LOG_LEVEL -ge 5 ] && _logger $GRAY "[DBG ] $*"
 }

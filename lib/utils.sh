@@ -15,6 +15,25 @@ is_installed()
     return 1
 }
 
+is_a_partition() {
+
+    local PARTITION_NAME=$1
+    FNRET=128
+    if $(grep "[[:space:]]$1[[:space:]]" /etc/fstab | grep -vqE "^#"); then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
+
+is_mounted() {
+    local PARTITION_NAME=$1
+    if $(grep -q "[[:space:]]$1[[:space:]]" /proc/mounts); then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
 
 # contains helper functions to work with apt
 

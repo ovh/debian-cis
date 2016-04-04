@@ -2,40 +2,85 @@
 
 
 
-#
-#   Return if a package is installed
-#   @param $1 package name
-#
-is_installed()
-{
-    PKG_NAME=$1
-    if `dpkg -s $PKG_NAME 2> /dev/null | grep -q '^Status: install '` ; then
-        return 0
-    fi
-    return 1
-}
 
+#
+# Mounting point manipulation
+#
+
+# Verify $1 is a partition declared in fstab
 is_a_partition() {
 
     local PARTITION_NAME=$1
     FNRET=128
     if $(grep "[[:space:]]$1[[:space:]]" /etc/fstab | grep -vqE "^#"); then
+        debug "$PARTITION found in fstab"
         FNRET=0
     else
+        debug "Unable to find $PARTITION in fstab"
         FNRET=1
     fi
 }
 
+# Verify that $1 is mounted at runtime
 is_mounted() {
     local PARTITION_NAME=$1
     if $(grep -q "[[:space:]]$1[[:space:]]" /proc/mounts); then
+        debug "$PARTITION found in /proc/mounts, it's mounted"
         FNRET=0
     else
+        debug "Unable to find $PARTITION in /proc/mounts"
         FNRET=1
     fi
 }
 
-# contains helper functions to work with apt
+# Verify $1 has the proper option $2 in fstab
+has_mount_option() {
+    local PARTITION=$1
+    local OPTION=$2
+    if $(grep "[[:space:]]$1[[:space:]]" /etc/fstab | grep -vE "^#" | awk {'print $4'} | grep -q "$2"); then
+        debug "$OPTION has been detected in fstab for partition $PARTITION"
+        FNRET=0
+    else
+        debug "Unable to find $OPTION in fstab for partition $PARTITION"
+        FNRET=1
+    fi
+}
+
+# Verify $1 has the proper option $2 at runtime
+has_mounted_option() {
+    local PARTITION=$1
+    local OPTION=$2
+    if $(grep "[[:space:]]$1[[:space:]]" /proc/mounts | awk {'print $4'} | grep -q "$2"); then
+        debug "$OPTION has been detected in /proc/mounts for partition $PARTITION"
+        FNRET=0
+    else
+        debug "Unable to find $OPTION in /proc/mounts for partition $PARTITION"
+        FNRET=1
+    fi
+}
+
+# Setup mount option in fstab
+add_option_to_fstab() {
+    local PARTITION=$1
+    local OPTION=$2
+    debug "Setting $OPTION for $PARTITION in fstab"
+    backup_file "/etc/fstab"
+    # For example : 
+    # /dev/sda9       /home           ext4  auto,acl,errors=remount-ro  0       2
+    # /dev/sda9       /home           ext4  auto,acl,errors=remount-ro,nodev  0       2
+    debug "Sed command :  sed -ie \"s;\(.*\)\(\s*\)\s\($PARTITION\)\s\(\s*\)\(\w*\)\(\s*\)\(\w*\)*;\1\2 \3 \4\5\6\7,$OPTION;\" /etc/fstab"
+    sed -ie "s;\(.*\)\(\s*\)\s\($PARTITION\)\s\(\s*\)\(\w*\)\(\s*\)\(\w*\)*;\1\2 \3 \4\5\6\7,$OPTION;" /etc/fstab
+}
+
+remount_partition() {
+    local PARTITION=$1
+    debug "Remounting $PARTITION"
+    mount -o remount $PARTITION
+}
+
+#
+# Helper functions to work with apt
+#
 
 apt_update_if_needed() 
 {
@@ -57,7 +102,7 @@ apt_check_updates()
 {
     local NAME="$1"
     local DETAILS="/dev/shm/${NAME}"
-    LANGUAGE=C apt-get upgrade -s 2>/dev/null | grep -E "^Inst" > $DETAILS || : 
+    apt-get upgrade -s 2>/dev/null | grep -E "^Inst" > $DETAILS || : 
     local COUNT=$(wc -l < "$DETAILS")
     FNRET=128 # Unknown function return result
     RESULT="" # Result output for upgrade
@@ -69,4 +114,17 @@ apt_check_updates()
         FNRET=0
     fi
     rm $DETAILS
+}
+
+#
+#   Returns if a package is installed
+#
+
+is_installed()
+{
+    PKG_NAME=$1
+    if `dpkg -s $PKG_NAME 2> /dev/null | grep -q '^Status: install '` ; then
+        FNRET=0
+    fi
+    FNRET=1
 }

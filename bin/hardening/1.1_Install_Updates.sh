@@ -13,16 +13,32 @@ set -u # One variable unset, it's over
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    :
+    info "Checking if apt needs an update"
+    apt_update_if_needed 
+    info "Fetching upgrades ..."
+    apt_check_updates "CIS_APT"
+    if [ $FNRET -gt 0 ]; then
+        warn "$RESULT"
+        FNRET=1
+    else
+        ok "No upgrades available"
+        FNRET=0
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    :
+    if [ $FNRET -gt 0 ]; then 
+        info "Applying Upgrades..."
+        DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' upgrade -y
+    else
+        ok "No Upgrades to apply"
+    fi
 }
 
 # This function will check config parameters required
 check_config() {
+    # No parameters for this function
     :
 }
 
@@ -37,4 +53,5 @@ else
     fi
 fi 
 
+# Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 [ -r $CIS_ROOT_DIR/lib/main.sh ] && . $CIS_ROOT_DIR/lib/main.sh

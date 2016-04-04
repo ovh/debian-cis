@@ -22,13 +22,17 @@ if [ -z $status ]; then
 fi
 
 case $status in
-    enabled | true ) 
+    enabled | true )
+        info "Checking Configuration"
+        check_config
         info "Performing audit"
         audit # Perform audit
         info "Applying Hardening"
         apply # Perform hardening
         ;;
     audit )
+        info "Checking Configuration"
+        check_config
         info "Performing audit"
         audit # Perform audit
         ;;

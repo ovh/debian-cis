@@ -1,6 +1,26 @@
 # CIS Debian 7 Hardening common functions
 
+#
+# File Backup functions
+#
+backup_file() {
+    FILE=$1
+    if [ ! -f $FILE ]; then
+        crit "Cannot backup $FILE, it's not a file"
+        FNRET=1
+    else
+        TARGET=$(echo $FILE | sed -s 's/\//./g' | sed -s 's/^.//' | sed -s "s/$/.$(date +%F-%T)/" )
+        TARGET="$BACKUPDIR/$TARGET"
+        debug "Backuping $FILE to $TARGET"
+        cp -a $FILE $TARGET
+        FNRET=0
+    fi
+}
+
+
+#
 # Logging functions
+#
 
 case $LOGLEVEL in
     error )

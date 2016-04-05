@@ -5,7 +5,7 @@
 #
 
 #
-# 2.2 Set nodev option for /tmp Partition (Scored)
+# 2.6.2 Set nodev option for /var/tmp Partition (Scored)
 #
 
 set -e # One error, it's over

@@ -5,14 +5,14 @@
 #
 
 #
-# 2.6.1 Create Separate Partition for /var/tmp (Scored)
+# 2.7 Create Separate Partition for /var/log (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # Quick factoring as many script use the same logic
-PARTITION="/var/tmp"
+PARTITION="/var/log"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

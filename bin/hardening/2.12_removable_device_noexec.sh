@@ -5,52 +5,51 @@
 #
 
 #
-# 2.9 Create Separate Partition for /home (Scored)
+# 2.12 Add noexec Option to Removable Media Partitions (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# Fair warning, it only checks /media.* like partition in fstab, it's not exhaustive
+
 # Quick factoring as many script use the same logic
-PARTITION="/home"
+PARTITION="/media\S*"
+OPTION="noexec"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Verifying that $PARTITION is a partition"
+    info "Verifying if there is $PARTITION like partition"
     FNRET=0
     is_a_partition "$PARTITION"
     if [ $FNRET -gt 0 ]; then
-        crit "$PARTITION is not a partition"
-        FNRET=2
+        ok "There is no partition like $PARTITION"
+        FNRET=0
     else
-        ok "$PARTITION is a partition"
-        is_mounted "$PARTITION"
+        info "detected $PARTITION like"
+        has_mount_option $PARTITION $OPTION
         if [ $FNRET -gt 0 ]; then
-            warn "$PARTITION is not mounted"
+            crit "$PARTITION have no option $OPTION in fstab !"
             FNRET=1
         else
-            ok "$PARTITION is mounted"
-        fi
+            ok "$PARTITION have $OPTION in fstab"
+        fi       
     fi
-     
-    :
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
     if [ $FNRET = 0 ]; then
         ok "$PARTITION is correctly set"
-    elif [ $FNRET = 2 ]; then
-        crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
-    else
-        info "mounting $PARTITION"
-        mount $PARTITION
-    fi
+    elif [ $FNRET = 1 ]; then
+        info "Adding $OPTION to fstab"
+        add_option_to_fstab $PARTITION $OPTION
+    fi 
 }
 
 # This function will check config parameters required
 check_config() {
-    # No parameter for this script
+    # No param for this script
     :
 }
 

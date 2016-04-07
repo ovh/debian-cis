@@ -1,7 +1,20 @@
 # CIS Debian 7 Hardening Utility functions
 
 
+#
+# Kernel Options checks
+#
 
+is_kernel_option_enabled() {
+    local KERNEL_OPTION=$1
+    RESULT=$(zgrep -i $KERNEL_OPTION /proc/config.gz | grep -vE "^#")
+    ANSWER=$(cut -d = -f 2 <<< $RESULT)
+    if [ "x$ANSWER" = "xy" ]; then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
 
 #
 # Mounting point manipulation

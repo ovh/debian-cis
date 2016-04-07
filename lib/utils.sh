@@ -1,5 +1,20 @@
 # CIS Debian 7 Hardening Utility functions
 
+#
+# Service Boot Checks
+#
+
+is_service_enabled() {
+    local SERVICE=$1
+    if [ $(find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l) -gt 0 ]; then
+        debug "Service $SERVICE is enabled"
+        FNRET=0
+    else
+        debug "Service $SERVICE is disabled"
+        FNRET=1
+    fi
+}
+
 
 #
 # Kernel Options checks

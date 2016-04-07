@@ -5,14 +5,14 @@
 #
 
 #
-# 2.18 Disable Mounting of cramfs Filesystems (Not Scored)
+# 2.21 Disable Mounting of hfs Filesystems (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # Assumption made : yu have a monolothic kernel with your config zipped in /proc/config.gz
-KERNEL_OPTION="cramfs"
+KERNEL_OPTION="hfs"
 
 
 # This function will be called if the script status is on enabled / audit mode

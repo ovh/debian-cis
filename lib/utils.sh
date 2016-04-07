@@ -1,6 +1,55 @@
 # CIS Debian 7 Hardening Utility functions
 
 #
+# File manipulation
+#
+
+does_file_exist() {
+    local FILE=$1
+    if [ -e $FILE ]; then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
+
+has_file_correct_ownership() {
+    local FILE=$1
+    local USER=$2
+    local GROUP=$3
+    local USERID=$(id -u $USER)
+    local GROUPID=$(id -u $GROUP)
+
+    if [ "$(stat -c "%u %g" /boot/grub/grub.cfg)" = "$USERID $GROUPID" ]; then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
+
+#
+# User manipulation
+#
+
+does_user_exist() {
+    local USER=$1
+    if $(getent passwd $USER >/dev/null 2>&1); then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
+
+does_group_exist() {
+    local GROUP=$1
+    if $(getent group $GROUP >/dev/null 2>&1); then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
+
+#
 # Service Boot Checks
 #
 

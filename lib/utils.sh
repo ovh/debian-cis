@@ -7,12 +7,17 @@
 
 is_kernel_option_enabled() {
     local KERNEL_OPTION=$1
-    RESULT=$(zgrep -i $KERNEL_OPTION /proc/config.gz | grep -vE "^#")
+    RESULT=$(zgrep -i $KERNEL_OPTION /proc/config.gz | grep -vE "^#") || :
     ANSWER=$(cut -d = -f 2 <<< $RESULT)
     if [ "x$ANSWER" = "xy" ]; then
+        debug "Kernel option $KERNEL_OPTION enabled"
         FNRET=0
-    else
+    elif [ "x$ANSWER" = "xn" ]; then
+        debug "Kernel option $KERNEL_OPTION disabled"
         FNRET=1
+    else
+        debug "Kernel option $KERNEL_OPTION not found"
+        FNRET=2 # Not found
     fi
 }
 

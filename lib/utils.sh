@@ -10,7 +10,7 @@ has_sysctl_param_expected_result() {
 
     if [ "$(sysctl $SYSCTL_PARAM 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
         FNRET=0
-    elif [ $? != 0 ]; then
+    elif [ $? = 255 ]; then
         debug "$SYSCTL_PARAM does not exist"
         FNRET=255
     else
@@ -23,7 +23,7 @@ set_sysctl_param() {
     local SYSCTL_PARAM=$1
     local VALUE=$2
     debug "Setting $SYSCTL_PARAM to $VALUE"
-    if [ "$(sysctl -w $SYSCTL_PARAM 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
+    if [ "$(sysctl -w $SYSCTL_PARAM=$VALUE 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
         FNRET=0
     elif [ $? != 0 ]; then
         debug "$SYSCTL_PARAM does not exist"
@@ -34,6 +34,18 @@ set_sysctl_param() {
     fi
 }
 
+#
+# Dmesg Manipulation
+#
+
+does_pattern_exists_in_dmesg() {
+    local PATTERN=$1
+    if $(dmesg | grep -qE "$PATTERN"); then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
 
 #
 # File manipulation
@@ -275,8 +287,10 @@ is_pkg_installed()
 {
     PKG_NAME=$1
     if $(dpkg -s $PKG_NAME 2> /dev/null | grep -q '^Status: install ') ; then
+        debug "$PKG_NAME is installed"
         FNRET=0
     else
+        debug "$PKG_NAME is not installed"
         FNRET=1
     fi
 }

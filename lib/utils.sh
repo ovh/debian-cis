@@ -20,11 +20,35 @@ has_file_correct_ownership() {
     local USERID=$(id -u $USER)
     local GROUPID=$(id -u $GROUP)
 
-    if [ "$(stat -c "%u %g" /boot/grub/grub.cfg)" = "$USERID $GROUPID" ]; then
+    if [ "$(stat -c "%u %g" $1)" = "$USERID $GROUPID" ]; then
         FNRET=0
     else
         FNRET=1
     fi
+}
+
+has_file_correct_permissions() {
+    local FILE=$1
+    local PERMISSIONS=$2
+    
+    if [ $(stat -L -c "%a" $1) = "$PERMISSIONS" ]; then
+        FNRET=0
+    else
+        FNRET=1
+    fi 
+}
+
+does_pattern_exists_in_file() {
+    local FILE=$1
+    local PATTERN=$2
+
+    debug "Checking if $PATTERN is present in $FILE"
+    if $(grep -qE "$PATTERN" $FILE); then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+
 }
 
 #

@@ -5,7 +5,7 @@
 #
 
 #
-# Hardening script skeleton replace this line with proper point treated
+# 4.3 Enable Randomized Virtual Memory Region Placement (Scored)
 #
 
 set -e # One error, it's over

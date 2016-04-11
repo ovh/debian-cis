@@ -5,7 +5,7 @@
 #
 
 #
-# Hardening script skeleton replace this line with proper point treated
+# 4.1 Restrict Core Dumps (Scored)
 #
 
 set -e # One error, it's over

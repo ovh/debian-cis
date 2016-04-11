@@ -5,32 +5,37 @@
 #
 
 #
-# 4.2 Enable XD/NX Support on 32-bit x86 Systems (Not Scored)
+# 5.1.3 Ensure rsh client is not installed (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PATTERN='NX[[:space:]]\(Execute[[:space:]]Disable\)[[:space:]]protection:[[:space:]]active'
+PACKAGES='rsh-client rsh-redone-client'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_dmesg $PATTERN
-    if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in dmesg"
-    else
-        ok "$PATTERN present in dmesg"
-    fi
+    for PACKAGE in $PACKAGES; do 
+        is_pkg_installed $PACKAGE
+        if [ $FNRET = 0 ]; then
+            crit "$PACKAGE is installed"
+        else
+            ok "$PACKAGE is absent"
+        fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_dmesg $PATTERN
-    if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in dmesg, please go to the bios to activate this option or change for CPU compatible"
-    else
-        ok "$PATTERN present in dmesg"
-    fi
+    for PACKAGE in $PACKAGES; do 
+        is_pkg_installed $PACKAGE
+        if [ $FNRET = 0 ]; then
+            warn "$PACKAGE is installed, purging"
+            apt-get purge $PACKAGE -y
+        else
+            ok "$PACKAGE is absent"
+        fi
+    done
 }
 
 # This function will check config parameters required

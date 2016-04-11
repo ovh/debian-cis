@@ -1,6 +1,41 @@
 # CIS Debian 7 Hardening Utility functions
 
 #
+# Sysctl Manipulation
+#
+
+has_sysctl_param_expected_result() {
+    local SYSCTL_PARAM=$1
+    local EXP_RESULT=$2
+
+    if [ "$(sysctl $SYSCTL_PARAM 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
+        FNRET=0
+    elif [ $? != 0 ]; then
+        debug "$SYSCTL_PARAM does not exist"
+        FNRET=255
+    else
+        debug "$SYSCTL_PARAM has not a value of $EXP_RESULT"
+        FNRET=1
+    fi
+}
+
+set_sysctl_param() {
+    local SYSCTL_PARAM=$1
+    local VALUE=$2
+    debug "Setting $SYSCTL_PARAM to $VALUE"
+    if [ "$(sysctl -w $SYSCTL_PARAM 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
+        FNRET=0
+    elif [ $? != 0 ]; then
+        debug "$SYSCTL_PARAM does not exist"
+        FNRET=255
+    else
+        warn "$SYSCTL_PARAM Failed !"
+        FNRET=1
+    fi
+}
+
+
+#
 # File manipulation
 #
 
@@ -50,6 +85,16 @@ does_pattern_exists_in_file() {
     fi
 
 }
+
+add_end_of_file() {
+    local FILE=$1
+    local LINE=$2
+
+    debug "Adding $LINE at the end of $FILE"
+    backup_file "$1"
+    echo "$2" >> $FILE
+}
+    
 
 #
 # User manipulation

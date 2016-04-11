@@ -202,11 +202,12 @@ apt_check_updates()
 #   Returns if a package is installed
 #
 
-is_installed()
+is_pkg_installed()
 {
     PKG_NAME=$1
-    if `dpkg -s $PKG_NAME 2> /dev/null | grep -q '^Status: install '` ; then
+    if $(dpkg -s $PKG_NAME 2> /dev/null | grep -q '^Status: install ') ; then
         FNRET=0
+    else
+        FNRET=1
     fi
-    FNRET=1
 }

@@ -40,6 +40,12 @@ apply () {
 
 # This function will check config parameters required
 check_config() {
+
+    is_pkg_installed "grub-pc"
+    if [ $FNRET != 0 ]; then
+        warn "Grub is not installed, not handling configuration"
+        exit 128
+    fi
     does_user_exist $USER
     if [ $FNRET != 0 ]; then
         crit "$USER does not exist"

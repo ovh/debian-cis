@@ -5,33 +5,20 @@
 #
 
 #
-# 5.1.4 Ensure talk server is not enabled (Scored)
+# 6.1 Ensure the X Window system is not installed (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='inetutils-talkd talkd'
-FILE='/etc/inetd.conf'
-PATTERN='^(talk|ntalk)'
+PACKAGES='xserver-xorg-core xserver-xorg-core-dbg xserver-common'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     for PACKAGE in $PACKAGES; do
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
-            warn "$PACKAGE is installed, checking configuration"
-            does_file_exist $FILE
-            if [ $FNRET != 0 ]; then
-                ok "$FILE does not exist"
-            else
-                does_pattern_exists_in_file $FILE $PATTERN
-                if [ $FNRET = 0 ]; then
-                    crit "$PATTERN exists, $PACKAGE services are enabled !"
-                else
-                    ok "$PATTERN not present in $FILE"
-                fi
-            fi
+            crit "$PACKAGE is installed !"
         else
             ok "$PACKAGE is absent"
         fi
@@ -47,21 +34,6 @@ apply () {
             apt-get purge $PACKAGE -y
         else
             ok "$PACKAGE is absent"
-        fi
-        does_file_exist $FILE
-        if [ $FNRET != 0 ]; then
-            ok "$FILE does not exist"
-        else
-            info "$FILE exists, checking patterns"
-            does_pattern_exists_in_file $FILE $PATTERN
-            if [ $FNRET = 0 ]; then
-                warn "$PATTERN present in $FILE, purging it"
-                backup_file $FILE
-                ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<< $PATTERN)
-                sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
-            else
-                ok "$PATTERN not present in $FILE"
-            fi
         fi
     done
 }

@@ -5,15 +5,15 @@
 #
 
 #
-# 5.1.4 Ensure talk server is not enabled (Scored)
+# 5.1.6 Ensure telnet server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='inetutils-talkd talkd'
+PACKAGES='telnetd inetutils-telnetd telnetd-ssl'
 FILE='/etc/inetd.conf'
-PATTERN='^(talk|ntalk)'
+PATTERN='^telnet'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

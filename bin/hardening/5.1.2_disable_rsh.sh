@@ -11,56 +11,59 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGE='rsh-server'
+PACKAGES='rsh-server rsh-redone-server'
 FILE='/etc/inetd.conf'
 PATTERN='^(shell|login|exec)'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET = 0 ]; then
-        warn "$PACKAGE is installed, checking configuration"
-        does_file_exist $FILE
-        if [ $FNRET != 0 ]; then
-            ok "$FILE does not exist"
-        else
-            does_pattern_exists_in_file $FILE $PATTERN
-            if [ $FNRET = 0 ]; then
-                crit "$PATTERN exists, $PACKAGE services are enabled !"
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed $PACKAGE
+        if [ $FNRET = 0 ]; then
+            warn "$PACKAGE is installed, checking configuration"
+            does_file_exist $FILE
+            if [ $FNRET != 0 ]; then
+                ok "$FILE does not exist"
             else
-                ok "$PATTERN not present in $FILE"
+                does_pattern_exists_in_file $FILE $PATTERN
+                if [ $FNRET = 0 ]; then
+                    crit "$PATTERN exists, $PACKAGE services are enabled !"
+                else
+                    ok "$PATTERN not present in $FILE"
+                fi
             fi
+        else
+            ok "$PACKAGE is absent"
         fi
-    else
-        ok "$PACKAGE is absent"
-    fi
-    :
+    done
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET = 0 ]; then
-        crit "$PACKAGE is installed, purging it"
-        apt-get purge $PACKAGE -y
-    else
-        ok "$PACKAGE is absent"
-    fi
-    does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
-        ok "$FILE does not exist"
-    else
-        info "$FILE exists, checking patterns"
-        does_pattern_exists_in_file $FILE $PATTERN
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
-            warn "$PATTERN present in $FILE, purging it"
-            backup_file $FILE
-            ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<< $PATTERN)
-            sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
+            crit "$PACKAGE is installed, purging it"
+            apt-get purge $PACKAGE -y
         else
-            ok "$PATTERN not present in $FILE"
+            ok "$PACKAGE is absent"
         fi
-    fi
+        does_file_exist $FILE
+        if [ $FNRET != 0 ]; then
+            ok "$FILE does not exist"
+        else
+            info "$FILE exists, checking patterns"
+            does_pattern_exists_in_file $FILE $PATTERN
+            if [ $FNRET = 0 ]; then
+                warn "$PATTERN present in $FILE, purging it"
+                backup_file $FILE
+                ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<< $PATTERN)
+                sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
+            else
+                ok "$PATTERN not present in $FILE"
+            fi
+        fi
+    done
 }
 
 # This function will check config parameters required

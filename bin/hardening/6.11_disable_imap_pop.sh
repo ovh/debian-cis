@@ -5,13 +5,14 @@
 #
 
 #
-# 6.3 Ensure print server is not enabled (Not Scored)
+# 6.11 Ensure IMAP and POP server is not enabled (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='libcups2 libcupscgi1 libcupsimage2 libcupsmime1 libcupsppdc1 cups-common cups-client cups-ppdc libcupsfilters1 cups-filters cups'
+# Based on aptitude search '~Pimap-server' and  aptitude search '~Ppop3-server'
+PACKAGES='citadel-server courier-imap cyrus-imapd-2.4 dovecot-imapd mailutils-imap4d courier-pop cyrus-pop3d-2.4 dovecot-pop3d heimdal-servers mailutils-pop3d popa3d solid-pop3d xmail'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

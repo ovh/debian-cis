@@ -11,7 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='rsh-server rsh-redone-server'
+# Based on aptitude search '~Prsh-server'
+PACKAGES='rsh-server rsh-redone-server heimdal-servers'
 FILE='/etc/inetd.conf'
 PATTERN='^(shell|login|exec)'
 

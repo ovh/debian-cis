@@ -11,7 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='telnetd inetutils-telnetd telnetd-ssl'
+# Based on  aptitude search '~Ptelnet-server'
+PACKAGES='telnetd inetutils-telnetd telnetd-ssl krb5-telnetd heimdal-servers'
 FILE='/etc/inetd.conf'
 PATTERN='^telnet'
 

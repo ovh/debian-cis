@@ -11,7 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='xserver-xorg-core xserver-xorg-core-dbg xserver-common'
+# Based on aptitude search '~Pxserver'
+PACKAGES='xserver-xorg-core xserver-xorg-core-dbg xserver-common xserver-xephyr xserver-xfbdev tightvncserver vnc4server fglrx-driver xvfb xserver-xorg-video-nvidia-legacy-173xx xserver-xorg-video-nvidia-legacy-96xx xnest'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

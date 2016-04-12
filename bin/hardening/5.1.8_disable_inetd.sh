@@ -5,34 +5,37 @@
 #
 
 #
-# 3.4 Require Authentication for Single-User Mode (Scored)
+# 5.1.8 Ensure xinetd is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-FILE="/etc/shadow"
-PATTERN="^root:[*\!]:"
+PACKAGES='openbsd-inetd xinetd rlinetd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file $FILE $PATTERN
-    if [ $FNRET != 1 ]; then
-        crit "$PATTERN present in $FILE"
-    else
-        ok "$PATTERN not present in $FILE"
-    fi
+    for PACKAGE in $PACKAGES; do 
+        is_pkg_installed $PACKAGE
+        if [ $FNRET = 0 ]; then
+            crit "$PACKAGE is installed"
+        else
+            ok "$PACKAGE is absent"
+        fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_file $FILE $PATTERN
-    if [ $FNRET != 1 ]; then
-        warn "$PATTERN present in $FILE, please put a root password"
-    else
-        ok "$PATTERN not present in $FILE"
-    fi
-    :
+    for PACKAGE in $PACKAGES; do 
+        is_pkg_installed $PACKAGE
+        if [ $FNRET = 0 ]; then
+            warn "$PACKAGE is installed, purging"
+            apt-get purge $PACKAGE -y
+        else
+            ok "$PACKAGE is absent"
+        fi
+    done
 }
 
 # This function will check config parameters required

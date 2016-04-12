@@ -5,19 +5,19 @@
 #
 
 #
-# 5.1.4 Ensure talk server is not enabled (Scored)
+# 5.1.7 Ensure tftp-server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='inetutils-talkd talkd'
+PACKAGES='tftpd tftpd-hpa atftpd'
 FILE='/etc/inetd.conf'
-PATTERN='^(talk|ntalk)'
+PATTERN='^tftp'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for PACKAGE in $PACKAGES; do
+    for PACKAGE in $PACKAGES; do 
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
             warn "$PACKAGE is installed, checking configuration"
@@ -40,7 +40,7 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    for PACKAGE in $PACKAGES; do
+    for PACKAGE in $PACKAGES; do 
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
             crit "$PACKAGE is installed, purging it"
@@ -59,6 +59,7 @@ apply () {
                 backup_file $FILE
                 ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<< $PATTERN)
                 sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
+                echo "coucou"
             else
                 ok "$PATTERN not present in $FILE"
             fi

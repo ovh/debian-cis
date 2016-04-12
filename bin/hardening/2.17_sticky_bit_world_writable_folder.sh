@@ -5,7 +5,7 @@
 #
 
 #
-# Hardening script skeleton replace this line with proper point treated
+# 2.17 Set Sticky Bit on All World-Writable Directories (Scored)
 #
 
 set -e # One error, it's over

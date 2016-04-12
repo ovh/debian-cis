@@ -5,13 +5,13 @@
 #
 
 #
-# 6.3 Ensure print server is not enabled (Not Scored)
+# 6.12 Ensure Samba is not enabled (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='libcups2 libcupscgi1 libcupsimage2 libcupsmime1 libcupsppdc1 cups-common cups-client cups-ppdc libcupsfilters1 cups-filters cups'
+PACKAGES='samba'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

@@ -5,13 +5,14 @@
 #
 
 #
-# 6.3 Ensure print server is not enabled (Not Scored)
+# 6.9 Ensure FTP Server is not enabled (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PACKAGES='libcups2 libcupscgi1 libcupsimage2 libcupsmime1 libcupsppdc1 cups-common cups-client cups-ppdc libcupsfilters1 cups-filters cups'
+# Based on aptitude search '~Pftp-server'
+PACKAGES='ftpd ftpd-ssl heimdal-servers inetutils-ftpd krb5-ftpd muddleftpd proftpd-basic pure-ftpd pure-ftpd-ldap pure-ftpd-mysql pure-ftpd-postgresql twoftpd-run vsftpd wzdftpd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

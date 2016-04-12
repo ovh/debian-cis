@@ -31,6 +31,7 @@ apply () {
         crit "$PACKAGE is installed, purging it"
         /usr/sbin/prelink -ua
         apt-get purge $PACKAGE -y
+        apt-get autoremove
     else
         ok "$PACKAGE is absent"
     fi

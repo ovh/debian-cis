@@ -32,6 +32,7 @@ apply () {
         if [ $FNRET = 0 ]; then
             crit "$PACKAGE is installed, purging it"
             apt-get purge $PACKAGE -y
+            apt-get autoremove
         else
             ok "$PACKAGE is absent"
         fi

@@ -107,7 +107,16 @@ add_end_of_file() {
     echo "$2" >> $FILE
 }
     
+add_line_file_before_pattern() {
+    local FILE=$1
+    local LINE=$2
+    local PATTERN=$3
 
+    debug "Inserting $LINE before $PATTERN in $FILE"
+    debug "sed -i '/$PATTERN/i $LINE' $FILE"
+    sed -i "/$PATTERN/i $LINE" $FILE
+    FNRET=0
+}
 #
 # User manipulation
 #
@@ -242,7 +251,7 @@ remount_partition() {
 }
 
 #
-# Helper functions to work with apt
+# APT manipulation
 #
 
 apt_update_if_needed() 
@@ -278,6 +287,14 @@ apt_check_updates()
     fi
     rm $DETAILS
 }
+
+apt_install() 
+{
+    local PACKAGE=$1
+    DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $PACKAGE -y
+    FNRET=0
+}
+
 
 #
 #   Returns if a package is installed

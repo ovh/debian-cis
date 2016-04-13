@@ -25,7 +25,7 @@ set_sysctl_param() {
     debug "Setting $SYSCTL_PARAM to $VALUE"
     if [ "$(sysctl -w $SYSCTL_PARAM=$VALUE 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
         FNRET=0
-    elif [ $? != 0 ]; then
+    elif [ $? = 255 ]; then
         debug "$SYSCTL_PARAM does not exist"
         FNRET=255
     else

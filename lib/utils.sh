@@ -117,6 +117,18 @@ add_line_file_before_pattern() {
     sed -i "/$PATTERN/i $LINE" $FILE
     FNRET=0
 }
+
+replace_in_file() {
+    local FILE=$1
+    local SOURCE=$2
+    local DESTINATION=$3
+
+    debug "Replacing $SOURCE to $DESTINATION in $FILE"
+    debug "sed -i 's/$SOURCE/$DESTINATION/g' $FILE"
+    sed -i "s/$SOURCE/$DESTINATION/g" $FILE
+    FNRET=0
+}
+
 #
 # User manipulation
 #

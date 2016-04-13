@@ -1,7 +1,7 @@
 # CIS Debian 7 Hardening Utility functions
 
 #
-# Sysctl Manipulation
+# Sysctl 
 #
 
 has_sysctl_param_expected_result() {
@@ -19,6 +19,16 @@ has_sysctl_param_expected_result() {
     fi
 }
 
+does_sysctl_param_exists() {
+    local SYSCTL_PARAM=$1
+    if [ "$(sysctl -a 2>/dev/null |grep "$SYSCTL_PARAM" -c)" = 0 ]; then
+        FNRET=1
+    else
+        FNRET=0
+    fi
+}
+
+
 set_sysctl_param() {
     local SYSCTL_PARAM=$1
     local VALUE=$2
@@ -35,7 +45,18 @@ set_sysctl_param() {
 }
 
 #
-# Dmesg Manipulation
+# Network
+#
+
+is_ipv6_disabled_by_bootloader() {
+    #if 
+    # 
+    :
+}
+
+
+#
+# Dmesg 
 #
 
 does_pattern_exists_in_dmesg() {
@@ -48,7 +69,7 @@ does_pattern_exists_in_dmesg() {
 }
 
 #
-# File manipulation
+# File 
 #
 
 does_file_exist() {
@@ -130,7 +151,7 @@ replace_in_file() {
 }
 
 #
-# User manipulation
+# Users and groups
 #
 
 does_user_exist() {
@@ -188,7 +209,7 @@ is_kernel_option_enabled() {
 }
 
 #
-# Mounting point manipulation
+# Mounting point 
 #
 
 # Verify $1 is a partition declared in fstab
@@ -263,7 +284,7 @@ remount_partition() {
 }
 
 #
-# APT manipulation
+# APT 
 #
 
 apt_update_if_needed() 

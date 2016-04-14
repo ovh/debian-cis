@@ -133,6 +133,7 @@ add_line_file_before_pattern() {
     local LINE=$2
     local PATTERN=$3
 
+    backup_file "$1"
     debug "Inserting $LINE before $PATTERN in $FILE"
     debug "sed -i '/$PATTERN/i $LINE' $FILE"
     sed -i "/$PATTERN/i $LINE" $FILE
@@ -144,6 +145,7 @@ replace_in_file() {
     local SOURCE=$2
     local DESTINATION=$3
 
+    backup_file "$1"
     debug "Replacing $SOURCE to $DESTINATION in $FILE"
     debug "sed -i 's/$SOURCE/$DESTINATION/g' $FILE"
     sed -i "s/$SOURCE/$DESTINATION/g" $FILE

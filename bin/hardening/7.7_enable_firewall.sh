@@ -6,7 +6,7 @@
 #
 
 #
-# 7.4.1 Install TCP Wrappers (Scored)
+# 7.7 Ensure Firewall is active (Scored)
 #
 
 set -e # One error, it's over

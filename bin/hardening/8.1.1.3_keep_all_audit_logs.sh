@@ -6,14 +6,14 @@
 #
 
 #
-# 8.1.1.2 Disable System on Audit Log Full (Not Scored)
+# 8.1.1.3 Keep All Auditing Information (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 FILE='/etc/audit/auditd.conf'
-OPTIONS='space_left_action=email action_mail_acct=root admin_space_left_action=halt'
+OPTIONS='max_log_file_action=keep_logs'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -56,7 +56,7 @@ apply () {
             warn "$PATTERN not present in $FILE, adding it"
             does_pattern_exists_in_file $FILE "^$AUDIT_PARAM"
             if [ $FNRET != 0 ]; then
-                info "Parameter $AUDIT_PARAM seems absent from $FILE, adding at the end"
+                info "Parameter $AUDIT_PARAM seems absent from $FILE, adding at the end" 
                 add_end_of_file $FILE "$AUDIT_PARAM = $AUDIT_VALUE"
             else
                 info "Parameter $AUDIT_PARAM is present but with the wrong value, correcting"

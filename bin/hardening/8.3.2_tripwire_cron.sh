@@ -6,17 +6,17 @@
 #
 
 #
-# 8.2.5 Configure rsyslog to Send Logs to a Remote Log Host (Scored)
+# 8.3.2 Implement Periodic Execution of File Integrity (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-PATTERN='^destination.*(tcp|udp)[[:space:]]*\([[:space:]]*\".*\"[[:space:]]*\)'
+FILES='/etc/crontab /etc/cron.d/*'
+PATTERN='tripwire --check'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $SYSLOG_BASEDIR/conf.d/*"
     does_pattern_exists_in_file "$FILES" "$PATTERN"
     if [ $FNRET != 0 ]; then
         crit "$PATTERN not present in $FILES"
@@ -27,10 +27,10 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $SYSLOG_BASEDIR/conf.d/*"
     does_pattern_exists_in_file "$FILES" "$PATTERN"
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILES, please set a remote host to send your logs"
+        warn "$PATTERN not present in $FILES, setting tripwire cron"
+        echo "0 10 * * * root /usr/sbin/tripwire --check > /dev/shm/tripwire_check 2>&1 " > /etc/cron.d/CIS_8.3.2_tripwire        
     else
         ok "$PATTERN present in $FILES"
     fi

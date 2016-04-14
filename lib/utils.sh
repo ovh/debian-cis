@@ -111,7 +111,8 @@ does_pattern_exists_in_file() {
     local PATTERN=$2
 
     debug "Checking if $PATTERN is present in $FILE"
-    if $(grep -qE "$PATTERN" $FILE); then
+    debug "grep -qE -- '$PATTERN' $FILE"
+    if $(grep -qE -- "$PATTERN" $FILE); then
         FNRET=0
     else
         FNRET=1

@@ -25,7 +25,7 @@ audit () {
         ok "$FILE exist, checking configuration"
         does_pattern_exists_in_file $FILE "^$PATTERN[[:space:]]"
         if [ $FNRET != 0 ]; then
-            crit "$PATTERN not present in $FILE, we have to deny everything"
+            crit "$PATTERN not present in $FILE"
         else
             ok "$PATTERN present in $FILE"
         fi

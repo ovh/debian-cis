@@ -6,7 +6,7 @@
 #
 
 #
-# 7.5.2 Disable SCTP (Not Scored)
+# 7.5.4 Disable TIPC (Not Scored)
 #
 
 set -e # One error, it's over

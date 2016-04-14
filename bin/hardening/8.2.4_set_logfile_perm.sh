@@ -12,13 +12,13 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-FILES=$(grep "file(" /etc/syslog-ng/syslog-ng.conf | grep '"' | cut -d'"' -f 2)
 PERMISSIONS='640'
 USER='root'
 GROUP='adm'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
+    FILES=$(grep "file(" $SYSLOG_BASEDIR/syslog-ng.conf | grep '"' | cut -d'"' -f 2)
     for FILE in $FILES; do
         has_file_correct_ownership $FILE $USER $GROUP
         if [ $FNRET = 0 ]; then

@@ -6,35 +6,34 @@
 #
 
 #
-# 2.25 Disable Automounting (Scored)
+# 8.2.1 Install the syslog-ng package (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-SERVICE_NAME="autofs"
+# NB : in CIS, rsyslog has been chosen, however we chose syslog-ng
+PACKAGE='syslog-ng'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        crit "$SERVICE_NAME is enabled"
+    is_pkg_installed $PACKAGE
+    if [ $FNRET != 0 ]; then
+        crit "$PACKAGE is not installed !"
     else
-        ok "$SERVICE_NAME is disabled"
+        ok "$PACKAGE is installed"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        info "Disabling $SERVICE_NAME"
-        update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
-    else
-        ok "$SERVICE_NAME is disabled"
-    fi
+        is_pkg_installed $PACKAGE
+        if [ $FNRET = 0 ]; then
+            ok "$PACKAGE is installed"
+        else
+            crit "$PACKAGE is absent, installing it"
+            apt_install $PACKAGE
+        fi
 }
 
 # This function will check config parameters required

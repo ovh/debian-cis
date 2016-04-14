@@ -6,35 +6,24 @@
 #
 
 #
-# 2.25 Disable Automounting (Scored)
+# 8.2.3 Configure /etc/syslog-ng/syslog-ng.conf (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-SERVICE_NAME="autofs"
+SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        crit "$SERVICE_NAME is enabled"
-    else
-        ok "$SERVICE_NAME is disabled"
-    fi
+    info "Ensure default and local facilities are preserved on the system"
+    info "No measure here, please review the file by yourself"
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        info "Disabling $SERVICE_NAME"
-        update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
-    else
-        ok "$SERVICE_NAME is disabled"
-    fi
+    info "Ensure default and local facilities are preserved on the system"
+    info "No measure here, please review the file by yourself"
 }
 
 # This function will check config parameters required

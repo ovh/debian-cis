@@ -40,7 +40,6 @@ apply () {
 
 # This function will check config parameters required
 check_config() {
-
     is_pkg_installed "grub-pc"
     if [ $FNRET != 0 ]; then
         warn "grub-pc is not installed, not handling configuration"

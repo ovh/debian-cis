@@ -6,22 +6,22 @@
 #
 
 #
-# 2.25 Disable Automounting (Scored)
+# 8.2.2 Ensure the syslog-ng Service is activated (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-SERVICE_NAME="autofs"
+SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if $SERVICE_NAME is enabled"
     is_service_enabled $SERVICE_NAME
     if [ $FNRET = 0 ]; then
-        crit "$SERVICE_NAME is enabled"
+        ok "$SERVICE_NAME is enabled"
     else
-        ok "$SERVICE_NAME is disabled"
+        crit "$SERVICE_NAME is disabled"
     fi
 }
 
@@ -29,11 +29,12 @@ audit () {
 apply () {
     info "Checking if $SERVICE_NAME is enabled"
     is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        info "Disabling $SERVICE_NAME"
+    if [ $FNRET != 0 ]; then
+        info "Enabling $SERVICE_NAME"
         update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
+        update-rc.d $SERVICE_NAME defaults > /dev/null 2>&1
     else
-        ok "$SERVICE_NAME is disabled"
+        ok "$SERVICE_NAME is enabled"
     fi
 }
 

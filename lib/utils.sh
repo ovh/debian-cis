@@ -86,9 +86,9 @@ has_file_correct_ownership() {
     local USER=$2
     local GROUP=$3
     local USERID=$(id -u $USER)
-    local GROUPID=$(id -u $GROUP)
-
-    if [ "$(stat -c "%u %g" $1)" = "$USERID $GROUPID" ]; then
+    local GROUPID=$(getent group $GROUP | cut -d: -f3)
+    debug "stat -c '%u %g' $FILE"
+    if [ "$(stat -c "%u %g" $FILE)" = "$USERID $GROUPID" ]; then
         FNRET=0
     else
         FNRET=1

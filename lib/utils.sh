@@ -45,17 +45,6 @@ set_sysctl_param() {
 }
 
 #
-# Network
-#
-
-is_ipv6_disabled_by_bootloader() {
-    #if 
-    # 
-    :
-}
-
-
-#
 # Dmesg 
 #
 

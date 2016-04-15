@@ -6,14 +6,14 @@
 #
 
 #
-# 9.1.7 Set User/Group Owner and Permission on /etc/cron.d (Scored)
+# 9.3.3 Set Permissions on /etc/ssh/sshd_config (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-FILE='/etc/cron.d'
-PERMISSIONS='700'
+FILE='/etc/ssh/sshd_config'
+PERMISSIONS='600'
 USER='root'
 GROUP='root'
 

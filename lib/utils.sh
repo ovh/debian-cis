@@ -114,8 +114,8 @@ add_end_of_file() {
     local LINE=$2
 
     debug "Adding $LINE at the end of $FILE"
-    backup_file "$1"
-    echo "$2" >> $FILE
+    backup_file "$FILE"
+    echo "$LINE" >> $FILE
 }
     
 add_line_file_before_pattern() {

@@ -6,7 +6,7 @@
 #
 
 #
-# 8.1.17 Collect Kernel Module Loading and Unloading (Scored)
+# 8.1.18 Make the Audit Configuration Immutable (Scored)
 #
 
 set -e # One error, it's over

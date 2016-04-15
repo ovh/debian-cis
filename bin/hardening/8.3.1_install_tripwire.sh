@@ -6,7 +6,7 @@
 #
 
 #
-# 8.2.1 Install the syslog-ng package (Scored)
+# 8.3.1 Install tripwire package (Scored)
 #
 
 set -e # One error, it's over

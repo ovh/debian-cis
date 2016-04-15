@@ -6,38 +6,20 @@
 #
 
 #
-# 10.4 Set Default umask for Users (Scored)
+# 11.3 Set Graphical Warning Banner (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-USER='root'
-PATTERN='umask 644'
-FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d/*'
-FILE='/etc/profile.d/CIS_10.4_umask.sh'
-
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file "$FILES_TO_SEARCH" "^$PATTERN"
-    if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILES_TO_SEARCH"
-    else
-        ok "$PATTERN present in $FILES_TO_SEARCH"
-    fi
+    info "Not implemented yet"
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_file "$FILES_TO_SEARCH" "^$PATTERN"
-    if [ $FNRET != 0 ]; then
-        warn "$PATTERN not present in $FILES_TO_SEARCH"
-        touch $FILE
-        chmod 700 $FILE
-        add_end_of_file $FILE "$PATTERN"
-    else
-        ok "$PATTERN present in $FILES_TO_SEARCH"
-    fi
+    info "Not implemented yet"
 }
 
 # This function will check config parameters required

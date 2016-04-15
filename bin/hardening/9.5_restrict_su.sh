@@ -6,7 +6,7 @@
 #
 
 #
-# 9.2.1 Set Password Creation Requirement Parameters Using pam_cracklib (Scored)
+# 9.5 Restrict Access to the su Command (Scored)
 #
 
 set -e # One error, it's over

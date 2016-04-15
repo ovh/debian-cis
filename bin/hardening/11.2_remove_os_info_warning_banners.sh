@@ -6,38 +6,38 @@
 #
 
 #
-# 10.4 Set Default umask for Users (Scored)
+# 11.2 Remove OS Information from Login Warning Banners (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-USER='root'
-PATTERN='umask 644'
-FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d/*'
-FILE='/etc/profile.d/CIS_10.4_umask.sh'
+FILES='/etc/motd /etc/issue /etc/issue.net'
+PATTERN='(\\v|\\r|\\m|\\s)'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file "$FILES_TO_SEARCH" "^$PATTERN"
-    if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILES_TO_SEARCH"
-    else
-        ok "$PATTERN present in $FILES_TO_SEARCH"
-    fi
+    for FILE in $FILES; do
+        does_pattern_exists_in_file $FILE "$PATTERN"
+        if [ $FNRET = 0 ]; then
+            crit "$PATTERN is present in $FILE"
+        else
+            ok "$PATTERN is not present in $FILE"
+        fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_file "$FILES_TO_SEARCH" "^$PATTERN"
-    if [ $FNRET != 0 ]; then
-        warn "$PATTERN not present in $FILES_TO_SEARCH"
-        touch $FILE
-        chmod 700 $FILE
-        add_end_of_file $FILE "$PATTERN"
-    else
-        ok "$PATTERN present in $FILES_TO_SEARCH"
-    fi
+    for FILE in $FILES; do
+        does_pattern_exists_in_file $FILE "$PATTERN"
+        if [ $FNRET = 0 ]; then
+            warn "$PATTERN is present in $FILE"
+            delete_line_in_file $FILE $PATTERN
+        else
+            ok "$PATTERN is not present in $FILE"
+        fi
+    done
 }
 
 # This function will check config parameters required

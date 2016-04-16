@@ -13,4 +13,4 @@
 # Execute blindly binaries
 # Audit mode
 
-# ls | sort -n
+# ls | sort -V

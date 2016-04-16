@@ -13,7 +13,6 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 ERRORS=0
-PERMISSION="750"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -31,18 +30,27 @@ audit () {
             dirperm=$(/bin/ls -ld $dir | cut -f1 -d" ")
             if [ $(echo $dirperm | cut -c6 ) != "-" ]; then
                 crit "Group Write permission set on directory $dir"
+                ERRORS=$((ERRORS+1))
             fi
             if [ $(echo $dirperm | cut -c8 ) != "-" ]; then
                 crit "Other Read permission set on directory $dir"
+                ERRORS=$((ERRORS+1))
             fi
             if [ $(echo $dirperm | cut -c9 ) != "-" ]; then
                 crit "Other Write permission set on directory $dir"
+                ERRORS=$((ERRORS+1))
             fi
             if [ $(echo $dirperm | cut -c10 ) != "-" ]; then
                 crit "Other Execute permission set on directory $dir"
+                ERRORS=$((ERRORS+1))
             fi
         fi
     done
+
+    if [ $ERRORS = 0 ]; then
+        ok "No incorrect permissions on home directories"
+    fi
+
 }
 
 # This function will be called if the script status is on enabled mode

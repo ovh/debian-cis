@@ -6,24 +6,39 @@
 #
 
 #
-# 10.5 Lock Inactive User Accounts (Scored)
+# 13.3 Verify No Legacy "+" Entries Exist in /etc/shadow File (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+FILE='/etc/shadow'
+RESULT=''
+
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Looking at the manual of useradd, it seems that this recommendation does not fill the title"
-    info "The number of days after a password expires until the account is permanently disabled."
-    info "Which is not inactive users per se"
+    info "Checking if accounts have empty passwords"
+    if grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        crit "Some accounts have legacy password entry"
+        crit $RESULT
+    else
+        ok "All accounts have a valid password entry format"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Looking at the manual of useradd, it seems that this recommendation does not fill the title"
-    info "The number of days after a password expires until the account is permanently disabled."
-    info "Which is not inactive users per se"
+    if grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        warn "Some accounts have legacy password entry"
+        for LINE in $RESULT; do
+            info "Removing $LINE from $FILE"
+            delete_line_in_file $FILE $LINE
+        done
+    else
+        ok "All accounts have a valid password entry format"
+    fi
 }
 
 # This function will check config parameters required

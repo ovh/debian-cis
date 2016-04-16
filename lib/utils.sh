@@ -125,7 +125,7 @@ add_line_file_before_pattern() {
 
     backup_file "$FILE"
     debug "Inserting $LINE before $PATTERN in $FILE"
-    PATTERN=$(sed 's@/@\/@g' <<< $PATTERN)
+    PATTERN=$(sed 's@/@\\\/@g' <<< $PATTERN)
     debug "sed -i '/$PATTERN/i $LINE' $FILE"
     sed -i "/$PATTERN/i $LINE" $FILE
     FNRET=0
@@ -138,7 +138,7 @@ replace_in_file() {
 
     backup_file "$FILE"
     debug "Replacing $SOURCE to $DESTINATION in $FILE"
-    SOURCE=$(sed 's@/@\/@g' <<< $SOURCE)
+    SOURCE=$(sed 's@/@\\\/@g' <<< $PATTERN)
     debug "sed -i 's/$SOURCE/$DESTINATION/g' $FILE"
     sed -i "s/$SOURCE/$DESTINATION/g" $FILE
     FNRET=0
@@ -150,7 +150,7 @@ delete_line_in_file() {
 
     backup_file "$FILE"
     debug "Deleting lines from $FILE containing $PATTERN"
-    PATTERN=$(sed 's@/@\/@g' <<< $PATTERN)
+    PATTERN=$(sed 's@/@\\\/@g' <<< $PATTERN)
     debug "sed -i '/$PATTERN/d' $FILE"
     sed -i "/$PATTERN/d" $FILE
     FNRET=0

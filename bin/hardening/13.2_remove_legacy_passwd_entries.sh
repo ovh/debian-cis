@@ -6,37 +6,38 @@
 #
 
 #
-# 13.1 Ensure Password Fields are Not Empty (Scored)
+# 13.2 Verify No Legacy "+" Entries Exist in /etc/passwd File (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-FILE='/etc/shadow'
+FILE='/etc/passwd'
+RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if accounts have empty passwords"
-    RESULT=$(/bin/cat $FILE | /usr/bin/awk -F: '($2 == "" ) { print $1 }')
-    if [ ! -z "$RESULT" ]; then
-        crit "Some accounts have empty passwords"
+    if grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        crit "Some accounts have legacy password entry"
         crit $RESULT
     else
-        ok "All accounts have a password"
+        ok "All accounts have a valid password entry format"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    RESULT=$(/bin/cat $FILE | /usr/bin/awk -F: '($2 == "" ) { print $1 }')
-    if [ ! -z "$RESULT" ]; then
-        warn "Some accounts have empty passwords"
-        for ACCOUNT in $RESULT; do 
-            info "Locking $ACCOUNT"
-            passwd -l $ACCOUNT >/dev/null 2>&1
+    if grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        warn "Some accounts have legacy password entry"
+        for LINE in $RESULT; do
+            info "Removing $LINE from $FILE"
+            delete_line_in_file $FILE $LINE
         done
     else
-        ok "All accounts have a password"
+        ok "All accounts have a valid password entry format"
     fi
 }
 

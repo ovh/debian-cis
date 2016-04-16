@@ -6,7 +6,7 @@
 #
 
 #
-# 12.10 Find SUID System Executables (Not Scored)
+# 12.11 Find SGID System Executables (Not Scored)
 #
 
 set -e # One error, it's over
@@ -14,8 +14,8 @@ set -u # One variable unset, it's over
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if there is suid files"
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -4000 -print)
+    info "Checking if there is sgid files"
+    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -2000 -print)
     for BINARY in $RESULT; do
         if grep -q $BINARY <<< "$EXCEPTIONS"; then
             debug "$BINARY is confirmed as an exception"
@@ -23,23 +23,24 @@ audit () {
         fi
     done
     if [ ! -z "$RESULT" ]; then
-        crit "Some suid files are present"
+        crit "Some sgid files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
-        ok "No unknown suid files found"
+        ok "No unknown sgid files found"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Removing suid on valid binary may seriously harm your system, report only here"
+    info "Removing sgid on valid binary may seriously harm your system, report only here"
 }
 
 # This function will check config parameters required
 check_config() {
-    # No param for this function
-    :
+    if [ -z "$EXCEPTIONS" ]; then
+        EXCEPTIONS="@"
+    fi
 }
 
 # Source Root Dir Parameter

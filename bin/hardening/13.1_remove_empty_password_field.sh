@@ -6,24 +6,38 @@
 #
 
 #
-# 10.5 Lock Inactive User Accounts (Scored)
+# 13.1 Ensure Password Fields are Not Empty (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+FILE='/etc/shadow'
+
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Looking at the manual of useradd, it seems that this recommendation does not fill the title"
-    info "The number of days after a password expires until the account is permanently disabled."
-    info "Which is not inactive users per se"
+    info "Checking if accounts have empty passwords"
+    RESULT=$(cat $FILE | awk -F: '($2 == "" ) { print $1 }')
+    if [ ! -z "$RESULT" ]; then
+        crit "Some accounts have empty passwords"
+        crit $RESULT
+    else
+        ok "All accounts have a password"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Looking at the manual of useradd, it seems that this recommendation does not fill the title"
-    info "The number of days after a password expires until the account is permanently disabled."
-    info "Which is not inactive users per se"
+    RESULT=$(cat $FILE | awk -F: '($2 == "" ) { print $1 }')
+    if [ ! -z "$RESULT" ]; then
+        warn "Some accounts have empty passwords"
+        for ACCOUNT in $RESULT; do 
+            info "Locking $ACCOUNT"
+            passwd -l $ACCOUNT >/dev/null 2>&1
+        done
+    else
+        ok "All accounts have a password"
+    fi
 }
 
 # This function will check config parameters required

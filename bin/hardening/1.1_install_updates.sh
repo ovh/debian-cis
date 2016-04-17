@@ -19,7 +19,7 @@ audit () {
     info "Fetching upgrades ..."
     apt_check_updates "CIS_APT"
     if [ $FNRET -gt 0 ]; then
-        warn "$RESULT"
+        crit "$RESULT"
         FNRET=1
     else
         ok "No upgrades available"

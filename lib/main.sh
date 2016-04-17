@@ -1,6 +1,7 @@
 LONG_SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 # Variable initialization, to avoid crash
+CRITICAL_ERRORS_NUMBER=0 # This will be used to see if a script failed, or passed
 status=""
 
 [ -r $CIS_ROOT_DIR/lib/constants.sh  ] && . $CIS_ROOT_DIR/lib/constants.sh
@@ -20,6 +21,25 @@ if [ -z $status ]; then
     crit "Could not find status variable for $SCRIPT_NAME, considered as disabled"
     exit 0
 fi
+
+# Arguments parsing
+while [[ $# > 0 ]]; do
+    ARG="$1"
+    case $ARG in
+        --audit)
+        if [ $status != 'disabled' -o $status != 'false' ]; then
+            debug "Audit argument detected, setting status to audit"
+            status=audit
+        else
+            info "Audit argument passed but script is disabled"
+        fi
+        ;;
+        *)
+            debug "Unknown option passed"
+        ;;
+    esac
+    shift
+done
 
 case $status in
     enabled | true )
@@ -43,3 +63,12 @@ case $status in
         warn "Wrong value for status : $status. Must be [ enabled | true | audit | disabled | false ]"
         ;;
 esac
+
+info "Results : "
+if [ $CRITICAL_ERRORS_NUMBER = 0 ]; then
+    ok "Check Passed"
+    exit 0
+else
+    crit "Check Failed"
+    exit 1
+fi

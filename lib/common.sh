@@ -58,6 +58,8 @@ cecho () {
 
 crit () {
     [ $MACHINE_LOG_LEVEL -ge 1 ] && _logger $BRED "[ KO ] $*"
+    # This variable incrementation is used to measure failure or success in tests
+    CRITICAL_ERRORS_NUMBER=$((CRITICAL_ERRORS_NUMBER+1))
 }
 
 warn () {

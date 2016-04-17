@@ -6,14 +6,14 @@
 #
 
 #
-# 13.10 Check for Presence of User .rhosts Files (Scored)
+# 13.18 Check for Presence of User .netrc Files (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 ERRORS=0
-FILENAME=".rhosts"
+FILENAME='.forward'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

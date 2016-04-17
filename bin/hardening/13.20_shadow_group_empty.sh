@@ -6,30 +6,40 @@
 #
 
 #
-# 13.10 Check for Presence of User .rhosts Files (Scored)
+# 13.18 Check for Presence of User .netrc Files (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 ERRORS=0
-FILENAME=".rhosts"
+FILEGROUP='/etc/group'
+PATTERN='^shadow:x:[[:digit:]]+:'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for DIR in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
-    debug "Working on $DIR"
-        for FILE in $DIR/$FILENAME; do
-            if [ ! -h "$FILE" -a -f "$FILE" ]; then
-                crit "$FILE present"
-                ERRORS=$((ERRORS+1))
-            fi
-        done
-    done
+    does_pattern_exists_in_file $FILEGROUP $PATTERN
+    if [ $FNRET = 0 ]; then
+        info "shadow group exists"
+        RESULT=$(grep -E "$PATTERN" $FILEGROUP | cut -d: -f4)
+        GROUPID=$(getent group shadow | cut -d: -f3)
+        debug "$RESULT $GROUPID"
+        if [ ! -z "$RESULT" ]; then
+            crit "Some user belong to shadow group  : $RESULT"
+        else
+            ok "No one belongs to shadow group"
+        fi
 
-    if [ $ERRORS = 0 ]; then
-        ok "No $FILENAME present in users files"
-    fi 
+        info "Checking if a user has $GROUPID as primary group"
+        RESULT=$(awk -F: '($4 == shadowid) { print $1 }' shadowid=$GROUPID /etc/passwd)
+        if [ ! -z "$RESULT" ]; then
+            crit "Some user have shadow id to their primary group : $RESULT"
+        else
+            ok "No one have shadow id to their primary group"
+        fi
+    else
+        crit "shadow group doesn't exist"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode

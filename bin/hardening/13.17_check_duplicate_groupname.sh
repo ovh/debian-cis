@@ -6,35 +6,36 @@
 #
 
 #
-# 13.10 Check for Presence of User .rhosts Files (Scored)
+# 13.17 Check for Duplicate Group Names (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 ERRORS=0
-FILENAME=".rhosts"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for DIR in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
-    debug "Working on $DIR"
-        for FILE in $DIR/$FILENAME; do
-            if [ ! -h "$FILE" -a -f "$FILE" ]; then
-                crit "$FILE present"
-                ERRORS=$((ERRORS+1))
-            fi
-        done
-    done
+    RESULT=$(cat /etc/group | cut -f1 -d":" | sort -n | uniq -c | awk {'print $1":"$2'} )
+    for LINE in $RESULT; do 
+        debug "Working on line $LINE"
+        OCC_NUMBER=$(awk -F: {'print $1'} <<< $LINE)
+        GROUPNAME=$(awk -F: {'print $2'} <<< $LINE) 
+        if [ $OCC_NUMBER -gt 1 ]; then
+            USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPNAME /etc/passwd | xargs)
+            ERRORS=$((ERRORS+1))
+            crit "Duplicate groupname $GROUPNAME"
+        fi
+    done 
 
     if [ $ERRORS = 0 ]; then
-        ok "No $FILENAME present in users files"
+        ok "No duplicate groupnames"
     fi 
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "If the audit returns something, please check with the user why he has this file"
+    info "Editing automatically groupname may seriously harm your system, report only here"
 }
 
 # This function will check config parameters required

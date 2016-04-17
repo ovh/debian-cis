@@ -6,7 +6,7 @@
 #
 
 #
-# 13.11 Check Groups in /etc/passwd (Scored)
+# 13.15 Check for Duplicate GIDs (Scored)
 #
 
 set -e # One error, it's over
@@ -16,23 +16,26 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-
-    for GROUP in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
-        debug "Working on group $GROUP"
-        if ! grep -q -P "^.*?:[^:]*:$GROUP:" /etc/group; then
-            crit "Group $GROUP is referenced by /etc/passwd but does not exist in /etc/group"
+    RESULT=$(cat /etc/group | cut -f3 -d":" | sort -n | uniq -c | awk {'print $1":"$2'} )
+    for LINE in $RESULT; do 
+        debug "Working on line $LINE"
+        OCC_NUMBER=$(awk -F: {'print $1'} <<< $LINE)
+        GROUPID=$(awk -F: {'print $2'} <<< $LINE) 
+        if [ $OCC_NUMBER -gt 1 ]; then
+            USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPID /etc/passwd | xargs)
             ERRORS=$((ERRORS+1))
+            crit "Duplicate UID ($GROUPID): ${USERS}"
         fi
-    done
+    done 
 
     if [ $ERRORS = 0 ]; then
-        ok "passwd and group Groups are consistent"
+        ok "No duplicate GIDss"
     fi 
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Solving passwd and group consistency automatically may seriously harm your system, report only here"
+    info "Editing automatically gids may seriously harm your system, report only here"
 }
 
 # This function will check config parameters required

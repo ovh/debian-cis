@@ -16,13 +16,17 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-
-    cat /etc/passwd | awk -F: '{ print $1 " " $3 " " $6 }' | while read USER USERID DIR; do
+    RESULT=$(cat /etc/passwd | awk -F: '{ print $1 ":" $3 ":" $6 }')
+    for LINE in $RESULT; do
+        debug "Working on $LINE"
+        USER=$(awk -F: {'print $1'} <<< $LINE)
+        USERID=$(awk -F: {'print $2'} <<< $LINE)
+        DIR=$(awk -F: {'print $3'} <<< $LINE)    
         if [ $USERID -ge 500 -a -d "$DIR" -a $USER != "nfsnobody" ]; then
             OWNER=$(stat -L -c "%U" "$DIR")
             if [ "$OWNER" != "$USER" ]; then
                 crit "The home directory ($DIR) of user $USER is owned by $OWNER."
-                ERRORS=$(($ERRORS+1))
+                ERRORS=$((ERRORS+1))
             fi
         fi
     done

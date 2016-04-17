@@ -6,7 +6,7 @@
 #
 
 #
-# 13.18 Check for Presence of User .netrc Files (Scored)
+# 13.20 Ensure shadow group is empty (Scored)
 #
 
 set -e # One error, it's over

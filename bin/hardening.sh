@@ -14,3 +14,9 @@
 # Audit mode
 
 # ls | sort -V
+
+cd /opt/cis-hardening/bin/hardening
+for i in $(ls | sort -V); do 
+echo "$i"
+./$i --audit
+done

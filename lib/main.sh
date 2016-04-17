@@ -27,7 +27,7 @@ while [[ $# > 0 ]]; do
     ARG="$1"
     case $ARG in
         --audit)
-        if [ $status != 'disabled' -o $status != 'false' ]; then
+        if [ $status != 'disabled' -a $status != 'false' ]; then
             debug "Audit argument detected, setting status to audit"
             status=audit
         else
@@ -58,17 +58,17 @@ case $status in
         ;;
     disabled | false )
         info "$SCRIPT_NAME is disabled, ignoring"
+        exit 2 # Means unknown status
         ;;
     *)
         warn "Wrong value for status : $status. Must be [ enabled | true | audit | disabled | false ]"
         ;;
 esac
 
-info "Results : "
 if [ $CRITICAL_ERRORS_NUMBER = 0 ]; then
     ok "Check Passed"
-    exit 0
+    exit 0 # Means ok status
 else
     crit "Check Failed"
-    exit 1
+    exit 1 # Means critical status
 fi

@@ -6,7 +6,7 @@
 #
 
 #
-# 13.18 Check for Presence of User .netrc Files (Scored)
+# 13.19 Check for Presence of User .forward Files (Scored)
 #
 
 set -e # One error, it's over

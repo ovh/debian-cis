@@ -24,12 +24,12 @@ audit () {
         if [ $OCC_NUMBER -gt 1 ]; then
             USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPID /etc/passwd | xargs)
             ERRORS=$((ERRORS+1))
-            crit "Duplicate UID ($GROUPID): ${USERS}"
+            crit "Duplicate GID ($GROUPID): ${USERS}"
         fi
     done 
 
     if [ $ERRORS = 0 ]; then
-        ok "No duplicate GIDss"
+        ok "No duplicate GIDs"
     fi 
 }
 

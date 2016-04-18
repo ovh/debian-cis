@@ -1,21 +1,22 @@
 #!/bin/bash
 
 #
-# CIS Debian 7 Hardening
+# CIS Debian 7 Hardening /!\ Not in the Guide
 # Authors : Thibault Dewailly, OVH <thibault.dewailly@corp.ovh.com>
 #
 
 #
-# 10.4 Set Default umask for Users (Scored)
+# 99.1 Set Timeout on ttys
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 USER='root'
-PATTERN='umask 077'
+PATTERN='^TMOUT='
+VALUE='600'
 FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d/* /etc/profile'
-FILE='/etc/profile.d/CIS_10.4_umask.sh'
+FILE='/etc/profile.d/CIS_99.1_timeout.sh'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -34,7 +35,9 @@ apply () {
         warn "$PATTERN not present in $FILES_TO_SEARCH"
         touch $FILE
         chmod 644 $FILE
-        add_end_of_file $FILE "$PATTERN"
+        add_end_of_file $FILE "$PATTERN$VALUE"
+        add_end_of_file $FILE "readonly TMOUT"
+        add_end_of_file $FILE "export TMOUT"
     else
         ok "$PATTERN present in $FILES_TO_SEARCH"
     fi

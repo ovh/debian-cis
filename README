@@ -1,2 +1,13 @@
 # CIS Debian 7 Hardening git repository
+# Authors : Thibault Dewailly, OVH <thibault.dewailly@corp.ovh.com>
 # This is the code base which will be used to fill CIS hardening requirements
+
+# Hardening scripts :
+# bin/hardening : Every script has a .cfg associated, status must be defined here
+
+# Main script : 
+# bin/hardening.sh : Will execute hardening according to configuration
+
+# Configuration
+# etc/hardening.cfg : Global variables defined such as backup directory, or log level
+# etc/conf.d        : Folder with all .cfg associated to hardenign scripts

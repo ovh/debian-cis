@@ -1,23 +1,9 @@
 # Defines constants for CIS Debian 7 Hardening
 
-# 
+# Script and shell commands homogeneity
+export LANG=C
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### Useful Colot constants settings for loglevels
+#### Useful Color constants settings for loglevels
 
 # Reset Color (for syslog)
 NC='\033[0m'

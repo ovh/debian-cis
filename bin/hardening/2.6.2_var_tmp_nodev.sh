@@ -1,0 +1,80 @@
+#!/bin/bash
+
+#
+# CIS Debian 7 Hardening
+#
+
+#
+# 2.6.2 Set nodev option for /var/tmp Partition (Scored)
+#
+
+set -e # One error, it's over
+set -u # One variable unset, it's over
+
+# Quick factoring as many script use the same logic
+PARTITION="/var/tmp"
+OPTION="nodev"
+
+# This function will be called if the script status is on enabled / audit mode
+audit () {
+    info "Verifying that $PARTITION is a partition"
+    FNRET=0
+    is_a_partition "$PARTITION"
+    if [ $FNRET -gt 0 ]; then
+        crit "$PARTITION is not a partition"
+        FNRET=2
+    else
+        ok "$PARTITION is a partition"
+        has_mount_option $PARTITION $OPTION
+        if [ $FNRET -gt 0 ]; then
+            crit "$PARTITION have no option $OPTION in fstab !"
+            FNRET=1
+        else
+            ok "$PARTITION have $OPTION in fstab"
+            has_mounted_option $PARTITION $OPTION
+            if [ $FNRET -gt 0 ]; then
+                warn "$PARTITION is not mounted with $OPTION at runtime"
+                FNRET=3 
+            else
+                ok "$PARTITION mounted with $OPTION"
+            fi
+        fi       
+    fi
+}
+
+# This function will be called if the script status is on enabled mode
+apply () {
+    if [ $FNRET = 0 ]; then
+        ok "$PARTITION is correctly set"
+    elif [ $FNRET = 2 ]; then
+        crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
+    elif [ $FNRET = 1 ]; then
+        info "Adding $OPTION to fstab"
+        add_option_to_fstab $PARTITION $OPTION
+        info "Remounting $PARTITION from fstab"
+        remount_partition $PARTITION
+    elif [ $FNRET = 3 ]; then
+        info "Remounting $PARTITION from fstab"
+        remount_partition $PARTITION
+    fi 
+}
+
+# This function will check config parameters required
+check_config() {
+    # No param for this script
+    :
+}
+
+# Source Root Dir Parameter
+if [ ! -r /etc/default/cis-hardenning ]; then
+    echo "There is no /etc/default/cis-hardenning file, cannot source CIS_ROOT_DIR variable, aborting"
+    exit 128
+else
+    . /etc/default/cis-hardenning
+    if [ -z $CIS_ROOT_DIR ]; then
+        echo "No CIS_ROOT_DIR variable, aborting"
+    fi
+fi 
+
+# Main function, will call the proper functions given the configuration (audit, enabled, disabled)
+[ -r $CIS_ROOT_DIR/lib/main.sh ] && . $CIS_ROOT_DIR/lib/main.sh

@@ -9,11 +9,6 @@
 # Main script : Execute hardening considering configuration
 #
 
-# Execute blindly binaries
-# Audit mode
-
-# ls | sort -V
-
 LONG_SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 DISABLED_CHECKS=0
@@ -29,7 +24,7 @@ usage() {
 $LONG_SCRIPT_NAME ( --apply | -- audit ) < -h | --help >
     --apply   : Apply hardening if told in configuration
     --audit   : If script not disabled, audit configuration only
-    -h|--help : this help
+    -h|--help : This help
 EOF
     exit 0
 }
@@ -116,4 +111,8 @@ printf "%30s %s\n"        "Total Runned Checks :" "$TOTAL_TREATED_CHECKS"
 printf "%30s [ %7s ]\n"   "Total Passed Checks :" "$PASSED_CHECKS/$TOTAL_TREATED_CHECKS"
 printf "%30s [ %7s ]\n"   "Total Failed Checks :" "$FAILED_CHECKS/$TOTAL_TREATED_CHECKS"
 printf "%30s %.2f %%\n"   "Enabled Checks Percentage :" "$( echo "($TOTAL_TREATED_CHECKS/$TOTAL_CHECKS) * 100" | bc -l)"
-printf "%30s %.2f %%\n"   "Conformity Percentage :" "$( echo "($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100" | bc -l)"
+if [ $TOTAL_TREATED_CHECKS != 0 ]; then
+    printf "%30s %.2f %%\n"   "Conformity Percentage :" "$( echo "($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100" | bc -l)"
+else
+    printf "%30s %s %%\n"   "Conformity Percentage :" "N.A" # No check runned, avoid division by 0 
+fi

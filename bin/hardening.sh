@@ -70,15 +70,15 @@ fi
 [ -r $CIS_ROOT_DIR/lib/utils.sh      ] && . $CIS_ROOT_DIR/lib/utils.sh
 
 # Parse every scripts and execute them in the required mode
-for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening | sort -V); do 
+for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh | sort -V); do 
     info "Treating $SCRIPT"
     
     if [ $AUDIT = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit"
-        $CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit
+        $SCRIPT --audit
     elif [ $APPLY = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
-        $CIS_ROOT_DIR/bin/hardening/$SCRIPT
+        $SCRIPT
     fi
 
     SCRIPT_EXITCODE=$?

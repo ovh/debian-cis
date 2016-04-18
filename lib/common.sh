@@ -57,23 +57,23 @@ cecho () {
 }
 
 crit () {
-    [ $MACHINE_LOG_LEVEL -ge 1 ] && _logger $BRED "[ KO ] $*"
+    if [ $MACHINE_LOG_LEVEL -ge 1 ]; then _logger $BRED "[ KO ] $*"; fi
     # This variable incrementation is used to measure failure or success in tests
     CRITICAL_ERRORS_NUMBER=$((CRITICAL_ERRORS_NUMBER+1))
 }
 
 warn () {
-    [ $MACHINE_LOG_LEVEL -ge 2 ] && _logger $BYELLOW "[WARN] $*"
+    if [ $MACHINE_LOG_LEVEL -ge 2 ]; then _logger $BYELLOW "[WARN] $*"; fi
 }
 
 ok () {
-    [ $MACHINE_LOG_LEVEL -ge 3 ] && _logger $BGREEN "[ OK ] $*"
+    if [ $MACHINE_LOG_LEVEL -ge 3 ]; then _logger $BGREEN "[ OK ] $*"; fi
 }
 
 info () {
-    [ $MACHINE_LOG_LEVEL -ge 4 ] && _logger $BWHITE "[INFO] $*"
+    if [ $MACHINE_LOG_LEVEL -ge 4 ]; then _logger $BWHITE "[INFO] $*"; fi
 }
 
 debug () {
-    [ $MACHINE_LOG_LEVEL -ge 5 ] && _logger $GRAY "[DBG ] $*"
+    if [ $MACHINE_LOG_LEVEL -ge 5 ]; then _logger $GRAY "[DBG ] $*"; fi
 }

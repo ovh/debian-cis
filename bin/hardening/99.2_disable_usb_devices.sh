@@ -57,11 +57,11 @@ check_config() {
 }
 
 # Source Root Dir Parameter
-if [ ! -r /etc/default/cis-hardenning ]; then
-    echo "There is no /etc/default/cis-hardenning file, cannot source CIS_ROOT_DIR variable, aborting"
+if [ ! -r /etc/default/cis-hardening ]; then
+    echo "There is no /etc/default/cis-hardening file, cannot source CIS_ROOT_DIR variable, aborting"
     exit 128
 else
-    . /etc/default/cis-hardenning
+    . /etc/default/cis-hardening
     if [ -z $CIS_ROOT_DIR ]; then
         echo "No CIS_ROOT_DIR variable, aborting"
     fi

@@ -1,0 +1,13 @@
+cis-hardening (1.0-2) wheezy; urgency=low
+
+  * add LICENSE
+  * duplicate README in /opt and /usr/share/doc
+  * patch conffiles for new correct configuration files names
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Tue, 19 Apr 2016 14:31:03 +0200
+
+cis-hardening (1.0-1) stable; urgency=low
+
+  * Initial release.
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Mon, 18 Apr 2016 17:13:07 +0200

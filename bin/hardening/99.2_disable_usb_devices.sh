@@ -2,7 +2,6 @@
 
 #
 # CIS Debian 7 Hardening /!\ Not in the Guide
-# Authors : Thibault Dewailly, OVH <thibault.dewailly@corp.ovh.com>
 #
 
 #

@@ -19,7 +19,7 @@ info "Working on $SCRIPT_NAME"
 
 if [ -z $status ]; then
     crit "Could not find status variable for $SCRIPT_NAME, considered as disabled"
-    exit 0
+    exit 2
 fi
 
 # Arguments parsing

@@ -5,7 +5,7 @@
 #
 
 #
-# 1.1 Install Updates, Patches and Additional Security Software (Not Scored)
+# 8.2.6 Accept Remote rsyslog Messages Only on Designated Log Hosts (Not Scored)
 #
 
 set -e # One error, it's over
@@ -13,12 +13,12 @@ set -u # One variable unset, it's over
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    :
+    info "Not implemented yet"
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    :
+    info "Not implemented yet"
 }
 
 # This function will check config parameters required
@@ -37,4 +37,5 @@ else
     fi
 fi 
 
+# Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 [ -r $CIS_ROOT_DIR/lib/main.sh ] && . $CIS_ROOT_DIR/lib/main.sh

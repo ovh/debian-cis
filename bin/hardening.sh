@@ -19,13 +19,39 @@ TOTAL_TREATED_CHECKS=0
 AUDIT=0
 APPLY=0
 AUDIT_ALL=0
+AUDIT_ALL_ENABLE_PASSED=0
 
 usage() {
     cat << EOF
-$LONG_SCRIPT_NAME ( --apply | -- audit ) < -h | --help >
-    --apply   : Apply hardening if told in configuration
-    --audit   : If script not disabled, audit configuration only
-    -h|--help : This help
+$LONG_SCRIPT_NAME RUN_MODE, where RUN_MODE is one of:
+
+    --help -h
+        Show this help
+
+    --apply
+        Apply hardening for enabled scripts.
+        Beware that NO confirmation is asked whatsoever, which is why you're warmly
+        advised to use --audit before, which can be regarded as a dry-run mode.
+
+    --audit
+        Audit configuration for enabled scripts.
+        No modification will be made on the system, we'll only report on your system
+        compliance for each script.
+
+    --audit-all
+        Same as --audit, but for *all* scripts, even disabled ones.
+        This is a good way to peek at your compliance level if all scripts were enabled,
+        and might be a good starting point.
+
+    --audit-all-enable-passed
+        Same as --audit-all, but in addition, will *modify* the individual scripts
+        configurations to enable those which passed for your system.
+        This is an easy way to enable scripts for which you're already compliant.
+        However, please always review each activated script afterwards, this option
+        should only be regarded as a way to kickstart a configuration from scratch.
+        Don't run this if you have already customized the scripts enable/disable
+        configurations, obviously.
+
 EOF
     exit 0
 }
@@ -43,6 +69,9 @@ while [[ $# > 0 ]]; do
         ;;
         --audit-all)
             AUDIT_ALL=1
+        ;;
+        --audit-all-enable-passed)
+            AUDIT_ALL_ENABLE_PASSED=1
         ;;
         --apply)
             APPLY=1
@@ -83,6 +112,9 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh | sort -V); do
     elif [ $AUDIT_ALL = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all"
         $SCRIPT --audit-all
+    elif [ $AUDIT_ALL_ENABLE_PASSED = 1 ]; then
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all"
+        $SCRIPT --audit-all
     elif [ $APPLY = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
         $SCRIPT
@@ -95,6 +127,11 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh | sort -V); do
         0)
             debug "$SCRIPT passed"
             PASSED_CHECKS=$((PASSED_CHECKS+1))
+            if [ $AUDIT_ALL_ENABLE_PASSED = 1 ] ; then
+                SCRIPT_BASENAME=$(basename $SCRIPT .sh)
+                sed -i -re 's/^status=.+/status=enabled/' $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg
+                info "Status set to enabled in $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
+            fi
         ;;    
         1)
             debug "$SCRIPT failed"

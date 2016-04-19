@@ -46,14 +46,14 @@ _logger() {
     COLOR=$1
     shift
     test -z "$SCRIPT_NAME" && SCRIPT_NAME=$(basename $0)
-    /usr/bin/logger -t "[CIS_Hardening] $SCRIPT_NAME" -p "user.info" "$*"
+    builtin echo "$*" | /usr/bin/logger -t "[CIS_Hardening] $SCRIPT_NAME" -p "user.info"
     test -t 1 && cecho $COLOR "$SCRIPT_NAME $*"
 }
 
 cecho () {
     COLOR=$1
     shift
-    echo -e "${COLOR}$*${NC}"
+    builtin echo -e "${COLOR}$*${NC}"
 }
 
 crit () {

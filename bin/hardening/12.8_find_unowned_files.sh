@@ -22,7 +22,7 @@ audit () {
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
-        ok "No world writable files found"
+        ok "No unowned files found"
     fi
 }
 
@@ -33,7 +33,7 @@ apply () {
         warn "chmowing all unowned files in the system"
         df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown $USER 
     else
-        ok "No world writable files found, nothing to apply"
+        ok "No unowned files found, nothing to apply"
     fi
 }
 

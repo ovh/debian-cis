@@ -5,9 +5,17 @@
 # Hardening scripts :
 # bin/hardening : Every script has a .cfg associated, status must be defined here
 
-# Main script : 
-# bin/hardening.sh : Will execute hardening according to configuration
-
 # Configuration
 # etc/hardening.cfg : Global variables defined such as backup directory, or log level
-# etc/conf.d        : Folder with all .cfg associated to hardenign scripts
+# etc/conf.d        : Folder with all .cfg associated to hardening scripts
+
+# Status parameter will define on each script if it has to be disabled (do nothing), audit (RO), enabled (RW)
+# Enabled will perform audit and most of the time correct your system accordingly. 
+# There is exceptions as it is difficult to know how you want to correct that.
+
+# Main script : 
+# bin/hardening.sh : Will execute hardening according to configuration
+# Options are :
+# --apply     : Will apply hardening when scripts have status enabled (RW), and audit points where status is audit (RO)
+# --audit     : Will audit hardening when scripts have status enabled or audit (RO) 
+# --audit-all : Apply audit (RO) on all scripts

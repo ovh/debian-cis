@@ -18,6 +18,7 @@ TOTAL_CHECKS=0
 TOTAL_TREATED_CHECKS=0
 AUDIT=0
 APPLY=0
+AUDIT_ALL=0
 
 usage() {
     cat << EOF
@@ -39,6 +40,9 @@ while [[ $# > 0 ]]; do
     case $ARG in
         --audit)
             AUDIT=1
+        ;;
+        --audit-all)
+            AUDIT_ALL=1
         ;;
         --apply)
             APPLY=1
@@ -76,6 +80,9 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh | sort -V); do
     if [ $AUDIT = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit"
         $SCRIPT --audit
+    elif [ $AUDIT_ALL = 1 ]; then
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all"
+        $SCRIPT --audit-all
     elif [ $APPLY = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
         $SCRIPT

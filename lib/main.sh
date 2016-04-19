@@ -26,6 +26,10 @@ fi
 while [[ $# > 0 ]]; do
     ARG="$1"
     case $ARG in
+        --audit-all)
+            debug "Audit all specified, setting status to audit regardless of configuration"
+            status=audit
+        ;;
         --audit)
         if [ $status != 'disabled' -a $status != 'false' ]; then
             debug "Audit argument detected, setting status to audit"

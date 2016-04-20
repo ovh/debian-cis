@@ -4,7 +4,7 @@
 # CIS Debian 7 Hardening
 #
 
-# If you followed this CIS hardenning, this script follows 8.3.1_install_tripwire.sh
+# If you followed this CIS hardening, this script follows 8.3.1_install_tripwire.sh
 # After installing tripwire, you may want to run those few commented commands to make it fully functionnal
 
 echo "Generating Site key file..."

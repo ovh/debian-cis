@@ -19,18 +19,23 @@ GROUP='adm'
 audit () {
     FILES=$(grep "file(" $SYSLOG_BASEDIR/syslog-ng.conf | grep '"' | cut -d'"' -f 2)
     for FILE in $FILES; do
-        has_file_correct_ownership $FILE $USER $GROUP
-        if [ $FNRET = 0 ]; then
-            ok "$FILE has correct ownership"
+        does_file_exist $FILE
+        if [ $FNRET != 0 ]; then
+            crit "$FILE does not exist"
         else
-            crit "$FILE is not $USER:$GROUP ownership set"
+            has_file_correct_ownership $FILE $USER $GROUP
+            if [ $FNRET = 0 ]; then
+                ok "$FILE has correct ownership"
+            else
+                crit "$FILE is not $USER:$GROUP ownership set"
+            fi
+            has_file_correct_permissions $FILE $PERMISSIONS
+            if [ $FNRET = 0 ]; then
+                ok "$FILE has correct permissions"
+            else
+                crit "$FILE has not $PERMISSIONS permissions set"
+            fi 
         fi
-        has_file_correct_permissions $FILE $PERMISSIONS
-        if [ $FNRET = 0 ]; then
-            ok "$FILE has correct permissions"
-        else
-            crit "$FILE has not $PERMISSIONS permissions set"
-        fi 
     done
 }
 

@@ -1,5 +1,5 @@
-# Default file for CIS Debian hardenning scripts
+# Default file for CIS Debian hardening scripts
 
-# Define here root directory for CIS debian hardenning scripts
+# Define here root directory for CIS debian hardening scripts
 CIS_ROOT_DIR='/opt/cis-hardening'
 

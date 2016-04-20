@@ -21,9 +21,6 @@ override_dh_install:
 	mkdir -p $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
 	cp README $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
 	cp -R bin $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
-	# standard default global config file
-	mkdir -p $(CURDIR)/debian/$(PACKAGE)/etc/default/
-	cp etc/hardening.cfg $(CURDIR)/debian/$(PACKAGE)/etc/default/
 	# /!\ tag /opt/$(PACKAGE)/etc/conf.d/* as configuration files in conffiles
 	# (ls | sort -V | xargs -i echo opt/cis-hardening/etc/conf.d/{} -- without README)
 	cp -R etc $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/

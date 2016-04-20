@@ -1,3 +1,12 @@
+cis-hardening (1.0-3) wheezy; urgency=low
+
+  * add --audit-all option
+  * add --audit-all-enable-passed, add info in README and help
+  * Added exit code to CIS_ROOT_DIR test def, optimized sed and sort
+  * Fixed 8.2.4 check file exists before testing rights
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Wed, 20 Apr 2016 12:37:58 +0200
+
 cis-hardening (1.0-2) wheezy; urgency=low
 
   * add LICENSE

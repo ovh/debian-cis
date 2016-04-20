@@ -9,7 +9,7 @@ backup_file() {
         crit "Cannot backup $FILE, it's not a file"
         FNRET=1
     else
-        TARGET=$(echo $FILE | sed -s 's/\//./g' | sed -s 's/^.//' | sed -s "s/$/.$(date +%F-%T)/" )
+        TARGET=$(echo $FILE | sed -s -e 's/\//./g' -e 's/^.//' -e "s/$/.$(date +%F-%H_%M_%S)/" )
         TARGET="$BACKUPDIR/$TARGET"
         debug "Backuping $FILE to $TARGET"
         cp -a $FILE $TARGET

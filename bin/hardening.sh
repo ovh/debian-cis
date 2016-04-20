@@ -20,6 +20,7 @@ AUDIT=0
 APPLY=0
 AUDIT_ALL=0
 AUDIT_ALL_ENABLE_PASSED=0
+CIS_ROOT_DIR=''
 
 usage() {
     cat << EOF
@@ -94,6 +95,7 @@ else
     . /etc/default/cis-hardening
     if [ -z $CIS_ROOT_DIR ]; then
         echo "No CIS_ROOT_DIR variable, aborting"
+        exit 128
     fi
 fi 
 
@@ -103,7 +105,7 @@ fi
 [ -r $CIS_ROOT_DIR/lib/utils.sh      ] && . $CIS_ROOT_DIR/lib/utils.sh
 
 # Parse every scripts and execute them in the required mode
-for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh | sort -V); do 
+for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     info "Treating $SCRIPT"
     
     if [ $AUDIT = 1 ]; then

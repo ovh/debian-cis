@@ -59,6 +59,7 @@ else
     . /etc/default/cis-hardening
     if [ -z $CIS_ROOT_DIR ]; then
         echo "No CIS_ROOT_DIR variable, aborting"
+        exit 128
     fi
 fi 
 

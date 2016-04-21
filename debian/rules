@@ -19,7 +19,7 @@ PACKAGE = $(shell dh_listpackages)
 override_dh_install:
 	dh_install
 	mkdir -p $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
-	cp README $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
+	cp README.md $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
 	cp -R bin $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
 	# /!\ tag /opt/$(PACKAGE)/etc/conf.d/* as configuration files in conffiles
 	# (ls | sort -V | xargs -i echo opt/cis-hardening/etc/conf.d/{} -- without README)
@@ -31,6 +31,5 @@ override_dh_install:
 
 override_dh_installdocs:
 	dh_installdocs
-	gzip -c LICENSE > $(CURDIR)/debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/LICENSE.gz
-	gzip -c README > $(CURDIR)/debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/README.gz
+	gzip -c AUTHORS > $(CURDIR)/debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/AUTHORS.gz
 	gzip -c src/skel > $(CURDIR)/debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/skel.gz

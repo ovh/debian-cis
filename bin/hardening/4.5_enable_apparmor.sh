@@ -17,7 +17,7 @@ PACKAGE='apparmor'
 audit () {
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
-        crit "$PACKAGE is absent !"
+        crit "$PACKAGE is absent!"
     else
         ok "$PACKAGE is installed"
     fi

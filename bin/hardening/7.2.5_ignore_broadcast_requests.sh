@@ -18,12 +18,12 @@ audit () {
     for SYSCTL_VALUES in $SYSCTL_PARAMS; do
         SYSCTL_PARAM=$(echo $SYSCTL_VALUES | cut -d= -f 1)
         SYSCTL_EXP_RESULT=$(echo $SYSCTL_VALUES | cut -d= -f 2)
-        debug "$SYSCTL_PARAM must have $SYSCTL_EXP_RESULT"
+        debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
         has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
         if [ $FNRET != 0 ]; then
-            crit "$SYSCTL_PARAM has not $SYSCTL_EXP_RESULT value !"
+            crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
         elif [ $FNRET = 255 ]; then
-            warn "$SYSCTL_PARAM does not exist, typo ?"
+            warn "$SYSCTL_PARAM does not exist --Typo?"
         else
             ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
         fi
@@ -35,14 +35,14 @@ apply () {
     for SYSCTL_VALUES in $SYSCTL_PARAMS; do
         SYSCTL_PARAM=$(echo $SYSCTL_VALUES | cut -d= -f 1)
         SYSCTL_EXP_RESULT=$(echo $SYSCTL_VALUES | cut -d= -f 2)
-        debug "$SYSCTL_PARAM must have $SYSCTL_EXP_RESULT"
+        debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
         has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
         if [ $FNRET != 0 ]; then
-            warn "$SYSCTL_PARAM has not $SYSCTL_EXP_RESULT value, correcting it"
+            warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
             set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
             sysctl -w net.ipv4.route.flush=1 > /dev/null
         elif [ $FNRET = 255 ]; then
-            warn "$SYSCTL_PARAM does not exist, typo ?"
+            warn "$SYSCTL_PARAM does not exist -- Typo?"
         else
             ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
         fi

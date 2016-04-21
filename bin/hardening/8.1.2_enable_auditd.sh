@@ -18,7 +18,7 @@ SERVICE_NAME='auditd'
 audit () {
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
-        crit "$PACKAGE is not installed !"
+        crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
         is_service_enabled $SERVICE_NAME

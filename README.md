@@ -4,15 +4,37 @@ Modular Debian 7 security hardening scripts based on [cisecurity.org](cisecurity
 recommendations. We use it at [OVH](https://ovh.com) to harden our PCI-DSS infrastructure.
 
 ```console
-$ bin/hardening.sh --audit
-TODO: some eye catchy output
+$ bin/hardening.sh --audit-all
+[...]
+hardening [INFO] Treating /opt/cis-hardening/bin/hardening/13.15_check_duplicate_gid.sh
+13.15_check_duplicate_gid [INFO] Working on 13.15_check_duplicate_gid
+13.15_check_duplicate_gid [INFO] Checking Configuration
+13.15_check_duplicate_gid [INFO] Performing audit
+13.15_check_duplicate_gid [ OK ] No duplicate GIDs
+13.15_check_duplicate_gid [ OK ] Check Passed
+[...]
+################### SUMMARY ###################
+      Total Available Checks : 191
+         Total Runned Checks : 191
+         Total Passed Checks : [ 170/191 ]
+         Total Failed Checks : [  21/191 ]
+   Enabled Checks Percentage : 100.00 %
+       Conformity Percentage : 89.01 %
 ```
 
 ## Quickstart
 
 ```console
-$ git clone https://github.com/ovh/debian-cis.git && debian-cis
-$ some-example-command
+$ git clone https://github.com/ovh/debian-cis.git && cd debian-cis
+$ cp debian/default /etc/default/cis_hardening
+$ bin/hardening/1.1_install_updates.sh --audit-all
+1.1_install_updates [INFO] Working on 1.1_install_updates
+1.1_install_updates [INFO] Checking Configuration
+1.1_install_updates [INFO] Performing audit
+1.1_install_updates [INFO] Checking if apt needs an update
+1.1_install_updates [INFO] Fetching upgrades ...
+1.1_install_updates [ OK ] No upgrades available
+1.1_install_updates [ OK ] Check Passed
 ```
 
 ## Usage
@@ -62,18 +84,29 @@ if you have already started to customize your configuration.
 **Getting the source**
 
 ```console
-git clone https://github.com/ovh/debian-cis.git
+$ git clone https://github.com/ovh/debian-cis.git
 ```
 
 **Building a debian Package** (the hacky way)
 
 ```console
-debuild -us -uc
+$ debuild -us -uc
 ```
 
 **Adding a custom hardening script**
 
-TODO
+```console
+$ cp src/skel bin/hardening/99.99_custom_script.sh
+$ chmod +x bin/hardening/99.99_custom_script.sh
+$ cp src/skel.cfg etc/conf.d/99.99_custom_script.cfg
+```
+
+Code your check explaining what it does then if you want to test
+
+```console
+$ sed -i "s/status=.+/status=enabled/" etc/conf.d/99.99_custom_script.cfg
+$ ./bin/hardening/99.99_custom_script.sh
+```
 
 ## Disclaimer
 
@@ -97,7 +130,7 @@ Additionally, quoting the License:
 
 ## Reference
 
-- **Center for Internet Securiy**: https://www.cisecurity.org/
+- **Center for Internet Security**: https://www.cisecurity.org/
 - **CIS recommendations**: https://benchmarks.cisecurity.org/downloads/show-single/index.cfm?file=debian7.100
 
 ## License

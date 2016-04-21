@@ -27,6 +27,7 @@ hardening [INFO] Treating /opt/cis-hardening/bin/hardening/13.15_check_duplicate
 ```console
 $ git clone https://github.com/ovh/debian-cis.git && cd debian-cis
 $ cp debian/default /etc/default/cis-hardening
+$ sed -i "s#CIS_ROOT_DIR=.*#CIS_ROOT_DIR='$(pwd)'#" /etc/default/cis-hardening
 $ bin/hardening/1.1_install_updates.sh --audit-all
 1.1_install_updates [INFO] Working on 1.1_install_updates
 1.1_install_updates [INFO] Checking Configuration

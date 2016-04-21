@@ -42,7 +42,7 @@ audit () {
             if [ $FNRET = 0 ]; then
                 ok "$FILE has correct permissions"
             else
-                crit "$FILE has not $PERMISSIONS permissions set"
+                crit "$FILE permissions were not set to $PERMISSIONS"
             fi 
         fi
     done
@@ -76,7 +76,7 @@ apply () {
         if [ $FNRET = 0 ]; then
             ok "$FILE has correct permissions"
         else
-            warn "$FILE has not $PERMISSIONS permissions set"
+            warn "$FILE permissions were not set to $PERMISSIONS"
             chmod 0$PERMISSIONS $FILE
         fi
     done

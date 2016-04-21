@@ -21,7 +21,7 @@ NTP_INIT_FILE='/etc/init.d/ntp'
 audit () {
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
-        crit "$PACKAGE is not installed !"
+        crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed, checking configuration"
         does_pattern_exists_in_file $NTP_CONF_FILE $NTP_CONF_DEFAULT_PATTERN

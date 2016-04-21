@@ -28,7 +28,7 @@ audit () {
             else
                 does_pattern_exists_in_file $FILE $PATTERN
                 if [ $FNRET = 0 ]; then
-                    crit "$PATTERN exists, $PACKAGE services are enabled !"
+                    crit "$PATTERN exists, $PACKAGE services are enabled!"
                 else
                     ok "$PATTERN not present in $FILE"
                 fi

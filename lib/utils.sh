@@ -14,7 +14,7 @@ has_sysctl_param_expected_result() {
         debug "$SYSCTL_PARAM does not exist"
         FNRET=255
     else
-        debug "$SYSCTL_PARAM has not a value of $EXP_RESULT"
+        debug "$SYSCTL_PARAM should be set to $EXP_RESULT"
         FNRET=1
     fi
 }
@@ -39,7 +39,7 @@ set_sysctl_param() {
         debug "$SYSCTL_PARAM does not exist"
         FNRET=255
     else
-        warn "$SYSCTL_PARAM Failed !"
+        warn "$SYSCTL_PARAM failed!"
         FNRET=1
     fi
 }

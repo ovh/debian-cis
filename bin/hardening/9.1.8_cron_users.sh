@@ -13,7 +13,7 @@ set -u # One variable unset, it's over
 
 FILES_ABSENT='/etc/cron.deny /etc/at.deny'
 FILES_PRESENT='/etc/cron.allow /etc/at.allow'
-PERMISSIONS='600'
+PERMISSIONS='644'
 USER='root'
 GROUP='root'
 

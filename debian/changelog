@@ -1,3 +1,12 @@
+cis-hardening (1.0-5) wheezy; urgency=low
+
+  * typo fix / phrasing reworked
+  * Fixed default file error handling and quickstart
+  * Fixed point 9.1.8 cron rights as a chmod 600 disabled the cron.allow
+    features (file must be world readable)
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Fri, 22 Apr 2016 10:15:55 +0200
+
 cis-hardening (1.0-4) wheezy; urgency=low
 
   * added AUTHORS file

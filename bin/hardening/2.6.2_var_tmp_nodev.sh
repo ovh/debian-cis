@@ -27,10 +27,10 @@ audit () {
         ok "$PARTITION is a partition"
         has_mount_option $PARTITION $OPTION
         if [ $FNRET -gt 0 ]; then
-            crit "$PARTITION have no option $OPTION in fstab !"
+            crit "$PARTITION has no option $OPTION in fstab!"
             FNRET=1
         else
-            ok "$PARTITION have $OPTION in fstab"
+            ok "$PARTITION has $OPTION in fstab"
             has_mounted_option $PARTITION $OPTION
             if [ $FNRET -gt 0 ]; then
                 warn "$PARTITION is not mounted with $OPTION at runtime"

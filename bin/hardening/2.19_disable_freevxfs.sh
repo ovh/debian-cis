@@ -19,7 +19,7 @@ KERNEL_OPTION="freevxfs"
 audit () {
     is_kernel_option_enabled $KERNEL_OPTION
     if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
-        crit "$KERNEL_OPTION is enabled !"
+        crit "$KERNEL_OPTION is enabled!"
     else
         ok "$KERNEL_OPTION is disabled"
     fi

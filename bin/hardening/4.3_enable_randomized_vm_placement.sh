@@ -18,9 +18,9 @@ SYSCTL_EXP_RESULT=2
 audit () {
     has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
     if [ $FNRET != 0 ]; then
-        crit "$SYSCTL_PARAM has not $SYSCTL_EXP_RESULT value !"
+        crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
     elif [ $FNRET = 255 ]; then
-        warn "$SYSCTL_PARAM does not exist, typo ?"
+        warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
         ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
     fi
@@ -30,10 +30,10 @@ audit () {
 apply () {
     has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
     if [ $FNRET != 0 ]; then
-        warn "$SYSCTL_PARAM has not $SYSCTL_EXP_RESULT value, correcting it"
+        warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
         set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
     elif [ $FNRET = 255 ]; then
-        warn "$SYSCTL_PARAM does not exist, typo ?"
+        warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
         ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
     fi

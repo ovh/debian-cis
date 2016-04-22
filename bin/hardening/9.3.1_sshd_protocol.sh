@@ -19,7 +19,7 @@ FILE='/etc/ssh/sshd_config'
 audit () {
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
-        crit "$PACKAGE is not installed !"
+        crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
         for SSH_OPTION in $OPTIONS; do
@@ -58,7 +58,7 @@ apply () {
                 if [ $FNRET != 0 ]; then
                     add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
                 else
-                    info "Parameter $SSH_PARAM is present but with the wrong value, correcting"
+                    info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
                     replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
                 fi
                 /etc/init.d/ssh reload > /dev/null 2>&1

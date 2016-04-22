@@ -18,7 +18,7 @@ audit () {
     for PACKAGE in $PACKAGES; do
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
-            crit "$PACKAGE is installed !"
+            crit "$PACKAGE is installed!"
         else
             ok "$PACKAGE is absent"
         fi

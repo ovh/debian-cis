@@ -19,16 +19,16 @@ audit () {
     if [ $(grep "^root:" /etc/passwd | cut -f4 -d:) = 0 ]; then
         ok "Root group has GID $EXPECTED_GID"
     else
-        crit "Root group has not GID $EXPECTED_GID"
+        crit "Root group GID should be $EXPECTED_GID"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
     if [ $(grep "^root:" /etc/passwd | cut -f4 -d:) = 0 ]; then
-        ok "Root group has GID $EXPECTED_GID"
+        ok "Root group GID is $EXPECTED_GID"
     else
-        warn "Root group has not GID $EXPECTED_GID"
+        warn "Root group GID is not $EXPECTED_GID"
         usermod -g $EXPECTED_GID $USER
     fi
 }

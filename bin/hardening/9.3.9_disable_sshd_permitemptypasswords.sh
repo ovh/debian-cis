@@ -77,11 +77,16 @@ if [ ! -r /etc/default/cis-hardening ]; then
     exit 128
 else
     . /etc/default/cis-hardening
-    if [ -z $CIS_ROOT_DIR ]; then
+    if [ -z ${CIS_ROOT_DIR:-} ]; then
         echo "No CIS_ROOT_DIR variable, aborting"
         exit 128
     fi
 fi 
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-[ -r $CIS_ROOT_DIR/lib/main.sh ] && . $CIS_ROOT_DIR/lib/main.sh
+if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+    . $CIS_ROOT_DIR/lib/main.sh
+else
+    echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
+    exit 128
+fi

@@ -1,3 +1,4 @@
+/opt/cis-hardening/etc/hardening.cfg
 /opt/cis-hardening/etc/conf.d/1.1_install_updates.cfg
 /opt/cis-hardening/etc/conf.d/2.1_tmp_partition.cfg
 /opt/cis-hardening/etc/conf.d/2.2_tmp_nodev.cfg

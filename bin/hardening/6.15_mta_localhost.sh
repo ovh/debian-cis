@@ -14,8 +14,9 @@ set -u # One variable unset, it's over
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking netport ports opened"
-    eval 'RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]")'
-    debug "Result is $RESULT"        
+    RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]") || :
+    RESULT=${RESULT:-}
+    debug "Result is $RESULT"
     if [ -z "$RESULT" ]; then
         ok "Nothing listens on 25 port, probably unix socket configured"
     else
@@ -31,7 +32,8 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     info "Checking netport ports opened"
-    eval 'RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]")'
+    RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]") || :
+    RESULT=${RESULT:-}
     debug "Result is $RESULT"
     if [ -z "$RESULT" ]; then
         ok "Nothing listens on 25 port, probably unix socket configured"

@@ -18,7 +18,7 @@ PACKAGE='tripwire'
 audit () {
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
-        crit "$PACKAGE is not installed !"
+        crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
     fi

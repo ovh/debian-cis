@@ -25,7 +25,7 @@ audit () {
         GRUB_PARAM=$(echo $GRUB_OPTION | cut -d= -f 1)
         GRUB_VALUE=$(echo $GRUB_OPTION | cut -d= -f 2,3)
         PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
-        debug "$GRUB_PARAM must have value $GRUB_VALUE"
+        debug "$GRUB_PARAM should be set to $GRUB_VALUE"
         does_pattern_exists_in_file $FILE "$PATTERN"
         if [ $FNRET != 0 ]; then
             crit "$PATTERN not present in $FILE"
@@ -48,7 +48,7 @@ apply () {
     for GRUB_OPTION in $OPTIONS; do
         GRUB_PARAM=$(echo $GRUB_OPTION | cut -d= -f 1)
         GRUB_VALUE=$(echo $GRUB_OPTION | cut -d= -f 2,3)
-        debug "$GRUB_PARAM must have value $GRUB_VALUE"
+        debug "$GRUB_PARAM should be set to $GRUB_VALUE"
         PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
         does_pattern_exists_in_file $FILE "$PATTERN"
         if [ $FNRET != 0 ]; then
@@ -58,7 +58,7 @@ apply () {
                 info "Parameter $GRUB_PARAM seems absent from $FILE, adding at the end" 
                 add_end_of_file $FILE "$GRUB_PARAM = $GRUB_VALUE"
             else
-                info "Parameter $GRUB_PARAM is present but with the wrong value, correcting"
+                info "Parameter $GRUB_PARAM is present but with the wrong value -- Fixing"
                 replace_in_file $FILE "^$GRUB_PARAM=.*" "$GRUB_PARAM=$GRUB_VALUE"
             fi
         else

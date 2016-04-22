@@ -22,7 +22,7 @@ audit () {
     if [ $FNRET = 0 ]; then
         ok "$FILE has correct permissions"
     else
-        crit "$FILE has not $PERMISSIONS permissions set"
+        crit "$FILE permissions were not set to $PERMISSIONS"
     fi 
 }
 

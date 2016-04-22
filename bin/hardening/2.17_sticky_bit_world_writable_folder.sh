@@ -16,7 +16,7 @@ audit () {
     info "Checking if setuid is set on world writable Directories"
     RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
-        crit "Some world writable directories are not on sticky bit mode !"
+        crit "Some world writable directories are not on sticky bit mode!"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else

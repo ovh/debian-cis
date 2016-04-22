@@ -33,7 +33,7 @@ audit () {
         fi
     done
     if [ ! -z "$RESULT" ]; then
-        crit "Some admin accounts have not $SHELL as shell"
+        crit "Some admin accounts don't have $SHELL as shell"
         crit "$RESULT"
     else
         ok "All admin accounts deactivated"
@@ -57,7 +57,7 @@ apply () {
         fi
     done
     if [ ! -z "$RESULT" ]; then
-        warn "Some admin accounts have not $SHELL as shell"
+        warn "Some admin accounts don't have $SHELL as shell"
         warn "$RESULT"
         for USER in $( echo "$RESULT" | cut -d: -f 1 ); do
             info "Setting $SHELL to $USER"

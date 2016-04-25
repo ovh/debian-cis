@@ -21,7 +21,7 @@ audit () {
     if [ $FNRET = 0 ]; then
         ok "$FILE has correct ownership"
     else
-        crit "$FILE is not $USER:$GROUP ownership set"
+        crit "$FILE ownership was not set to $USER:$GROUP"
     fi 
 }
 

@@ -20,17 +20,17 @@ audit () {
     if [ $FNRET != 0 ]; then
         crit "$FILE does not exist"
     else
-        ok "$FILE exist, checking configuration"
+        ok "$FILE exists, checking configuration"
         for GRUB_OPTION in $OPTIONS; do
         GRUB_PARAM=$(echo $GRUB_OPTION | cut -d= -f 1)
         GRUB_VALUE=$(echo $GRUB_OPTION | cut -d= -f 2,3)
         PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
         debug "$GRUB_PARAM should be set to $GRUB_VALUE"
-        does_pattern_exists_in_file $FILE "$PATTERN"
+        does_pattern_exist_in_file $FILE "$PATTERN"
         if [ $FNRET != 0 ]; then
-            crit "$PATTERN not present in $FILE"
+            crit "$PATTERN is not present in $FILE"
         else
-            ok "$PATTERN present in $FILE"
+            ok "$PATTERN is present in $FILE"
         fi
         done
     fi
@@ -43,17 +43,17 @@ apply () {
         warn "$FILE does not exist, creating it"
         touch $FILE
     else
-        ok "$FILE exist"
+        ok "$FILE exists"
     fi
     for GRUB_OPTION in $OPTIONS; do
         GRUB_PARAM=$(echo $GRUB_OPTION | cut -d= -f 1)
         GRUB_VALUE=$(echo $GRUB_OPTION | cut -d= -f 2,3)
         debug "$GRUB_PARAM should be set to $GRUB_VALUE"
         PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
-        does_pattern_exists_in_file $FILE "$PATTERN"
+        does_pattern_exist_in_file $FILE "$PATTERN"
         if [ $FNRET != 0 ]; then
-            warn "$PATTERN not present in $FILE, adding it"
-            does_pattern_exists_in_file $FILE "^$GRUB_PARAM"
+            warn "$PATTERN is not present in $FILE, adding it"
+            does_pattern_exist_in_file $FILE "^$GRUB_PARAM"
             if [ $FNRET != 0 ]; then
                 info "Parameter $GRUB_PARAM seems absent from $FILE, adding at the end" 
                 add_end_of_file $FILE "$GRUB_PARAM = $GRUB_VALUE"
@@ -62,7 +62,7 @@ apply () {
                 replace_in_file $FILE "^$GRUB_PARAM=.*" "$GRUB_PARAM=$GRUB_VALUE"
             fi
         else
-            ok "$PATTERN present in $FILE"
+            ok "$PATTERN is present in $FILE"
         fi
     done
 }

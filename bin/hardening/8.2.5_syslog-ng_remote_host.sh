@@ -16,22 +16,22 @@ PATTERN='^destination.*(tcp|udp)[[:space:]]*\([[:space:]]*\".*\"[[:space:]]*\)'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $SYSLOG_BASEDIR/conf.d/*"
-    does_pattern_exists_in_file "$FILES" "$PATTERN"
+    does_pattern_exist_in_file "$FILES" "$PATTERN"
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILES"
+        crit "$PATTERN is not present in $FILES"
     else
-        ok "$PATTERN present in $FILES"
+        ok "$PATTERN is present in $FILES"
     fi 
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $SYSLOG_BASEDIR/conf.d/*"
-    does_pattern_exists_in_file "$FILES" "$PATTERN"
+    does_pattern_exist_in_file "$FILES" "$PATTERN"
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILES, please set a remote host to send your logs"
+        crit "$PATTERN is not present in $FILES, please set a remote host to send your logs"
     else
-        ok "$PATTERN present in $FILES"
+        ok "$PATTERN is present in $FILES"
     fi
 }
 

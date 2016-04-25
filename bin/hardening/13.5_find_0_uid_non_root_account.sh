@@ -33,7 +33,7 @@ audit () {
         crit "Some accounts have uid 0"
         crit $RESULT
     else
-        ok "No account with suid 0 apart root" 
+        ok "No account with uid 0 apart root"
     fi
 }
 

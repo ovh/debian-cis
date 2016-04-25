@@ -17,24 +17,24 @@ PATTERN='^shadow:x:[[:digit:]]+:'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file $FILEGROUP $PATTERN
+    does_pattern_exist_in_file $FILEGROUP $PATTERN
     if [ $FNRET = 0 ]; then
         info "shadow group exists"
         RESULT=$(grep -E "$PATTERN" $FILEGROUP | cut -d: -f4)
         GROUPID=$(getent group shadow | cut -d: -f3)
         debug "$RESULT $GROUPID"
         if [ ! -z "$RESULT" ]; then
-            crit "Some user belong to shadow group  : $RESULT"
+            crit "Some users belong to shadow group: $RESULT"
         else
-            ok "No one belongs to shadow group"
+            ok "No user belongs to shadow group"
         fi
 
         info "Checking if a user has $GROUPID as primary group"
         RESULT=$(awk -F: '($4 == shadowid) { print $1 }' shadowid=$GROUPID /etc/passwd)
         if [ ! -z "$RESULT" ]; then
-            crit "Some user have shadow id to their primary group : $RESULT"
+            crit "Some users have shadow id as their primary group: $RESULT"
         else
-            ok "No one have shadow id to their primary group"
+            ok "No user has shadow id as their primary group"
         fi
     else
         crit "shadow group doesn't exist"
@@ -43,7 +43,7 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "If the audit returns something, please check with the user why he has this file"
+    info "Editing automatically users/groups may seriously harm your system, report only here"
 }
 
 # This function will check config parameters required

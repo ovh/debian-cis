@@ -25,7 +25,7 @@ audit () {
         for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             PATTERN="^$SSH_PARAM[[:space:]]*"
-            does_pattern_exists_in_file $FILE "$PATTERN"
+            does_pattern_exist_in_file $FILE "$PATTERN"
             if [ $FNRET = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
@@ -48,12 +48,12 @@ apply () {
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
             PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
-            does_pattern_exists_in_file $FILE "$PATTERN"
+            does_pattern_exist_in_file $FILE "$PATTERN"
             if [ $FNRET = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
-                warn "$PATTERN not present in $FILE, adding it"
-                does_pattern_exists_in_file $FILE "^$SSH_PARAM"
+                warn "$PATTERN is not present in $FILE, adding it"
+                does_pattern_exist_in_file $FILE "^$SSH_PARAM"
                 if [ $FNRET != 0 ]; then
                     add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
                 else

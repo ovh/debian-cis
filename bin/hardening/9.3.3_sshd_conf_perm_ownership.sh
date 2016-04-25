@@ -22,7 +22,7 @@ audit () {
     if [ $FNRET = 0 ]; then
         ok "$FILE has correct ownership"
     else
-        crit "$FILE is not $USER:$GROUP ownership set"
+        crit "$FILE ownership was not set to $USER:$GROUP"
     fi
     has_file_correct_permissions $FILE $PERMISSIONS
     if [ $FNRET = 0 ]; then
@@ -43,7 +43,7 @@ apply () {
     if [ $FNRET = 0 ]; then
         ok "$FILE has correct ownership"
     else
-        warn "$FILE is not $USER:$GROUP ownership set"
+        warn "fixing $FILE ownership to $USER:$GROUP"
         chown $USER:$GROUP $FILE
     fi
     has_file_correct_permissions $FILE $PERMISSIONS

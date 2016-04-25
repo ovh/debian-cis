@@ -13,7 +13,7 @@ set -u # One variable unset, it's over
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if there is suid files"
+    info "Checking if there are suid files"
     RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -4000 -print)
     for BINARY in $RESULT; do
         if grep -q $BINARY <<< "$EXCEPTIONS"; then

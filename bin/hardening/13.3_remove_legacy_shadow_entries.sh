@@ -16,10 +16,10 @@ RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if accounts have empty passwords"
+    info "Checking if accounts have a legacy password entry"
     if grep '^+:' $FILE -q; then
         RESULT=$(grep '^+:' $FILE)
-        crit "Some accounts have legacy password entry"
+        crit "Some accounts have a legacy password entry"
         crit $RESULT
     else
         ok "All accounts have a valid password entry format"
@@ -30,7 +30,7 @@ audit () {
 apply () {
     if grep '^+:' $FILE -q; then
         RESULT=$(grep '^+:' $FILE)
-        warn "Some accounts have legacy password entry"
+        warn "Some accounts have a legacy password entry"
         for LINE in $RESULT; do
             info "Removing $LINE from $FILE"
             delete_line_in_file $FILE $LINE

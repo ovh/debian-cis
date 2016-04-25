@@ -18,19 +18,19 @@ FILE='/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file "$FILES_TO_SEARCH" "^$PATTERN"
+    does_pattern_exist_in_file "$FILES_TO_SEARCH" "^$PATTERN"
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILES_TO_SEARCH"
+        crit "$PATTERN is not present in $FILES_TO_SEARCH"
     else
-        ok "$PATTERN present in $FILES_TO_SEARCH"
+        ok "$PATTERN is present in $FILES_TO_SEARCH"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_file "$FILES_TO_SEARCH" "^$PATTERN"
+    does_pattern_exist_in_file "$FILES_TO_SEARCH" "^$PATTERN"
     if [ $FNRET != 0 ]; then
-        warn "$PATTERN not present in $FILES_TO_SEARCH"
+        warn "$PATTERN is not present in $FILES_TO_SEARCH"
         touch $FILE
         chmod 644 $FILE
         add_end_of_file $FILE '
@@ -47,7 +47,7 @@ ACTION=="add", ATTR{product}=="*[Kk]eyboard*", TEST=="authorized", ATTR{authoriz
 ACTION=="add", ATTR{product}=="*Thinnet TM*", TEST=="authorized", ATTR{authorized}="1"
 '
     else
-        ok "$PATTERN present in $FILES_TO_SEARCH"
+        ok "$PATTERN is present in $FILES_TO_SEARCH"
     fi
 }
 

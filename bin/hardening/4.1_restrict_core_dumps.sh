@@ -18,7 +18,7 @@ SYSCTL_EXP_RESULT=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file $LIMIT_FILE $LIMIT_PATTERN
+    does_pattern_exist_in_file $LIMIT_FILE $LIMIT_PATTERN
     if [ $FNRET != 0 ]; then
         crit "$LIMIT_PATTERN not present in $LIMIT_FILE"
     else
@@ -36,9 +36,9 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_file $LIMIT_FILE $LIMIT_PATTERN
+    does_pattern_exist_in_file $LIMIT_FILE $LIMIT_PATTERN
     if [ $FNRET != 0 ]; then
-        warn "$LIMIT_PATTERN not present in $LIMIT_FILE, addning at the end of  $LIMIT_FILE"
+        warn "$LIMIT_PATTERN not present in $LIMIT_FILE, adding at the end of  $LIMIT_FILE"
         add_end_of_file $LIMIT_FILE "* hard core 0"
     else
         ok "$LIMIT_PATTERN present in $LIMIT_FILE"

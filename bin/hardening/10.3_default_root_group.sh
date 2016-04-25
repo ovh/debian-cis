@@ -28,7 +28,7 @@ apply () {
     if [ $(grep "^root:" /etc/passwd | cut -f4 -d:) = 0 ]; then
         ok "Root group GID is $EXPECTED_GID"
     else
-        warn "Root group GID is not $EXPECTED_GID"
+        warn "Root group GID is not $EXPECTED_GID -- Fixing"
         usermod -g $EXPECTED_GID $USER
     fi
 }

@@ -20,12 +20,12 @@ audit () {
     if [ $FNRET != 0 ]; then
         crit "$FILE does not exist"
     else
-        ok "$FILE exist, checking configuration"
-        does_pattern_exists_in_file $FILE "$PATTERN"
+        ok "$FILE exists, checking configuration"
+        does_pattern_exist_in_file $FILE "$PATTERN"
         if [ $FNRET != 0 ]; then
-            crit "$PATTERN not present in $FILE, we have to deny everything"
+            crit "$PATTERN is not present in $FILE, we have to deny everything"
         else
-            ok "$PATTERN present in $FILE"
+            ok "$PATTERN is present in $FILE"
         fi
     fi
 }
@@ -37,15 +37,15 @@ apply () {
         warn "$FILE does not exist, creating it"
         touch $FILE
     else
-        ok "$FILE exist"
+        ok "$FILE exists"
     fi
-    does_pattern_exists_in_file $FILE "$PATTERN"
+    does_pattern_exist_in_file $FILE "$PATTERN"
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILE, we have to deny everything"
+        crit "$PATTERN is not present in $FILE, we have to deny everything"
         add_end_of_file $FILE "$PATTERN"
         warn "YOU MAY HAVE CUT YOUR ACCESS, CHECK BEFORE DISCONNECTING"
     else
-        ok "$PATTERN present in $FILE"
+        ok "$PATTERN is present in $FILE"
     fi
 }
 

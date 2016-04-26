@@ -48,7 +48,7 @@ set_sysctl_param() {
 # Dmesg 
 #
 
-does_pattern_exists_in_dmesg() {
+does_pattern_exist_in_dmesg() {
     local PATTERN=$1
     if $(dmesg | grep -qE "$PATTERN"); then
         FNRET=0
@@ -95,7 +95,7 @@ has_file_correct_permissions() {
     fi 
 }
 
-does_pattern_exists_in_file() {
+does_pattern_exist_in_file() {
     local FILE=$1
     local PATTERN=$2
 

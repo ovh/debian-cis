@@ -16,28 +16,28 @@ PATTERN='tripwire --check'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file "$FILES" "$PATTERN"
+    does_pattern_exist_in_file "$FILES" "$PATTERN"
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in $FILES"
+        crit "$PATTERN is not present in $FILES"
     else
-        ok "$PATTERN present in $FILES"
-    fi 
+        ok "$PATTERN is present in $FILES"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_file "$FILES" "$PATTERN"
+    does_pattern_exist_in_file "$FILES" "$PATTERN"
     if [ $FNRET != 0 ]; then
-        warn "$PATTERN not present in $FILES, setting tripwire cron"
-        echo "0 10 * * * root /usr/sbin/tripwire --check > /dev/shm/tripwire_check 2>&1 " > /etc/cron.d/CIS_8.3.2_tripwire        
+        warn "$PATTERN is not present in $FILES, setting tripwire cron"
+        echo "0 10 * * * root /usr/sbin/tripwire --check > /dev/shm/tripwire_check 2>&1 " > /etc/cron.d/CIS_8.3.2_tripwire
     else
-        ok "$PATTERN present in $FILES"
+        ok "$PATTERN is present in $FILES"
     fi
 }
 
 # This function will check config parameters required
 check_config() {
-    :    
+    :
 }
 
 # Source Root Dir Parameter
@@ -50,7 +50,7 @@ else
         echo "No CIS_ROOT_DIR variable, aborting"
         exit 128
     fi
-fi 
+fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then

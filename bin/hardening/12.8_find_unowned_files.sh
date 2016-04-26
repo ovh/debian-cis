@@ -15,10 +15,10 @@ USER='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if there is unowned files"
+    info "Checking if there are unowned files"
     RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
-        crit "Some world writable file are present"
+        crit "Some unowned files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
@@ -30,8 +30,8 @@ audit () {
 apply () {
     RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -ls 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
-        warn "chmowing all unowned files in the system"
-        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown $USER 
+        warn "Applying chown on all unowned files in the system"
+        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown $USER
     else
         ok "No unowned files found, nothing to apply"
     fi

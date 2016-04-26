@@ -15,14 +15,14 @@ GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if there is unowned files"
+    info "Checking if there are ungrouped files"
     RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
-        crit "Some world writable file are present"
+        crit "Some ungrouped files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
-        ok "No world writable files found"
+        ok "No ungrouped files found"
     fi
 }
 
@@ -30,10 +30,10 @@ audit () {
 apply () {
     RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -ls 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
-        warn "chmowing all ungrouped files in the system"
+        warn "Applying chgrp on all ungrouped files in the system"
         df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null | xargs chgrp $GROUP
     else
-        ok "No world writable files found, nothing to apply"
+        ok "No ungrouped files found, nothing to apply"
     fi
 }
 

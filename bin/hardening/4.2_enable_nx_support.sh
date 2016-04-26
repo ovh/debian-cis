@@ -15,21 +15,21 @@ PATTERN='NX[[:space:]]\(Execute[[:space:]]Disable\)[[:space:]]protection:[[:spac
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_dmesg $PATTERN
+    does_pattern_exist_in_dmesg $PATTERN
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in dmesg"
+        crit "$PATTERN is not present in dmesg"
     else
-        ok "$PATTERN present in dmesg"
+        ok "$PATTERN is present in dmesg"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_dmesg $PATTERN
+    does_pattern_exist_in_dmesg $PATTERN
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN not present in dmesg, please go to the bios to activate this option or change for CPU compatible"
+        crit "$PATTERN is not present in dmesg, please go to the bios to activate this option or change for CPU compatible"
     else
-        ok "$PATTERN present in dmesg"
+        ok "$PATTERN is present in dmesg"
     fi
 }
 

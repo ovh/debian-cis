@@ -20,11 +20,11 @@ audit () {
     if [ $FNRET != 0 ]; then
         ok "$FILE does not exist"
     else
-        does_pattern_exists_in_file $FILE $PATTERN
+        does_pattern_exist_in_file $FILE $PATTERN
         if [ $FNRET = 0 ]; then
-            crit "$PATTERN exists, chargen services are enabled!"
+            crit "$PATTERN exists, daytime service is enabled!"
         else
-            ok "$PATTERN not present in $FILE"
+            ok "$PATTERN is not present in $FILE"
         fi
     fi
 }
@@ -36,14 +36,14 @@ apply () {
         ok "$FILE does not exist"
     else
         info "$FILE exists, checking patterns"
-        does_pattern_exists_in_file $FILE $PATTERN
+        does_pattern_exist_in_file $FILE $PATTERN
         if [ $FNRET = 0 ]; then
-            warn "$PATTERN present in $FILE, purging it"
+            warn "$PATTERN is present in $FILE, purging it"
             backup_file $FILE
             ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<< $PATTERN)
             sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
         else
-            ok "$PATTERN not present in $FILE"
+            ok "$PATTERN is not present in $FILE"
         fi
     fi
 }

@@ -27,7 +27,7 @@ audit () {
     done
 
     if [ $ERRORS = 0 ]; then
-        ok "No $FILENAME present in users files"
+        ok "No $FILENAME present in users home directory"
     fi 
 }
 

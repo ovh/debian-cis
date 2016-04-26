@@ -16,21 +16,21 @@ PATTERN="^root:[*\!]:"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exists_in_file $FILE $PATTERN
+    does_pattern_exist_in_file $FILE $PATTERN
     if [ $FNRET != 1 ]; then
-        crit "$PATTERN present in $FILE"
+        crit "$PATTERN is present in $FILE"
     else
-        ok "$PATTERN not present in $FILE"
+        ok "$PATTERN is not present in $FILE"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exists_in_file $FILE $PATTERN
+    does_pattern_exist_in_file $FILE $PATTERN
     if [ $FNRET != 1 ]; then
-        warn "$PATTERN present in $FILE, please put a root password"
+        warn "$PATTERN is present in $FILE, please put a root password"
     else
-        ok "$PATTERN not present in $FILE"
+        ok "$PATTERN is not present in $FILE"
     fi
     :
 }

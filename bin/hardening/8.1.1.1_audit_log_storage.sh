@@ -21,12 +21,12 @@ audit () {
     if [ $FNRET != 0 ]; then
         crit "$FILE does not exist"
     else
-        ok "$FILE exist, checking configuration"
-        does_pattern_exists_in_file $FILE "^$PATTERN[[:space:]]"
+        ok "$FILE exists, checking configuration"
+        does_pattern_exist_in_file $FILE "^$PATTERN[[:space:]]"
         if [ $FNRET != 0 ]; then
-            crit "$PATTERN not present in $FILE"
+            crit "$PATTERN is not present in $FILE"
         else
-            ok "$PATTERN present in $FILE"
+            ok "$PATTERN is present in $FILE"
         fi
     fi
 }
@@ -38,14 +38,14 @@ apply () {
         warn "$FILE does not exist, creating it"
         touch $FILE
     else
-        ok "$FILE exist"
+        ok "$FILE exists"
     fi
-    does_pattern_exists_in_file $FILE "^$PATTERN[[:space:]]"
+    does_pattern_exist_in_file $FILE "^$PATTERN[[:space:]]"
     if [ $FNRET != 0 ]; then
-        warn "$PATTERN not present in $FILE, adding it"
+        warn "$PATTERN is not present in $FILE, adding it"
         add_end_of_file $FILE "$PATTERN = $VALUE"
     else
-        ok "$PATTERN present in $FILE"
+        ok "$PATTERN is present in $FILE"
     fi
 }
 

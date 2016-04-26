@@ -15,10 +15,10 @@ FILE='/etc/shadow'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if accounts have empty passwords"
+    info "Checking if accounts have an empty password"
     RESULT=$(cat $FILE | awk -F: '($2 == "" ) { print $1 }')
     if [ ! -z "$RESULT" ]; then
-        crit "Some accounts have empty passwords"
+        crit "Some accounts have an empty password"
         crit $RESULT
     else
         ok "All accounts have a password"
@@ -29,8 +29,8 @@ audit () {
 apply () {
     RESULT=$(cat $FILE | awk -F: '($2 == "" ) { print $1 }')
     if [ ! -z "$RESULT" ]; then
-        warn "Some accounts have empty passwords"
-        for ACCOUNT in $RESULT; do 
+        warn "Some accounts have an empty password"
+        for ACCOUNT in $RESULT; do
             info "Locking $ACCOUNT"
             passwd -l $ACCOUNT >/dev/null 2>&1
         done

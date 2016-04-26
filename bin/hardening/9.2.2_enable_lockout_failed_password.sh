@@ -22,7 +22,7 @@ audit () {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        does_pattern_exists_in_file $FILE $PATTERN
+        does_pattern_exist_in_file $FILE $PATTERN
         if [ $FNRET = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
@@ -40,7 +40,7 @@ apply () {
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
-    does_pattern_exists_in_file $FILE $PATTERN
+    does_pattern_exist_in_file $FILE $PATTERN
     if [ $FNRET = 0 ]; then
         ok "$PATTERN is present in $FILE"
     else

@@ -24,13 +24,13 @@ audit () {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exists_in_file $NTP_CONF_FILE $NTP_CONF_DEFAULT_PATTERN
+        does_pattern_exist_in_file $NTP_CONF_FILE $NTP_CONF_DEFAULT_PATTERN
         if [ $FNRET != 0 ]; then
             crit "$NTP_CONF_DEFAULT_PATTERN not found in $NTP_CONF_FILE"
         else
             ok "$NTP_CONF_DEFAULT_PATTERN found in $NTP_CONF_FILE"
         fi
-        does_pattern_exists_in_file $NTP_INIT_FILE "^$NTP_INIT_PATTERN"
+        does_pattern_exist_in_file $NTP_INIT_FILE "^$NTP_INIT_PATTERN"
         if [ $FNRET != 0 ]; then
             crit "$NTP_INIT_PATTERN not found in $NTP_INIT_FILE"
         else
@@ -49,7 +49,7 @@ apply () {
             apt_install $PACKAGE
             info "Checking $PACKAGE configuration"
         fi
-        does_pattern_exists_in_file $NTP_CONF_FILE $NTP_CONF_DEFAULT_PATTERN
+        does_pattern_exist_in_file $NTP_CONF_FILE $NTP_CONF_DEFAULT_PATTERN
         if [ $FNRET != 0 ]; then
             warn "$NTP_CONF_DEFAULT_PATTERN not found in $NTP_CONF_FILE, adding it"
             backup_file $NTP_CONF_FILE
@@ -57,7 +57,7 @@ apply () {
         else
             ok "$NTP_CONF_DEFAULT_PATTERN found in $NTP_CONF_FILE"
         fi
-        does_pattern_exists_in_file $NTP_INIT_FILE "^$NTP_INIT_PATTERN"
+        does_pattern_exist_in_file $NTP_INIT_FILE "^$NTP_INIT_PATTERN"
         if [ $FNRET != 0 ]; then
             warn "$NTP_INIT_PATTERN not found in $NTP_INIT_FILE, adding it"
             backup_file $NTP_INIT_FILE

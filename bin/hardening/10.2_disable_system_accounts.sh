@@ -17,7 +17,7 @@ RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if admin accounts have login different from $SHELL"
+    info "Checking if admin accounts have a login shell different than $SHELL"
     RESULT=$(egrep -v "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 && $7!="/usr/sbin/nologin" && $7!="/bin/false") {print}') 
     for LINE in $RESULT; do
         debug "line : $LINE"
@@ -29,11 +29,11 @@ audit () {
             debug "$ACCOUNT is confirmed as an exception"
             RESULT=$(sed "s!$LINE!!" <<< "$RESULT")
         else
-            debug "$ACCOUNT not found in exceptions" 
+            debug "$ACCOUNT not found in exceptions"
         fi
     done
     if [ ! -z "$RESULT" ]; then
-        crit "Some admin accounts don't have $SHELL as shell"
+        crit "Some admin accounts don't have $SHELL as their login shell"
         crit "$RESULT"
     else
         ok "All admin accounts deactivated"
@@ -57,11 +57,11 @@ apply () {
         fi
     done
     if [ ! -z "$RESULT" ]; then
-        warn "Some admin accounts don't have $SHELL as shell"
+        warn "Some admin accounts don't have $SHELL as their login shell -- Fixing"
         warn "$RESULT"
         for USER in $( echo "$RESULT" | cut -d: -f 1 ); do
-            info "Setting $SHELL to $USER"
-            usermod -s $SHELL $USER            
+            info "Setting $SHELL as $USER login shell"
+            usermod -s $SHELL $USER
         done
     else
         ok "All admin accounts deactivated, nothing to apply"

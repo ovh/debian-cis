@@ -12,7 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 USER='root'
-PATTERN='^TMOUT='
+PATTERN='TMOUT='
 VALUE='600'
 FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d/* /etc/profile'
 FILE='/etc/profile.d/CIS_99.1_timeout.sh'

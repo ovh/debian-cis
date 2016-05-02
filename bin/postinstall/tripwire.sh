@@ -17,4 +17,3 @@ echo "Generating Local database with newly created key..."
 /usr/sbin/twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt # Init database with generated local key file
 echo "Testing tripwire database update"
 tripwire -m i # Test configuration update
-~

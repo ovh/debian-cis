@@ -1,3 +1,11 @@
+cis-hardening (1.0-9) wheezy; urgency=low
+
+  * Fixed replace in file function with proper substitution
+  * tripwire : fixed typo on postinstall helper
+  * fix 99.1 Apply TMOUT Variable
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Tue, 03 May 2016 12:31:59 +0200
+
 cis-hardening (1.0-8) wheezy; urgency=low
 
   * phrasing reworked all over the place

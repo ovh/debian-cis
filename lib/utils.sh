@@ -138,7 +138,7 @@ replace_in_file() {
 
     backup_file "$FILE"
     debug "Replacing $SOURCE to $DESTINATION in $FILE"
-    SOURCE=$(sed 's@/@\\\/@g' <<< $PATTERN)
+    SOURCE=$(sed 's@/@\\\/@g' <<< $SOURCE)
     debug "sed -i 's/$SOURCE/$DESTINATION/g' $FILE"
     sed -i "s/$SOURCE/$DESTINATION/g" $FILE
     FNRET=0

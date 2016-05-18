@@ -1,3 +1,9 @@
+cis-hardening (1.0-10) wheezy; urgency=low
+
+  * Script output should be useful with pipe or redirection
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Wed, 18 May 2016 08:38:35 +0200
+
 cis-hardening (1.0-9) wheezy; urgency=low
 
   * Fixed replace in file function with proper substitution

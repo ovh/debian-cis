@@ -12,7 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 PACKAGE='openssh-server'
-OPTIONS='PermitRootLogin=no'
+OPTIONS='PermitEmptyPasswords=no'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode

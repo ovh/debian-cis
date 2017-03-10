@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# CIS Debian 7 Hardening /!\ Not in the Guide
+# CIS Debian 7/8 Hardening /!\ Not in the Guide
 #
 
 #

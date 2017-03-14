@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# CIS Debian 7 Hardening
+# CIS Debian 7/8 Hardening
 # Authors : Thibault Dewailly, OVH <thibault.dewailly@corp.ovh.com>
 #
 

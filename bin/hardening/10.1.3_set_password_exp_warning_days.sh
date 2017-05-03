@@ -12,7 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 PACKAGE='login'
-OPTIONS='PASS_MIN_DAYS=7'
+OPTIONS='PASS_WARN_AGE=7'
 FILE='/etc/login.defs'
 
 # This function will be called if the script status is on enabled / audit mode

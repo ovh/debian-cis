@@ -11,13 +11,15 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-# Assumption made : You have a monolothic kernel with your config zipped in /proc/config.gz
-KERNEL_OPTION="squashfs"
+HARDENING_LEVEL=2
+
+KERNEL_OPTION="CONFIG_SQUASHFS"
+MODULE_FILE="squashfs"
 
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_kernel_option_enabled $KERNEL_OPTION
+    is_kernel_option_enabled $KERNEL_OPTION $MODULE_FILE
     if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
         crit "$KERNEL_OPTION is enabled!"
     else

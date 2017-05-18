@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=1
+
 FILE='/etc/group'
 USER='root'
 GROUP='root'

@@ -6,10 +6,13 @@
 
 #
 # 9.3.12 Set Idle Timeout Interval for User Login (Scored)
+# FIXME: the implementation of this script doesn't do what it says
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
+
+HARDENING_LEVEL=3
 
 PACKAGE='openssh-server'
 FILE='/etc/ssh/sshd_config'
@@ -64,6 +67,16 @@ apply () {
                 /etc/init.d/ssh reload
             fi
     done
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# In seconds, value of ClientAliveInterval, ClientAliveCountMax bedoing set to 0
+# Settles sshd idle timeout
+SSHD_TIMEOUT=900
+EOF
 }
 
 # This function will check config parameters required

@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=4
+
 # NB : in CIS, AIDE has been chosen, however we chose tripwire
 PACKAGE='tripwire'
 

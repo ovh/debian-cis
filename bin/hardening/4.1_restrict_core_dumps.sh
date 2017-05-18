@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 LIMIT_FILE='/etc/security/limits.conf'
 LIMIT_PATTERN='^\*[[:space:]]*hard[[:space:]]*core[[:space:]]*0$'
 SYSCTL_PARAM='fs.suid_dumpable'

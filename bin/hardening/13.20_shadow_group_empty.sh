@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=1
+
 ERRORS=0
 FILEGROUP='/etc/group'
 PATTERN='^shadow:x:[[:digit:]]+:'

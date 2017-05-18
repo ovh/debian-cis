@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 # Based on aptitude search '~Prsh-client', exluding ssh-client OFC
 PACKAGES='rsh-client rsh-redone-client heimdal-clients'
 

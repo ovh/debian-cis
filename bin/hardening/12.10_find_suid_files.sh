@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are suid files"
@@ -33,6 +35,15 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     info "Removing suid on valid binary may seriously harm your system, report only here"
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# Put Here your valid suid binaries so that they do not appear during the audit
+EXCEPTIONS="/bin/mount /bin/ping /bin/ping6 /bin/su /bin/umount /usr/bin/chfn /usr/bin/chsh /usr/bin/fping /usr/bin/fping6 /usr/bin/gpasswd /usr/bin/mtr /usr/bin/newgrp /usr/bin/passwd /usr/bin/sudo /usr/bin/sudoedit /usr/lib/openssh/ssh-keysign /usr/lib/pt_chown /usr/bin/at"
+EOF
 }
 
 # This function will check config parameters required

@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
@@ -84,6 +86,15 @@ apply () {
             fi
         fi
     done
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# Put here user home directories exceptions, separated by spaces
+EXCEPTIONS=""
+EOF
 }
 
 # This function will check config parameters required

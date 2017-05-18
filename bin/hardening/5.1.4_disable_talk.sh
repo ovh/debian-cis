@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 PACKAGES='inetutils-talkd talkd'
 FILE='/etc/inetd.conf'
 PATTERN='^(talk|ntalk)'

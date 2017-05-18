@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=4
+
 AUDIT_PARAMS='-w /etc/selinux/ -p wa -k MAC-policy'
 FILE='/etc/audit/audit.rules'
 

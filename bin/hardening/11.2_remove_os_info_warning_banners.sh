@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 FILES='/etc/motd /etc/issue /etc/issue.net'
 PATTERN='(\\v|\\r|\\m|\\s)'
 

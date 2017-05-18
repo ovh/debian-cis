@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 SYSCTL_PARAMS='net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0'
 
 # This function will be called if the script status is on enabled / audit mode

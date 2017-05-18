@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are sgid files"
@@ -33,6 +35,15 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     info "Removing sgid on valid binary may seriously harm your system, report only here"
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# Put here valid binaries with sgid enabled separated by spaces
+EXCEPTIONS="/sbin/unix_chkpwd /usr/bin/bsd-write /usr/bin/chage /usr/bin/crontab /usr/bin/expiry /usr/bin/mutt_dotlock /usr/bin/screen /usr/bin/ssh-agent /usr/bin/wall /usr/sbin/postdrop /usr/sbin/postqueue /usr/bin/at /usr/bin/dotlockfile /usr/bin/mail-lock /usr/bin/mail-touchlock /usr/bin/mail-unlock"
+EOF
 }
 
 # This function will check config parameters required

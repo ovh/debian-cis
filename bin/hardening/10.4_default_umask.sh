@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 USER='root'
 PATTERN='umask 077'
 FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d/* /etc/profile'

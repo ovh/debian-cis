@@ -11,6 +11,9 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+HARDENING_EXCEPTION=ntp
+
 PACKAGE='ntp'
 NTP_CONF_DEFAULT_PATTERN='^restrict -4 default (kod nomodify notrap nopeer noquery|ignore)'
 NTP_CONF_FILE='/etc/ntp.conf'

@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Looking at the manual of useradd, it seems that this recommendation does not fill the title"

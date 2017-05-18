@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 SHELL='/bin/false'
 FILE='/etc/passwd'
 RESULT=''
@@ -68,6 +70,15 @@ apply () {
     else
         ok "All admin accounts deactivated, nothing to apply"
     fi
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# Put here your exceptions concerning admin accounts shells separated by spaces
+EXCEPTIONS=""
+EOF
 }
 
 # This function will check config parameters required

@@ -46,6 +46,7 @@ _logger() {
     COLOR=$1
     shift
     test -z "$SCRIPT_NAME" && SCRIPT_NAME=$(basename $0)
+    SCRIPT_NAME=$(printf "%-25.25s" "$SCRIPT_NAME")
     builtin echo "$*" | /usr/bin/logger -t "[CIS_Hardening] $SCRIPT_NAME" -p "user.info"
     cecho $COLOR "$SCRIPT_NAME $*"
 }

@@ -13,23 +13,69 @@ set -u # One variable unset, it's over
 
 USER='root'
 PATTERN='ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"' # We do test disabled by default, whitelist is up to you
-FILES_TO_SEARCH='/etc/udev/rules.d/*'
+FILES_TO_SEARCH='/etc/udev/rules.d'
 FILE='/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exist_in_file "$FILES_TO_SEARCH" "^$PATTERN"
-    if [ $FNRET != 0 ]; then
+    SEARCH_RES=0
+    for FILE_SEARCHED in $FILES_TO_SEARCH; do
+        if [ $SEARCH_RES = 1 ]; then break; fi
+        if test -d $FILE_SEARCHED; then
+            debug "$FILE_SEARCHED is a directory"
+            for file_in_dir in $(ls $FILE_SEARCHED); do
+                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
+                if [ $FNRET != 0 ]; then
+                    debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
+                else
+                    ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
+                    SEARCH_RES=1
+                    break
+                fi
+            done
+        else
+            does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
+            if [ $FNRET != 0 ]; then
+                debug "$PATTERN is not present in $FILE_SEARCHED"
+            else
+                ok "$PATTERN is present in $FILES_TO_SEARCH"
+                SEARCH_RES=1
+            fi
+        fi
+    done
+    if [ $SEARCH_RES = 0 ]; then
         crit "$PATTERN is not present in $FILES_TO_SEARCH"
-    else
-        ok "$PATTERN is present in $FILES_TO_SEARCH"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_pattern_exist_in_file "$FILES_TO_SEARCH" "^$PATTERN"
-    if [ $FNRET != 0 ]; then
+    SEARCH_RES=0
+    for FILE_SEARCHED in $FILES_TO_SEARCH; do
+        if [ $SEARCH_RES = 1 ]; then break; fi
+        if test -d $FILE_SEARCHED; then
+            debug "$FILE_SEARCHED is a directory"
+            for file_in_dir in $(ls $FILE_SEARCHED); do
+                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
+                if [ $FNRET != 0 ]; then
+                    debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
+                else
+                    ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
+                    SEARCH_RES=1
+                    break
+                fi
+            done
+        else
+            does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
+            if [ $FNRET != 0 ]; then
+                debug "$PATTERN is not present in $FILE_SEARCHED"
+            else
+                ok "$PATTERN is present in $FILES_TO_SEARCH"
+                SEARCH_RES=1
+            fi
+        fi
+    done
+    if [ $SEARCH_RES = 0 ]; then
         warn "$PATTERN is not present in $FILES_TO_SEARCH"
         touch $FILE
         chmod 644 $FILE
@@ -46,8 +92,6 @@ ACTION=="add", ATTR{product}=="*[Kk]eyboard*", TEST=="authorized", ATTR{authoriz
 # PS2-USB converter
 ACTION=="add", ATTR{product}=="*Thinnet TM*", TEST=="authorized", ATTR{authorized}="1"
 '
-    else
-        ok "$PATTERN is present in $FILES_TO_SEARCH"
     fi
 }
 
@@ -66,7 +110,7 @@ else
         echo "No CIS_ROOT_DIR variable, aborting"
         exit 128
     fi
-fi 
+fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then

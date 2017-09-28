@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=4
+
 # Find all files with setuid or setgid set
 AUDIT_PARAMS=$(find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print \
 "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 \

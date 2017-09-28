@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PACKAGE='login'
 PATTERN='^auth[[:space:]]*required[[:space:]]*pam_wheel.so'
 FILE='/etc/pam.d/su'

@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 SYSCTL_PARAMS='net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1'
 
 # This function will be called if the script status is on enabled / audit mode

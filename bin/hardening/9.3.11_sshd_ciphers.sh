@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 PACKAGE='openssh-server'
 OPTIONS='Ciphers=aes128-ctr,aes192-ctr,aes256-ctr'
 FILE='/etc/ssh/sshd_config'

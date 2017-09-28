@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PERMISSIONS='640'
 USER='root'
 GROUP='adm'
@@ -62,6 +64,14 @@ apply () {
             chmod 0$PERMISSIONS $FILE
         fi
     done
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+SYSLOG_BASEDIR='/etc/syslog-ng'
+EOF
 }
 
 # This function will check config parameters required

@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PACKAGE='login'
 OPTIONS='PASS_MIN_DAYS=7'
 FILE='/etc/login.defs'

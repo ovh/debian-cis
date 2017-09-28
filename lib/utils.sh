@@ -204,9 +204,17 @@ is_service_enabled() {
 #
 
 is_kernel_option_enabled() {
-    local KERNEL_OPTION=$1
-    RESULT=$(zgrep -i $KERNEL_OPTION /proc/config.gz | grep -vE "^#") || :
-    ANSWER=$(cut -d = -f 2 <<< $RESULT)
+    local KERNEL_OPTION="$1"
+    local MODULE_NAME=""
+    if [ $# -ge 2 ] ; then
+        MODULE_NAME="$2"
+    fi
+    if [ -r "/proc/config.gz" ] ; then
+        RESULT=$(zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
+    elif [ -r "/boot/config-$(uname -r)" ] ; then
+        RESULT=$(grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
+    fi
+    ANSWER=$(cut -d = -f 2 <<< "$RESULT")
     if [ "x$ANSWER" = "xy" ]; then
         debug "Kernel option $KERNEL_OPTION enabled"
         FNRET=0
@@ -216,6 +224,25 @@ is_kernel_option_enabled() {
     else
         debug "Kernel option $KERNEL_OPTION not found"
         FNRET=2 # Not found
+    fi
+
+    if [ "$FNRET" -ne 0 -a -n "$MODULE_NAME" -a -d "/lib/modules/$(uname -r)" ] ; then
+        # also check in modules, because even if not =y, maybe
+        # the admin compiled it separately later (or out-of-tree)
+        # as a module (regardless of the fact that we have =m or not)
+        debug "Checking if we have $MODULE_NAME.ko"
+        local modulefile=$(find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
+        if [ -n "$modulefile" ] ; then
+            debug "We do have $modulefile!"
+            # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
+            if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/ ; then
+                debug "... but it's blacklisted!"
+                FNRET=1 # Not found (found but blacklisted)
+                # FIXME: even if blacklisted, it might be present in the initrd and
+                # be insmod from there... but painful to check :/ maybe lsmod would be enough ?
+            fi
+            FNRET=0 # Found!
+        fi
     fi
 }
 

@@ -46,9 +46,9 @@ _logger() {
     COLOR=$1
     shift
     test -z "$SCRIPT_NAME" && SCRIPT_NAME=$(basename $0)
-    SCRIPT_NAME=$(printf "%-25.25s" "$SCRIPT_NAME")
     builtin echo "$*" | /usr/bin/logger -t "[CIS_Hardening] $SCRIPT_NAME" -p "user.info"
-    cecho $COLOR "$SCRIPT_NAME $*"
+    SCRIPT_NAME_FIXEDLEN=$(printf "%-25.25s" "$SCRIPT_NAME")
+    cecho $COLOR "$SCRIPT_NAME_FIXEDLEN $*"
 }
 
 cecho () {
@@ -72,7 +72,7 @@ ok () {
 }
 
 info () {
-    if [ $MACHINE_LOG_LEVEL -ge 4 ]; then _logger $BWHITE "[INFO] $*"; fi
+    if [ $MACHINE_LOG_LEVEL -ge 4 ]; then _logger ''      "[INFO] $*"; fi
 }
 
 debug () {

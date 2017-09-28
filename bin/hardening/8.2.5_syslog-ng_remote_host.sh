@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PATTERN='^destination.*(tcp|udp)[[:space:]]*\([[:space:]]*\".*\"[[:space:]]*\)'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -33,6 +35,14 @@ apply () {
     else
         ok "$PATTERN is present in $FILES"
     fi
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+SYSLOG_BASEDIR='/etc/syslog-ng'
+EOF
 }
 
 # This function will check config parameters required

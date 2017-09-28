@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=4
+
 # Quick factoring as many script use the same logic
 PARTITION="/var/log/audit"
 

@@ -11,13 +11,34 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 PATTERN='NX[[:space:]]\(Execute[[:space:]]Disable\)[[:space:]]protection:[[:space:]]active'
+
+# Check if the NX bit is supported and noexec=off hasn't been asked
+nx_supported_and_enabled() {
+    if grep -q ' nx ' /proc/cpuinfo; then
+        # NX supported, but if noexec=off specified, it's not enabled
+        if grep -qi 'noexec=off' /proc/cmdline; then
+            FNRET=1 # supported but disabled
+        else
+            FNRET=0 # supported and enabled
+        fi
+    else
+        FNRET=1 # not supported
+    fi
+}
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     does_pattern_exist_in_dmesg $PATTERN
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN is not present in dmesg"
+        nx_supported_and_enabled
+        if [ $FNRET != 0 ]; then
+            crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
+        else
+            ok "NX is supported and enabled"
+        fi
     else
         ok "$PATTERN is present in dmesg"
     fi
@@ -27,7 +48,12 @@ audit () {
 apply () {
     does_pattern_exist_in_dmesg $PATTERN
     if [ $FNRET != 0 ]; then
-        crit "$PATTERN is not present in dmesg, please go to the bios to activate this option or change for CPU compatible"
+        nx_supported_and_enabled
+        if [ $FNRET != 0 ]; then
+            crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
+        else
+            ok "NX is supported and enabled"
+        fi
     else
         ok "$PATTERN is present in dmesg"
     fi

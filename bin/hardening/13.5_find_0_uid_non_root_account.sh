@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 FILE='/etc/passwd'
 RESULT=''
 
@@ -33,13 +35,22 @@ audit () {
         crit "Some accounts have uid 0"
         crit $RESULT
     else
-        ok "No account with uid 0 apart root"
+        ok "No account with uid 0 appart from root and potential configured exceptions"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
     info "Removing accounts with uid 0 may seriously harm your system, report only here"
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# Put here valid accounts with uid 0 separated by spaces
+EXCEPTIONS=""
+EOF
 }
 
 # This function will check config parameters required

@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PACKAGE='openssh-server'
 FILE='/etc/ssh/sshd_config'
 
@@ -66,6 +68,19 @@ apply () {
                 /etc/init.d/ssh reload
             fi
     done
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# Put here ssh user hardening list, there is a default in script to not break your configuration
+# However, it can erase current configuration
+ALLOWED_USERS=''
+ALLOWED_GROUPS=''
+DENIED_USERS=''
+DENIED_GROUPS=''
+EOF
 }
 
 # This function will check config parameters required

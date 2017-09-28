@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=4
+
 AUDIT_PARAMS='-w /var/log/auth.log -p wa -k sudoaction'
 FILE='/etc/audit/audit.rules'
 

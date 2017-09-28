@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=2
+
 FILES_ABSENT='/etc/cron.deny /etc/at.deny'
 FILES_PRESENT='/etc/cron.allow /etc/at.allow'
 PERMISSIONS='644'

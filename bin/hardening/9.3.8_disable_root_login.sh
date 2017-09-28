@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PACKAGE='openssh-server'
 OPTIONS='PermitRootLogin=no'
 FILE='/etc/ssh/sshd_config'

@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PACKAGE='openssh-server'
 FILE='/etc/ssh/sshd_config'
 
@@ -62,6 +64,15 @@ apply () {
                 /etc/init.d/ssh reload
             fi
     done
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=disabled
+# Put here banner file, defaults to /etc/issue.net
+BANNER_FILE=""
+EOF
 }
 
 # This function will check config parameters required

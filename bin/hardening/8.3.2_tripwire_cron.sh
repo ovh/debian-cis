@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=4
+
 FILES='/etc/crontab /etc/cron.d/*'
 PATTERN='tripwire --check'
 

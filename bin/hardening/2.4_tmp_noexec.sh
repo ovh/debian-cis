@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 # Quick factoring as many script use the same logic
 PARTITION="/tmp"
 OPTION="noexec"

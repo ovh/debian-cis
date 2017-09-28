@@ -11,6 +11,9 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+HARDENING_EXCEPTION=cups
+
 PACKAGES='libcups2 libcupscgi1 libcupsimage2 libcupsmime1 libcupsppdc1 cups-common cups-client cups-ppdc libcupsfilters1 cups-filters cups'
 
 # This function will be called if the script status is on enabled / audit mode

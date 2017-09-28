@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=4
+
 FILE='/etc/audit/auditd.conf'
 OPTIONS='max_log_file_action=keep_logs'
 

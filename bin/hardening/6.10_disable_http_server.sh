@@ -11,6 +11,9 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+HARDENING_EXCEPTION=http
+
 # Based on aptitude search '~Phttpd'
 PACKAGES='nginx apache2 lighttpd micro-httpd mini-httpd yaws boa bozohttpd'
 

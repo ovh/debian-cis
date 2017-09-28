@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 PACKAGE='libpam-modules-bin'
 PATTERN='^auth[[:space:]]*required[[:space:]]*pam_tally[2]?.so'
 FILE='/etc/pam.d/login'

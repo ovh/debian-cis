@@ -11,6 +11,8 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+HARDENING_LEVEL=3
+
 FILE='/boot/grub/grub.cfg'
 USER_PATTERN="^set superusers"
 PWD_PATTERN="^password_pbkdf2"

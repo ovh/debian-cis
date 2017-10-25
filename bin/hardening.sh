@@ -22,7 +22,7 @@ AUDIT_ALL=0
 AUDIT_ALL_ENABLE_PASSED=0
 ALLOW_SERVICE_LIST=0
 SET_HARDENING_LEVEL=0
-CIS_ROOT_DIR=''
+#CIS_ROOT_DIR=''
 
 usage() {
     cat << EOF
@@ -136,16 +136,14 @@ while [[ $# > 0 ]]; do
 done
 
 # Source Root Dir Parameter
-if [ ! -r /etc/default/cis-hardening ]; then
-    echo "There is no /etc/default/cis-hardening file, cannot source CIS_ROOT_DIR variable, aborting"
-    exit 128
-else
+if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
-    if [ -z $CIS_ROOT_DIR ]; then
-        echo "No CIS_ROOT_DIR variable, aborting"
-        exit 128
-    fi
-fi 
+fi
+if [ -z "$CIS_ROOT_DIR" ]; then
+     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    exit 128
+fi
 
 [ -r $CIS_ROOT_DIR/lib/constants.sh  ] && . $CIS_ROOT_DIR/lib/constants.sh
 [ -r $CIS_ROOT_DIR/etc/hardening.cfg ] && . $CIS_ROOT_DIR/etc/hardening.cfg

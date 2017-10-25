@@ -45,16 +45,14 @@ check_config() {
 }
 
 # Source Root Dir Parameter
-if [ ! -r /etc/default/cis-hardening ]; then
-    echo "There is no /etc/default/cis-hardening file, cannot source CIS_ROOT_DIR variable, aborting"
-    exit 128
-else
+if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
-    if [ -z ${CIS_ROOT_DIR:-} ]; then
-        echo "No CIS_ROOT_DIR variable, aborting"
-        exit 128
-    fi
-fi 
+fi
+if [ -z "$CIS_ROOT_DIR" ]; then
+     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment." 
+     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    exit 128
+fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then

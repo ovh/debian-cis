@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Enable Randomized Virtual Memory Region Placement to prevent memory page exploits."
 
 SYSCTL_PARAM='kernel.randomize_va_space'
 SYSCTL_EXP_RESULT=2

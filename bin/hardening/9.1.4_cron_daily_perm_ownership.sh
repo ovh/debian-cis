@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="User/group set to root and permissions to 700 on /etc/cron.daily ."
 
 FILE='/etc/cron.daily'
 PERMISSIONS='700'

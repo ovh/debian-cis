@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Ensure Network File System (nfs) and RPC are not enabled."
 HARDENING_EXCEPTION=nfs
 
 PACKAGES='rpcbind nfs-kernel-server'

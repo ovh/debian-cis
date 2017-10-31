@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Set SSH PermitEmptyPasswords to No in order to disallow SSH login to accounts with empty password strigs."
 
 PACKAGE='openssh-server'
 OPTIONS='PermitEmptyPasswords=no'

@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Disable system on audit log full."
 
 FILE='/etc/audit/auditd.conf'
 OPTIONS='space_left_action=email action_mail_acct=root admin_space_left_action=halt'

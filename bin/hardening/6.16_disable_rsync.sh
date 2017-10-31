@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Ensure rsync service is not enabled."
 HARDENING_EXCEPTION=rsync
 
 PACKAGE='rsync'

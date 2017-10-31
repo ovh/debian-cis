@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Checking root ownership and 644 permissions on banner files : /etc/motd|issue|issue.net ."
 
 PERMISSIONS='644'
 USER='root'

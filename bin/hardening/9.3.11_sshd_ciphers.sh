@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Use only approved ciphers in counter mode (ctr) or Galois counter mode (gcm)."
 
 PACKAGE='openssh-server'
 OPTIONS='Ciphers=chacha20-poly1305@openssh\.com,aes256-gcm@openssh\.com,aes128-gcm@openssh\.com,aes256-ctr,aes192-ctr,aes128-ctr'

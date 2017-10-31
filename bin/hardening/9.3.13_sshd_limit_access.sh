@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Limite access via SSH by (dis)allowing specific users or groups."
 
 PACKAGE='openssh-server'
 FILE='/etc/ssh/sshd_config'

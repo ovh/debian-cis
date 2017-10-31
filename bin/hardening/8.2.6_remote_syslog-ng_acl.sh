@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Configure syslog to accept remote syslog messages only on designated log hosts."
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

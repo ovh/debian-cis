@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="Check permissions on /etc/shadow to 640."
 
 FILE='/etc/shadow'
 PERMISSIONS='640'

@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Make the audit configuration immutable."
 
 AUDIT_PARAMS='-e 2'
 FILE='/etc/audit/audit.rules'

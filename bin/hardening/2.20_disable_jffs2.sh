@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Disable mounting of jffs2 filesystems."
 
 KERNEL_OPTION="CONFIG_JFFS2_FS"
 MODULE_NAME="jffs2"

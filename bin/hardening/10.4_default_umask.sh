@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Set default mask for users to 077."
 
 USER='root'
 PATTERN='umask 077'

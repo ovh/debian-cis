@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Ensure telnet server is not enabled. Recommended alternative : sshd (OpenSSH-server)."
 
 # Based on  aptitude search '~Ptelnet-server'
 PACKAGES='telnetd inetutils-telnetd telnetd-ssl krb5-telnetd heimdal-servers'

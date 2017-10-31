@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Activate AppArmor to enforce permissions control."
 
 PACKAGE='apparmor'
 

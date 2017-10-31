@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Configure audit log storage size."
 
 FILE='/etc/audit/auditd.conf'
 PATTERN='max_log_file'

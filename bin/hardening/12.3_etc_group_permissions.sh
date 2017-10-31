@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="Check permissions on /etc/group to 644."
 
 FILE='/etc/group'
 PERMISSIONS='644'

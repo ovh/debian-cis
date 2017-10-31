@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Configure Network Time Protocol (ntp). Check restrict parameters and ntp daemon runs ad unprivileged user."
 HARDENING_EXCEPTION=ntp
 
 PACKAGE='ntp'

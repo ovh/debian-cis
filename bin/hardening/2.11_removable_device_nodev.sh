@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="nodev option for removable media partitions."
 
 # Fair warning, it only checks /media.* like partition in fstab, it's not exhaustive
 

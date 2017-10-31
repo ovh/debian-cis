@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Configure logrotate to prevent logfile from growing unmanageable."
 
 SERVICE_NAME="syslog-ng"
 

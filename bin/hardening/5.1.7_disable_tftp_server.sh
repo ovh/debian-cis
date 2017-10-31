@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Ensure tftp-server is not enabled."
 
 PACKAGES='tftpd tftpd-hpa atftpd'
 FILE='/etc/inetd.conf'

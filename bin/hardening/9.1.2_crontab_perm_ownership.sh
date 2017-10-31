@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="User/Group set to root and permissions to 600 on /etc/crontab ."
 
 FILE='/etc/crontab'
 PERMISSIONS='600'

@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Enable auditing for processes that start prior to auditd."
 
 FILE='/etc/default/grub'
 OPTIONS='GRUB_CMDLINE_LINUX="audit=1"'

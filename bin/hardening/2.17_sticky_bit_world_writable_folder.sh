@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Set sticky bit on world writable directories to prevent users from deleting or renaming files that are not owned by them."
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

@@ -85,6 +85,10 @@ specific root read-only files. You need to provide a sudoers file in /etc/sudoer
 with NOPASWD option, since checks are executed with ``sudo -n`` option, that will
 not prompt for a password.
 
+``--batch``: While performing system audit, this option sets LOGLEVEL to 'ok' and
+captures all output to print only one line once the check is done, formatted like :
+OK|KO OK|KO|WARN{subcheck results} [OK|KO|WARN{...}]
+
 ## Hacking
 
 **Getting the source**

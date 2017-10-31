@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Ensure CONFIG_AUDIT is enabled in your running kernel."
 
 # Note : Not part of the CIS guide, but what's the point of configuring software not compatible with your kernel? :)
 

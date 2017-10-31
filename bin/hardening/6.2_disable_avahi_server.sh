@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Ensure Avahi server is not enabled."
 
 PACKAGES='avahi-daemon libavahi-common-data libavahi-common3 libavahi-core7'
 

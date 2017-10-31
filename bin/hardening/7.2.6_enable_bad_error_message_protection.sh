@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Enable bad error message protection to prevent logfiles fillup."
 
 SYSCTL_PARAMS='net.ipv4.icmp_ignore_bogus_error_responses=1'
 

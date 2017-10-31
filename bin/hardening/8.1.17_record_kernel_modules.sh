@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Collect kernel module loading and unloading."
 
 AUDIT_PARAMS='-w /sbin/insmod -p x -k modules 
 -w /sbin/rmmod -p x -k modules

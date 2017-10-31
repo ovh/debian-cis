@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Setting bootloader password to secure boot parameters."
 
 FILE='/boot/grub/grub.cfg'
 USER_PATTERN="^set superusers"

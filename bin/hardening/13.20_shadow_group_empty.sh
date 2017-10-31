@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="There is no user in shadow group (that can read /etc/shadow file)."
 
 ERRORS=0
 FILEGROUP='/etc/group'

@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Disable mounting of udf filesystems."
 
 KERNEL_OPTION="CONFIG_UDF_FS"
 MODULE_FILE="udf"

@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="Checking permissions and ownership to root 600 for sshd_config."
 
 FILE='/etc/ssh/sshd_config'
 PERMISSIONS='600'

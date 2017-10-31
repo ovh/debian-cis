@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Collec sessions initiation information."
 
 AUDIT_PARAMS='-w /var/run/utmp -p wa -k session
 -w /var/log/wtmp -p wa -k session

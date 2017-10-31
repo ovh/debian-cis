@@ -12,6 +12,8 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 USER='root'
+DESCRIPTION="USB devices are disabled."
+
 PATTERN='ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"' # We do test disabled by default, whitelist is up to you
 FILES_TO_SEARCH='/etc/udev/rules.d'
 FILE='/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh'

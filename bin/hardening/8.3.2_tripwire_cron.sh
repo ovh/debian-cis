@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Implemet periodic execution of file integrity."
 
 FILES='/etc/crontab /etc/cron.d/*'
 PATTERN='tripwire --check'

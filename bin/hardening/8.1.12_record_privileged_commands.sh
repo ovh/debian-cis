@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Collect use of privileged commands."
 
 # Find all files with setuid or setgid set
 SUDO_CMD='sudo -n'

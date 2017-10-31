@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Ensure LDAP is not enabled."
 HARDENING_EXCEPTION=ldap
 
 PACKAGES='slapd'

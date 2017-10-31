@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Ensure IMAP and POP servers are not enabled."
 HARDENING_EXCEPTION=mail
 
 # Based on aptitude search '~Pimap-server' and  aptitude search '~Ppop3-server'

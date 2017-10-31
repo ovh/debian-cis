@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Ignore broadcast requests to prevent attacks such as Smurf attack."
 
 SYSCTL_PARAMS='net.ipv4.icmp_echo_ignore_broadcasts=1'
 

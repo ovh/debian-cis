@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Restrict at/cron to authorized users."
 
 FILES_ABSENT='/etc/cron.deny /etc/at.deny'
 FILES_PRESENT='/etc/cron.allow /etc/at.allow'

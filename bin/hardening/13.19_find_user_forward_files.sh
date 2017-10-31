@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="There is no user .forward files."
 
 ERRORS=0
 FILENAME='.forward'

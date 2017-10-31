@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Enable TCP-SYN cookie to prevent TCP-SYN flood attack."
 
 SYSCTL_PARAMS='net.ipv4.tcp_syncookies=1'
 

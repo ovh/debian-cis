@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Set password expiration warning days."
 
 PACKAGE='login'
 OPTIONS='PASS_WARN_AGE=7'

@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Ensure talk server is not enabled."
 
 PACKAGES='inetutils-talkd talkd'
 FILE='/etc/inetd.conf'

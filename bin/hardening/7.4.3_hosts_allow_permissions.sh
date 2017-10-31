@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Check 644 permissions on /hosts.allow ."
 
 FILE='/etc/hosts.allow'
 PERMISSIONS='644'

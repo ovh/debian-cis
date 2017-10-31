@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Ensure rsh server is not enabled. Recommended alternative : sshd (openssh-server)."
 
 # Based on aptitude search '~Prsh-server'
 PACKAGES='rsh-server rsh-redone-server heimdal-servers'

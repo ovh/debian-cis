@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Collect login and logout events."
 
 AUDIT_PARAMS='-w /var/log/faillog -p wa -k logins
 -w /var/log/lastlog -p wa -k logins

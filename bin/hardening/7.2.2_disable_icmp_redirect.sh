@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Disable ICMP redirect acceptance to prevent routing table corruption."
 
 SYSCTL_PARAMS='net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.default.accept_redirects=0'
 

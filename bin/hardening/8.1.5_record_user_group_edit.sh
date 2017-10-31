@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Record events that modify user/group information."
 
 AUDIT_PARAMS='-w /etc/group -p wa -k identity
 -w /etc/passwd -p wa -k identity

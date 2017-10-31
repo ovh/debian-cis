@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Do not allow users to set environment options."
 
 PACKAGE='openssh-server'
 OPTIONS='PermitUserEnvironment=no'

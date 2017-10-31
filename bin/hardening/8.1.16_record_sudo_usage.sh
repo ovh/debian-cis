@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
+DESCRIPTION="Collect system administration actions (sudolog)."
 
 AUDIT_PARAMS='-w /var/log/auth.log -p wa -k sudoaction'
 FILE='/etc/audit/audit.rules'

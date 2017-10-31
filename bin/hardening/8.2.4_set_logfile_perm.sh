@@ -5,13 +5,14 @@
 #
 
 #
-# 8.2.4 Create and Set Permissions on rsyslog Log Files (Scored)
+# 8.2.4 Create and Set Permissions on syslog-ng Log Files (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Create and set permissions on syslog-ng logfiles."
 
 PERMISSIONS='640'
 USER='root'

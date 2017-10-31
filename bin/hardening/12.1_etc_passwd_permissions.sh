@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="Check permissions on /etc/passwd to 644."
 
 FILE='/etc/passwd'
 PERMISSIONS='644'

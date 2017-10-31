@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Install TCP wrappers for simple access list management and standardized logging method for services."
 
 PACKAGE='tcpd'
 

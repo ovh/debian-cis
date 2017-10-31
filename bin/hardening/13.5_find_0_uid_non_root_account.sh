@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Verify root is the only UID 0 account."
 
 FILE='/etc/passwd'
 RESULT=''

@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="There is no group in /etc/passwd that is not in /etc/group."
 
 ERRORS=0
 

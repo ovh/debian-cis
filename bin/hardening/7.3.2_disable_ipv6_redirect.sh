@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Disable IPv6 redirect acceptance."
 
 SYSCTL_PARAMS='net.ipv6.conf.all.accept_redirects=0 net.ipv6.conf.default.accept_redirects=0'
 

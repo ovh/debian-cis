@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
+DESCRIPTION="Set SSH IgnoreRhosts to Yes."
 
 PACKAGE='openssh-server'
 OPTIONS='IgnoreRhosts=yes'

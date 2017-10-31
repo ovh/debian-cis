@@ -2,6 +2,8 @@ LONG_SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 # Variable initialization, to avoid crash
 CRITICAL_ERRORS_NUMBER=0 # This will be used to see if a script failed, or passed
+BATCH_MODE=0
+BATCH_OUTPUT=""
 status=""
 forcedstatus=""
 SUDO_CMD=""
@@ -13,8 +15,6 @@ SUDO_CMD=""
 
 # Environment Sanitizing
 export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-
-info "Working on $SCRIPT_NAME"
 
 # Arguments parsing
 while [[ $# > 0 ]]; do
@@ -35,12 +35,21 @@ while [[ $# > 0 ]]; do
         --sudo)
         SUDO_CMD="sudo -n"
         ;;
+        --batch)
+            debug "Auditing in batch mode, will limit output by setting LOGLEVEL to 'ok'."
+            BATCH_MODE=1
+            LOGLEVEL=ok
+            [ -r $CIS_ROOT_DIR/lib/common.sh     ] && . $CIS_ROOT_DIR/lib/common.sh
+        ;;
         *)
             debug "Unknown option passed"
         ;;
     esac
     shift
 done
+
+info "Working on $SCRIPT_NAME"
+info "[DESCRIPTION] $DESCRIPTION"
 
 # Source specific configuration file
 if ! [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] ; then
@@ -72,8 +81,10 @@ fi
 
 if [ -z $status ]; then
     crit "Could not find status variable for $SCRIPT_NAME, considered as disabled"
+
     exit 2
 fi
+
 
 case $status in
     enabled | true )
@@ -99,10 +110,20 @@ case $status in
         ;;
 esac
 
-if [ $CRITICAL_ERRORS_NUMBER = 0 ]; then
-    ok "Check Passed"
+if [ $CRITICAL_ERRORS_NUMBER -eq 0 ]; then
+    if [ $BATCH_MODE -eq 1 ]; then
+        BATCH_OUTPUT="OK $SCRIPT_NAME $BATCH_OUTPUT"
+        echo $BATCH_OUTPUT
+    else
+        ok "Check Passed"
+    fi
     exit 0 # Means ok status
 else
-    crit "Check Failed"
+    if [ $BATCH_MODE -eq 1 ]; then
+        BATCH_OUTPUT="KO $SCRIPT_NAME $BATCH_OUTPUT"
+        echo $BATCH_OUTPUT
+    else
+        crit "Check Failed"
+    fi
     exit 1 # Means critical status
 fi

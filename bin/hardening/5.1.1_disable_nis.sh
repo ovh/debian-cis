@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
+DESCRIPTION="Ensure that Network Information Service is not installed. Recommended alternative : LDAP."
 
 PACKAGE='nis'
 

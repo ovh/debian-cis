@@ -23,6 +23,7 @@ AUDIT_ALL_ENABLE_PASSED=0
 ALLOW_SERVICE_LIST=0
 SET_HARDENING_LEVEL=0
 SUDO_MODE=''
+BATCH_MODE=''
 
 usage() {
     cat << EOF
@@ -91,6 +92,11 @@ OPTIONS:
         the '-n' option instructs sudo not to prompt for a password.
         Finally note that '--sudo' mode only works for audit mode.
 
+    --batch
+        While performing system audit, this option sets LOGLEVEL to 'ok' and
+        captures all output to print only one line once the check is done, formatted like :
+        OK|KO OK|KO|WARN{subcheck results} [OK|KO|WARN{...}]
+
 EOF
     exit 0
 }
@@ -135,6 +141,10 @@ while [[ $# > 0 ]]; do
         --sudo)
             SUDO_MODE='--sudo'
         ;;
+        --batch)
+            BATCH_MODE='--batch'
+            LOGLEVEL=ok
+        ;;
         -h|--help)
             usage
         ;;
@@ -159,6 +169,8 @@ fi
 [ -r $CIS_ROOT_DIR/etc/hardening.cfg ] && . $CIS_ROOT_DIR/etc/hardening.cfg
 [ -r $CIS_ROOT_DIR/lib/common.sh     ] && . $CIS_ROOT_DIR/lib/common.sh
 [ -r $CIS_ROOT_DIR/lib/utils.sh      ] && . $CIS_ROOT_DIR/lib/utils.sh
+
+if [ $BATCH_MODE ]; then MACHINE_LOG_LEVEL=3; fi
 
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ] ; then
@@ -206,16 +218,16 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     fi
 
     info "Treating $SCRIPT"
-    
+
     if [ $AUDIT = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit $SUDO_MODE"
-        $SCRIPT --audit $SUDO_MODE
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit $SUDO_MODE $BATCH_MODE"
+        $SCRIPT --audit $SUDO_MODE $BATCH_MODE
     elif [ $AUDIT_ALL = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE"
-        $SCRIPT --audit-all $SUDO_MODE
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
+        $SCRIPT --audit-all $SUDO_MODE $BATCH_MODE
     elif [ $AUDIT_ALL_ENABLE_PASSED = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE"
-        $SCRIPT --audit-all $SUDO_MODE
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE" $BATCH_MODE
+        $SCRIPT --audit-all $SUDO_MODE $BATCH_MODE
     elif [ $APPLY = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
         $SCRIPT
@@ -233,7 +245,7 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
                 sed -i -re 's/^status=.+/status=enabled/' $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg
                 info "Status set to enabled in $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
             fi
-        ;;    
+        ;;
         1)
             debug "$SCRIPT failed"
             FAILED_CHECKS=$((FAILED_CHECKS+1))
@@ -245,19 +257,32 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     esac
 
     TOTAL_CHECKS=$((TOTAL_CHECKS+1))
- 
+
 done
 
 TOTAL_TREATED_CHECKS=$((TOTAL_CHECKS-DISABLED_CHECKS))
 
-printf "%40s\n" "################### SUMMARY ###################"
-printf "%30s %s\n"        "Total Available Checks :" "$TOTAL_CHECKS"
-printf "%30s %s\n"        "Total Runned Checks :" "$TOTAL_TREATED_CHECKS"
-printf "%30s [ %7s ]\n"   "Total Passed Checks :" "$PASSED_CHECKS/$TOTAL_TREATED_CHECKS"
-printf "%30s [ %7s ]\n"   "Total Failed Checks :" "$FAILED_CHECKS/$TOTAL_TREATED_CHECKS"
-printf "%30s %.2f %%\n"   "Enabled Checks Percentage :" "$( echo "($TOTAL_TREATED_CHECKS/$TOTAL_CHECKS) * 100" | bc -l)"
-if [ $TOTAL_TREATED_CHECKS != 0 ]; then
-    printf "%30s %.2f %%\n"   "Conformity Percentage :" "$( echo "($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100" | bc -l)"
+if [ $BATCH_MODE ]; then
+    BATCH_SUMMARY="AUDIT_SUMMARY "
+    BATCH_SUMMARY+="PASSED_CHECKS:${PASSED_CHECKS:-0} "
+    BATCH_SUMMARY+="RUN_CHECKS:${TOTAL_TREATED_CHECKS:-0} "
+    BATCH_SUMMARY+="TOTAL_CHECKS_AVAIL:${TOTAL_CHECKS:-0}"
+    if [ $TOTAL_TREATED_CHECKS != 0 ]; then
+        BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:$(printf "%.2f" $( echo "($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100" | bc -l))"
+    else
+        BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:N.A" # No check runned, avoid division by 0
+    fi
+    echo $BATCH_SUMMARY
 else
-    printf "%30s %s %%\n"   "Conformity Percentage :" "N.A" # No check runned, avoid division by 0 
+    printf "%40s\n" "################### SUMMARY ###################"
+    printf "%30s %s\n"        "Total Available Checks :" "$TOTAL_CHECKS"
+    printf "%30s %s\n"        "Total Runned Checks :" "$TOTAL_TREATED_CHECKS"
+    printf "%30s [ %7s ]\n"   "Total Passed Checks :" "$PASSED_CHECKS/$TOTAL_TREATED_CHECKS"
+    printf "%30s [ %7s ]\n"   "Total Failed Checks :" "$FAILED_CHECKS/$TOTAL_TREATED_CHECKS"
+    printf "%30s %.2f %%\n"   "Enabled Checks Percentage :" "$( echo "($TOTAL_TREATED_CHECKS/$TOTAL_CHECKS) * 100" | bc -l)"
+    if [ $TOTAL_TREATED_CHECKS != 0 ]; then
+        printf "%30s %.2f %%\n"   "Conformity Percentage :" "$( echo "($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100" | bc -l)"
+    else
+        printf "%30s %s %%\n"   "Conformity Percentage :" "N.A" # No check runned, avoid division by 0
+    fi
 fi

@@ -12,9 +12,11 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 USER='root'
+DESCRIPTION="Timeout 600 seconds on tty."
+
 PATTERN='TMOUT='
 VALUE='600'
-FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d /etc/profile'
+FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d /etc/profile .'
 FILE='/etc/profile.d/CIS_99.1_timeout.sh'
 
 # This function will be called if the script status is on enabled / audit mode

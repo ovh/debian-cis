@@ -12,6 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
+DESCRIPTION="Ensure password fields are not empty in /etc/shadow."
 
 FILE='/etc/shadow'
 

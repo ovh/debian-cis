@@ -18,7 +18,7 @@ FILE='/etc/shadow'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if accounts have an empty password"
-    RESULT=$(cat $FILE | awk -F: '($2 == "" ) { print $1 }')
+    RESULT=$($SUDO_CMD cat $FILE | awk -F: '($2 == "" ) { print $1 }')
     if [ ! -z "$RESULT" ]; then
         crit "Some accounts have an empty password"
         crit $RESULT

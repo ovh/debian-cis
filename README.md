@@ -80,6 +80,11 @@ configuration. It will run all scripts in audit mode. If a script passes,
 it will automatically be enabled for future runs. Do NOT use this option
 if you have already started to customize your configuration.
 
+``--sudo``: Audit your system as a normal user, but allow sudo escalation to read
+specific root read-only files. You need to provide a sudoers file in /etc/sudoers.d/
+with NOPASWD option, since checks are executed with ``sudo -n`` option, that will
+not prompt for a password.
+
 ## Hacking
 
 **Getting the source**

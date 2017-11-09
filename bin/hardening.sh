@@ -22,6 +22,7 @@ AUDIT_ALL=0
 AUDIT_ALL_ENABLE_PASSED=0
 ALLOW_SERVICE_LIST=0
 SET_HARDENING_LEVEL=0
+SUDO_MODE=''
 
 usage() {
     cat << EOF
@@ -83,6 +84,13 @@ OPTIONS:
         The test number is the numbered prefix of the script,
         i.e. the test number of 1.2_script_name.sh is 1.2.
 
+    --sudo
+        This option lets you audit your system as a normal user, but allows sudo
+        escalation to gain read-only access to root files. Note that you need to
+        provide a sudoers file with NOPASSWD option in /etc/sudoers.d/ because
+        the '-n' option instructs sudo not to prompt for a password.
+        Finally note that '--sudo' mode only works for audit mode.
+
 EOF
     exit 0
 }
@@ -123,6 +131,9 @@ while [[ $# > 0 ]]; do
         --only)
             TEST_LIST[${#TEST_LIST[@]}]="$2"
             shift
+        ;;
+        --sudo)
+            SUDO_MODE='--sudo'
         ;;
         -h|--help)
             usage
@@ -197,14 +208,14 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     info "Treating $SCRIPT"
     
     if [ $AUDIT = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit"
-        $SCRIPT --audit
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit $SUDO_MODE"
+        $SCRIPT --audit $SUDO_MODE
     elif [ $AUDIT_ALL = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all"
-        $SCRIPT --audit-all
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE"
+        $SCRIPT --audit-all $SUDO_MODE
     elif [ $AUDIT_ALL_ENABLE_PASSED = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all"
-        $SCRIPT --audit-all
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE"
+        $SCRIPT --audit-all $SUDO_MODE
     elif [ $APPLY = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
         $SCRIPT

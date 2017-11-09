@@ -14,23 +14,30 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=4
 
 # Find all files with setuid or setgid set
-AUDIT_PARAMS=$(find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print \
+SUDO_CMD='sudo -n'
+AUDIT_PARAMS=$($SUDO_CMD find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print \
 "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 \
 -k privileged" }')
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    IFS=$'\n'
+    # define custom IFS and save default one
+    d_IFS=$IFS
+    c_IFS=$'\n'
+    IFS=$c_IFS
     for AUDIT_VALUE in $AUDIT_PARAMS; do
         debug "$AUDIT_VALUE should be in file $FILE"
+        IFS=$d_IFS
         does_pattern_exist_in_file $FILE $AUDIT_VALUE
+        IFS=$c_IFS
         if [ $FNRET != 0 ]; then
             crit "$AUDIT_VALUE is not in file $FILE"
         else
             ok "$AUDIT_VALUE is present in $FILE"
         fi
     done
+    IFS=$d_IFS
 }
 
 # This function will be called if the script status is on enabled mode

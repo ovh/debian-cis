@@ -19,7 +19,7 @@ RESULT=''
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if accounts have a legacy password entry"
-    if grep '^+:' $FILE -q; then
+    if $SUDO_CMD grep '^+:' $FILE -q; then
         RESULT=$(grep '^+:' $FILE)
         crit "Some accounts have a legacy password entry"
         crit $RESULT

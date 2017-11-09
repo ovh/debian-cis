@@ -18,7 +18,7 @@ USER='root'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are unowned files"
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null)
+    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' $SUDO_CMD find '{}' -xdev -nouser -print 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
         crit "Some unowned files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')

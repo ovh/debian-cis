@@ -16,7 +16,7 @@ HARDENING_LEVEL=2
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are sgid files"
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -2000 -print)
+    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' $SUDO_CMD find '{}' -xdev -type f -perm -2000 -print)
     for BINARY in $RESULT; do
         if grep -q $BINARY <<< "$EXCEPTIONS"; then
             debug "$BINARY is confirmed as an exception"

@@ -18,7 +18,7 @@ GROUP='root'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are ungrouped files"
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null)
+    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' $SUDO_CMD find '{}' -xdev -nogroup -print 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
         crit "Some ungrouped files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')

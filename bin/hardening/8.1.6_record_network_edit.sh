@@ -23,16 +23,22 @@ FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    IFS=$'\n'
+    # define custom IFS and save default one
+    d_IFS=$IFS
+    c_IFS=$'\n'
+    IFS=$c_IFS
     for AUDIT_VALUE in $AUDIT_PARAMS; do
         debug "$AUDIT_VALUE should be in file $FILE"
+        IFS=$d_IFS
         does_pattern_exist_in_file $FILE $AUDIT_VALUE
+        IFS=$c_IFS
         if [ $FNRET != 0 ]; then
             crit "$AUDIT_VALUE is not in file $FILE"
         else
             ok "$AUDIT_VALUE is present in $FILE"
         fi
     done
+    IFS=$d_IFS
 }
 
 # This function will be called if the script status is on enabled mode

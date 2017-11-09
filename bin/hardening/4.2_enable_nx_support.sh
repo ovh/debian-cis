@@ -19,7 +19,7 @@ PATTERN='NX[[:space:]]\(Execute[[:space:]]Disable\)[[:space:]]protection:[[:spac
 nx_supported_and_enabled() {
     if grep -q ' nx ' /proc/cpuinfo; then
         # NX supported, but if noexec=off specified, it's not enabled
-        if grep -qi 'noexec=off' /proc/cmdline; then
+        if $SUDO_CMD grep -qi 'noexec=off' /proc/cmdline; then
             FNRET=1 # supported but disabled
         else
             FNRET=0 # supported and enabled

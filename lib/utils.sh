@@ -8,7 +8,7 @@ has_sysctl_param_expected_result() {
     local SYSCTL_PARAM=$1
     local EXP_RESULT=$2
 
-    if [ "$(sysctl $SYSCTL_PARAM 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
+    if [ "$($SUDO_CMD sysctl $SYSCTL_PARAM 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
         FNRET=0
     elif [ $? = 255 ]; then
         debug "$SYSCTL_PARAM does not exist"
@@ -21,7 +21,7 @@ has_sysctl_param_expected_result() {
 
 does_sysctl_param_exists() {
     local SYSCTL_PARAM=$1
-    if [ "$(sysctl -a 2>/dev/null |grep "$SYSCTL_PARAM" -c)" = 0 ]; then
+    if [ "$($SUDO_CMD sysctl -a 2>/dev/null |grep "$SYSCTL_PARAM" -c)" = 0 ]; then
         FNRET=1
     else
         FNRET=0
@@ -50,7 +50,7 @@ set_sysctl_param() {
 
 does_pattern_exist_in_dmesg() {
     local PATTERN=$1
-    if $(dmesg | grep -qE "$PATTERN"); then
+    if $($SUDO_CMD dmesg | grep -qE "$PATTERN"); then
         FNRET=0
     else
         FNRET=1
@@ -63,7 +63,7 @@ does_pattern_exist_in_dmesg() {
 
 does_file_exist() {
     local FILE=$1
-    if [ -e $FILE ]; then
+    if $SUDO_CMD [ -e $FILE ]; then
         FNRET=0
     else
         FNRET=1
@@ -76,8 +76,8 @@ has_file_correct_ownership() {
     local GROUP=$3
     local USERID=$(id -u $USER)
     local GROUPID=$(getent group $GROUP | cut -d: -f3)
-    debug "stat -c '%u %g' $FILE"
-    if [ "$(stat -c "%u %g" $FILE)" = "$USERID $GROUPID" ]; then
+    debug "$SUDO_CMD stat -c '%u %g' $FILE"
+    if [ "$($SUDO_CMD stat -c "%u %g" $FILE)" = "$USERID $GROUPID" ]; then
         FNRET=0
     else
         FNRET=1
@@ -88,7 +88,7 @@ has_file_correct_permissions() {
     local FILE=$1
     local PERMISSIONS=$2
     
-    if [ $(stat -L -c "%a" $1) = "$PERMISSIONS" ]; then
+    if [ $($SUDO_CMD stat -L -c "%a" $1) = "$PERMISSIONS" ]; then
         FNRET=0
     else
         FNRET=1
@@ -100,9 +100,9 @@ does_pattern_exist_in_file() {
     local PATTERN=$2
 
     debug "Checking if $PATTERN is present in $FILE"
-    if [ -r "$FILE" ] ; then
-        debug "grep -qE -- '$PATTERN' $FILE"
-        if $(grep -qE -- "$PATTERN" $FILE); then
+    if $SUDO_CMD [ -r "$FILE" ] ; then
+        debug "$SUDO_CMD grep -qE -- '$PATTERN' $FILE"
+        if $($SUDO_CMD grep -qE -- "$PATTERN" $FILE); then
             FNRET=0
         else
             FNRET=1
@@ -189,7 +189,7 @@ does_group_exist() {
 
 is_service_enabled() {
     local SERVICE=$1
-    if [ $(find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l) -gt 0 ]; then
+    if [ $($SUDO_CMD find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l) -gt 0 ]; then
         debug "Service $SERVICE is enabled"
         FNRET=0
     else
@@ -209,10 +209,10 @@ is_kernel_option_enabled() {
     if [ $# -ge 2 ] ; then
         MODULE_NAME="$2"
     fi
-    if [ -r "/proc/config.gz" ] ; then
-        RESULT=$(zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
-    elif [ -r "/boot/config-$(uname -r)" ] ; then
-        RESULT=$(grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
+    if $SUDO_CMD [ -r "/proc/config.gz" ] ; then
+        RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
+    elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ] ; then
+        RESULT=$($SUDO_CMD grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
     fi
     ANSWER=$(cut -d = -f 2 <<< "$RESULT")
     if [ "x$ANSWER" = "xy" ]; then
@@ -226,13 +226,13 @@ is_kernel_option_enabled() {
         FNRET=2 # Not found
     fi
 
-    if [ "$FNRET" -ne 0 -a -n "$MODULE_NAME" -a -d "/lib/modules/$(uname -r)" ] ; then
+    if $SUDO_CMD [ "$FNRET" -ne 0 -a -n "$MODULE_NAME" -a -d "/lib/modules/$(uname -r)" ] ; then
         # also check in modules, because even if not =y, maybe
         # the admin compiled it separately later (or out-of-tree)
         # as a module (regardless of the fact that we have =m or not)
         debug "Checking if we have $MODULE_NAME.ko"
-        local modulefile=$(find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
-        if [ -n "$modulefile" ] ; then
+        local modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
+        if $SUDO_CMD [ -n "$modulefile" ] ; then
             debug "We do have $modulefile!"
             # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
             if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/ ; then
@@ -334,10 +334,10 @@ apt_update_if_needed()
         if [ $UPDATE_AGE -gt 21600 ]
         then
             # update too old, refresh database
-            apt-get update -y >/dev/null 2>/dev/null
+            $SUDO_CMD apt-get update -y >/dev/null 2>/dev/null
         fi
     else
-        apt-get update -y >/dev/null 2>/dev/null
+        $SUDO_CMD apt-get update -y >/dev/null 2>/dev/null
     fi
 }
 
@@ -345,7 +345,7 @@ apt_check_updates()
 {
     local NAME="$1"
     local DETAILS="/dev/shm/${NAME}"
-    apt-get upgrade -s 2>/dev/null | grep -E "^Inst" > $DETAILS || : 
+    $SUDO_CMD apt-get upgrade -s 2>/dev/null | grep -E "^Inst" > $DETAILS || : 
     local COUNT=$(wc -l < "$DETAILS")
     FNRET=128 # Unknown function return result
     RESULT="" # Result output for upgrade

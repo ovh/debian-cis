@@ -1,0 +1,23 @@
+Cmnd_Alias SCL_CMD =    /bin/grep ,\
+                        /bin/zgrep,\
+                        /bin/cat,\
+                        /usr/bin/stat,\
+                        /usr/bin/getent,\
+                        /usr/bin/[,\
+                        /bin/ls,\
+                        /usr/bin/find,\
+                        ! /usr/bin/find *-exec*, \
+                        ! /usr/bin/find *-delete*,\
+                        /usr/bin/apt-get update -y,\
+                        /usr/bin/apt-get upgrade -s,\
+                        /usr/bin/cut,\
+                        /sbin/iptables -nL,\
+                        /sbin/iptables -nL *,\
+                        /sbin/sysctl net.*,\
+                        /sbin/sysctl fs.*,\
+                        /sbin/sysctl kernel.*,\
+                        /sbin/sysctl -a,\
+                        /bin/dmesg "",\
+                        /bin/netstat
+
+cisharden ALL = (root) NOPASSWD: SCL_CMD

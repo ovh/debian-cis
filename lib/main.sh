@@ -4,6 +4,7 @@ SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 CRITICAL_ERRORS_NUMBER=0 # This will be used to see if a script failed, or passed
 status=""
 forcedstatus=""
+SUDO_CMD=""
 
 [ -r $CIS_ROOT_DIR/lib/constants.sh  ] && . $CIS_ROOT_DIR/lib/constants.sh
 [ -r $CIS_ROOT_DIR/etc/hardening.cfg ] && . $CIS_ROOT_DIR/etc/hardening.cfg
@@ -30,6 +31,9 @@ while [[ $# > 0 ]]; do
         else
             info "Audit argument passed but script is disabled"
         fi
+        ;;
+        --sudo)
+        SUDO_CMD="sudo -n"
         ;;
         *)
             debug "Unknown option passed"

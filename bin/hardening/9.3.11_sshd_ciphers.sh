@@ -14,7 +14,7 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=2
 
 PACKAGE='openssh-server'
-OPTIONS='Ciphers=aes128-ctr,aes192-ctr,aes256-ctr'
+OPTIONS='Ciphers=chacha20-poly1305@openssh\.com,aes256-gcm@openssh\.com,aes128-gcm@openssh\.com,aes256-ctr,aes192-ctr,aes128-ctr'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode

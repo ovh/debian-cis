@@ -92,7 +92,7 @@ if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment." 
+     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
      echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi

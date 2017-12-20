@@ -4,8 +4,6 @@
 set -e
 # stop on undefined variable
 set -u
-# debug
-#set -x
 
 mytmpdir=$(mktemp -d -t debian-cis-test.XXXXXX)
 totalerrors=255

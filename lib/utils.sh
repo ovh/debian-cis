@@ -95,14 +95,25 @@ has_file_correct_permissions() {
     fi 
 }
 
+does_pattern_exist_in_file_nocase() {
+    _does_pattern_exist_in_file "-Ei" $*
+}
+
 does_pattern_exist_in_file() {
-    local FILE=$1
-    local PATTERN=$2
+    _does_pattern_exist_in_file "-E" $*
+}
+
+_does_pattern_exist_in_file() {
+    local OPTIONS="$1"
+    shift
+    local FILE="$1"
+    shift
+    local PATTERN="$*"
 
     debug "Checking if $PATTERN is present in $FILE"
     if $SUDO_CMD [ -r "$FILE" ] ; then
-        debug "$SUDO_CMD grep -qE -- '$PATTERN' $FILE"
-        if $($SUDO_CMD grep -qE -- "$PATTERN" $FILE); then
+        debug "$SUDO_CMD grep -q $OPTIONS -- '$PATTERN' $FILE"
+        if $($SUDO_CMD grep -q $OPTIONS -- "$PATTERN" $FILE); then
             FNRET=0
         else
             FNRET=1
@@ -382,3 +393,18 @@ is_pkg_installed()
         FNRET=1
     fi
 }
+
+
+# Returns Debian major version
+
+get_debian_major_version()
+{
+    DEB_MAJ_VER=""
+    does_file_exist /etc/debian_version
+    if [ $FNRET ]; then
+        DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
+    else
+        DEB_MAJ_VER=$(lsb_release -r | cut -f2 | cut -d '.' -f 1)
+    fi
+}
+

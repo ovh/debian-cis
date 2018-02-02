@@ -1,3 +1,12 @@
+cis-hardening (1.1-1) unstable; urgency=low
+
+  * Add hardening templating and several enhancements
+  * CIS_ROOT_DIR management
+  * Update ciphers list in 9.3.11 with latest chacha20 and gcm ciphers
+  * Debian packaging clean up
+
+ -- Julien Delayen <julien.delayen@corp.ovh.com>  Fri, 02 Feb 2018 09:38:31 +0100
+
 cis-hardening (1.0-11) jessie; urgency=low
 
   * fixed option name in 9.3.9_disable_sshd_permitemptypasswords.sh

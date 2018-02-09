@@ -21,6 +21,11 @@ FILES='/etc/motd /etc/issue /etc/issue.net'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     for FILE in $FILES; do
+        does_file_exist $FILE
+        if [ $FNRET != 0 ]; then
+            crit "$FILE does not exist"
+            continue
+        fi
         has_file_correct_ownership $FILE $USER $GROUP
         if [ $FNRET = 0 ]; then
             ok "$FILE has correct ownership"

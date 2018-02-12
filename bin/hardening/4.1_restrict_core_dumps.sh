@@ -14,17 +14,33 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=2
 
 LIMIT_FILE='/etc/security/limits.conf'
+LIMIT_DIR='/etc/security/limits.d'
 LIMIT_PATTERN='^\*[[:space:]]*hard[[:space:]]*core[[:space:]]*0$'
 SYSCTL_PARAM='fs.suid_dumpable'
 SYSCTL_EXP_RESULT=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_pattern_exist_in_file $LIMIT_FILE $LIMIT_PATTERN
-    if [ $FNRET != 0 ]; then
-        crit "$LIMIT_PATTERN not present in $LIMIT_FILE"
-    else
-        ok "$LIMIT_PATTERN present in $LIMIT_FILE"
+    SEARCH_RES=0
+    LIMIT_FILES=""
+    if $SUDO_CMD [ -d $LIMIT_DIR ]; then
+        for file in $($SUDO_CMD ls $LIMIT_DIR/*.conf); do
+            LIMIT_FILES="$LIMIT_FILES $LIMIT_DIR/$file"
+        done
+    fi
+    debug "Files to search $LIMIT_FILE $LIMIT_FILES"
+    for file in $LIMIT_FILE $LIMIT_FILES; do
+        does_pattern_exist_in_file $file $LIMIT_PATTERN
+        if [ $FNRET != 0 ]; then
+            debug "$LIMIT_PATTERN not present in $file"
+        else
+            ok "$LIMIT_PATTERN present in $file"
+            SEARCH_RES=1
+            break
+        fi
+    done
+    if [ $SEARCH_RES = 0 ]; then
+        crit "$LIMIT_PATTERN is not present in $LIMIT_FILE $LIMIT_FILES"
     fi
     has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
     if [ $FNRET != 0 ]; then

@@ -199,7 +199,7 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
         # --only X has been specified at least once, is this script in my list ?
         SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<< "$(basename $SCRIPT)")
         SCRIPT_PREFIX_RE=$(sed -e 's/\./\\./g' <<< "$SCRIPT_PREFIX")
-        if ! grep -qEw "$SCRIPT_PREFIX_RE" <<< "${TEST_LIST[@]}"; then
+        if ! grep -qE "(^| )$SCRIPT_PREFIX_RE" <<< "${TEST_LIST[@]}"; then
             # not in the list
             continue
         fi

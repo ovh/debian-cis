@@ -90,3 +90,18 @@ info () {
 debug () {
     if [ $MACHINE_LOG_LEVEL -ge 5 ]; then _logger $GRAY "[DBG ] $*"; fi
 }
+
+
+#
+# sudo wrapper
+# issue crit state if not allowed to perform sudo
+# for the specified command
+#
+sudo_wrapper() {
+    if  sudo -l "$@" >/dev/null 2>&1 ; then
+        sudo -n "$@"
+    else
+        crit "Not allowed to \"sudo -n $*\" "
+    fi
+}
+

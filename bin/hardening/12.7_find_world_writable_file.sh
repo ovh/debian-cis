@@ -17,7 +17,8 @@ DESCRIPTION="Find world writable files."
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are world writable files"
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' $SUDO_CMD find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
+    FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'} )
+    RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
     if [ ! -z "$RESULT" ]; then
         crit "Some world writable files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')

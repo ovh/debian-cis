@@ -33,7 +33,7 @@ while [[ $# > 0 ]]; do
         fi
         ;;
         --sudo)
-        SUDO_CMD="sudo -n"
+        SUDO_CMD="sudo_wrapper"
         ;;
         --batch)
             debug "Auditing in batch mode, will limit output by setting LOGLEVEL to 'ok'."

@@ -23,7 +23,7 @@ audit () {
     for FILE in $FILES; do
         does_file_exist $FILE
         if [ $FNRET != 0 ]; then
-            crit "$FILE does not exist"
+            warn "$FILE does not exist"
         else
             has_file_correct_ownership $FILE $USER $GROUP
             if [ $FNRET = 0 ]; then

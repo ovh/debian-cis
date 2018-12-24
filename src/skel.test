@@ -1,0 +1,35 @@
+test_audit() {
+    # Make all variable local to the function by using `local`
+
+    # Optional part, only here if you need to change the audit script's default configuration
+    describe Running void to generate the conf file that will later be edited
+    /opt/debian-cis/bin/hardening/"${script_id}".sh || true
+    # for instance
+    echo 'EXCEPTIONS="$EXCEPTIONS <some file to treat as exception>"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+
+    # if your blank system is expected to be compliant
+    describe Running on blank host
+    register_test retvalshouldbe 0
+    register_test contain "<SAMPLE MESSAGE>"
+    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    # Proceed to operation that will end up to a non compliant system
+    describe Tests purposely failing
+    register_test retvalshouldbe 1
+    register_test contain "<SAMPLE TEXT SHOWING BAD CONFIG>"
+    register_test contain "$targetfile"
+    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    describe Correcting situation
+    # if the audit script provides "apply" option, enable and run it
+    sed -i 's/disabled/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    /opt/debian-cis/bin/hardening/"${script}".sh || true
+    # otherwise perform action that will make system compliant again
+
+    # Finally assess that your corrective actions end up with a compliant system
+    describe Checking resolved state
+    register_test retvalshouldbe 0
+    register_test contain "<SAMPLE MESSAGE>"
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+}
+

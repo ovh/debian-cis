@@ -113,6 +113,39 @@ Code your check explaining what it does then if you want to test
 $ sed -i "s/status=.+/status=enabled/" etc/conf.d/99.99_custom_script.cfg
 $ ./bin/hardening/99.99_custom_script.sh
 ```
+## Functional testing
+
+Functional tests are available. They are to be run in a Docker environment.
+
+```console
+$ ./tests/docker_build_and_run_tests.sh <target> [name of test script...]
+```
+
+With `target` being like `debian8` or `debian9`.
+
+Running without script arguments will run all tests in `./tests/hardening/` directory.
+Or you can specify one or several test script to be run.
+
+This will build a new Docker image from the current state of the projet and run
+a container that will assess a blank Debian system compliance for each check.  
+For hardening audit points the audit is expected to fail, then be fixed so that
+running the audit a second time will succeed.  
+For vulnerable items, the audit is expected to succeed on a blank
+system, then the functional tests will introduce a weak point, that is expected
+to be detected when running the audit test a second time. Finally running the `apply`
+part of debian-cis script will restore a compliance state that is expected to be
+assed by running the audit check a third time.
+
+Functional tests can make use of the following helper functions :  
+
+* `describe <test description>`
+* `run <usecase> <audit_script> <audit_script_options>`
+* `register_test <test content (see below)>`
+  * `retvalshoudbe <integer>` check the script return value
+  * `contain "<SAMPLE TEXT>"` check that the output contains the following text
+
+In order to write your own functional test, you will find a code skeleton in
+`./src/skel.test`.
 
 ## Disclaimer
 

@@ -11,22 +11,25 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# shellcheck disable=2034
 HARDENING_LEVEL=2
 DESCRIPTION="Find SUID system executables."
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are suid files"
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' $SUDO_CMD find '{}' -xdev -type f -perm -4000 -print)
-    for BINARY in $RESULT; do
-        if grep -q $BINARY <<< "$EXCEPTIONS"; then
+    FOUND_BINARIES=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' "$SUDO_CMD" find '{}' -xdev -type f -perm -4000 -print)
+    BAD_BINARIES=""
+    for BINARY in $FOUND_BINARIES; do
+        if grep -qw "$BINARY" <<< "$EXCEPTIONS"; then
             debug "$BINARY is confirmed as an exception"
-            RESULT=$(sed "s!$BINARY!!" <<< $RESULT)
+        else
+            BAD_BINARIES="$BAD_BINARIES $BINARY"
         fi
     done
-    if [ ! -z "$RESULT" ]; then
+    if [ ! -z "$BAD_BINARIES" ]; then
         crit "Some suid files are present"
-        FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
+        FORMATTED_RESULT=$(sed "s/ /\n/g" <<< "$BAD_BINARIES" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
         ok "No unknown suid files found"
@@ -64,8 +67,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
-    . $CIS_ROOT_DIR/lib/main.sh
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
+    # shellcheck source=/opt/debian-cis/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

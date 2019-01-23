@@ -19,7 +19,8 @@ DESCRIPTION="Find SGID system executables."
 audit () {
     info "Checking if there are sgid files"
     FS_NAMES=$(df --local -P | awk '{ if (NR!=1) print $6 }' )
-    FOUND_BINARIES=$( $SUDO_CMD find "$FS_NAMES" -xdev -type f -perm -2000 -print)
+    # shellcheck disable=2086
+    FOUND_BINARIES=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -print)
     BAD_BINARIES=""
     for BINARY in $FOUND_BINARIES; do
         if grep -qw "$BINARY" <<< "$EXCEPTIONS"; then

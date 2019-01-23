@@ -27,8 +27,8 @@ if [ ! -f "$dockerfile" ] ; then
     exit 1
 fi
 
-trap 'docker rm debian_cis_test_${target}' EXIT HUP INT
 
 docker build -f "$dockerfile" -t "debian_cis_test:${target}" "$(dirname "$0")"/../
 
-docker run --name debian_cis_test_"${target}" debian_cis_test:"${target}" "$@"
+docker run --rm debian_cis_test:"${target}" "$@"
+

@@ -7,10 +7,11 @@ set -u
 #set -x
 
 mytmpdir=$(mktemp -d -t debian-cis-test.XXXXXX)
+totalerrors=255
 
 cleanup_and_exit() {
     rm -rf "$mytmpdir"
-    exit 255
+    exit $totalerrors
 }
 trap "cleanup_and_exit" EXIT HUP INT
 

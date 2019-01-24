@@ -8,7 +8,7 @@
 # describe <STRING>
 describe() {
     # shellcheck disable=2154
-    printf "\033[36mxxx %s::%s \033[0m\n" "$name" "$*"
+    printf "\033[4;36mxxx %s::%s \033[0m\n" "$name" "$*"
 }
 
 # Register an assertion on an audit before running it

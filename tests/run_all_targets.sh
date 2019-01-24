@@ -1,4 +1,5 @@
 #!/bin/bash
+# run-shellcheck
 # usage : $0 [--nodel|--nowait] [1.1_script-to-test.sh...]
 # --nodel will keep logs
 # --nowait will not wait for you to see logs

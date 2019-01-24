@@ -1,5 +1,6 @@
 #! /bin/bash
 # This file builds a docker image for testing the targeted debian version
+# run-shellcheck
 set -e
 
 target=""

@@ -1,4 +1,5 @@
 #!/bin/bash
+# run-shellcheck
 # stop on any error
 set -e
 # stop on undefined variable

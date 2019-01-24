@@ -1,7 +1,9 @@
+# run-shellcheck
 test_audit() {
     describe Running void to generate the conf file that will later be edited
     # shellcheck disable=2154
     /opt/debian-cis/bin/hardening/"${script}".sh || true
+    # shellcheck disable=2016
     echo 'EXCEPTIONS="$EXCEPTIONS /usr/lib/dbus-1.0/dbus-daemon-launch-helper"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
 
     describe Running on blank host

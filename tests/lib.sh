@@ -1,4 +1,5 @@
 # shellcheck shell=bash
+# run-shellcheck
 ###########################################
 # Assertion functions for funcional tests #
 ###########################################

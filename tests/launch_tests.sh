@@ -12,6 +12,9 @@ totalerrors=255
 
 cleanup_and_exit() {
     rm -rf "$mytmpdir"
+    if [ "$totalerrors" -eq 255 ]; then
+        fatal "RUNTIME ERROR"
+    fi
     exit $totalerrors
 }
 trap "cleanup_and_exit" EXIT HUP INT
@@ -42,9 +45,11 @@ declare -a REGISTERED_TESTS
 #####################
 # in case a fatal event occurs, fatal logs and exits with return code 1
 fatal() {
+    printf "\033[1;91m###### \033[0m\n" >&2
     printf "%b %b\n" "\033[1;91mFATAL\033[0m" "$*" >&2
     printf "%b \n" "\033[1;91mEXIT TEST SUITE WITH FAILURE\033[0m" >&2
-    exit 1
+    trap - EXIT
+    exit 255
 }
 # prints that a test failed
 fail() {

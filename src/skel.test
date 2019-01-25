@@ -1,9 +1,11 @@
+# run-shellcheck
 test_audit() {
     # Make all variable local to the function by using `local`
 
     # Optional part, only here if you need to change the audit script's default configuration
     describe Running void to generate the conf file that will later be edited
-    /opt/debian-cis/bin/hardening/"${script_id}".sh || true
+    # shellcheck disable=2154
+    /opt/debian-cis/bin/hardening/"${script}".sh || true
     # for instance
     echo 'EXCEPTIONS="$EXCEPTIONS <some file to treat as exception>"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
 

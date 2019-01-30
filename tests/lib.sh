@@ -66,6 +66,10 @@ contain()
     fi
 }
 
+dismiss_test() {
+    dismiss_test=1
+}
+
 # test is expected to fail (for instance on blank system)
 # then the test wont be taken into account for test suite success
 dismiss_count_for_test() {

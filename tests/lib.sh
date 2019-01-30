@@ -67,6 +67,7 @@ contain()
 }
 
 dismiss_test() {
+    # shellcheck disable=2034
     dismiss_test=1
 }
 

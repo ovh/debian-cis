@@ -6,7 +6,7 @@ files=""
 retval=0
 
 if [ $# -eq 0 ]; then
-    files=$(find . -name "*.sh")
+    files=$(find . -name "*.sh" | sort -V )
 else
     files="$*"
 fi

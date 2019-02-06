@@ -60,7 +60,7 @@ if ! [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] ; then
     if type -t create_config | grep -qw function ; then
         create_config >> $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
     else
-        echo "status=disabled" >> $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
+        echo "status=audit" >> $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
     fi
 fi
 [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] && . $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg

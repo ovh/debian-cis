@@ -272,7 +272,7 @@ if [ $BATCH_MODE ]; then
     else
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:N.A" # No check runned, avoid division by 0
     fi
-    echo $BATCH_SUMMARY
+    becho $BATCH_SUMMARY
 else
     printf "%40s\n" "################### SUMMARY ###################"
     printf "%30s %s\n"        "Total Available Checks :" "$TOTAL_CHECKS"

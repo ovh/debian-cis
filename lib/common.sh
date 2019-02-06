@@ -1,4 +1,4 @@
-# CIS Debian 7 Hardening common functions
+# CIS Debian Hardening common functions
 
 #
 # File Backup functions

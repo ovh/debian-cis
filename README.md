@@ -1,6 +1,6 @@
-# CIS Debian 7/8 Hardening
+# CIS Debian 7/8/9 Hardening
 
-Modular Debian 7/8 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
+Modular Debian 7/8/9 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
 recommendations. We use it at [OVH](https://www.ovh.com) to harden our PCI-DSS infrastructure.
 
 ```console

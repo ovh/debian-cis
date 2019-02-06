@@ -1,4 +1,4 @@
-# Defines constants for CIS Debian 7 Hardening
+# Defines constants for CIS Debian Hardening
 
 # Script and shell commands homogeneity
 export LANG=C

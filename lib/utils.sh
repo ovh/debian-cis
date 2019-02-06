@@ -1,4 +1,4 @@
-# CIS Debian 7 Hardening Utility functions
+# CIS Debian Hardening Utility functions
 
 #
 # Sysctl 

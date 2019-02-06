@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# CIS Debian 7 Hardening
+# CIS Debian Hardening
 #
 
 # If you followed this CIS hardening, this script follows 8.3.1_install_tripwire.sh

@@ -1,0 +1,4 @@
+# One may want to run the CIS checks daily in order to report the correct or
+# incorrect configuration of a machine in a centralized system via syslog
+# m h dom mon dow   user     command
+  0 3 *   *   *     secaudit /opt/debian-cis/bin/hardening-sh --sudo --audit --batch

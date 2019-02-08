@@ -33,3 +33,4 @@ override_dh_installdocs:
 	dh_installdocs
 	gzip -c AUTHORS > $(CURDIR)/debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/AUTHORS.gz
 	gzip -c src/skel > $(CURDIR)/debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/skel.gz
+	gzip -c example-cron.d-entry > $(CURDIR)/debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/example-cron.d-entry.gz

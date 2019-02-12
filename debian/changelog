@@ -1,3 +1,35 @@
+cis-hardening (1.2-1) unstable; urgency=medium
+
+  * Migrate generic checks from secaudit to cis-hardening
+  * Add crontab
+  * FIX: add becho to send batch output to syslog too
+  * Update debian 7/8/9 in help files and remove in generic scripts
+  * IMP: sort find result by name and version to ease reading
+  * FIX: remove "exernal-sources" option when running shellcheck
+  * Add shellcheck recommendation
+  * FIX: add way of completely skipping test that bugged with jessie
+  * Fix typo in test skeleton and add shellcheck comment
+  * FIX: bug crashing for undeclared variable when consitency checks failed
+  * IMP: tests readability and runtime error handling
+  * IMP: new tag in file to tell that the script should pass shellcheck
+  * FIX: tests return value that was always 255
+  * FIX: quotes in find command, misinterpreted shellcheck advice
+  * FEAT: Add sudo_wrapper to catch unauthorized sudo commands
+  * FEAT: automate shellcheck test with docker
+  * FIX: sed that was too greedy
+  * Add missing /usr/bin/su
+  * FIX: add /usr/bin/* path for suid/guid allowed binaries
+  * Adding batch mode to output just one line of text (no colors) in order to be parsed by computer tools
+  * Change from CIS reco and only warn (no crit) if logfile does not exist
+  * IMP(test): Add feature to run functional tests in docker instance
+  * Improve --only option to perform only specified test and no other lookalike test number
+  * Redirect stderr to avoid printing "no such file" error
+  * resolve #SOC-30 Also check /etc/security/limits.d/ for core dump limit
+  * Fix SOC-28, add test if file exist, if not issue error
+  * Add sudo management in main and utils
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Tue, 12 Feb 2019 11:39:44 +0100
+
 cis-hardening (1.1-1) unstable; urgency=low
 
   * Add hardening templating and several enhancements

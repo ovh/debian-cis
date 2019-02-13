@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# run-shellcheck
 #
 # CIS Debian Hardening
 #
@@ -11,8 +11,11 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# shellcheck disable=2034
 HARDENING_LEVEL=2
+# shellcheck disable=2034
 DESCRIPTION="Verify root is the only UID 0 account."
+EXCEPTIONS=""
 
 FILE='/etc/passwd'
 RESULT=''
@@ -20,23 +23,24 @@ RESULT=''
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if accounts have uid 0"
-    RESULT=$(cat $FILE | awk -F: '($3 == 0 && $1!="root" ) { print $1 }')
+    RESULT=$(awk -F: '($3 == 0 && $1!="root" ) { print $1 }' "$FILE" )
+    FOUND_EXCEPTIONS=""
     for ACCOUNT in $RESULT; do
         debug "Account : $ACCOUNT"
         debug "Exceptions : $EXCEPTIONS"
-        debug "echo \"$EXCEPTIONS\" | grep -q $ACCOUNT"
-        if echo "$EXCEPTIONS" | grep -q $ACCOUNT; then
+        debug "echo \"$EXCEPTIONS\" | grep -qw $ACCOUNT"
+        if echo "$EXCEPTIONS" | grep -qw "$ACCOUNT"; then
             debug "$ACCOUNT is confirmed as an exception"
             RESULT=$(sed "s!$ACCOUNT!!" <<< "$RESULT")
+            FOUND_EXCEPTIONS="$FOUND_EXCEPTIONS $ACCOUNT"
         else
             debug "$ACCOUNT not found in exceptions"
         fi
     done
     if [ ! -z "$RESULT" ]; then
-        crit "Some accounts have uid 0"
-        crit $RESULT
+        crit "Some accounts have uid 0: $(tr '\n' ' ' <<< "$RESULT")"
     else
-        ok "No account with uid 0 appart from root and potential configured exceptions"
+        ok "No account with uid 0 appart from root ${FOUND_EXCEPTIONS:+and configured exceptions:}$FOUND_EXCEPTIONS"
     fi
 }
 
@@ -72,8 +76,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
-    . $CIS_ROOT_DIR/lib/main.sh
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
+    # shellcheck source=/opt/debian-cis/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

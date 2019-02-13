@@ -155,6 +155,11 @@ while [[ $# > 0 ]]; do
     shift
 done
 
+# if no RUN_MODE was passed, usage and quit
+if [ "$AUDIT" -eq 0 -a "$AUDIT_ALL" -eq 0 -a "$AUDIT_ALL_ENABLE_PASSED" -eq 0 -a "$APPLY" -eq 0 ]; then
+    usage
+fi
+
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
@@ -211,7 +216,7 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
         # --only X has been specified at least once, is this script in my list ?
         SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<< "$(basename $SCRIPT)")
         SCRIPT_PREFIX_RE=$(sed -e 's/\./\\./g' <<< "$SCRIPT_PREFIX")
-        if ! grep -qE "(^| )$SCRIPT_PREFIX_RE" <<< "${TEST_LIST[@]}"; then
+        if ! grep -qwE "(^| )$SCRIPT_PREFIX_RE" <<< "${TEST_LIST[@]}"; then
             # not in the list
             continue
         fi

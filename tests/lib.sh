@@ -67,9 +67,9 @@ contain()
 }
 
 # Do not run tests at all for the next `run`
-dismiss_test() {
+skip_tests() {
     # shellcheck disable=2034
-    dismiss_test=1
+    skip_tests=1
 }
 
 # test is expected to fail (for instance on blank system)

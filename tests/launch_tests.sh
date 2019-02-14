@@ -123,10 +123,8 @@ play_consistency_tests() {
     fi
 
     if [ 1 -eq $consist_test ]; then
-        if [ 0 -eq $dismiss_count ]; then
-            nbfailedconsist=$(( nbfailedconsist + 1 ))
-            listfailedconsist="$listfailedconsist $(make_usecase_name "$usecase" consist)"
-        fi
+        nbfailedconsist=$(( nbfailedconsist + 1 ))
+        listfailedconsist="$listfailedconsist $(make_usecase_name "$usecase" consist)"
     fi
 }
 

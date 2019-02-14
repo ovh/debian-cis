@@ -143,7 +143,7 @@ apply () {
 
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # Put authorized IPs you want to allow in "from" field of authorized_keys
 ALLOWED_IPS=""
 EOF

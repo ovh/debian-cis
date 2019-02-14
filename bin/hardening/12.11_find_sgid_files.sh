@@ -46,7 +46,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # Put here valid binaries with sgid enabled separated by spaces
 EXCEPTIONS="/sbin/unix_chkpwd /usr/sbin/unix_chkpwd /usr/bin/bsd-write /usr/bin/chage /usr/bin/crontab /usr/bin/expiry /usr/bin/mutt_dotlock /usr/bin/screen /usr/bin/ssh-agent /usr/bin/wall /usr/sbin/postdrop /usr/sbin/postqueue /usr/bin/at /usr/bin/dotlockfile /usr/bin/mail-lock /usr/bin/mail-touchlock /usr/bin/mail-unlock"
 EOF

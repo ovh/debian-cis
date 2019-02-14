@@ -76,7 +76,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # Put your MACs
 OPTIONS="MACs=umac-128-etm@openssh.com,umac-64-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128@openssh.com,umac-64@openssh.com,hmac-sha2-512,hmac-sha2-256"
 EOF

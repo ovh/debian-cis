@@ -92,7 +92,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # Put here user home directories exceptions, separated by spaces
 EXCEPTIONS=""
 EOF

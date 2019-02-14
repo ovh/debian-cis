@@ -85,7 +85,7 @@ create_config() {
     fi
     set -u
     cat <<EOF
-status=disabled
+status=audit
 # Put your KexAlgorithms
 OPTIONS="KexAlgorithms=$KEX"
 EOF

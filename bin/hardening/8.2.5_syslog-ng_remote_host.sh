@@ -41,7 +41,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 SYSLOG_BASEDIR='/etc/syslog-ng'
 EOF
 }

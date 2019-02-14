@@ -46,7 +46,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # Put Here your valid suid binaries so that they do not appear during the audit
 EXCEPTIONS="/bin/mount /usr/bin/mount /bin/ping /usr/bin/ping /bin/ping6 /usr/bin/ping6 /bin/su /usr/bin/su /bin/umount /usr/bin/umount /usr/bin/chfn /usr/bin/chsh /usr/bin/fping /usr/bin/fping6 /usr/bin/gpasswd /usr/bin/mtr /usr/bin/newgrp /usr/bin/passwd /usr/bin/sudo /usr/bin/sudoedit /usr/lib/openssh/ssh-keysign /usr/lib/pt_chown /usr/bin/at"
 EOF

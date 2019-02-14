@@ -53,7 +53,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # Put here valid UIDs for which multiple usernames are accepted
 EXCEPTIONS=""
 EOF

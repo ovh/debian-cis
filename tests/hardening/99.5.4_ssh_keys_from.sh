@@ -1,6 +1,6 @@
 # run-shellcheck
 test_audit()  {
-    dismiss_test
+    skip_tests
     # shellcheck disable=2154
     run genconf /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 

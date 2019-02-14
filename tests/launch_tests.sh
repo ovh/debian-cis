@@ -24,7 +24,7 @@ tests_list=""
 testno=0
 testcount=0
 
-dismiss_test=0
+skip_tests=0
 dismiss_count=0
 nbfailedret=0
 nbfailedgrep=0
@@ -69,8 +69,9 @@ get_stdout()
 clear_registered_tests() {
     unset REGISTERED_TESTS
     declare -a REGISTERED_TESTS
+    # shellcheck disable=2034
     dismiss_count=0
-    dismiss_test=0
+    skip_tests=0
 }
 
 # Generates a formated test name
@@ -84,7 +85,7 @@ make_usecase_name() {
 
 # Plays the registered test suite
 play_registered_tests() {
-    if [ "$dismiss_test" -eq 1 ]; then
+    if [ "$skip_tests" -eq 1 ]; then
         return
     fi
     usecase_name=$1

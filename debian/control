@@ -11,7 +11,7 @@ Vcs-Browser: https://github.com/ovh/debian-cis/
 Package: cis-hardening
 Architecture: all
 Depends: ${misc:Depends}, bc, patch
-Description: Suite of configurable scripts to audit or harden a Debian Wheezy or Jessie.
- Modular  Debian  7/8  security hardening scripts based on cisecurity.org
+Description: Suite of configurable scripts to audit or harden a Debian.
+ Modular Debian security hardening scripts based on cisecurity.org
  ⟨cisecurity.org⟩ recommendations. We use it at OVH ⟨https://www.ovh.com⟩ to
  harden our PCI-DSS infrastructure.

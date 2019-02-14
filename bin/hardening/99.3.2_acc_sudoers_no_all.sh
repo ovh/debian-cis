@@ -69,7 +69,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # Put EXCEPTION account names here, space separated
 EXCEPT="root %root %sudo %wheel"
 EOF

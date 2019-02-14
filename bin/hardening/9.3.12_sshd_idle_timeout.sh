@@ -73,7 +73,7 @@ apply () {
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-status=disabled
+status=audit
 # In seconds, value of ClientAliveInterval, ClientAliveCountMax bedoing set to 0
 # Settles sshd idle timeout
 SSHD_TIMEOUT=900

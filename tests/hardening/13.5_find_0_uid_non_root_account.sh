@@ -6,8 +6,7 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    useradd usertest1
-    sed -i 's/1000/0/g' /etc/passwd
+    useradd -o -u 0 usertest1
 
     # Proceed to operation that will end up to a non compliant system
     describe Tests purposely failing
@@ -24,8 +23,6 @@ test_audit() {
     run exception /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # Cleanup
-    sed -i '/usertest1/d' /etc/passwd
-    sed -i '/usertest1/d' /etc/shadow
-    sed -i '/usertest1/d' /etc/group
+    userdel -f usertest1
 }
 

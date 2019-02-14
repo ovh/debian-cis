@@ -66,6 +66,7 @@ contain()
     fi
 }
 
+# Do not run tests at all for the next `run`
 dismiss_test() {
     # shellcheck disable=2034
     dismiss_test=1

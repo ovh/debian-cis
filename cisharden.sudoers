@@ -4,6 +4,7 @@ Cmnd_Alias SCL_CMD =    /bin/grep ,\
                         /usr/bin/stat,\
                         /usr/bin/getent,\
                         /usr/bin/[,\
+                        /usr/bin/test,\
                         /bin/ls,\
                         /usr/bin/find,\
                         ! /usr/bin/find *-exec*, \

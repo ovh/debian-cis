@@ -23,9 +23,9 @@ audit () {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
         if [ $SEARCH_RES = 1 ]; then break; fi
-        if test -d $FILE_SEARCHED; then
+        if $SUDO_CMD test -d $FILE_SEARCHED; then
             debug "$FILE_SEARCHED is a directory"
-            for file_in_dir in $(ls $FILE_SEARCHED); do
+            for file_in_dir in $( $SUDO_CMD ls $FILE_SEARCHED); do
                 does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
                 if [ $FNRET != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"

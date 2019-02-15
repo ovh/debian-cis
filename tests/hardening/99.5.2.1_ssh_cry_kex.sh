@@ -11,7 +11,7 @@ test_audit() {
     # the service needs to be started for the reload to succeed
     service ssh start
     # if the audit script provides "apply" option, enable and run it
-    sed -i 's/disabled/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh || true
 
     cp -a /etc/ssh/sshd_config /tmp/sshd_config.bak

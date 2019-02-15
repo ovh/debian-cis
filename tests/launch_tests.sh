@@ -103,10 +103,10 @@ play_consistency_tests() {
     printf "\033[34m*** [%03d] %s::%s Root/Sudo Consistency Tests\033[0m\n" "$testno" "$test_file" "$usecase"
     retfile_root=$outdir/${usecase_name_root}.retval
     retfile_sudo=$outdir/${usecase_name_sudo}.retval
-    ret=$(eval cmp "$retfile_root" "$retfile_sudo")
+    cmp "$retfile_root" "$retfile_sudo" && ret=0 || ret=1
     if [[ ! 0 -eq $ret ]] ; then
         fail "$name" return values differ
-        diff "$retfile_root" "$retfile_sudo"
+        diff "$retfile_root" "$retfile_sudo" || true
         consist_test=1
     else
         ok "$name return values are equal"

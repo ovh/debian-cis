@@ -13,4 +13,7 @@ test_audit() {
     run compliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # TODO fill comprehensive tests
+
+    # Cleanup
+    rm  /etc/profile.d/CIS_99.1_timeout.sh
 }

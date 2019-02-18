@@ -17,4 +17,7 @@ test_audit() {
     run compliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # TODO fill comprehensive tests
+
+    # Cleanup
+    rm  /etc/udev/rules.d/10-CIS_99.2_usb_devices.sh
 }

@@ -16,7 +16,6 @@ test_audit() {
 
     describe correcting situation
     sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    cat /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Checking resolved state

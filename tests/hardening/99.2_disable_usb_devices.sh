@@ -1,7 +1,7 @@
 # run-shellcheck
 test_audit() {
 
-    mkdir /etc/udev/rules.d
+    mkdir /etc/udev/rules.d || true
     chmod -R 700 /etc/udev
 
     describe Running on blank host

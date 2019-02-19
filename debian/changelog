@@ -1,5 +1,23 @@
 cis-hardening (1.2-1) unstable; urgency=medium
 
+  * CHORE(tests): cleanup test files
+  * FIX(tests): change sed in conf file disabled->audit following d6172ad
+  * CHORE(tests): Cleanup test files
+  * FIX(tests): improve test cases and cleanup
+  * FIX(99.2): add missing $SUDO_CMD
+  * FIX(sudoers): add missing `test`
+  * FIX(test): catch return values when retval differs to avoid runtime error
+  * Add test stub for all audit checks, to tests root/sudo consistency
+  * Rename dismiss_test to skip_tests since test won't even run in this case
+  * dismiss_count will still report failed root/sudo consistency failure
+  * properly purge remaining config files on purge
+  * Change default status to audit for file with custom `create_config`
+  * Change default status disabled -> audit when no conf file
+  * FIX package name in example-cron.d-entry
+  * Improve user management in test cases
+  * IMP: enhance scripts that check duplicate UID
+  * FIX: usage if no RUN_MODE, fix only that used to run too many checks
+  * changelog: Update to 1.2-1 (go cds go)
   * Migrate generic checks from secaudit to cis-hardening
   * Add crontab
   * FIX: add becho to send batch output to syslog too

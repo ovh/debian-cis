@@ -14,27 +14,40 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=3
 DESCRIPTION="Configure syslog-ng to send logs to a remote log host."
 
-PATTERN='^destination.*(tcp|udp)[[:space:]]*\([[:space:]]*\".*\"[[:space:]]*\)'
+PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $SYSLOG_BASEDIR/conf.d/*"
-    does_pattern_exist_in_file "$FILES" "$PATTERN"
-    if [ $FNRET != 0 ]; then
-        crit "$PATTERN is not present in $FILES"
-    else
+    FOUND=0
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find $SYSLOG_BASEDIR/conf.d/)"
+    for FILE in $FILES; do
+       does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
+        if [ $FNRET == 0 ]; then
+            FOUND=1
+        fi
+    done
+
+    if [ $FOUND == 1 ]; then
         ok "$PATTERN is present in $FILES"
-    fi 
+    else
+        crit "$PATTERN is not present in $FILES"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $SYSLOG_BASEDIR/conf.d/*"
-    does_pattern_exist_in_file "$FILES" "$PATTERN"
-    if [ $FNRET != 0 ]; then
-        crit "$PATTERN is not present in $FILES, please set a remote host to send your logs"
-    else
+    FOUND=0
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find $SYSLOG_BASEDIR/conf.d/ -type f)"
+    for FILE in $FILES; do
+       does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
+        if [ $FNRET == 0 ]; then
+            FOUND=1
+        fi
+    done
+    if [ $FOUND == 1 ]; then
         ok "$PATTERN is present in $FILES"
+    else
+        crit "$PATTERN is not present in $FILES, please set a remote host to send your logs"
     fi
 }
 
@@ -48,7 +61,7 @@ EOF
 
 # This function will check config parameters required
 check_config() {
-    :    
+    :
 }
 
 # Source Root Dir Parameter

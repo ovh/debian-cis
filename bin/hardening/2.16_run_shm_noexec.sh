@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# run-shellcheck
 #
 # CIS Debian Hardening
 #
@@ -11,7 +12,9 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# shellcheck disable=2034
 HARDENING_LEVEL=3
+# shellcheck disable=2034
 DESCRIPTION="/run/shm with noexec option."
 
 # Quick factoring as many script use the same logic
@@ -21,6 +24,7 @@ OPTION="noexec"
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Verifying that $PARTITION is a partition"
+    get_partition_from_symlink "$PARTITION"
     FNRET=0
     is_a_partition "$PARTITION"
     if [ $FNRET -gt 0 ]; then
@@ -37,11 +41,11 @@ audit () {
             has_mounted_option $PARTITION $OPTION
             if [ $FNRET -gt 0 ]; then
                 warn "$PARTITION is not mounted with $OPTION at runtime"
-                FNRET=3 
+                FNRET=3
             else
                 ok "$PARTITION mounted with $OPTION"
             fi
-        fi       
+        fi
     fi
 }
 
@@ -59,7 +63,7 @@ apply () {
     elif [ $FNRET = 3 ]; then
         info "Remounting $PARTITION from fstab"
         remount_partition $PARTITION
-    fi 
+    fi
 }
 
 # This function will check config parameters required
@@ -79,8 +83,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
-    . $CIS_ROOT_DIR/lib/main.sh
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
+    # shellcheck source=/opt/debian-cis/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

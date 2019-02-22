@@ -114,15 +114,42 @@ _does_pattern_exist_in_file() {
     if $SUDO_CMD [ -r "$FILE" ] ; then
         debug "$SUDO_CMD grep -q $OPTIONS -- '$PATTERN' $FILE"
         if $($SUDO_CMD grep -q $OPTIONS -- "$PATTERN" $FILE); then
+            debug "Pattern found in $FILE"
             FNRET=0
         else
+            debug "Pattern NOT found in $FILE"
             FNRET=1
         fi
     else
         debug "File $FILE is not readable!"
         FNRET=2
     fi
+}
 
+# Look for pattern in file that can spread over multiple lines
+# The func will remove commented lines (that begin with '#')
+# and consider the file as one long line.
+# Thus, this is not possible to look for pattern at beginning of line
+# with this func ('^' and '$')
+does_pattern_exist_in_file_multiline() {
+    local FILE="$1"
+    shift
+    local PATTERN="$*"
+
+    debug "Checking if multiline pattern: $PATTERN is present in $FILE"
+    if $SUDO_CMD [ -r "$FILE" ] ; then
+        debug "$SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN""
+        if $($SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN" ); then
+            debug "Pattern found in $FILE"
+            FNRET=0
+        else
+            debug "Pattern NOT found in $FILE"
+            FNRET=1
+        fi
+    else
+        debug "File $FILE is not readable!"
+        FNRET=2
+    fi
 }
 
 add_end_of_file() {

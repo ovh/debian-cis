@@ -31,9 +31,15 @@ audit () {
         if [ "$USERID" -ge 500 ] && [ -d "$DIR" ] && [ "$USER" != "nfsnobody" ]; then
             OWNER=$(stat -L -c "%U" "$DIR")
             if [ "$OWNER" != "$USER" ]; then
-                if grep -qw "$DIR:$USER:$OWNER" <<< "$EXCEPTIONS"; then
-                    ok "The home directory ($DIR) of user $USER is owned by $OWNER but is part of exceptions ($DIR:$USER:$OWNER)."
-                else
+                EXCEP_FOUND=0
+                for excep in $EXCEPTIONS; do
+                    if [ "$DIR:$USER:$OWNER" == "$excep" ]; then
+                        ok "The home directory ($DIR) of user $USER is owned by $OWNER but is part of exceptions ($DIR:$USER:$OWNER)."
+                        EXCEP_FOUND=1
+                        break
+                    fi
+                done
+                if [ "$EXCEP_FOUND" -eq 0 ]; then
                     crit "The home directory ($DIR) of user $USER is owned by $OWNER."
                     ERRORS=$((ERRORS+1))
                 fi

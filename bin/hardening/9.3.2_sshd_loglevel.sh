@@ -19,6 +19,7 @@ DESCRIPTION="Set LogLevel to INFO for SSH."
 
 PACKAGE='openssh-server'
 OPTIONS=''
+OPTIONS_TO_APPLY=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -32,7 +33,7 @@ audit () {
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
             PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
-            does_pattern_exist_in_file $FILE "$PATTERN"
+            does_pattern_exist_in_file_nocase $FILE "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
@@ -51,11 +52,11 @@ apply () {
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
-    for SSH_OPTION in $OPTIONS; do
+    for SSH_OPTION in $OPTIONS_TO_APPLY; do
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
             PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
-            does_pattern_exist_in_file $FILE "$PATTERN"
+            does_pattern_exist_in_file_nocase $FILE "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
@@ -78,7 +79,8 @@ create_config() {
 # shellcheck disable=2034
 status=audit
 # Put here your loglevel for ssh
-OPTIONS='LogLevel=INFO'
+OPTIONS='LogLevel=(INFO|VERBOSE)'
+OPTIONS_TO_APPLY='LogLevel=VERBOSE'
 EOF
 }
 

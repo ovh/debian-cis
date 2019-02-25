@@ -14,7 +14,7 @@ test_audit() {
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     echo "OPTIONS='LogLevel=DEBUG'" >> /opt/debian-cis/etc/conf.d/"${script}".cfg
-    sed -i 's/LogLevel INFO/LogLevel DEBUG/' /etc/ssh/sshd_config
+    sed -i 's/LogLevel VERBOSE/LogLevel DEBUG/' /etc/ssh/sshd_config
 
     describe Checking custom conf
     register_test retvalshouldbe 0

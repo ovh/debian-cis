@@ -42,8 +42,6 @@ EOF
 
 
     # Cleanup
-    #mv /tmp/syslog-ng.conf.bak /etc/syslog-ng/syslog-ng.conf
-
     rm /etc/syslog-ng/conf.d/1_tcp_destination
 
 }

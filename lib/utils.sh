@@ -288,20 +288,6 @@ is_kernel_option_enabled() {
 # Mounting point
 #
 
-get_partition_from_symlink() {
-    local local_partition="$1"
-    if [ ! -e "$local_partition" ]; then
-        return
-    fi
-    filetype=$(stat -c %F "$local_partition")
-    if [ "$filetype" == "symbolic link" ]; then
-        actual_partition=$(readlink "$local_partition" )
-        warn "$local_partition actually is $actual_partition"
-        local_partition="$actual_partition"
-    fi
-    PARTITION="$local_partition"
-}
-
 # Verify $1 is a partition declared in fstab
 is_a_partition() {
 

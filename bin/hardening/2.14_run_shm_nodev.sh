@@ -24,7 +24,7 @@ OPTION="nodev"
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Verifying that $PARTITION is a partition"
-    get_partition_from_symlink "$PARTITION"
+    PARTITION=$(readlink -e "$PARTITION")
     FNRET=0
     is_a_partition "$PARTITION"
     if [ $FNRET -gt 0 ]; then

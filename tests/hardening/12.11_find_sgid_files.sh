@@ -1,5 +1,11 @@
 # run-shellcheck
 test_audit() {
+    describe Running void to generate the conf file that will later be edited
+    # shellcheck disable=2154
+    /opt/debian-cis/bin/hardening/"${script}".sh || true
+    # shellcheck disable=2016
+    echo 'EXCEPTIONS="$EXCEPTIONS /usr/bin/dotlock.mailutils"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+
     describe Running on blank host
     register_test retvalshouldbe 0
     register_test contain "No unknown sgid files found"

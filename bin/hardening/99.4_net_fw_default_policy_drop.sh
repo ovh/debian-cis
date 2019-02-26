@@ -36,7 +36,7 @@ audit () {
             # previous line will capture actual policy
             if [[ $ipt =~ $regex ]]; then
                 actual_policy=${BASH_REMATCH[1]}
-                if [[ $actual_policy == "$FW_POLICY" ]]; then
+                if [[ $actual_policy = "$FW_POLICY" ]]; then
                     ok "Policy correctly set to $FW_POLICY for chain $chain"
                 else
                     crit "Policy set to $actual_policy for chain $chain, should be ${FW_POLICY}."

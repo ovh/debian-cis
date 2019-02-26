@@ -22,12 +22,12 @@ audit () {
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find $SYSLOG_BASEDIR/conf.d/)"
     for FILE in $FILES; do
        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ $FNRET == 0 ]; then
+        if [ $FNRET = 0 ]; then
             FOUND=1
         fi
     done
 
-    if [ $FOUND == 1 ]; then
+    if [ $FOUND = 1 ]; then
         ok "$PATTERN is present in $FILES"
     else
         crit "$PATTERN is not present in $FILES"
@@ -40,11 +40,11 @@ apply () {
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find $SYSLOG_BASEDIR/conf.d/ -type f)"
     for FILE in $FILES; do
        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ $FNRET == 0 ]; then
+        if [ $FNRET = 0 ]; then
             FOUND=1
         fi
     done
-    if [ $FOUND == 1 ]; then
+    if [ $FOUND = 1 ]; then
         ok "$PATTERN is present in $FILES"
     else
         crit "$PATTERN is not present in $FILES, please set a remote host to send your logs"

@@ -33,7 +33,7 @@ audit () {
             if [ "$OWNER" != "$USER" ]; then
                 EXCEP_FOUND=0
                 for excep in $EXCEPTIONS; do
-                    if [ "$DIR:$USER:$OWNER" == "$excep" ]; then
+                    if [ "$DIR:$USER:$OWNER" = "$excep" ]; then
                         ok "The home directory ($DIR) of user $USER is owned by $OWNER but is part of exceptions ($DIR:$USER:$OWNER)."
                         EXCEP_FOUND=1
                         break

@@ -25,11 +25,11 @@ audit () {
     FOUND=0
     for FILE in $FILES; do
         does_pattern_exist_in_file "$FILE" "$PATTERN"
-        if [ "$FNRET" == 0 ]; then
+        if [ "$FNRET" = 0 ]; then
             FOUND=1
         fi
     done
-    if [ $FOUND == 1 ]; then
+    if [ $FOUND = 1 ]; then
         ok "$PATTERN is present in $FILES"
     else
         crit "$PATTERN is not present in $FILES"

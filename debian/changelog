@@ -1,3 +1,23 @@
+cis-hardening (1.2-2) unstable; urgency=medium
+
+  * Debian release 1.2-2
+  * FEAT(2.6.x): retrieve actual partition in case if bind mount
+  * CHORE: replace `==` with `=` that is bash syntax
+  * CHORE(test 8.2.5): removed useless cleanup line
+  * FIX(9.3.2): dismiss test for initial after e7d9977
+  * FIX(12.1x): fix tests exception for mail after da6acb0b
+  * CHORE(2.1x): use "readlink -e" instead of custom func
+  * IMP(9.3.2): Comply with Debian9 guide: verbose ssh loglevel
+  * IMP(13.13): improve exception detection
+  * IMP(9.3.2): Add custom configuration management
+  * IMP(13.13): Add exceptions for home directories not owned by owner
+  * IMP(8.2.5): find multiline pattern in files (syslog)
+  * IMP(2.1x): Retrieve actual partition when symlink
+  * FIX(tests): change sed to audit in test skeleton after 81f9348
+  * FIX CONFIG_AUDIT test
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Thu, 28 Feb 2019 12:55:15 +0100
+
 cis-hardening (1.2-1) unstable; urgency=medium
 
   * CHORE(tests): cleanup test files

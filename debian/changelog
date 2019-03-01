@@ -1,6 +1,11 @@
 cis-hardening (1.2-2) unstable; urgency=medium
 
   * Debian release 1.2-2
+  * FIX(8.2.4): script crashed when touching a logfile in subdir of /var/log
+  * IMP(8.2.4): add exceptions in check and apply
+  * IMP(8.2.5): follow symlinks in find
+  * FIX(8.3.2): add $SUDO_CMD to find
+  * FIX(8.2.5): grep: x is a directory
   * FEAT(2.6.x): retrieve actual partition in case if bind mount
   * CHORE: replace `==` with `=` that is bash syntax
   * CHORE(test 8.2.5): removed useless cleanup line

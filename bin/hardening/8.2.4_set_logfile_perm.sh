@@ -70,6 +70,12 @@ apply () {
         does_file_exist "$FILE"
         if [ "$FNRET" != 0 ]; then
             info "$FILE does not exist"
+            filedir=$(dirname "${FILE#/var/log/}")
+            if [ ! "$filedir" = "." ] && [ ! -d /var/log/"$filedir" ]; then
+                debug "Creating /var/log/$filedir for $FILE"
+                debug "mkdir -p /var/log/"$filedir""
+                mkdir -p /var/log/"$filedir"
+            fi
             touch "$FILE"
         fi
         FOUND_EXC=0

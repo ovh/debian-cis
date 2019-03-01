@@ -19,7 +19,7 @@ PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find $SYSLOG_BASEDIR/conf.d/ -type f)"
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
     for FILE in $FILES; do
        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ $FNRET = 0 ]; then
@@ -37,7 +37,7 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find $SYSLOG_BASEDIR/conf.d/ -type f)"
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
     for FILE in $FILES; do
        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ $FNRET = 0 ]; then

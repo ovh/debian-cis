@@ -45,8 +45,17 @@ test_audit()  {
     register_test retvalshouldbe 0
     run allwdfromip /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
+    useradd -s /bin/bash -m jeantest2
+    # shellcheck disable=2016
+    echo 'USERS_TO_CHECK="jeantest2 secaudit"' >>  /opt/debian-cis/etc/conf.d/"${script}".cfg
+    describe Check only specified user
+    register_test retvalshouldbe 0
+    run checkuser /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+
     # Cleanup
     userdel jeantestuser
+    userdel jeantest2
     rm -f /tmp/key1 /tmp/key1.pub
 }
 

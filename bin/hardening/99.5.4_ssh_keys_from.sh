@@ -22,6 +22,7 @@ AUTHKEYFILE_PATTERN=""
 AUTHKEYFILE_PATTERN_DEFAULT=".ssh/authorized_keys .ssh/authorized_keys2"
 
 ALLOWED_IPS=""
+USERS_TO_CHECK=""
 
 ALLOWED_NOLOGIN_SHELLS="/bin/false /usr/sbin/nologin"
 
@@ -111,15 +112,21 @@ audit () {
         debug "Set default pattern for authorized_keys file."
     fi
 
-    for line in $($SUDO_CMD cat /etc/passwd | cut -d ":" -f 1,7); do
+    if [ -z "$USERS_TO_CHECK" ]; then
+        USERS_TO_CHECK=$($SUDO_CMD cat /etc/passwd | cut -d ":" -f 1)
+        debug "Checking all users: $USERS_TO_CHECK"
+    else
+        debug "Checking only selected users: $USERS_TO_CHECK"
+    fi
+
+    for user in $USERS_TO_CHECK; do
         # Checking if at least one AuthKeyFile has been found for this user
         FOUND_AUTHKF=0
-        user=$(echo "$line" | cut -d ":" -f 1);
-        shell=$(echo "$line" | cut -d ':' -f 2);
+        shell=$(getent passwd "$user" | cut -d ':' -f 7);
         if grep -q "$shell" <<< "$ALLOWED_NOLOGIN_SHELLS" ; then
             continue
         else
-            info "User $user has a valid shell.";
+            info "User $user has a valid shell ($shell).";
             if [ "x$user" = "xroot" ]; then
                 check_dir /root
                 continue
@@ -146,6 +153,7 @@ create_config() {
 status=audit
 # Put authorized IPs you want to allow in "from" field of authorized_keys
 ALLOWED_IPS=""
+USERS_TO_CHECK=""
 EOF
 }
 

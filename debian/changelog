@@ -1,3 +1,10 @@
+cis-hardening (1.2-3) unstable; urgency=medium
+
+  * Debian release 1.2-3
+  * 99.5.4: add conf to check only listed users (bastions)
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Wed, 06 Mar 2019 08:29:30 +0100
+
 cis-hardening (1.2-2) unstable; urgency=medium
 
   * Debian release 1.2-2

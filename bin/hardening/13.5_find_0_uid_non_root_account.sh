@@ -53,7 +53,7 @@ apply () {
 create_config() {
     cat <<EOF
 status=audit
-# Put here valid accounts with uid 0 separated by spaces
+# Put here valid accounts with uid 0 separated by spaces
 EXCEPTIONS=""
 EOF
 }

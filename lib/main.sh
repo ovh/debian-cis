@@ -1,7 +1,7 @@
 LONG_SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 # Variable initialization, to avoid crash
-CRITICAL_ERRORS_NUMBER=0 # This will be used to see if a script failed, or passed
+CRITICAL_ERRORS_NUMBER=0 # This will be used to see if a script failed, or passed
 BATCH_MODE=0
 BATCH_OUTPUT=""
 status=""
@@ -103,7 +103,7 @@ case $status in
         ;;
     disabled | false )
         info "$SCRIPT_NAME is disabled, ignoring"
-        exit 2 # Means unknown status
+        exit 2 # Means unknown status
         ;;
     *)
         warn "Wrong value for status : $status. Must be [ enabled | true | audit | disabled | false ]"
@@ -117,7 +117,7 @@ if [ $CRITICAL_ERRORS_NUMBER -eq 0 ]; then
     else
         ok "Check Passed"
     fi
-    exit 0 # Means ok status
+    exit 0 # Means ok status
 else
     if [ $BATCH_MODE -eq 1 ]; then
         BATCH_OUTPUT="KO $SCRIPT_NAME $BATCH_OUTPUT"

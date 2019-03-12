@@ -54,7 +54,7 @@ apply () {
 create_config() {
     cat <<EOF
 status=audit
-# Put here valid UIDs for which multiple usernames are accepted
+# Put here valid UIDs for which multiple usernames are accepted
 EXCEPTIONS=""
 EOF
 }

@@ -17,7 +17,8 @@ DESCRIPTION="Check <from> field in ssh authorized keys files for users with logi
 
 # Regex looking for empty, hash starting lines, or 'from="127.127.127,127.127.127" ssh'
 # shellcheck disable=2089
-REGEX="^(from=(?:'|\")(,?(\d{1,3}(\.\d{1,3}){3}))+(?:'|\")\s+ssh|#|$)"
+REGEX_FROM_IP="from=(?:'|\")(,?(\d{1,3}(\.\d{1,3}){3}))+(?:'|\")"
+REGEX_OK_LINES="(^(#|$)|($REGEX_FROM_IP))"
 AUTHKEYFILE_PATTERN=""
 AUTHKEYFILE_PATTERN_DEFAULT=".ssh/authorized_keys .ssh/authorized_keys2"
 
@@ -33,7 +34,7 @@ check_ip() {
         warn  "No allowed IPs to treat";
         return ;
     fi
-    for line in $($SUDO_CMD grep -ne "from" "$file" | tr -s " " | sed 's/ /_/g' ); do
+    for line in $($SUDO_CMD grep -noP "$REGEX_FROM_IP" "$file" | tr -s " " | sed 's/ /_/g' ); do
         linum=$(echo "$line" | cut -d ':' -f 1)
         ips=$(echo "$line" | cut -d '"' -f 2 | tr ',' ' ')
         ok_ips_allowed=""
@@ -69,8 +70,8 @@ check_file() {
     if $SUDO_CMD [ -r "$file" ]; then
         debug "Treating $file"
         FOUND_AUTHKF=1
-        if $SUDO_CMD grep -vqP "$REGEX" "${file}" ; then
-            bad_lines="$(grep -vnP "$REGEX" "${file}" | cut -d ':' -f 1 | tr '\n' ' ' | sed 's/ $//' )"
+        if $SUDO_CMD grep -vqP "$REGEX_OK_LINES" "${file}" ; then
+            bad_lines="$(grep -vnP "$REGEX_OK_LINES" "${file}" | cut -d ':' -f 1 | tr '\n' ' ' | sed 's/ $//' )"
             crit "There are anywhere access keys in ${file} at lines (${bad_lines})."
         else
             ok "File ${file} is cleared from anywhere access keys."

@@ -19,22 +19,26 @@ test_audit()  {
     register_test retvalshouldbe 0
     run emptyauthkey /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    ssh-keygen -t ed25519 -f /tmp/key1
+    ssh-keygen -N "" -t ed25519 -f /tmp/key1
     cat /tmp/key1.pub >> /home/secaudit/.ssh/authorized_keys2
     describe Key without from field
     register_test retvalshouldbe 1
     run keynofrom /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    echo -n 'from="127.0.0.1" ' > /home/secaudit/.ssh/authorized_keys2
-    cat /tmp/key1.pub >> /home/secaudit/.ssh/authorized_keys2
+    {
+        echo -n 'from="127.0.0.1" ';
+        cat /tmp/key1.pub;
+    } > /home/secaudit/.ssh/authorized_keys2
     describe Key with from, no ip check
     register_test retvalshouldbe 0
     run keyfrom /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # shellcheck disable=2016
     echo 'ALLOWED_IPS="$ALLOWED_IPS 127.0.0.1"' >>  /opt/debian-cis/etc/conf.d/"${script}".cfg
-    echo -n 'from="10.0.1.2" ' >> /home/secaudit/.ssh/authorized_keys2
-    cat /tmp/key1.pub >> /home/secaudit/.ssh/authorized_keys2
+    {
+        echo -n 'from="10.0.1.2" ';
+        cat /tmp/key1.pub;
+    } >> /home/secaudit/.ssh/authorized_keys2
     describe Key with from, filled allowed IPs, one bad ip
     register_test retvalshouldbe 1
     run badfromip /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
@@ -44,6 +48,18 @@ test_audit()  {
     describe Key with from, filled allowed IPs, all IPs allowed
     register_test retvalshouldbe 0
     run allwdfromip /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    # shellcheck disable=2016
+    echo 'ALLOWED_IPS="$ALLOWED_IPS 127.0.0.1,10.2.3.1"' >>  /opt/debian-cis/etc/conf.d/"${script}".cfg
+    {
+        echo -n 'from="10.0.1.2",command="echo bla" ';
+        cat /tmp/key1.pub;
+        echo -n 'command="echo bla,from="10.0.1.2,10.2.3.1"" ';
+        cat /tmp/key1.pub;
+    } >> /home/secaudit/.ssh/authorized_keys2
+    describe Key with from and command options
+    register_test retvalshouldbe 0
+    run keyfromcommand /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     useradd -s /bin/bash -m jeantest2
     # shellcheck disable=2016

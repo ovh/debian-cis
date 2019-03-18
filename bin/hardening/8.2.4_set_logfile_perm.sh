@@ -31,7 +31,7 @@ audit () {
             warn "$FILE does not exist"
         else
             FOUND_EXC=0
-            if grep "$FILE" <(tr ' ' '\n' <<< "$EXCEPTIONS" | cut -d ":" -f 1); then
+            if grep -q "$FILE" <(tr ' ' '\n' <<< "$EXCEPTIONS" | cut -d ":" -f 1); then
                 debug "$FILE is found in exceptions"
                 debug "Setting special user:group:perm"
                 FOUND_EXC=1
@@ -73,7 +73,7 @@ apply () {
             filedir=$(dirname "${FILE#/var/log/}")
             if [ ! "$filedir" = "." ] && [ ! -d /var/log/"$filedir" ]; then
                 debug "Creating /var/log/$filedir for $FILE"
-                debug "mkdir -p /var/log/"$filedir""
+                debug "mkdir -p /var/log/$filedir"
                 mkdir -p /var/log/"$filedir"
             fi
             touch "$FILE"

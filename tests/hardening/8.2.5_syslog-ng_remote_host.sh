@@ -1,6 +1,5 @@
 # run-shellcheck
 test_audit() {
-#set -x
 
     describe Running on blank host
     register_test retvalshouldbe 1

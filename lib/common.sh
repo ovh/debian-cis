@@ -52,8 +52,9 @@ _logger() {
 }
 
 becho() {
-    builtin echo "$*" | /usr/bin/logger -t "CIS_Hardening[$$]" -p "user.info"
-    builtin echo "$*"
+    toprint=$(echo "$*" | /usr/bin/tr '\n' ' ')
+    builtin echo "$toprint" | /usr/bin/logger -t "CIS_Hardening[$$]" -p "user.info"
+    builtin echo "$toprint"
 }
 
 cecho () {

@@ -6,5 +6,20 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    # TODO fill comprehensive tests
+
+    groupadd -f -g 120 grouptest
+    groupadd -fo -g 120 grouptest2
+
+    describe Duplicated groups
+    register_test retvalshouldbe 1
+    run duplicated /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    # Cleanup
+    groupdel grouptest
+    groupdel grouptest2
+
+    describe Compliant state
+    register_test retvalshouldbe 0
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
 }

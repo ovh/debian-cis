@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# run-shellcheck
 #
 # CIS Debian Hardening
 #
@@ -11,28 +11,30 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# shellcheck disable=2034
 HARDENING_LEVEL=2
+# shellcheck disable=2034
 DESCRIPTION="There is no duplicate GIDs."
 
 ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    RESULT=$(cat /etc/group | cut -f3 -d":" | sort -n | uniq -c | awk {'print $1":"$2'} )
-    for LINE in $RESULT; do 
+    RESULT=$(cut -f3 -d":" /etc/group | sort -n | uniq -c | awk '{print $1":"$2}' )
+    for LINE in $RESULT; do
         debug "Working on line $LINE"
-        OCC_NUMBER=$(awk -F: {'print $1'} <<< $LINE)
-        GROUPID=$(awk -F: {'print $2'} <<< $LINE) 
-        if [ $OCC_NUMBER -gt 1 ]; then
-            USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPID /etc/passwd | xargs)
+        OCC_NUMBER=$(awk -F: '{print $1}' <<< "$LINE")
+        GROUPID=$(awk -F: '{print $2}' <<< "$LINE")
+        if [ "$OCC_NUMBER" -gt 1 ]; then
+            GROUP=$(awk -F: '($3 == n) { print $1 }' n="$GROUPID" /etc/group | xargs)
             ERRORS=$((ERRORS+1))
-            crit "Duplicate GID ($GROUPID): ${USERS}"
+            crit "Duplicate GID ($GROUPID): ${GROUP}"
         fi
-    done 
+    done
 
     if [ $ERRORS = 0 ]; then
         ok "No duplicate GIDs"
-    fi 
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
@@ -56,8 +58,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
-    . $CIS_ROOT_DIR/lib/main.sh
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
+    # shellcheck source=/opt/debian-cis/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

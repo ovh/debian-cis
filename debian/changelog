@@ -1,5 +1,6 @@
-cis-hardening (1.2-4) UNRELEASED; urgency=medium
+cis-hardening (1.2-4) unstable; urgency=medium
 
+  * changelog: update changelog
   * FIX(99.1): remove dot in files to search
   * FIX(13.15): fix code that did not show duplicated group
   * FIX(99.5.4): fix regex to allow other authkey options than "from"

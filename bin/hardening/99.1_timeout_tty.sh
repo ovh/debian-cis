@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# run-shellcheck
 #
 # CIS Debian Hardening /!\ Not in the Guide
 #
@@ -11,12 +11,14 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# shellcheck disable=2034
 USER='root'
+# shellcheck disable=2034
 DESCRIPTION="Timeout 600 seconds on tty."
 
 PATTERN='TMOUT='
 VALUE='600'
-FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d /etc/profile .'
+FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d /etc/profile'
 FILE='/etc/profile.d/CIS_99.1_timeout.sh'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -24,11 +26,12 @@ audit () {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
         if [ $SEARCH_RES = 1 ]; then break; fi
-        if test -d $FILE_SEARCHED; then
+        if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
-            for file_in_dir in $(ls $FILE_SEARCHED); do
-                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
-                if [ $FNRET != 0 ]; then
+            # shellcheck disable=2044
+            for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
+                does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
+                if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
                 else
                     ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
@@ -38,7 +41,7 @@ audit () {
             done
         else
             does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
-            if [ $FNRET != 0 ]; then
+            if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
                 ok "$PATTERN is present in $FILES_TO_SEARCH"
@@ -56,11 +59,12 @@ apply () {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
         if [ $SEARCH_RES = 1 ]; then break; fi
-        if test -d $FILE_SEARCHED; then
+        if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
-            for file_in_dir in $(ls $FILE_SEARCHED); do
+            # shellcheck disable=2044
+            for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
                 does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
-                if [ $FNRET != 0 ]; then
+                if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
                 else
                     ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
@@ -70,7 +74,7 @@ apply () {
             done
         else
             does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
-            if [ $FNRET != 0 ]; then
+            if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
                 ok "$PATTERN is present in $FILES_TO_SEARCH"
@@ -106,8 +110,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
-    . $CIS_ROOT_DIR/lib/main.sh
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
+    # shellcheck source=/opt/debian-cis/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

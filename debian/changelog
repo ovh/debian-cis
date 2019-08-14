@@ -1,3 +1,9 @@
+cis-hardening (1.2-5) unstable; urgency=medium
+
+  * fix(99.4): do not stderr iptables warning on buster
+
+ -- Kevin Tanguy <kevin.tanguy@ovh.net>  Wed, 14 Aug 2019 10:34:15 +0200
+
 cis-hardening (1.2-4) unstable; urgency=medium
 
   * changelog: update changelog

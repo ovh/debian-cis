@@ -26,7 +26,7 @@ audit () {
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
-        ipt=$($SUDO_CMD $PACKAGE -nL  || true )
+        ipt=$($SUDO_CMD $PACKAGE -nL 2>/dev/null || true )
         if [[ -z $ipt ]]; then
             crit "Empty return from $PACKAGE command. Aborting..."
             return

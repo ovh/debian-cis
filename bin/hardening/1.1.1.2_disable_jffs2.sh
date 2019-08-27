@@ -5,28 +5,27 @@
 #
 
 #
-# 2.24 Disable Mounting of udf Filesystems (Not Scored)
+# 1.1.1.2 Disable Mounting of jffs2 Filesystems (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Disable mounting of udf filesystems."
+DESCRIPTION="Disable mounting of jffs2 filesystems."
 
-KERNEL_OPTION="CONFIG_UDF_FS"
-MODULE_FILE="udf"
+KERNEL_OPTION="CONFIG_JFFS2_FS"
+MODULE_NAME="jffs2"
 
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_kernel_option_enabled $KERNEL_OPTION $MODULE_FILE
+    is_kernel_option_enabled $KERNEL_OPTION $MODULE_NAME
     if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
         crit "$KERNEL_OPTION is enabled!"
     else
         ok "$KERNEL_OPTION is disabled"
     fi
-    :
 }
 
 # This function will be called if the script status is on enabled mode
@@ -37,7 +36,6 @@ apply () {
     else
         ok "$KERNEL_OPTION is disabled, nothing to do"
     fi
-    :
 }
 
 # This function will check config parameters required

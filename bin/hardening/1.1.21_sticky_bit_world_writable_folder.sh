@@ -5,7 +5,7 @@
 #
 
 #
-# 2.17 Set Sticky Bit on All World-Writable Directories (Scored)
+# 1.1.21 Ensure Sticky Bit set on All World-Writable Directories (Scored)
 #
 
 set -e # One error, it's over

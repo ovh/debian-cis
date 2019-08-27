@@ -5,43 +5,38 @@
 #
 
 #
-# 2.3 Set nosuid option for /tmp Partition (Scored)
+# 1.1.19 Ensure nosuid Option set on Removable Media Partitions (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="/tmp partition with nosuid option."
+DESCRIPTION="nosuid option for removable media partitions."
+
+# Fair warning, it only checks /media.* like partition in fstab, it's not exhaustive
 
 # Quick factoring as many script use the same logic
-PARTITION="/tmp"
+PARTITION="/media\S*"
 OPTION="nosuid"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Verifying that $PARTITION is a partition"
+    info "Verifying if there is $PARTITION like partition"
     FNRET=0
     is_a_partition "$PARTITION"
     if [ $FNRET -gt 0 ]; then
-        crit "$PARTITION is not a partition"
-        FNRET=2
+        ok "There is no partition like $PARTITION"
+        FNRET=0
     else
-        ok "$PARTITION is a partition"
+        info "detected $PARTITION like"
         has_mount_option $PARTITION $OPTION
         if [ $FNRET -gt 0 ]; then
             crit "$PARTITION has no option $OPTION in fstab!"
             FNRET=1
         else
             ok "$PARTITION has $OPTION in fstab"
-            has_mounted_option $PARTITION $OPTION
-            if [ $FNRET -gt 0 ]; then
-                warn "$PARTITION is not mounted with $OPTION at runtime"
-                FNRET=3 
-            else
-                ok "$PARTITION mounted with $OPTION"
-            fi
-        fi       
+        fi
     fi
 }
 
@@ -49,17 +44,10 @@ audit () {
 apply () {
     if [ $FNRET = 0 ]; then
         ok "$PARTITION is correctly set"
-    elif [ $FNRET = 2 ]; then
-        crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
     elif [ $FNRET = 1 ]; then
         info "Adding $OPTION to fstab"
         add_option_to_fstab $PARTITION $OPTION
-        info "Remounting $PARTITION from fstab"
-        remount_partition $PARTITION
-    elif [ $FNRET = 3 ]; then
-        info "Remounting $PARTITION from fstab"
-        remount_partition $PARTITION
-    fi 
+    fi
 }
 
 # This function will check config parameters required

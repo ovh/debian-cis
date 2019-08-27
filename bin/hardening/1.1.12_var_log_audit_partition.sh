@@ -5,38 +5,35 @@
 #
 
 #
-# 2.12 Add noexec Option to Removable Media Partitions (Not Scored)
+# 1.1.12 Create Separate Partition for /var/log/audit (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="noexec option for removable media partitions."
-
-# Fair warning, it only checks /media.* like partition in fstab, it's not exhaustive
+HARDENING_LEVEL=4
+DESCRIPTION="/var/log/audit on a separate partition."
 
 # Quick factoring as many script use the same logic
-PARTITION="/media\S*"
-OPTION="noexec"
+PARTITION="/var/log/audit"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Verifying if there is $PARTITION like partition"
+    info "Verifying that $PARTITION is a partition"
     FNRET=0
     is_a_partition "$PARTITION"
     if [ $FNRET -gt 0 ]; then
-        ok "There is no partition like $PARTITION"
-        FNRET=0
+        crit "$PARTITION is not a partition"
+        FNRET=2
     else
-        info "detected $PARTITION like"
-        has_mount_option $PARTITION $OPTION
+        ok "$PARTITION is a partition"
+        is_mounted "$PARTITION"
         if [ $FNRET -gt 0 ]; then
-            crit "$PARTITION has no option $OPTION in fstab!"
+            warn "$PARTITION is not mounted"
             FNRET=1
         else
-            ok "$PARTITION has $OPTION in fstab"
-        fi       
+            ok "$PARTITION is mounted"
+        fi
     fi
 }
 
@@ -44,15 +41,17 @@ audit () {
 apply () {
     if [ $FNRET = 0 ]; then
         ok "$PARTITION is correctly set"
-    elif [ $FNRET = 1 ]; then
-        info "Adding $OPTION to fstab"
-        add_option_to_fstab $PARTITION $OPTION
-    fi 
+    elif [ $FNRET = 2 ]; then
+        crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
+    else
+        info "mounting $PARTITION"
+        mount $PARTITION
+    fi
 }
 
 # This function will check config parameters required
 check_config() {
-    # No param for this script
+    # No parameter for this script
     :
 }
 

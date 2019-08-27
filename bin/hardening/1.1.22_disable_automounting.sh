@@ -5,39 +5,38 @@
 #
 
 #
-# 2.21 Disable Mounting of hfs Filesystems (Not Scored)
+# 1.1.22 Disable Automounting (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Disable mounting of hfs filesystems."
+DESCRIPTION="Disable automounting of devices."
 
-KERNEL_OPTION="CONFIG_HFS_FS"
-MODULE_FILE="hfs"
-
+SERVICE_NAME="autofs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_kernel_option_enabled $KERNEL_OPTION $MODULE_FILE
-    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
-        crit "$KERNEL_OPTION is enabled!"
+    info "Checking if $SERVICE_NAME is enabled"
+    is_service_enabled $SERVICE_NAME
+    if [ $FNRET = 0 ]; then
+        crit "$SERVICE_NAME is enabled"
     else
-        ok "$KERNEL_OPTION is disabled"
+        ok "$SERVICE_NAME is disabled"
     fi
-    :
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_kernel_option_enabled $KERNEL_OPTION
-    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
-        warn "I cannot fix $KERNEL_OPTION enabled, recompile your kernel please"
+    info "Checking if $SERVICE_NAME is enabled"
+    is_service_enabled $SERVICE_NAME
+    if [ $FNRET = 0 ]; then
+        info "Disabling $SERVICE_NAME"
+        update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
     else
-        ok "$KERNEL_OPTION is disabled, nothing to do"
+        ok "$SERVICE_NAME is disabled"
     fi
-    :
 }
 
 # This function will check config parameters required

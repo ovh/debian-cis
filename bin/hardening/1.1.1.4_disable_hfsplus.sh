@@ -5,7 +5,7 @@
 #
 
 #
-# 2.22 Disable Mounting of hfsplus Filesystems (Not Scored)
+# 1.1.1.4 Disable Mounting of hfsplus Filesystems (Not Scored)
 #
 
 set -e # One error, it's over
@@ -26,7 +26,6 @@ audit () {
     else
         ok "$KERNEL_OPTION is disabled"
     fi
-    :
 }
 
 # This function will be called if the script status is on enabled mode
@@ -37,7 +36,6 @@ apply () {
     else
         ok "$KERNEL_OPTION is disabled, nothing to do"
     fi
-    :
 }
 
 # This function will check config parameters required

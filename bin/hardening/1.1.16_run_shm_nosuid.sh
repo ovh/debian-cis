@@ -6,7 +6,7 @@
 #
 
 #
-# 2.14 Add nodev Option to /run/shm Partition (Scored)
+# 1.1.16 Ensure nosuid Option set on /run/shm Partition (Scored)
 #
 
 set -e # One error, it's over
@@ -15,11 +15,11 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="/run/shm with nodev option."
+DESCRIPTION="/run/shm with nosuid option."
 
 # Quick factoring as many script use the same logic
 PARTITION="/run/shm"
-OPTION="nodev"
+OPTION="nosuid"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

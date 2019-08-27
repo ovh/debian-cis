@@ -5,20 +5,20 @@
 #
 
 #
-# 2.13 Add nosuid Option to Removable Media Partitions (Not Scored)
+# 1.1.18 Add nodev Option to Removable Media Partitions (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="nosuid option for removable media partitions."
+DESCRIPTION="nodev option for removable media partitions."
 
 # Fair warning, it only checks /media.* like partition in fstab, it's not exhaustive
 
 # Quick factoring as many script use the same logic
 PARTITION="/media\S*"
-OPTION="nosuid"
+OPTION="nodev"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -36,7 +36,7 @@ audit () {
             FNRET=1
         else
             ok "$PARTITION has $OPTION in fstab"
-        fi       
+        fi
     fi
 }
 
@@ -47,7 +47,7 @@ apply () {
     elif [ $FNRET = 1 ]; then
         info "Adding $OPTION to fstab"
         add_option_to_fstab $PARTITION $OPTION
-    fi 
+    fi
 }
 
 # This function will check config parameters required

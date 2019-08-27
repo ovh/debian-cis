@@ -5,55 +5,41 @@
 #
 
 #
-# 2.5 Create Separate Partition for /var (Scored)
+# 1.1.1.5 Disable Mounting of udf Filesystems (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="/var on a separate partition."
+HARDENING_LEVEL=2
+DESCRIPTION="Disable mounting of udf filesystems."
 
-# Quick factoring as many script use the same logic
-PARTITION="/var"
+KERNEL_OPTION="CONFIG_UDF_FS"
+MODULE_FILE="udf"
+
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Verifying that $PARTITION is a partition"
-    FNRET=0
-    is_a_partition "$PARTITION"
-    if [ $FNRET -gt 0 ]; then
-        crit "$PARTITION is not a partition"
-        FNRET=2
+    is_kernel_option_enabled $KERNEL_OPTION $MODULE_FILE
+    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
+        crit "$KERNEL_OPTION is enabled!"
     else
-        ok "$PARTITION is a partition"
-        is_mounted "$PARTITION"
-        if [ $FNRET -gt 0 ]; then
-            warn "$PARTITION is not mounted"
-            FNRET=1
-        else
-            ok "$PARTITION is mounted"
-        fi
+        ok "$KERNEL_OPTION is disabled"
     fi
-     
-    :
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    if [ $FNRET = 0 ]; then
-        ok "$PARTITION is correctly set"
-    elif [ $FNRET = 2 ]; then
-        crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
+    is_kernel_option_enabled $KERNEL_OPTION
+    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
+        warn "I cannot fix $KERNEL_OPTION enabled, recompile your kernel please"
     else
-        info "mounting $PARTITION"
-        mount $PARTITION
+        ok "$KERNEL_OPTION is disabled, nothing to do"
     fi
 }
 
 # This function will check config parameters required
 check_config() {
-    # No parameter for this script
     :
 }
 

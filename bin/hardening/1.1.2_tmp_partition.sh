@@ -5,17 +5,17 @@
 #
 
 #
-# 2.9 Create Separate Partition for /home (Scored)
+# 1.1.2 Ensure /tmp is configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="/home on a separate partition."
+DESCRIPTION="Ensure /tmp is configured (Scored)"
 
 # Quick factoring as many script use the same logic
-PARTITION="/home"
+PARTITION="/tmp"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -35,8 +35,6 @@ audit () {
             ok "$PARTITION is mounted"
         fi
     fi
-     
-    :
 }
 
 # This function will be called if the script status is on enabled mode

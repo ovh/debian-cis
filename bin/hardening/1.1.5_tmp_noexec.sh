@@ -5,18 +5,18 @@
 #
 
 #
-# 2.10 Add nodev Option to /home (Scored)
+# 1.1.5 Ensure noexec option set for /tmp Partition (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="/home partition with nodev option."
+HARDENING_LEVEL=3
+DESCRIPTION="/tmp partition with noexec option."
 
 # Quick factoring as many script use the same logic
-PARTITION="/home"
-OPTION="nodev"
+PARTITION="/tmp"
+OPTION="noexec"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -37,11 +37,11 @@ audit () {
             has_mounted_option $PARTITION $OPTION
             if [ $FNRET -gt 0 ]; then
                 warn "$PARTITION is not mounted with $OPTION at runtime"
-                FNRET=3 
+                FNRET=3
             else
                 ok "$PARTITION mounted with $OPTION"
             fi
-        fi       
+        fi
     fi
 }
 
@@ -59,7 +59,7 @@ apply () {
     elif [ $FNRET = 3 ]; then
         info "Remounting $PARTITION from fstab"
         remount_partition $PARTITION
-    fi 
+    fi
 }
 
 # This function will check config parameters required

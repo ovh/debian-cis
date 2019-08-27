@@ -5,43 +5,53 @@
 #
 
 #
-# 2.19 Disable Mounting of freevxfs Filesystems (Not Scored)
+# 1.1.13 Create Separate Partition for /home (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="Disable mounting of freevxfs filesystems."
+HARDENING_LEVEL=3
+DESCRIPTION="/home on a separate partition."
 
-KERNEL_OPTION="CONFIG_VXFS_FS"
-MODULE_NAME="freevxfs"
-
+# Quick factoring as many script use the same logic
+PARTITION="/home"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_kernel_option_enabled $KERNEL_OPTION $MODULE_NAME
-    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
-        crit "$KERNEL_OPTION is enabled!"
+    info "Verifying that $PARTITION is a partition"
+    FNRET=0
+    is_a_partition "$PARTITION"
+    if [ $FNRET -gt 0 ]; then
+        crit "$PARTITION is not a partition"
+        FNRET=2
     else
-        ok "$KERNEL_OPTION is disabled"
+        ok "$PARTITION is a partition"
+        is_mounted "$PARTITION"
+        if [ $FNRET -gt 0 ]; then
+            warn "$PARTITION is not mounted"
+            FNRET=1
+        else
+            ok "$PARTITION is mounted"
+        fi
     fi
-    :
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_kernel_option_enabled $KERNEL_OPTION
-    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
-        warn "I cannot fix $KERNEL_OPTION enabled, recompile your kernel please"
+    if [ $FNRET = 0 ]; then
+        ok "$PARTITION is correctly set"
+    elif [ $FNRET = 2 ]; then
+        crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
     else
-        ok "$KERNEL_OPTION is disabled, nothing to do"
+        info "mounting $PARTITION"
+        mount $PARTITION
     fi
-    :
 }
 
 # This function will check config parameters required
 check_config() {
+    # No parameter for this script
     :
 }
 

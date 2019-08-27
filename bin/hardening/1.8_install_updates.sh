@@ -5,42 +5,43 @@
 #
 
 #
-# 2.25 Disable Automounting (Scored)
+# 1.8 Ensure updates, patches, and additional security software are installed (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="Disable automounting of devices."
-
-SERVICE_NAME="autofs"
+HARDENING_LEVEL=3
+DESCRIPTION="Ensure updates, patches, and additional security software are installed (Not Scored)"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        crit "$SERVICE_NAME is enabled"
+    info "Checking if apt needs an update"
+    apt_update_if_needed 
+    info "Fetching upgrades ..."
+    apt_check_updates "CIS_APT"
+    if [ $FNRET -gt 0 ]; then
+        crit "$RESULT"
+        FNRET=1
     else
-        ok "$SERVICE_NAME is disabled"
+        ok "No upgrades available"
+        FNRET=0
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        info "Disabling $SERVICE_NAME"
-        update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
+    if [ $FNRET -gt 0 ]; then 
+        info "Applying Upgrades..."
+        DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' upgrade -y
     else
-        ok "$SERVICE_NAME is disabled"
+        ok "No Upgrades to apply"
     fi
 }
 
 # This function will check config parameters required
 check_config() {
+    # No parameters for this function
     :
 }
 

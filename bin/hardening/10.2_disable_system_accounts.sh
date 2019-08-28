@@ -14,14 +14,18 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=3
 DESCRIPTION="Disable system accounts, preventing them from interactive login."
 
-SHELL='/bin/false'
+ACCEPTED_SHELLS='/bin/false /usr/sbin/nologin /sbin/nologin'
+SHELL_TO_APPLY='/bin/false'
 FILE='/etc/passwd'
 RESULT=''
 
+ACCEPTED_SHELLS_GREP=''
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if admin accounts have a login shell different than $SHELL"
-    RESULT=$(egrep -v "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 && $7!="/usr/sbin/nologin" && $7!="/bin/false") {print}')
+    shells_to_grep_helper
+    info "Checking if admin accounts have a login shell different than $ACCEPTED_SHELLS"
+    RESULT=$(egrep -v "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 ) {print}' | grep -v $ACCEPTED_SHELLS_GREP || true )
+    IFS_BAK=$IFS
     IFS=$'\n'
     for LINE in $RESULT; do
         debug "line : $LINE"
@@ -36,8 +40,9 @@ audit () {
             debug "$ACCOUNT not found in exceptions"
         fi
     done
+    IFS=$IFS_BAK
     if [ ! -z "$RESULT" ]; then
-        crit "Some admin accounts don't have $SHELL as their login shell"
+        crit "Some admin accounts don't have any of $ACCEPTED_SHELLS as their login shell"
         crit "$RESULT"
     else
         ok "All admin accounts deactivated"
@@ -46,7 +51,8 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    RESULT=$(egrep -v "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 && $7!="/usr/sbin/nologin" && $7!="/bin/false") {print}')
+    RESULT=$(egrep -v "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 ) {print}' | grep -v $ACCEPTED_SHELLS_GREP || true )
+    IFS_BAK=$IFS
     IFS=$'\n'
     for LINE in $RESULT; do
         debug "line : $LINE"
@@ -61,16 +67,23 @@ apply () {
             debug "$ACCOUNT not found in exceptions"
         fi
     done
+    IFS=$IFS_BAK
     if [ ! -z "$RESULT" ]; then
-        warn "Some admin accounts don't have $SHELL as their login shell -- Fixing"
+        warn "Some admin accounts don't have any of $ACCEPTED_SHELLS as their login shell -- Fixing"
         warn "$RESULT"
         for USER in $( echo "$RESULT" | cut -d: -f 1 ); do
-            info "Setting $SHELL as $USER login shell"
-            usermod -s $SHELL $USER
+            info "Setting $SHELL_TO_APPLY as $USER login shell"
+            usermod -s "$SHELL_TO_APPLY" "$USER"
         done
     else
         ok "All admin accounts deactivated, nothing to apply"
     fi
+}
+
+shells_to_grep_helper(){
+    for shell in $ACCEPTED_SHELLS; do
+        ACCEPTED_SHELLS_GREP+=" -e $shell"
+    done
 }
 
 # This function will create the config file for this check with default values

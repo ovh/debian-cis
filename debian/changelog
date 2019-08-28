@@ -1,3 +1,11 @@
+cis-hardening (1.2-6) unstable; urgency=medium
+
+  * FIX(test/10.2): backup and restore /etc/passwd after test
+  * IMP(99.3.1): improve check with disabled passwords
+  * FIX(10.2): improve test to check multiple login shells
+
+ -- Charles Herlin <charles.herlin@corp.ovh.com>  Wed, 28 Aug 2019 12:34:52 +0200
+
 cis-hardening (1.2-5) unstable; urgency=medium
 
   * fix(99.4): do not stderr iptables warning on buster

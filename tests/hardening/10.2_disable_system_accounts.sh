@@ -1,5 +1,7 @@
 # run-shellcheck
 test_audit() {
+    cp -a /etc/passwd /tmp/passwd.bak
+
     describe Running on blank host
     register_test retvalshouldbe 1
     # shellcheck disable=2154
@@ -12,4 +14,6 @@ test_audit() {
     describe Checking resolved state
     register_test retvalshouldbe 0
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    mv /tmp/passwd.bak /etc/passwd
 }

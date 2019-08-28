@@ -5,40 +5,41 @@
 #
 
 #
-# 4.4 Disable Prelink (Scored)
+# 1.5.3 Ensure address space layout randomization (ASLR) is enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Disable prelink to prevent libraries compromission."
+DESCRIPTION="Enable Randomized Virtual Memory Region Placement to prevent memory page exploits."
 
-PACKAGE='prelink'
+SYSCTL_PARAM='kernel.randomize_va_space'
+SYSCTL_EXP_RESULT=2
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET = 0 ]; then
-        crit "$PACKAGE is installed!"
+    has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+    if [ $FNRET != 0 ]; then
+        crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+    elif [ $FNRET = 255 ]; then
+        warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
-        ok "$PACKAGE is absent"
+        ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
     fi
-    :
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET = 0 ]; then
-        crit "$PACKAGE is installed, purging it"
-        /usr/sbin/prelink -ua
-        apt-get purge $PACKAGE -y
-        apt-get autoremove
+    has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+    if [ $FNRET != 0 ]; then
+        warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
+        set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+    elif [ $FNRET = 255 ]; then
+        warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
-        ok "$PACKAGE is absent"
+        ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
     fi
-    :
 }
 
 # This function will check config parameters required

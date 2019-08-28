@@ -5,7 +5,7 @@
 #
 
 #
-# 4.1 Restrict Core Dumps (Scored)
+# 1.5.1 Ensure core dumps are restricted (Scored)
 #
 
 set -e # One error, it's over

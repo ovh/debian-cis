@@ -5,7 +5,7 @@
 #
 
 #
-# 4.2 Enable XD/NX Support on 32-bit x86 Systems (Not Scored)
+# 1.5.2 Ensure XD/NX support is enabled (Not Scored)
 #
 
 set -e # One error, it's over

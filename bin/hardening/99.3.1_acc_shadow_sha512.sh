@@ -31,6 +31,9 @@ audit () {
         passwd=$(echo "$line" | cut -d ":" -f 2)
         if [[ $passwd = '!' || $passwd = '*' ]]; then
             continue
+        elif [[ $passwd =~ ^!.*$ ]]; then
+            pw_found+="$user "
+            ok "User $user has a disabled password."
         # Check password against $6$<salt>$<encrypted>, see `man 3 crypt`
         elif [[ $passwd =~ ^\$6\$[a-zA-Z0-9./]{2,16}\$[a-zA-Z0-9./]{86}$ ]]; then
             pw_found+="$user "

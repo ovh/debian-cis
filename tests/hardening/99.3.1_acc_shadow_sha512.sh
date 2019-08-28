@@ -13,6 +13,12 @@ test_audit() {
     register_test contain "User secaudit has a password that is not SHA512 hashed"
     run unsecpasswd /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
+    sed -i 's/secaudit:mypassword/secaudit:!!/' /etc/shadow
+    describe Fail: Found disabled password
+    register_test retvalshouldbe 0
+    register_test contain "User secaudit has a disabled password"
+    run lockedpasswd /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
     mv /tmp/shadow.bak /etc/shadow
     chpasswd << EOF
 secaudit:mypassword

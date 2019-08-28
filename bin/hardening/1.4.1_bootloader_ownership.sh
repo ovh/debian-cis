@@ -5,7 +5,7 @@
 #
 
 #
-# 3.1 Set User/Group Owner on bootloader config (Scored)
+# 1.4.1 Ensure permissions on bootloader config are configured (Scored)
 #
 
 set -e # One error, it's over
@@ -19,6 +19,7 @@ DESCRIPTION="User and group root owner of grub bootloader config."
 FILE='/boot/grub/grub.cfg'
 USER='root'
 GROUP='root'
+PERMISSIONS='400'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -27,6 +28,13 @@ audit () {
         ok "$FILE has correct ownership"
     else
         crit "$FILE ownership was not set to $USER:$GROUP"
+    fi 
+
+    has_file_correct_permissions $FILE $PERMISSIONS
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct permissions"
+    else
+        crit "$FILE permissions were not set to $PERMISSIONS"
     fi 
 }
 
@@ -38,6 +46,14 @@ apply () {
     else
         info "fixing $FILE ownership to $USER:$GROUP"
         chown $USER:$GROUP $FILE
+    fi
+
+    has_file_correct_permissions $FILE $PERMISSIONS
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct permissions"
+    else
+        info "fixing $FILE permissions to $PERMISSIONS"
+        chmod 0$PERMISSIONS $FILE
     fi
 }
 

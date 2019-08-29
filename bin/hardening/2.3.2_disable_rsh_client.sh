@@ -5,36 +5,24 @@
 #
 
 #
-# 5.1.4 Ensure talk server is not enabled (Scored)
+# 2.3.2 Ensure rsh client is not installed (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Ensure talk server is not enabled."
+DESCRIPTION="Ensure rsh client is not installed, Recommended alternative : ssh."
 
-PACKAGES='inetutils-talkd talkd'
-FILE='/etc/inetd.conf'
-PATTERN='^(talk|ntalk)'
+# Based on aptitude search '~Prsh-client', exluding ssh-client OFC
+PACKAGES='rsh-client rsh-redone-client heimdal-clients'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for PACKAGE in $PACKAGES; do
+    for PACKAGE in $PACKAGES; do 
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
-            warn "$PACKAGE is installed, checking configuration"
-            does_file_exist $FILE
-            if [ $FNRET != 0 ]; then
-                ok "$FILE does not exist"
-            else
-                does_pattern_exist_in_file $FILE $PATTERN
-                if [ $FNRET = 0 ]; then
-                    crit "$PATTERN exists, $PACKAGE services are enabled!"
-                else
-                    ok "$PATTERN is not present in $FILE"
-                fi
-            fi
+            crit "$PACKAGE is installed"
         else
             ok "$PACKAGE is absent"
         fi
@@ -43,29 +31,14 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    for PACKAGE in $PACKAGES; do
+    for PACKAGE in $PACKAGES; do 
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
-            crit "$PACKAGE is installed, purging it"
+            warn "$PACKAGE is installed, purging"
             apt-get purge $PACKAGE -y
             apt-get autoremove
         else
             ok "$PACKAGE is absent"
-        fi
-        does_file_exist $FILE
-        if [ $FNRET != 0 ]; then
-            ok "$FILE does not exist"
-        else
-            info "$FILE exists, checking patterns"
-            does_pattern_exist_in_file $FILE $PATTERN
-            if [ $FNRET = 0 ]; then
-                warn "$PATTERN is present in $FILE, purging it"
-                backup_file $FILE
-                ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<< $PATTERN)
-                sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
-            else
-                ok "$PATTERN is not present in $FILE"
-            fi
         fi
     done
 }

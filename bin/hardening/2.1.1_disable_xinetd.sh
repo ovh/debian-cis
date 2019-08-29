@@ -5,49 +5,36 @@
 #
 
 #
-# 5.2 Ensure chargen is not enabled (Scored)
+# 2.1.1 Ensure xinetd is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="Ensure chargen debugging network service is not enabled."
+HARDENING_LEVEL=3
+DESCRIPTION="Ensure xinetd is not enabled."
 
-FILE='/etc/inetd.conf'
-PATTERN='^chargen'
+PACKAGE='xinetd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
-        ok "$FILE does not exist"
+    is_pkg_installed $PACKAGE
+    if [ $FNRET = 0 ]; then
+        crit "$PACKAGE is installed"
     else
-        does_pattern_exist_in_file $FILE $PATTERN
-        if [ $FNRET = 0 ]; then
-            crit "$PATTERN exists, chargen service is enabled!"
-        else
-            ok "$PATTERN is not present in $FILE"
-        fi
+        ok "$PACKAGE is absent"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
-        ok "$FILE does not exist"
+    is_pkg_installed $PACKAGE
+    if [ $FNRET = 0 ]; then
+        warn "$PACKAGE is installed, purging"
+        apt-get purge $PACKAGE -y
+        apt-get autoremove
     else
-        info "$FILE exists, checking patterns"
-        does_pattern_exist_in_file $FILE $PATTERN
-        if [ $FNRET = 0 ]; then
-            warn "$PATTERN is present in $FILE, purging it"
-            backup_file $FILE
-            ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<< $PATTERN)
-            sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
-        else
-            ok "$PATTERN is not present in $FILE"
-        fi
+        ok "$PACKAGE is absent"
     fi
 }
 

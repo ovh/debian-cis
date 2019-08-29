@@ -5,17 +5,17 @@
 #
 
 #
-# 6.13 Ensure HTTP Proxy Server is not enabled (Not Scored)
+# 2.2.6 Ensure LDAP server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure HTTP-proxy is not enabled."
-HARDENING_EXCEPTION=http
+DESCRIPTION="Ensure LDAP is not enabled."
+HARDENING_EXCEPTION=ldap
 
-PACKAGES='squid3 squid'
+PACKAGES='slapd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

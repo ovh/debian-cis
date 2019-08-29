@@ -5,18 +5,17 @@
 #
 
 #
-# 6.9 Ensure FTP Server is not enabled (Not Scored)
+# 2.2.12 Ensure Samba is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure File Transfer Protocol (ftp) is not enabled."
-HARDENING_EXCEPTION=ftp
+DESCRIPTION="Ensure Samba is not enabled."
+HARDENING_EXCEPTION=samba
 
-# Based on aptitude search '~Pftp-server'
-PACKAGES='ftpd ftpd-ssl heimdal-servers inetutils-ftpd krb5-ftpd muddleftpd proftpd-basic pure-ftpd pure-ftpd-ldap pure-ftpd-mysql pure-ftpd-postgresql twoftpd-run vsftpd wzdftpd'
+PACKAGES='samba smbd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

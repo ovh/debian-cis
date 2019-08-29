@@ -5,17 +5,18 @@
 #
 
 #
-# 6.3 Ensure print server is not enabled (Not Scored)
+# 2.2.9 Ensure FTP Server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure print server (Common Unix Print System) is not enabled."
-HARDENING_EXCEPTION=cups
+DESCRIPTION="Ensure File Transfer Protocol (ftp) is not enabled."
+HARDENING_EXCEPTION=ftp
 
-PACKAGES='libcups2 libcupscgi1 libcupsimage2 libcupsmime1 libcupsppdc1 cups-common cups-client cups-ppdc libcupsfilters1 cups-filters cups'
+# Based on aptitude search '~Pftp-server'
+PACKAGES='ftpd ftpd-ssl heimdal-servers inetutils-ftpd krb5-ftpd muddleftpd proftpd-basic pure-ftpd pure-ftpd-ldap pure-ftpd-mysql pure-ftpd-postgresql twoftpd-run vsftpd wzdftpd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

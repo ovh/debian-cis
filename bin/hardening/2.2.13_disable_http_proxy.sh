@@ -5,17 +5,17 @@
 #
 
 #
-# 6.12 Ensure Samba is not enabled (Not Scored)
+# 2.2.13 Ensure HTTP Proxy Server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure Samba is not enabled."
-HARDENING_EXCEPTION=samba
+DESCRIPTION="Ensure HTTP-proxy is not enabled."
+HARDENING_EXCEPTION=http
 
-PACKAGES='samba'
+PACKAGES='squid3 squid'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

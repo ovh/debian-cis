@@ -5,18 +5,18 @@
 #
 
 #
-# 6.11 Ensure IMAP and POP server is not enabled (Not Scored)
+# 2.2.10 Ensure HTTP Server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure IMAP and POP servers are not enabled."
-HARDENING_EXCEPTION=mail
+DESCRIPTION="Ensure HTTP server is not enabled."
+HARDENING_EXCEPTION=http
 
-# Based on aptitude search '~Pimap-server' and  aptitude search '~Ppop3-server'
-PACKAGES='citadel-server courier-imap cyrus-imapd-2.4 dovecot-imapd mailutils-imap4d courier-pop cyrus-pop3d-2.4 dovecot-pop3d heimdal-servers mailutils-pop3d popa3d solid-pop3d xmail'
+# Based on aptitude search '~Phttpd'
+PACKAGES='nginx apache2 lighttpd micro-httpd mini-httpd yaws boa bozohttpd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

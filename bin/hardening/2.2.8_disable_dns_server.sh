@@ -5,17 +5,17 @@
 #
 
 #
-# 6.4 Ensure DHCP Server is not enabled (Scored)
+# 2.2.8 Ensure DNS Server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure DHCP server is not enabled."
-HARDENING_EXCEPTION=dhcp
+DESCRIPTION="Ensure Domain Name System (dns) server is not enabled."
+HARDENING_EXCEPTION=dns
 
-PACKAGES='udhcpd isc-dhcp-server'
+PACKAGES='bind9 unbound'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

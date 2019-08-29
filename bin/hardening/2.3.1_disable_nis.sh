@@ -5,41 +5,38 @@
 #
 
 #
-# 5.1.5 Ensure talk client is not installed (Scored)
+# 2.3.1 Ensure NIS client is not installed (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="Ensure talk client is not installed."
+HARDENING_LEVEL=3
+DESCRIPTION="Ensure that Network Information Service is not installed. Recommended alternative : LDAP."
 
-PACKAGES='talk inetutils-talk'
+PACKAGE='nis'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
-            crit "$PACKAGE is installed"
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    is_pkg_installed $PACKAGE
+    if [ $FNRET = 0 ]; then
+        crit "$PACKAGE is installed!"
+    else
+        ok "$PACKAGE is absent"
+    fi
+    :
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
-            warn "$PACKAGE is installed, purging"
-            apt-get purge $PACKAGE -y
-            apt-get autoremove
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    is_pkg_installed $PACKAGE
+    if [ $FNRET = 0 ]; then
+        crit "$PACKAGE is installed, purging it"
+        apt-get purge $PACKAGE -y
+        apt-get autoremove
+    else
+        ok "$PACKAGE is absent"
+    fi
 }
 
 # This function will check config parameters required

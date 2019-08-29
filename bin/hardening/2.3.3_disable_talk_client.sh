@@ -5,20 +5,20 @@
 #
 
 #
-# 5.1.8 Ensure xinetd is not enabled (Scored)
+# 2.3.3 Ensure talk client is not installed (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="Ensure xinetd is not enabled."
+HARDENING_LEVEL=2
+DESCRIPTION="Ensure talk client is not installed."
 
-PACKAGES='openbsd-inetd xinetd rlinetd'
+PACKAGES='talk inetutils-talk'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for PACKAGE in $PACKAGES; do 
+    for PACKAGE in $PACKAGES; do
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
             crit "$PACKAGE is installed"
@@ -30,7 +30,7 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    for PACKAGE in $PACKAGES; do 
+    for PACKAGE in $PACKAGES; do
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
             warn "$PACKAGE is installed, purging"

@@ -5,7 +5,7 @@
 #
 
 #
-# 6.5 Configure Network Time Protocol (NTP) (Scored)
+# 2.2.1.2 Ensure ntp is configured (Scored)
 #
 
 set -e # One error, it's over

@@ -5,18 +5,17 @@
 #
 
 #
-# 6.1 Ensure the X Window system is not installed (Scored)
+# 2.2.7 Ensure NFS and RPC are not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure the X Window system is not installed."
-HARDENING_EXCEPTION=x11
+DESCRIPTION="Ensure Network File System (nfs) and RPC are not enabled."
+HARDENING_EXCEPTION=nfs
 
-# Based on aptitude search '~Pxserver'
-PACKAGES='xserver-xorg-core xserver-xorg-core-dbg xserver-common xserver-xephyr xserver-xfbdev tightvncserver vnc4server fglrx-driver xvfb xserver-xorg-video-nvidia-legacy-173xx xserver-xorg-video-nvidia-legacy-96xx xnest'
+PACKAGES='rpcbind nfs-kernel-server'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

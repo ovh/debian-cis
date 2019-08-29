@@ -5,17 +5,17 @@
 #
 
 #
-# 6.7 Ensure NFS and RPC are not enabled (Not Scored)
+# 2.2.14 Ensure SNMP Server is not enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure Network File System (nfs) and RPC are not enabled."
-HARDENING_EXCEPTION=nfs
+DESCRIPTION="Enure SNMP server is not enabled."
+HARDENING_EXCEPTION=snmp
 
-PACKAGES='rpcbind nfs-kernel-server'
+PACKAGES='snmpd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

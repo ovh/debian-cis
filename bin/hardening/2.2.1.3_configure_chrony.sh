@@ -5,42 +5,39 @@
 #
 
 #
-# 6.6 Ensure LDAP is not enabled (Not Scored)
+# 2.2.1.3 Ensure chrony is configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure LDAP is not enabled."
-HARDENING_EXCEPTION=ldap
+DESCRIPTION="Configure Network Time Protocol (ntp). Check restrict parameters and ntp daemon runs ad unprivileged user."
+HARDENING_EXCEPTION=ntp
 
-PACKAGES='slapd'
+PACKAGE=chrony
+CONF_DEFAULT_PATTERN='^(server|pool)'
+CONF_FILE='/etc/chrony/chrony.conf'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
-            crit "$PACKAGE is installed!"
+    is_pkg_installed $PACKAGE
+    if [ $FNRET != 0 ]; then
+        crit "$PACKAGE is not installed!"
+    else
+        ok "$PACKAGE is installed, checking configuration"
+        does_pattern_exist_in_file $CONF_FILE $CONF_DEFAULT_PATTERN
+        if [ $FNRET != 0 ]; then
+            crit "$CONF_DEFAULT_PATTERN not found in $CONF_FILE"
         else
-            ok "$PACKAGE is absent"
+            ok "$CONF_DEFAULT_PATTERN found in $CONF_FILE"
         fi
-    done
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
-            crit "$PACKAGE is installed, purging it"
-            apt-get purge $PACKAGE -y
-            apt-get autoremove
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    :
 }
 
 # This function will check config parameters required

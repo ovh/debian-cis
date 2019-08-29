@@ -5,42 +5,35 @@
 #
 
 #
-# 6.14 Ensure SNMP Server is not enabled (Not Scored)
+# 2.2.1.1 Ensure time synchronization is in use (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Enure SNMP server is not enabled."
-HARDENING_EXCEPTION=snmp
+DESCRIPTION="Ensure time synchronization is in use"
 
-PACKAGES='snmpd'
+PACKAGES="ntp chrony"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
+    FOUND=false
     for PACKAGE in $PACKAGES; do
         is_pkg_installed $PACKAGE
         if [ $FNRET = 0 ]; then
-            crit "$PACKAGE is installed!"
-        else
-            ok "$PACKAGE is absent"
+            ok "Time synchronization is available through $PACKAGE"
+            FOUND=true
         fi
     done
+    if [  "$FOUND" = false ]; then
+        crit "None of the following time sync packages are installed: $PACKAGES"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
-            crit "$PACKAGE is installed, purging it"
-            apt-get purge $PACKAGE -y
-            apt-get autoremove
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    :
 }
 
 # This function will check config parameters required
@@ -59,9 +52,5 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
-    . $CIS_ROOT_DIR/lib/main.sh
-else
-    echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
-    exit 128
-fi
+[ -r "$CIS_ROOT_DIR"/lib/main.sh ] && . $CIS_ROOT_DIR/lib/main.sh
+

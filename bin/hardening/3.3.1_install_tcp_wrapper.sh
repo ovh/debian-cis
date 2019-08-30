@@ -5,7 +5,7 @@
 #
 
 #
-# 7.4.1 Install TCP Wrappers (Scored)
+# 3.3.1 Ensure TCP Wrappers is installed (Scored)
 #
 
 set -e # One error, it's over

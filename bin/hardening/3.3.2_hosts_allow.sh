@@ -5,36 +5,36 @@
 #
 
 #
-# 7.4.5 Verify Permissions on /etc/hosts.deny (Scored)
+# 3.3.2 Ensure /etc/hosts.allow is configured (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Check 644 permissions on /etc/hosts.deny ."
+DESCRIPTION="Create /etc/hosts.allow ."
 
-FILE='/etc/hosts.deny'
-PERMISSIONS='644'
+FILE='/etc/hosts.allow'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    has_file_correct_permissions $FILE $PERMISSIONS
-    if [ $FNRET = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_file_exist $FILE
+    if [ $FNRET != 0 ]; then
+        crit "$FILE does not exist"
     else
-        crit "$FILE permissions were not set to $PERMISSIONS"
-    fi 
+        ok "$FILE exist"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    has_file_correct_permissions $FILE $PERMISSIONS
-    if [ $FNRET = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_file_exist $FILE
+    if [ $FNRET != 0 ]; then
+        warn "$FILE does not exist, creating it"
+        touch $FILE
+        warn "You may want to fill it with allowed networks"
     else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0$PERMISSIONS $FILE
+        ok "$FILE exist"
     fi
 }
 

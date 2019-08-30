@@ -5,50 +5,44 @@
 #
 
 #
-# 7.4.4 Create /etc/hosts.deny (Not Scored)
+# 3.3.5 Verify Permissions on /etc/hosts.deny (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Create /etc/hosts.deny ."
+DESCRIPTION="Check 644 permissions and root:root ownership on /etc/hosts.deny ."
 
 FILE='/etc/hosts.deny'
-PATTERN='ALL: ALL'
+PERMISSIONS='644'
+USER='root'
+GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
-        crit "$FILE does not exist"
+    has_file_correct_permissions $FILE $PERMISSIONS
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct permissions"
     else
-        ok "$FILE exists, checking configuration"
-        does_pattern_exist_in_file $FILE "$PATTERN"
-        if [ $FNRET != 0 ]; then
-            crit "$PATTERN is not present in $FILE, we have to deny everything"
-        else
-            ok "$PATTERN is present in $FILE"
-        fi
+        crit "$FILE permissions were not set to $PERMISSIONS"
+    fi
+    has_file_correct_ownership $FILE $USER $GROUP
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct ownership"
+    else
+        crit "$FILE ownership was not set to $USER:$GROUP"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
-        warn "$FILE does not exist, creating it"
-        touch $FILE
+    has_file_correct_permissions $FILE $PERMISSIONS
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct permissions"
     else
-        ok "$FILE exists"
-    fi
-    does_pattern_exist_in_file $FILE "$PATTERN"
-    if [ $FNRET != 0 ]; then
-        crit "$PATTERN is not present in $FILE, we have to deny everything"
-        add_end_of_file $FILE "$PATTERN"
-        warn "YOU MAY HAVE CUT YOUR ACCESS, CHECK BEFORE DISCONNECTING"
-    else
-        ok "$PATTERN is present in $FILE"
+        info "fixing $FILE permissions to $PERMISSIONS"
+        chmod 0$PERMISSIONS $FILE
     fi
 }
 

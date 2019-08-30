@@ -5,36 +5,50 @@
 #
 
 #
-# 7.4.3 Verify Permissions on /etc/hosts.allow (Scored)
+# 3.3.3 Ensure /etc/hosts.deny is configured (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Check 644 permissions on /hosts.allow ."
+DESCRIPTION="Create /etc/hosts.deny ."
 
-FILE='/etc/hosts.allow'
-PERMISSIONS='644'
+FILE='/etc/hosts.deny'
+PATTERN='ALL: ALL'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    has_file_correct_permissions $FILE $PERMISSIONS
-    if [ $FNRET = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_file_exist $FILE
+    if [ $FNRET != 0 ]; then
+        crit "$FILE does not exist"
     else
-        crit "$FILE permissions were not set to $PERMISSIONS"
-    fi 
+        ok "$FILE exists, checking configuration"
+        does_pattern_exist_in_file $FILE "$PATTERN"
+        if [ $FNRET != 0 ]; then
+            crit "$PATTERN is not present in $FILE, we have to deny everything"
+        else
+            ok "$PATTERN is present in $FILE"
+        fi
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    has_file_correct_permissions $FILE $PERMISSIONS
-    if [ $FNRET = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_file_exist $FILE
+    if [ $FNRET != 0 ]; then
+        warn "$FILE does not exist, creating it"
+        touch $FILE
     else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0$PERMISSIONS $FILE
+        ok "$FILE exists"
+    fi
+    does_pattern_exist_in_file $FILE "$PATTERN"
+    if [ $FNRET != 0 ]; then
+        crit "$PATTERN is not present in $FILE, we have to deny everything"
+        add_end_of_file $FILE "$PATTERN"
+        warn "YOU MAY HAVE CUT YOUR ACCESS, CHECK BEFORE DISCONNECTING"
+    else
+        ok "$PATTERN is present in $FILE"
     fi
 }
 

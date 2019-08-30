@@ -5,14 +5,14 @@
 #
 
 #
-# 7.5.2 Disable SCTP (Not Scored)
+# 3.4.3 Ensure SCTP is disabled (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Disable Stream Control Transmission Protocol (SCTP)."
+DESCRIPTION="Disable Reliable Datagram Sockets (RDS)."
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

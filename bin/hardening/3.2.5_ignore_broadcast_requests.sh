@@ -5,7 +5,7 @@
 #
 
 #
-# 7.2.5 Enable Ignore Broadcast Requests (Scored)
+# 3.2.5 Ensure broadcast ICMP requests are ignored (Scored)
 #
 
 set -e # One error, it's over

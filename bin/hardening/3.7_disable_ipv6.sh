@@ -5,16 +5,16 @@
 #
 
 #
-# 7.3.1 Disable IPv6 Router Advertisements (Not Scored)
+# 3.7 Disable IPv6 (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Disable IPv6 router advertisements."
+DESCRIPTION="Disable IPv6."
 
-SYSCTL_PARAMS='net.ipv6.conf.all.accept_ra=0 net.ipv6.conf.default.accept_ra=0'
+SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -50,9 +50,9 @@ apply () {
             debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
             has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
             if [ $FNRET != 0 ]; then
-                warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT, fixing"
+                warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT value, fixing"
                 set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-                sysctl -w net.ipv4.route.flush=1 > /dev/null
+                warn "you may want to reboot or sysctl -p a file including $SYSCTL_PARAMS"
             elif [ $FNRET = 255 ]; then
                 warn "$SYSCTL_PARAM does not exist -- Typo?"
             else

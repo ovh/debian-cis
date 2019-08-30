@@ -5,16 +5,16 @@
 #
 
 #
-# 7.2.8 Enable TCP SYN Cookies (Scored)
+# 3.2.4 Ensure suspicious packets are logged (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Enable TCP-SYN cookie to prevent TCP-SYN flood attack."
+DESCRIPTION="Log suspicious packets, like spoofed packets."
 
-SYSCTL_PARAMS='net.ipv4.tcp_syncookies=1'
+SYSCTL_PARAMS='net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

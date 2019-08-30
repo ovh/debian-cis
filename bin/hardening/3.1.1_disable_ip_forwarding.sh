@@ -5,7 +5,7 @@
 #
 
 #
-# 7.1.1 Disable IP Forwarding (Scored)
+# 3.1.1 Ensure IP forwarding is disabled (Scored)
 #
 
 set -e # One error, it's over
@@ -15,19 +15,21 @@ HARDENING_LEVEL=3
 HARDENING_EXCEPTION=gw
 DESCRIPTION="Disable IP forwarding."
 
-SYSCTL_PARAM='net.ipv4.ip_forward'
+SYSCTL_PARAMS='net.ipv4.ip_forward net.ipv6.conf.all.forwarding'
 SYSCTL_EXP_RESULT=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
+    for SYSCTL_PARAM in $SYSCTL_PARAMS; do
     has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-    if [ $FNRET != 0 ]; then
-        crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-    elif [ $FNRET = 255 ]; then
-        warn "$SYSCTL_PARAM does not exist -- Typo?"
-    else
-        ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
-    fi
+        if [ $FNRET != 0 ]; then
+            crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+        elif [ $FNRET = 255 ]; then
+            warn "$SYSCTL_PARAM does not exist -- Typo?"
+        else
+            ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+        fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode

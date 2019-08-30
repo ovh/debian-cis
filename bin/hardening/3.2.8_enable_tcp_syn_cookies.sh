@@ -5,16 +5,16 @@
 #
 
 #
-# 7.2.3 Disable Secure ICMP Redirect Acceptance (Scored)
+# 3.2.8 Ensure TCP SYN Cookies is enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Disable secure ICMP redirect acceptance to prevent routing tables corruptions."
+DESCRIPTION="Enable TCP-SYN cookie to prevent TCP-SYN flood attack."
 
-SYSCTL_PARAMS='net.ipv4.conf.all.secure_redirects=0 net.ipv4.conf.default.secure_redirects=0'
+SYSCTL_PARAMS='net.ipv4.tcp_syncookies=1'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

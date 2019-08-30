@@ -5,14 +5,14 @@
 #
 
 #
-# 7.6 Deactivate Wireless Interfaces (Not Scored)
+# 3.4.2 Ensure SCTP is disabled (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="Deactivate wireless interfaces."
+HARDENING_LEVEL=2
+DESCRIPTION="Disable Stream Control Transmission Protocol (SCTP)."
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -34,21 +34,10 @@ if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-	 echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment." 
-	 echo "Cannot source CIS_ROOT_DIR variable, aborting."
-	exit 128
-fi 
-## Source Root Dir Parameter
-#if [ ! -r /etc/default/cis-hardening ]; then
-#    echo "There is no /etc/default/cis-hardening file, cannot source CIS_ROOT_DIR variable, aborting"
-#    exit 128
-#else
-#    . /etc/default/cis-hardening
-#    if [ -z ${CIS_ROOT_DIR:-} ]; then
-#        echo "No CIS_ROOT_DIR variable, aborting"
-#        exit 128
-#    fi
-#fi 
+     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    exit 128
+fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then

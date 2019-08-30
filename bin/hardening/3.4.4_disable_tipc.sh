@@ -5,7 +5,7 @@
 #
 
 #
-# 7.5.4 Disable TIPC (Not Scored)
+# 3.4.4 Ensure TIPC is disabled (Not Scored)
 #
 
 set -e # One error, it's over

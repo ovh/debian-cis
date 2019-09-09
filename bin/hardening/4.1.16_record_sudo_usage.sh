@@ -5,19 +5,16 @@
 #
 
 #
-# 8.1.17 Collect Kernel Module Loading and Unloading (Scored)
+# 4.1.16 Ensure system administrator actions (sudolog) are collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Collect kernel module loading and unloading."
+DESCRIPTION="Collect system administration actions (sudolog)."
 
-AUDIT_PARAMS='-w /sbin/insmod -p x -k modules 
--w /sbin/rmmod -p x -k modules
--w /sbin/modprobe -p x -k modules
--a always,exit -F arch=b64 -S init_module -S delete_module -k modules'
+AUDIT_PARAMS='-w /var/log/auth.log -p wa -k sudoaction'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

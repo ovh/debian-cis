@@ -5,19 +5,20 @@
 #
 
 #
-# 8.1.11 Collect Unsuccessful Unauthorized Access Attempts to Files (Scored)
+# 4.1.12 Ensure use of privileged commands is collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Collect unsuccessful unauthorized access attemps to files."
+DESCRIPTION="Collect use of privileged commands."
 
-AUDIT_PARAMS='-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access'
+# Find all files with setuid or setgid set
+SUDO_CMD='sudo -n'
+AUDIT_PARAMS=$($SUDO_CMD find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print \
+"-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 \
+-k privileged" }')
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

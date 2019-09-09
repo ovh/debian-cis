@@ -5,17 +5,17 @@
 #
 
 #
-# 8.1.3 Enable Auditing for Processes That Start Prior to auditd (Scored)
+# 4.1.1.3 Ensure audit logs are not automatically deleted (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Enable auditing for processes that start prior to auditd."
+DESCRIPTION="Keep all auditing information."
 
-FILE='/etc/default/grub'
-OPTIONS='GRUB_CMDLINE_LINUX="audit=1"'
+FILE='/etc/audit/auditd.conf'
+OPTIONS='max_log_file_action=keep_logs'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -24,11 +24,11 @@ audit () {
         crit "$FILE does not exist"
     else
         ok "$FILE exists, checking configuration"
-        for GRUB_OPTION in $OPTIONS; do
-        GRUB_PARAM=$(echo $GRUB_OPTION | cut -d= -f 1)
-        GRUB_VALUE=$(echo $GRUB_OPTION | cut -d= -f 2,3)
-        PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
-        debug "$GRUB_PARAM should be set to $GRUB_VALUE"
+        for AUDIT_OPTION in $OPTIONS; do
+        AUDIT_PARAM=$(echo $AUDIT_OPTION | cut -d= -f 1)
+        AUDIT_VALUE=$(echo $AUDIT_OPTION | cut -d= -f 2)
+        PATTERN="^$AUDIT_PARAM[[:space:]]*=[[:space:]]*$AUDIT_VALUE"
+        debug "$AUDIT_PARAM should be set to $AUDIT_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
         if [ $FNRET != 0 ]; then
             crit "$PATTERN is not present in $FILE"
@@ -48,21 +48,21 @@ apply () {
     else
         ok "$FILE exists"
     fi
-    for GRUB_OPTION in $OPTIONS; do
-        GRUB_PARAM=$(echo $GRUB_OPTION | cut -d= -f 1)
-        GRUB_VALUE=$(echo $GRUB_OPTION | cut -d= -f 2,3)
-        debug "$GRUB_PARAM should be set to $GRUB_VALUE"
-        PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
+    for AUDIT_OPTION in $OPTIONS; do
+        AUDIT_PARAM=$(echo $AUDIT_OPTION | cut -d= -f 1)
+        AUDIT_VALUE=$(echo $AUDIT_OPTION | cut -d= -f 2)
+        debug "$AUDIT_PARAM should be set to $AUDIT_VALUE"
+        PATTERN="^$AUDIT_PARAM[[:space:]]*=[[:space:]]*$AUDIT_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
         if [ $FNRET != 0 ]; then
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file $FILE "^$GRUB_PARAM"
+            does_pattern_exist_in_file $FILE "^$AUDIT_PARAM"
             if [ $FNRET != 0 ]; then
-                info "Parameter $GRUB_PARAM seems absent from $FILE, adding at the end" 
-                add_end_of_file $FILE "$GRUB_PARAM = $GRUB_VALUE"
+                info "Parameter $AUDIT_PARAM seems absent from $FILE, adding at the end" 
+                add_end_of_file $FILE "$AUDIT_PARAM = $AUDIT_VALUE"
             else
-                info "Parameter $GRUB_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE "^$GRUB_PARAM=.*" "$GRUB_PARAM=$GRUB_VALUE"
+                info "Parameter $AUDIT_PARAM is present but with the wrong value -- Fixing"
+                replace_in_file $FILE "^$AUDIT_PARAM[[:space:]]*=.*" "$AUDIT_PARAM = $AUDIT_VALUE"
             fi
         else
             ok "$PATTERN is present in $FILE"

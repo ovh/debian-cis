@@ -5,20 +5,17 @@
 #
 
 #
-# 8.1.12 Collect Use of Privileged Commands (Scored)
+# 4.1.13 Ensure successful file system mounts are collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Collect use of privileged commands."
+DESCRIPTION="Collect sucessfull file system mounts."
 
-# Find all files with setuid or setgid set
-SUDO_CMD='sudo -n'
-AUDIT_PARAMS=$($SUDO_CMD find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print \
-"-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 \
--k privileged" }')
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts
+-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

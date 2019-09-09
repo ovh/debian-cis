@@ -5,52 +5,51 @@
 #
 
 #
-# 8.1.18 Make the Audit Configuration Immutable (Scored)
+# 4.1.2 Ensure auditd service is enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Make the audit configuration immutable."
+DESCRIPTION="Ensure auditd service is installed and running."
 
-AUDIT_PARAMS='-e 2'
-FILE='/etc/audit/audit.rules'
+PACKAGE='auditd'
+SERVICE_NAME='auditd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    # define custom IFS and save default one
-    d_IFS=$IFS
-    c_IFS=$'\n'
-    IFS=$c_IFS
-    for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILE"
-        IFS=$d_IFS
-        does_pattern_exist_in_file $FILE $AUDIT_VALUE
-        IFS=$c_IFS
-        if [ $FNRET != 0 ]; then
-            crit "$AUDIT_VALUE is not in file $FILE"
+    is_pkg_installed $PACKAGE
+    if [ $FNRET != 0 ]; then
+        crit "$PACKAGE is not installed!"
+    else
+        ok "$PACKAGE is installed"
+        is_service_enabled $SERVICE_NAME
+        if [ $FNRET = 0 ]; then
+            ok "$SERVICE_NAME is enabled"
         else
-            ok "$AUDIT_VALUE is present in $FILE"
+            crit "$SERVICE_NAME is not enabled"
         fi
-    done
-    IFS=$d_IFS
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    IFS=$'\n'
-    for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILE"
-        does_pattern_exist_in_file $FILE $AUDIT_VALUE
-        if [ $FNRET != 0 ]; then
-            warn "$AUDIT_VALUE is not in file $FILE, adding it"
-            add_end_of_file $FILE $AUDIT_VALUE
-            eval $(pkill -HUP -P 1 auditd)
+        is_pkg_installed $PACKAGE
+        if [ $FNRET = 0 ]; then
+            ok "$PACKAGE is installed"
         else
-            ok "$AUDIT_VALUE is present in $FILE"
+            warn "$PACKAGE is absent, installing it"
+            apt_install $PACKAGE
         fi
-    done
+        is_service_enabled $SERVICE_NAME
+        if [ $FNRET = 0 ]; then
+            ok "$SERVICE_NAME is enabled"
+        else
+            warn "$SERVICE_NAME is not enabled, enabling it"
+            update-rc.d $SERVICE_NAME remove >  /dev/null 2>&1
+            update-rc.d $SERVICE_NAME defaults > /dev/null 2>&1
+        fi
 }
 
 # This function will check config parameters required

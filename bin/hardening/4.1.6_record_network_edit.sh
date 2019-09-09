@@ -5,16 +5,21 @@
 #
 
 #
-# 8.1.16 Collect System Administrator Actions (sudolog) (Scored)
+# 4.1.6 Ensure events that modify the system's network environment are collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Collect system administration actions (sudolog)."
+DESCRIPTION="Record events that modify the system's network environment."
 
-AUDIT_PARAMS='-w /var/log/auth.log -p wa -k sudoaction'
+AUDIT_PARAMS='-a exit,always -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a exit,always -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/network -p wa -k system-locale'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

@@ -5,17 +5,20 @@
 #
 
 #
-# 8.1.13 Collect Successful File System Mounts (Scored)
+# 4.1.5 Ensure events that modify user/group information are collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Collect sucessfull file system mounts."
+DESCRIPTION="Record events that modify user/group information."
 
-AUDIT_PARAMS='-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts
--a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts'
+AUDIT_PARAMS='-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

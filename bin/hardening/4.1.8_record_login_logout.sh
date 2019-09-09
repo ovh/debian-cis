@@ -5,17 +5,18 @@
 #
 
 #
-# 8.1.15 Collect Changes to System Administration Scope (sudoers) (Scored)
+# 4.1.8 Ensure login and logout events are collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Collect changes to system administration scopre."
+DESCRIPTION="Collect login and logout events."
 
-AUDIT_PARAMS='-w /etc/sudoers -p wa -k sudoers
--w /etc/sudoers.d/ -p wa -k sudoers'
+AUDIT_PARAMS='-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

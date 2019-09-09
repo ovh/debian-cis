@@ -5,17 +5,17 @@
 #
 
 #
-# 8.1.1.3 Keep All Auditing Information (Scored)
+# 4.1.1.2 Ensure system is disabled when audit logs are full (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Keep all auditing information."
+DESCRIPTION="Disable system on audit log full."
 
 FILE='/etc/audit/auditd.conf'
-OPTIONS='max_log_file_action=keep_logs'
+OPTIONS='space_left_action=email action_mail_acct=root admin_space_left_action=halt'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -58,7 +58,7 @@ apply () {
             warn "$PATTERN is not present in $FILE, adding it"
             does_pattern_exist_in_file $FILE "^$AUDIT_PARAM"
             if [ $FNRET != 0 ]; then
-                info "Parameter $AUDIT_PARAM seems absent from $FILE, adding at the end" 
+                info "Parameter $AUDIT_PARAM seems absent from $FILE, adding at the end"
                 add_end_of_file $FILE "$AUDIT_PARAM = $AUDIT_VALUE"
             else
                 info "Parameter $AUDIT_PARAM is present but with the wrong value -- Fixing"

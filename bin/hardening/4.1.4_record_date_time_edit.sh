@@ -5,20 +5,20 @@
 #
 
 #
-# 8.1.5 Record Events That Modify User/Group Information (Scored)
+# 4.1.4 Ensure events that modify date and time information are collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Record events that modify user/group information."
+DESCRIPTION="Record events taht modify date and time information."
 
-AUDIT_PARAMS='-w /etc/group -p wa -k identity
--w /etc/passwd -p wa -k identity
--w /etc/gshadow -p wa -k identity
--w /etc/shadow -p wa -k identity
--w /etc/security/opasswd -p wa -k identity'
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

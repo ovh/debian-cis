@@ -5,17 +5,17 @@
 #
 
 #
-# 8.1.14 Collect File Deletion Events by User (Scored)
+# 4.1.15 nsure changes to system administration scope (sudoers) is collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Collects file deletion events by users."
+DESCRIPTION="Collect changes to system administration scopre."
 
-AUDIT_PARAMS='-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete'
+AUDIT_PARAMS='-w /etc/sudoers -p wa -k sudoers
+-w /etc/sudoers.d/ -p wa -k sudoers'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

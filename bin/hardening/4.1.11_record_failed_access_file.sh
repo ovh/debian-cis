@@ -5,16 +5,19 @@
 #
 
 #
-# 8.1.7 Record Events That Modify the System's Mandatory Access Controls (Scored)
+# 4.1.11 Ensure unsuccessful unauthorized file access attempts are collected (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=4
-DESCRIPTION="Record events that modify the system's mandatory access controls (MAC)."
+DESCRIPTION="Collect unsuccessful unauthorized access attemps to files."
 
-AUDIT_PARAMS='-w /etc/selinux/ -p wa -k MAC-policy'
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

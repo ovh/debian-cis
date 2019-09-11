@@ -5,21 +5,22 @@
 #
 
 #
-# 9.3.8 Disable SSH Root Login (Scored)
+# 5.2.16 Ensure SSH Idle Timeout Interval is configured (Scored)
+# FIXME: the implementation of this script doesn't do what it says
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Disable SSH Root Login."
+DESCRIPTION="Set Idle Timeout Interval for user login."
 
 PACKAGE='openssh-server'
-OPTIONS='PermitRootLogin=no'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
+    OPTIONS="ClientAliveInterval=$SSHD_TIMEOUT ClientAliveCountMax=0"
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -69,9 +70,22 @@ apply () {
     done
 }
 
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=audit
+# In seconds, value of ClientAliveInterval, ClientAliveCountMax bedoing set to 0
+# Settles sshd idle timeout
+SSHD_TIMEOUT=300
+EOF
+}
+
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z $SSHD_TIMEOUT ]; then
+        crit "SSHD_TIMEOUT is not set, please edit configuration file"
+        exit 128
+    fi
 }
 
 # Source Root Dir Parameter

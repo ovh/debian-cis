@@ -5,17 +5,17 @@
 #
 
 #
-# 9.3.7 Set SSH HostbasedAuthentication to No (Scored)
+# 5.2.12 Ensure SSH PermitUserEnvironment is disabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Set SSH HostbasedAUthentication to No."
+DESCRIPTION="Do not allow users to set environment options."
 
 PACKAGE='openssh-server'
-OPTIONS='HostbasedAuthentication=no'
+OPTIONS='PermitUserEnvironment=no'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode

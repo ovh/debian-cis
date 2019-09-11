@@ -5,16 +5,16 @@
 #
 
 #
-# 9.1.6 Set User/Group Owner and Permission on /etc/cron.monthly (Scored)
+# 5.1.3 Ensure permissions on /etc/cron.hourly are configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
-DESCRIPTION="User/group set to root and permissions to 700 on /etc/cron.monthly ."
+DESCRIPTION="User/Group set to root and permissions to 700 on /etc/cron.hourly ."
 
-FILE='/etc/cron.monthly'
+FILE='/etc/cron.hourly'
 PERMISSIONS='700'
 USER='root'
 GROUP='root'

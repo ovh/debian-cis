@@ -5,7 +5,7 @@
 #
 
 #
-# 9.1.8 Restrict at/cron to Authorized Users (Scored)
+# 5.1.8 Ensure at/cron is restricted to authorized users (Scored)
 #
 
 set -e # One error, it's over

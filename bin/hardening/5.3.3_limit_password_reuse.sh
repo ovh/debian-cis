@@ -5,17 +5,17 @@
 #
 
 #
-# 9.2.1 Set Password Creation Requirement Parameters Using pam_cracklib (Scored)
+# 5.3.3 Ensure password reuse is limited (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="Set password creation requirement parameters using pam.cracklib."
+HARDENING_LEVEL=3
+DESCRIPTION="Limit password reuse."
 
-PACKAGE='libpam-cracklib'
-PATTERN='^password.*pam_cracklib.so'
+PACKAGE='libpam-modules'
+PATTERN='^password.*remember'
 FILE='/etc/pam.d/common-password'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -47,8 +47,8 @@ apply () {
     if [ $FNRET = 0 ]; then
         ok "$PATTERN is present in $FILE"
     else
-        crit "$PATTERN is not present in $FILE"
-        add_line_file_before_pattern $FILE "password    requisite           pam_cracklib.so retry=3 minlen=8 difok=3" "# pam-auth-update(8) for details."
+        warn "$PATTERN is not present in $FILE"
+        add_line_file_before_pattern $FILE "password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5" "# pam-auth-update(8) for details."
     fi 
 }
 

@@ -5,18 +5,18 @@
 #
 
 #
-# 9.2.3 Limit Password Reuse (Scored)
+# 5.3.2 Ensure lockout for failed password attempts is configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Limit password reuse."
+DESCRIPTION="Set lockout for failed password attemps."
 
-PACKAGE='libpam-modules'
-PATTERN='^password.*remember'
-FILE='/etc/pam.d/common-password'
+PACKAGE='libpam-modules-bin'
+PATTERN='^auth[[:space:]]*required[[:space:]]*pam_tally[2]?.so'
+FILE='/etc/pam.d/login'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -47,8 +47,8 @@ apply () {
     if [ $FNRET = 0 ]; then
         ok "$PATTERN is present in $FILE"
     else
-        warn "$PATTERN is not present in $FILE"
-        add_line_file_before_pattern $FILE "password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5" "# pam-auth-update(8) for details."
+        crit "$PATTERN is not present in $FILE"
+        add_line_file_before_pattern $FILE "auth    required    pam_tally.so onerr=fail deny=6 unlock_time=1800" "# Uncomment and edit \/etc\/security\/time.conf if you need to set"
     fi 
 }
 

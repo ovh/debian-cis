@@ -1,5 +1,9 @@
 # run-shellcheck
 test_audit() {
+
+    apt update
+    apt-get install -y libpam-pwquality
+
     describe Running on blank host
     register_test retvalshouldbe 0
     dismiss_count_for_test

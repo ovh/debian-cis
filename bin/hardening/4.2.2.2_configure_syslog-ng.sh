@@ -5,39 +5,27 @@
 #
 
 #
-# 8.2.2 Ensure the syslog-ng Service is activated (Scored)
+# 4.2.2.2 Configure /etc/syslog-ng/syslog-ng.conf (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Ensure syslog-ng service is activated."
+DESCRIPTION="Configure /etc/syslog-ng/syslog-ng.conf ."
 
 SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
-        ok "$SERVICE_NAME is enabled"
-    else
-        crit "$SERVICE_NAME is disabled"
-    fi
+    info "Ensure default and local facilities are preserved on the system"
+    info "No measure here, please review the file by yourself"
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET != 0 ]; then
-        info "Enabling $SERVICE_NAME"
-        update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
-        update-rc.d $SERVICE_NAME defaults > /dev/null 2>&1
-    else
-        ok "$SERVICE_NAME is enabled"
-    fi
+    info "Ensure default and local facilities are preserved on the system"
+    info "No measure here, please review the file by yourself"
 }
 
 # This function will check config parameters required

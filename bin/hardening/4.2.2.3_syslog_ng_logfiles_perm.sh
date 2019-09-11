@@ -5,16 +5,16 @@
 #
 
 #
-# 8.2.5 Configure rsyslog to Send Logs to a Remote Log Host (Scored)
+# 4.2.2.3 Ensure syslog-ng default file permissions configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Configure syslog-ng to send logs to a remote log host."
+DESCRIPTION="Ensure logfile are created with root:640"
 
-PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
+PATTERN='options[[:space:]]*{[[:alnum:] ()_;"\t]*perm\(0640\);'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {

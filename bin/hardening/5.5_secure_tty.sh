@@ -5,7 +5,7 @@
 #
 
 #
-# 9.4 Restrict root Login to System Console (Not Scored)
+# 5.5 Ensure root login is restricted to system console (Not Scored)
 #
 
 set -e # One error, it's over

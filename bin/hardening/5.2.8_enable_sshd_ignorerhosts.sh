@@ -5,17 +5,17 @@
 #
 
 #
-# 9.3.9 Set SSH PermitEmptyPasswords to No (Scored)
+# 5.2.8 Set SSH IgnoreRhosts to Yes (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Set SSH PermitEmptyPasswords to No in order to disallow SSH login to accounts with empty password strigs."
+DESCRIPTION="Set SSH IgnoreRhosts to Yes."
 
 PACKAGE='openssh-server'
-OPTIONS='PermitEmptyPasswords=no'
+OPTIONS='IgnoreRhosts=yes'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode

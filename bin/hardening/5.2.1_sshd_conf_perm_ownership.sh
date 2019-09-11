@@ -5,7 +5,7 @@
 #
 
 #
-# 9.3.3 Set Permissions on /etc/ssh/sshd_config (Scored)
+# 5.2.1 Ensure permissions on /etc/ssh/sshd_config are configured (Scored)
 #
 
 set -e # One error, it's over

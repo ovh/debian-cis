@@ -5,21 +5,21 @@
 #
 
 #
-# 9.3.13 Limit Access via SSH (Scored)
+# 5.2.6 Ensure SSH X11 forwarding is disabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="Limite access via SSH by (dis)allowing specific users or groups."
+HARDENING_LEVEL=2
+DESCRIPTION="Disable SSH X11 forwarding."
 
 PACKAGE='openssh-server'
+OPTIONS='X11Forwarding=no'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    OPTIONS="AllowUsers='$ALLOWED_USERS' AllowGroups='$ALLOWED_GROUPS' DenyUsers='$DENIED_USERS' DenyGroups='$DENIED_GROUPS'"
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -28,7 +28,6 @@ audit () {
         for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-            SSH_VALUE=$(sed "s/'//g" <<< $SSH_VALUE)
             PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ $FNRET = 0 ]; then
@@ -52,7 +51,6 @@ apply () {
     for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-            SSH_VALUE=$(sed "s/'//g" <<< $SSH_VALUE)
             PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ $FNRET = 0 ]; then
@@ -66,42 +64,14 @@ apply () {
                     info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
                     replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
                 fi
-                /etc/init.d/ssh reload
+                /etc/init.d/ssh reload > /dev/null 2>&1
             fi
     done
 }
 
-# This function will create the config file for this check with default values
-create_config() {
-    cat <<EOF
-status=audit
-# Put here ssh user hardening list, there is a default in script to not break your configuration
-# However, it can erase current configuration
-ALLOWED_USERS=''
-ALLOWED_GROUPS=''
-DENIED_USERS=''
-DENIED_GROUPS=''
-EOF
-}
-
 # This function will check config parameters required
 check_config() {
-    if [ -z $ALLOWED_USERS ]; then
-        info "ALLOWED_USERS is not set, defaults to wildcard"
-        ALLOWED_USERS="*"
-    fi
-    if [ -z $ALLOWED_GROUPS ]; then
-        info "ALLOWED_GROUPS is not set, defaults to wildcard"
-        ALLOWED_GROUPS="*"
-    fi
-    if [ -z $DENIED_USERS ]; then
-        info "DENIED_USERS is not set, defaults to nobody"
-        DENIED_USERS="nobody"
-    fi
-    if [ -z $DENIED_GROUPS ]; then
-        info "DENIED_GROUPS is not set, defaults to nobody"
-        DENIED_GROUPS="nobody"
-    fi
+    :
 }
 
 # Source Root Dir Parameter

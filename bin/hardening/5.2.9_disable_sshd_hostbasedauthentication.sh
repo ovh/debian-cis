@@ -5,21 +5,21 @@
 #
 
 #
-# 9.3.14 Set SSH Banner (Scored)
+# 5.2.9 Ensure SSH HostbasedAuthentication is disabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="Set ssh banner."
+HARDENING_LEVEL=2
+DESCRIPTION="Set SSH HostbasedAUthentication to No."
 
 PACKAGE='openssh-server'
+OPTIONS='HostbasedAuthentication=no'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    OPTIONS="Banner=$BANNER_FILE"
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -27,7 +27,8 @@ audit () {
         ok "$PACKAGE is installed"
         for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
-            PATTERN="^$SSH_PARAM[[:space:]]*"
+            SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
+            PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ $FNRET = 0 ]; then
                 ok "$PATTERN is present in $FILE"
@@ -60,28 +61,17 @@ apply () {
                 if [ $FNRET != 0 ]; then
                     add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
                 else
-                    info "Parameter $SSH_PARAM is present and activated"
+                    info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
+                    replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
                 fi
                 /etc/init.d/ssh reload
             fi
     done
 }
 
-# This function will create the config file for this check with default values
-create_config() {
-    cat <<EOF
-status=audit
-# Put here banner file, defaults to /etc/issue.net
-BANNER_FILE=""
-EOF
-}
-
 # This function will check config parameters required
 check_config() {
-    if [ -z $BANNER_FILE ]; then
-        info "BANNER_FILE is not set, defaults to wildcard"
-        BANNER_FILE='/etc/issue.net'
-    fi
+    :
 }
 
 # Source Root Dir Parameter

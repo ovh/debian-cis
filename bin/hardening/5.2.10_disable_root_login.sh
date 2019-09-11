@@ -5,17 +5,17 @@
 #
 
 #
-# 9.3.1 Set SSH Protocol to 2 (Scored)
+# 5.2.10 Ensure SSH root login is disabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=2
-DESCRIPTION="Set secure shell (SSH) protocol to 2."
+HARDENING_LEVEL=3
+DESCRIPTION="Disable SSH Root Login."
 
 PACKAGE='openssh-server'
-OPTIONS='Protocol=2'
+OPTIONS='PermitRootLogin=no'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -64,7 +64,7 @@ apply () {
                     info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
                     replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
                 fi
-                /etc/init.d/ssh reload > /dev/null 2>&1
+                /etc/init.d/ssh reload
             fi
     done
 }

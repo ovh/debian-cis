@@ -6,7 +6,7 @@
 #
 
 #
-# Checking Message Authentication Code ciphers for preferred UMAC and SHA-256|512 with Encrypt-Then-Mac (etm) setting.
+# 5.2.15 Ensure only strong Key Exchange algorithms are used (Scored)
 #
 
 set -e # One error, it's over
@@ -15,7 +15,7 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Checking Message Authentication Code ciphers for preferred UMAC and SHA-256|512 with Encrypt-Then-Mac (etm) setting."
+DESCRIPTION="Checking key exchange ciphers."
 
 PACKAGE='openssh-server'
 OPTIONS=''
@@ -70,17 +70,27 @@ apply () {
                 /etc/init.d/ssh reload > /dev/null 2>&1
             fi
     done
-
 }
 
-# This function will create the config file for this check with default values
 create_config() {
+    get_debian_major_version
+    set +u
+    debug "Debian version : $DEB_MAJ_VER "
+    if [[ -z $DEB_MAJ_VER ]] || [[ 7 -eq $DEB_MAJ_VER ]]; then
+        KEX='diffie-hellman-group-exchange-sha256'
+    elif [[ 8 -eq $DEB_MAJ_VER ]] || [[ 9 -eq $DEB_MAJ_VER ]]; then
+        KEX='curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256'
+    else
+        KEX='diffie-hellman-group-exchange-sha256'
+    fi
+    set -u
     cat <<EOF
 status=audit
-# Put your MACs
-OPTIONS="MACs=umac-128-etm@openssh.com,umac-64-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128@openssh.com,umac-64@openssh.com,hmac-sha2-512,hmac-sha2-256"
+# Put your KexAlgorithms
+OPTIONS="KexAlgorithms=$KEX"
 EOF
 }
+
 
 # This function will check config parameters required
 check_config() {
@@ -92,7 +102,7 @@ if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment." 
      echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi

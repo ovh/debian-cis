@@ -5,22 +5,21 @@
 #
 
 #
-# 9.3.12 Set Idle Timeout Interval for User Login (Scored)
-# FIXME: the implementation of this script doesn't do what it says
+# 5.2.13 Ensure only strong ciphers are used (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="Set Idle Timeout Interval for user login."
+HARDENING_LEVEL=2
+DESCRIPTION="Use only approved ciphers in counter mode (ctr) or Galois counter mode (gcm)."
 
 PACKAGE='openssh-server'
+OPTIONS='Ciphers=chacha20-poly1305@openssh\.com,aes256-gcm@openssh\.com,aes128-gcm@openssh\.com,aes256-ctr,aes192-ctr,aes128-ctr'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    OPTIONS="ClientAliveInterval=$SSHD_TIMEOUT ClientAliveCountMax=0"
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -70,22 +69,9 @@ apply () {
     done
 }
 
-# This function will create the config file for this check with default values
-create_config() {
-    cat <<EOF
-status=audit
-# In seconds, value of ClientAliveInterval, ClientAliveCountMax bedoing set to 0
-# Settles sshd idle timeout
-SSHD_TIMEOUT=900
-EOF
-}
-
 # This function will check config parameters required
 check_config() {
-    if [ -z $SSHD_TIMEOUT ]; then
-        crit "SSHD_TIMEOUT is not set, please edit configuration file"
-        exit 128
-    fi
+    :
 }
 
 # Source Root Dir Parameter

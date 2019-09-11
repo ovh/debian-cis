@@ -5,17 +5,17 @@
 #
 
 #
-# 9.3.11 Use Only Approved Cipher in Counter Mode (Scored)
+# 5.2.11 Ensure SSH PermitEmptyPasswords is disabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Use only approved ciphers in counter mode (ctr) or Galois counter mode (gcm)."
+DESCRIPTION="Set SSH PermitEmptyPasswords to No in order to disallow SSH login to accounts with empty password strigs."
 
 PACKAGE='openssh-server'
-OPTIONS='Ciphers=chacha20-poly1305@openssh\.com,aes256-gcm@openssh\.com,aes128-gcm@openssh\.com,aes256-ctr,aes192-ctr,aes128-ctr'
+OPTIONS='PermitEmptyPasswords=no'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode

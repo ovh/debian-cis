@@ -5,27 +5,23 @@
 #
 
 #
-# 8.2.3 Configure /etc/syslog-ng/syslog-ng.conf (Not Scored)
+# 4.2.2.5 Accept Remote rsyslog Messages Only on Designated Log Hosts (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Configure /etc/syslog-ng/syslog-ng.conf ."
-
-SERVICE_NAME="syslog-ng"
+DESCRIPTION="Configure syslog to accept remote syslog messages only on designated log hosts."
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Ensure default and local facilities are preserved on the system"
-    info "No measure here, please review the file by yourself"
+    info "Not implemented yet"
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Ensure default and local facilities are preserved on the system"
-    info "No measure here, please review the file by yourself"
+    info "Not implemented yet"
 }
 
 # This function will check config parameters required

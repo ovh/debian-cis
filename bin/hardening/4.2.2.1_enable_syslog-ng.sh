@@ -5,23 +5,39 @@
 #
 
 #
-# 8.2.6 Accept Remote rsyslog Messages Only on Designated Log Hosts (Not Scored)
+# 4.2.2.1 Ensure syslog-ng service is enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Configure syslog to accept remote syslog messages only on designated log hosts."
+DESCRIPTION="Ensure syslog-ng service is activated."
+
+SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Not implemented yet"
+    info "Checking if $SERVICE_NAME is enabled"
+    is_service_enabled $SERVICE_NAME
+    if [ $FNRET = 0 ]; then
+        ok "$SERVICE_NAME is enabled"
+    else
+        crit "$SERVICE_NAME is disabled"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Not implemented yet"
+    info "Checking if $SERVICE_NAME is enabled"
+    is_service_enabled $SERVICE_NAME
+    if [ $FNRET != 0 ]; then
+        info "Enabling $SERVICE_NAME"
+        update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
+        update-rc.d $SERVICE_NAME defaults > /dev/null 2>&1
+    else
+        ok "$SERVICE_NAME is enabled"
+    fi
 }
 
 # This function will check config parameters required

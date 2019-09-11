@@ -5,17 +5,17 @@
 #
 
 #
-# 9.1.2 Set User/Group Owner and Permission on /etc/crontab (Scored)
+# 5.1.5 Ensure permissions on /etc/cron.weekly are configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
-DESCRIPTION="User/Group set to root and permissions to 600 on /etc/crontab ."
+DESCRIPTION="User/group set to root and permissions to 700 on /etc/cron.weekly ."
 
-FILE='/etc/crontab'
-PERMISSIONS='600'
+FILE='/etc/cron.weekly'
+PERMISSIONS='700'
 USER='root'
 GROUP='root'
 

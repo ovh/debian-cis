@@ -5,7 +5,7 @@
 #
 
 #
-# 9.1.7 Set User/Group Owner and Permission on /etc/cron.d (Scored)
+# 5.1.7 Ensure permissions on /etc/cron.d are configured (Scored)
 #
 
 set -e # One error, it's over

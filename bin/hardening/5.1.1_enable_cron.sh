@@ -5,7 +5,7 @@
 #
 
 #
-# 9.1.1 Enable cron Daemon (Scored)
+# 5.1.1 Ensure cron daemon is enabled (Scored)
 #
 
 set -e # One error, it's over

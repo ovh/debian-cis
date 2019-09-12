@@ -5,17 +5,17 @@
 #
 
 #
-# 10.1.1 Set Password Expiration Days (Scored)
+# 5.4.1.3 Ensure password expiration warning days is 7 or more (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Set password expiration days."
+DESCRIPTION="Set password expiration warning days."
 
 PACKAGE='login'
-OPTIONS='PASS_MAX_DAYS=90'
+OPTIONS='PASS_WARN_AGE=7'
 FILE='/etc/login.defs'
 
 # This function will be called if the script status is on enabled / audit mode

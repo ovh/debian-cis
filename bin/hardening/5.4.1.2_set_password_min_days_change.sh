@@ -5,7 +5,7 @@
 #
 
 #
-# 10.1.2 Set Password Change Minimum Number of Days (Scored)
+# 5.4.1.2 Ensure minimum days between password changes is 7 or more (Scored)
 #
 
 set -e # One error, it's over

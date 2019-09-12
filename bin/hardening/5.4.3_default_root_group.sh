@@ -5,27 +5,35 @@
 #
 
 #
-# 10.5 Lock Inactive User Accounts (Scored)
+# 5.4.3 Ensure default group for the root account is GID 0 (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="Lock inactive user accounts."
+HARDENING_LEVEL=2
+DESCRIPTION="Set default group for root account to 0."
+
+USER='root'
+EXPECTED_GID='0'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Looking at the manual of useradd, it seems that this recommendation does not fill the title"
-    info "The number of days after a password expires until the account is permanently disabled."
-    info "Which is not inactive users per se"
+    if [ $(grep "^root:" /etc/passwd | cut -f4 -d:) = 0 ]; then
+        ok "Root group has GID $EXPECTED_GID"
+    else
+        crit "Root group GID should be $EXPECTED_GID"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Looking at the manual of useradd, it seems that this recommendation does not fill the title"
-    info "The number of days after a password expires until the account is permanently disabled."
-    info "Which is not inactive users per se"
+    if [ $(grep "^root:" /etc/passwd | cut -f4 -d:) = 0 ]; then
+        ok "Root group GID is $EXPECTED_GID"
+    else
+        warn "Root group GID is not $EXPECTED_GID -- Fixing"
+        usermod -g $EXPECTED_GID $USER
+    fi
 }
 
 # This function will check config parameters required

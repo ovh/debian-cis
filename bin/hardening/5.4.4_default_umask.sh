@@ -5,7 +5,7 @@
 #
 
 #
-# 10.4 Set Default umask for Users (Scored)
+# 5.4.4 Ensure default user umask is 027 or more restrictive (Scored)
 #
 
 set -e # One error, it's over

@@ -5,7 +5,7 @@
 #
 
 #
-# 10.2 Disable System Accounts (Scored)
+# 5.4.2 Ensure system accounts are non-login (Scored)
 #
 
 set -e # One error, it's over

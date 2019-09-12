@@ -5,17 +5,19 @@
 #
 
 #
-# 12.3 Verify Permissions on /etc/group (Scored)
+# 6.1.4 Ensure permissions on /etc/group are configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
-DESCRIPTION="Check permissions on /etc/group to 644."
+DESCRIPTION="Check 644 permissions and root:root ownership on /etc/group"
 
 FILE='/etc/group'
 PERMISSIONS='644'
+USER='root'
+GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -24,7 +26,13 @@ audit () {
         ok "$FILE has correct permissions"
     else
         crit "$FILE permissions were not set to $PERMISSIONS"
-    fi 
+    fi
+    has_file_correct_ownership $FILE $USER $GROUP
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct ownership"
+    else
+        crit "$FILE ownership was not set to $USER:$GROUP"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
@@ -35,6 +43,13 @@ apply () {
     else
         info "fixing $FILE permissions to $PERMISSIONS"
         chmod 0$PERMISSIONS $FILE
+    fi
+    has_file_correct_ownership $FILE $USER $GROUP
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct ownership"
+    else
+        info "fixing $FILE ownership to $USER:$GROUP"
+        chown $USER:$GROUP $FILE
     fi
 }
 

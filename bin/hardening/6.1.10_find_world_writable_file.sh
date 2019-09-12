@@ -5,41 +5,43 @@
 #
 
 #
-# 12.2 Verify Permissions on /etc/shadow (Scored)
+# 6.1.10 Ensure no world writable files exist (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=1
-DESCRIPTION="Check permissions on /etc/shadow to 640."
-
-FILE='/etc/shadow'
-PERMISSIONS='640'
+HARDENING_LEVEL=3
+DESCRIPTION="Ensure no world writable files exist"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    has_file_correct_permissions $FILE $PERMISSIONS
-    if [ $FNRET = 0 ]; then
-        ok "$FILE has correct permissions"
+    info "Checking if there are world writable files"
+    FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'} )
+    RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
+    if [ ! -z "$RESULT" ]; then
+        crit "Some world writable files are present"
+        FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
+        crit "$FORMATTED_RESULT"
     else
-        crit "$FILE permissions were not set to $PERMISSIONS"
-    fi 
+        ok "No world writable files found"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    has_file_correct_permissions $FILE $PERMISSIONS
-    if [ $FNRET = 0 ]; then
-        ok "$FILE has correct permissions"
+    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
+    if [ ! -z "$RESULT" ]; then
+        warn "chmoding o-w all files in the system"
+        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null|  xargs chmod o-w
     else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0$PERMISSIONS $FILE
+        ok "No world writable files found, nothing to apply"
     fi
 }
 
 # This function will check config parameters required
 check_config() {
+    # No param for this function
     :
 }
 

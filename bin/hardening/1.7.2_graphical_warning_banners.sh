@@ -5,7 +5,7 @@
 #
 
 #
-# 11.3 Set Graphical Warning Banner (Not Scored)
+# 1.7.2 Ensure GDM login banner is configured (Scored)
 #
 
 set -e # One error, it's over

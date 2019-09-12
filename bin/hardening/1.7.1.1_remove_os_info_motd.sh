@@ -5,41 +5,37 @@
 #
 
 #
-# 11.2 Remove OS Information from Login Warning Banners (Scored)
+# 1.7.1.1 Ensure message of the day is configured properly (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="Remove OS information from Login Warning Banners."
+DESCRIPTION="Remove OS information from motd"
 
-FILES='/etc/motd /etc/issue /etc/issue.net'
+FILE='/etc/motd'
 PATTERN='(\\v|\\r|\\m|\\s)'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for FILE in $FILES; do
-        does_pattern_exist_in_file $FILE "$PATTERN"
-        if [ $FNRET = 0 ]; then
-            crit "$PATTERN is present in $FILE"
-        else
-            ok "$PATTERN is not present in $FILE"
-        fi
-    done
+    does_pattern_exist_in_file $FILE "$PATTERN"
+    if [ $FNRET = 0 ]; then
+        crit "$PATTERN is present in $FILE"
+    else
+        ok "$PATTERN is not present in $FILE"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    for FILE in $FILES; do
-        does_pattern_exist_in_file $FILE "$PATTERN"
-        if [ $FNRET = 0 ]; then
-            warn "$PATTERN is present in $FILE"
-            delete_line_in_file $FILE $PATTERN
-        else
-            ok "$PATTERN is not present in $FILE"
-        fi
-    done
+    does_pattern_exist_in_file $FILE "$PATTERN"
+    if [ $FNRET = 0 ]; then
+        warn "$PATTERN is present in $FILE"
+        delete_line_in_file $FILE $PATTERN
+    else
+        ok "$PATTERN is not present in $FILE"
+    fi
 }
 
 # This function will check config parameters required

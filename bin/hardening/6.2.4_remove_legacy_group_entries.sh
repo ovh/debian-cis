@@ -5,27 +5,27 @@
 #
 
 #
-# 13.2 Verify No Legacy "+" Entries Exist in /etc/passwd File (Scored)
+# 6.2.4 Verify No Legacy "+" Entries Exist in /etc/group File (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
-DESCRIPTION="Verify no legacy + entries exist in /etc/password file."
+DESCRIPTION="Verify no legacy + entries exist in /etc/group file."
 
-FILE='/etc/passwd'
+FILE='/etc/group'
 RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if accounts have a legacy password entry"
+    info "Checking if accounts have a legacy group entry"
     if grep '^+:' $FILE -q; then
         RESULT=$(grep '^+:' $FILE)
-        crit "Some accounts have a legacy password entry"
+        crit "Some accounts have a legacy group entry"
         crit $RESULT
     else
-        ok "All accounts have a valid password entry format"
+        ok "All accounts have a valid group entry format"
     fi
 }
 
@@ -33,13 +33,13 @@ audit () {
 apply () {
     if grep '^+:' $FILE -q; then
         RESULT=$(grep '^+:' $FILE)
-        warn "Some accounts have a legacy password entry"
+        warn "Some accounts have a legacy group entry"
         for LINE in $RESULT; do
             info "Removing $LINE from $FILE"
             delete_line_in_file $FILE $LINE
         done
     else
-        ok "All accounts have a valid password entry format"
+        ok "All accounts have a valid group entry format"
     fi
 }
 

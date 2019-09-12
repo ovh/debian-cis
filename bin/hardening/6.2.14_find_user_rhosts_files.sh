@@ -5,41 +5,38 @@
 #
 
 #
-# 13.1 Ensure Password Fields are Not Empty (Scored)
+# 6.2.14 Ensure no users have .rhosts files (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=1
-DESCRIPTION="Ensure password fields are not empty in /etc/shadow."
+HARDENING_LEVEL=2
+DESCRIPTION="No user's .rhosts file."
 
-FILE='/etc/shadow'
+ERRORS=0
+FILENAME=".rhosts"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if accounts have an empty password"
-    RESULT=$($SUDO_CMD cat $FILE | awk -F: '($2 == "" ) { print $1 }')
-    if [ ! -z "$RESULT" ]; then
-        crit "Some accounts have an empty password"
-        crit $RESULT
-    else
-        ok "All accounts have a password"
-    fi
+    for DIR in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    debug "Working on $DIR"
+        for FILE in $DIR/$FILENAME; do
+            if [ ! -h "$FILE" -a -f "$FILE" ]; then
+                crit "$FILE present"
+                ERRORS=$((ERRORS+1))
+            fi
+        done
+    done
+
+    if [ $ERRORS = 0 ]; then
+        ok "No $FILENAME present in users home directory"
+    fi 
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    RESULT=$(cat $FILE | awk -F: '($2 == "" ) { print $1 }')
-    if [ ! -z "$RESULT" ]; then
-        warn "Some accounts have an empty password"
-        for ACCOUNT in $RESULT; do
-            info "Locking $ACCOUNT"
-            passwd -l $ACCOUNT >/dev/null 2>&1
-        done
-    else
-        ok "All accounts have a password"
-    fi
+    info "If the audit returns something, please check with the user why he has this file"
 }
 
 # This function will check config parameters required

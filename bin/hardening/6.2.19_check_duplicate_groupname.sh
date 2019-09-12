@@ -5,42 +5,39 @@
 #
 
 #
-# 13.4 Verify No Legacy "+" Entries Exist in /etc/group File (Scored)
+# 6.2.19 Ensure no duplicate group names exist (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
-DESCRIPTION="Verify no legacy + entries exist in /etc/group file."
+DESCRIPTION="There is no duplicate group names."
 
-FILE='/etc/group'
-RESULT=''
+ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if accounts have a legacy group entry"
-    if grep '^+:' $FILE -q; then
-        RESULT=$(grep '^+:' $FILE)
-        crit "Some accounts have a legacy group entry"
-        crit $RESULT
-    else
-        ok "All accounts have a valid group entry format"
-    fi
+    RESULT=$(cat /etc/group | cut -f1 -d":" | sort -n | uniq -c | awk {'print $1":"$2'} )
+    for LINE in $RESULT; do 
+        debug "Working on line $LINE"
+        OCC_NUMBER=$(awk -F: {'print $1'} <<< $LINE)
+        GROUPNAME=$(awk -F: {'print $2'} <<< $LINE) 
+        if [ $OCC_NUMBER -gt 1 ]; then
+            USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPNAME /etc/passwd | xargs)
+            ERRORS=$((ERRORS+1))
+            crit "Duplicate groupname $GROUPNAME"
+        fi
+    done 
+
+    if [ $ERRORS = 0 ]; then
+        ok "No duplicate groupnames"
+    fi 
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    if grep '^+:' $FILE -q; then
-        RESULT=$(grep '^+:' $FILE)
-        warn "Some accounts have a legacy group entry"
-        for LINE in $RESULT; do
-            info "Removing $LINE from $FILE"
-            delete_line_in_file $FILE $LINE
-        done
-    else
-        ok "All accounts have a valid group entry format"
-    fi
+    info "Editing automatically groupname may seriously harm your system, report only here"
 }
 
 # This function will check config parameters required

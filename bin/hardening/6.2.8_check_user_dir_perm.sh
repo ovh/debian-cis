@@ -5,7 +5,7 @@
 #
 
 #
-# 13.7 Check Permissions on User Home Directories (Scored)
+# 6.2.8 Check Permissions on User Home Directories (Scored)
 #
 
 set -e # One error, it's over

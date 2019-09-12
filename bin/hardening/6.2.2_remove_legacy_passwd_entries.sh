@@ -5,39 +5,42 @@
 #
 
 #
-# 13.17 Check for Duplicate Group Names (Scored)
+# 6.2.2 Verify No Legacy "+" Entries Exist in /etc/passwd File (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
-DESCRIPTION="There is no duplicate group names."
+DESCRIPTION="Verify no legacy + entries exist in /etc/password file."
 
-ERRORS=0
+FILE='/etc/passwd'
+RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    RESULT=$(cat /etc/group | cut -f1 -d":" | sort -n | uniq -c | awk {'print $1":"$2'} )
-    for LINE in $RESULT; do 
-        debug "Working on line $LINE"
-        OCC_NUMBER=$(awk -F: {'print $1'} <<< $LINE)
-        GROUPNAME=$(awk -F: {'print $2'} <<< $LINE) 
-        if [ $OCC_NUMBER -gt 1 ]; then
-            USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPNAME /etc/passwd | xargs)
-            ERRORS=$((ERRORS+1))
-            crit "Duplicate groupname $GROUPNAME"
-        fi
-    done 
-
-    if [ $ERRORS = 0 ]; then
-        ok "No duplicate groupnames"
-    fi 
+    info "Checking if accounts have a legacy password entry"
+    if grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        crit "Some accounts have a legacy password entry"
+        crit $RESULT
+    else
+        ok "All accounts have a valid password entry format"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Editing automatically groupname may seriously harm your system, report only here"
+    if grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        warn "Some accounts have a legacy password entry"
+        for LINE in $RESULT; do
+            info "Removing $LINE from $FILE"
+            delete_line_in_file $FILE $LINE
+        done
+    else
+        ok "All accounts have a valid password entry format"
+    fi
 }
 
 # This function will check config parameters required

@@ -5,7 +5,7 @@
 #
 
 #
-# 13.5 Verify No UID 0 Accounts Exist Other Than root (Scored)
+# 6.2.5 Ensure root is the only UID 0 account (Scored)
 #
 
 set -e # One error, it's over

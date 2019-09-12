@@ -5,7 +5,7 @@
 #
 
 #
-# 13.20 Ensure shadow group is empty (Scored)
+# 6.2.20 Ensure shadow group is empty (Scored)
 #
 
 set -e # One error, it's over

@@ -5,39 +5,42 @@
 #
 
 #
-# 13.16 Check for Duplicate User Names (Scored)
+# 6.2.3 Verify No Legacy "+" Entries Exist in /etc/shadow File (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=1
-DESCRIPTION="There is no duplicate usernames."
+DESCRIPTION="Verify no legacy + entries exist in /etc/shadow file."
 
-ERRORS=0
+FILE='/etc/shadow'
+RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    RESULT=$(cat /etc/passwd | cut -f1 -d":" | sort -n | uniq -c | awk {'print $1":"$2'} )
-    for LINE in $RESULT; do 
-        debug "Working on line $LINE"
-        OCC_NUMBER=$(awk -F: {'print $1'} <<< $LINE)
-        USERNAME=$(awk -F: {'print $2'} <<< $LINE) 
-        if [ $OCC_NUMBER -gt 1 ]; then
-            USERS=$(awk -F: '($3 == n) { print $1 }' n=$USERNAME /etc/passwd | xargs)
-            ERRORS=$((ERRORS+1))
-            crit "Duplicate username $USERNAME"
-        fi
-    done 
-
-    if [ $ERRORS = 0 ]; then
-        ok "No duplicate usernames"
-    fi 
+    info "Checking if accounts have a legacy password entry"
+    if $SUDO_CMD grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        crit "Some accounts have a legacy password entry"
+        crit $RESULT
+    else
+        ok "All accounts have a valid password entry format"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Editing automatically username may seriously harm your system, report only here"
+    if grep '^+:' $FILE -q; then
+        RESULT=$(grep '^+:' $FILE)
+        warn "Some accounts have a legacy password entry"
+        for LINE in $RESULT; do
+            info "Removing $LINE from $FILE"
+            delete_line_in_file $FILE $LINE
+        done
+    else
+        ok "All accounts have a valid password entry format"
+    fi
 }
 
 # This function will check config parameters required

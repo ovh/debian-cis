@@ -5,7 +5,7 @@
 #
 
 #
-# 13.6 Ensure root PATH Integrity (Scored)
+# 6.2.6 Ensure root PATH Integrity (Scored)
 #
 
 set -e # One error, it's over

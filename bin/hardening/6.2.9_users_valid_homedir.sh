@@ -5,34 +5,64 @@
 #
 
 #
-# 13.12 Check That Users Are Assigned Valid Home Directories (Scored)
+# 6.2.9 Ensure users own their home directories (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Users are assigned valid home directories."
+DESCRIPTION="Ensure users own their home directories"
 
 ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
+    debug "Checking homedir exists"
     RESULT=$(cat /etc/passwd | awk -F: '{ print $1 ":" $3 ":" $6 }')
-    for LINE in $RESULT; do 
+    for LINE in $RESULT; do
         debug "Working on $LINE"
         USER=$(awk -F: {'print $1'} <<< $LINE)
         USERID=$(awk -F: {'print $2'} <<< $LINE)
         DIR=$(awk -F: {'print $3'} <<< $LINE)
         if [ $USERID -ge 1000 -a ! -d "$DIR" -a $USER != "nfsnobody" -a $USER != "nobody" -a "$DIR" != "/nonexistent" ]; then
             crit "The home directory ($DIR) of user $USER does not exist."
-            ERRORS=$((ERRORS+1))    
+            ERRORS=$((ERRORS+1))
         fi
     done
 
     if [ $ERRORS = 0 ]; then
         ok "All home directories exists"
-    fi 
+    fi
+    debug "Checking homedir ownership"
+    RESULT=$(awk -F: '{ print $1 ":" $3 ":" $6 }' /etc/passwd )
+    for LINE in $RESULT; do
+        debug "Working on $LINE"
+        USER=$(awk -F: '{print $1}' <<< "$LINE")
+        USERID=$(awk -F: '{print $2}' <<< "$LINE")
+        DIR=$(awk -F: '{print $3}' <<< "$LINE")
+        if [ "$USERID" -ge 500 ] && [ -d "$DIR" ] && [ "$USER" != "nfsnobody" ]; then
+            OWNER=$(stat -L -c "%U" "$DIR")
+            if [ "$OWNER" != "$USER" ]; then
+                EXCEP_FOUND=0
+                for excep in $EXCEPTIONS; do
+                    if [ "$DIR:$USER:$OWNER" = "$excep" ]; then
+                        ok "The home directory ($DIR) of user $USER is owned by $OWNER but is part of exceptions ($DIR:$USER:$OWNER)."
+                        EXCEP_FOUND=1
+                        break
+                    fi
+                done
+                if [ "$EXCEP_FOUND" -eq 0 ]; then
+                    crit "The home directory ($DIR) of user $USER is owned by $OWNER."
+                    ERRORS=$((ERRORS+1))
+                fi
+            fi
+        fi
+    done
+
+    if [ $ERRORS = 0 ]; then
+        ok "All home directories have correct ownership"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode

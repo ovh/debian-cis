@@ -1,46 +1,45 @@
 #!/bin/bash
-
+# run-shellcheck
 #
 # CIS Debian Hardening
 #
 
 #
-# 13.3 Verify No Legacy "+" Entries Exist in /etc/shadow File (Scored)
+# 6.2.17 Ensure no duplicate GIDs exist (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=1
-DESCRIPTION="Verify no legacy + entries exist in /etc/shadow file."
+# shellcheck disable=2034
+HARDENING_LEVEL=2
+# shellcheck disable=2034
+DESCRIPTION="Ensure no duplicate GIDs exist"
 
-FILE='/etc/shadow'
-RESULT=''
+ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if accounts have a legacy password entry"
-    if $SUDO_CMD grep '^+:' $FILE -q; then
-        RESULT=$(grep '^+:' $FILE)
-        crit "Some accounts have a legacy password entry"
-        crit $RESULT
-    else
-        ok "All accounts have a valid password entry format"
+    RESULT=$(cut -f3 -d":" /etc/group | sort -n | uniq -c | awk '{print $1":"$2}' )
+    for LINE in $RESULT; do
+        debug "Working on line $LINE"
+        OCC_NUMBER=$(awk -F: '{print $1}' <<< "$LINE")
+        GROUPID=$(awk -F: '{print $2}' <<< "$LINE")
+        if [ "$OCC_NUMBER" -gt 1 ]; then
+            GROUP=$(awk -F: '($3 == n) { print $1 }' n="$GROUPID" /etc/group | xargs)
+            ERRORS=$((ERRORS+1))
+            crit "Duplicate GID ($GROUPID): ${GROUP}"
+        fi
+    done
+
+    if [ $ERRORS = 0 ]; then
+        ok "No duplicate GIDs"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    if grep '^+:' $FILE -q; then
-        RESULT=$(grep '^+:' $FILE)
-        warn "Some accounts have a legacy password entry"
-        for LINE in $RESULT; do
-            info "Removing $LINE from $FILE"
-            delete_line_in_file $FILE $LINE
-        done
-    else
-        ok "All accounts have a valid password entry format"
-    fi
+    info "Editing automatically gids may seriously harm your system, report only here"
 }
 
 # This function will check config parameters required
@@ -59,8 +58,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
-    . $CIS_ROOT_DIR/lib/main.sh
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
+    # shellcheck source=/opt/debian-cis/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

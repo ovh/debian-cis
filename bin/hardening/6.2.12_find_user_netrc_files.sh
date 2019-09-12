@@ -5,36 +5,38 @@
 #
 
 #
-# 13.11 Check Groups in /etc/passwd (Scored)
+# 6.2.12 Ensure no users have .netrc files (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="There is no group in /etc/passwd that is not in /etc/group."
+DESCRIPTION="There is no user .netrc files."
 
 ERRORS=0
+FILENAME='.netrc'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-
-    for GROUP in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
-        debug "Working on group $GROUP"
-        if ! grep -q -P "^.*?:[^:]*:$GROUP:" /etc/group; then
-            crit "Group $GROUP is referenced by /etc/passwd but does not exist in /etc/group"
-            ERRORS=$((ERRORS+1))
-        fi
+    for DIR in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    debug "Working on $DIR"
+        for FILE in $DIR/$FILENAME; do
+            if [ ! -h "$FILE" -a -f "$FILE" ]; then
+                crit "$FILE present"
+                ERRORS=$((ERRORS+1))
+            fi
+        done
     done
 
     if [ $ERRORS = 0 ]; then
-        ok "passwd and group Groups are consistent"
+        ok "No $FILENAME present in users home directory"
     fi 
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    info "Solving passwd and group consistency automatically may seriously harm your system, report only here"
+    info "If the audit returns something, please check with the user why he has this file"
 }
 
 # This function will check config parameters required

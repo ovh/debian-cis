@@ -5,14 +5,14 @@
 #
 
 #
-# 13.9 Check Permissions on User .netrc Files (Scored)
+# 6.2.13 Ensure users' .netrc Files are not group or world accessible (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Check user permissions on .netrc file."
+DESCRIPTION="Ensure users' .netrc Files are not group or world accessible"
 
 PERMISSIONS="600"
 ERRORS=0

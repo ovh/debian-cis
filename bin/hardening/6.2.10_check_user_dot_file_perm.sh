@@ -5,7 +5,7 @@
 #
 
 #
-# 13.8 Check User Dot File Permissions (Scored)
+# 6.2.10 Ensure users' dot files are not group or world writable (Scored)
 #
 
 set -e # One error, it's over

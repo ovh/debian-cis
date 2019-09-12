@@ -5,7 +5,7 @@
 #
 
 #
-# 12.10 Find SUID System Executables (Not Scored)
+# 6.1.13 Audit SUID executables (Not Scored)
 #
 
 set -e # One error, it's over

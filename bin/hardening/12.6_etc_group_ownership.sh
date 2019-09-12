@@ -25,7 +25,7 @@ audit () {
         ok "$FILE has correct ownership"
     else
         crit "$FILE ownership was not set to $USER:$GROUP"
-    fi 
+    fi
 }
 
 # This function will be called if the script status is on enabled mode

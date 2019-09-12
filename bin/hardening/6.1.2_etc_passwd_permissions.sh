@@ -5,43 +5,56 @@
 #
 
 #
-# 12.7 Find World Writable Files (Not Scored)
+# 6.1.2 Ensure permissions on /etc/passwd are configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-HARDENING_LEVEL=3
-DESCRIPTION="Find world writable files."
+HARDENING_LEVEL=1
+DESCRIPTION="Check 644 permissions and root:root ownership on /etc/passwd"
+
+FILE='/etc/passwd'
+PERMISSIONS='644'
+USER='root'
+GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if there are world writable files"
-    FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'} )
-    RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
-    if [ ! -z "$RESULT" ]; then
-        crit "Some world writable files are present"
-        FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
-        crit "$FORMATTED_RESULT"
+    has_file_correct_permissions $FILE $PERMISSIONS
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct permissions"
     else
-        ok "No world writable files found"
+        crit "$FILE permissions were not set to $PERMISSIONS"
+    fi
+    has_file_correct_ownership $FILE $USER $GROUP
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct ownership"
+    else
+        crit "$FILE ownership was not set to $USER:$GROUP"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
-    if [ ! -z "$RESULT" ]; then
-        warn "chmoding o-w all files in the system"
-        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null|  xargs chmod o-w
+    has_file_correct_permissions $FILE $PERMISSIONS
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct permissions"
     else
-        ok "No world writable files found, nothing to apply"
+        info "fixing $FILE permissions to $PERMISSIONS"
+        chmod 0$PERMISSIONS $FILE
+    fi
+    has_file_correct_ownership $FILE $USER $GROUP
+    if [ $FNRET = 0 ]; then
+        ok "$FILE has correct ownership"
+    else
+        info "fixing $FILE ownership to $USER:$GROUP"
+        chown $USER:$GROUP $FILE
     fi
 }
 
 # This function will check config parameters required
 check_config() {
-    # No param for this function
     :
 }
 

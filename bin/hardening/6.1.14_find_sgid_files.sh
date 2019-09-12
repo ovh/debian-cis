@@ -5,7 +5,7 @@
 #
 
 #
-# 12.11 Find SGID System Executables (Not Scored)
+# 6.1.14 Audit SGID executables (Not Scored)
 #
 
 set -e # One error, it's over

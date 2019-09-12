@@ -5,48 +5,48 @@
 #
 
 #
-# 12.8 Find Un-owned Files and Directories (Scored)
+# 6.1.12 Ensure no ungrouped files or directories exist (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Find un-owned files and directories."
+DESCRIPTION="Ensure no ungrouped files or directories exist"
 
-USER='root'
+GROUP='root'
 EXCLUDED=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    info "Checking if there are unowned files"
+    info "Checking if there are ungrouped files"
     FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'} )
     if [ ! -z $EXCLUDED ]; then
-        RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -nouser -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
+        RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -nogroup -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
     else
-        RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -nouser -print 2>/dev/null)
+        RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -nogroup -print 2>/dev/null)
     fi
     if [ ! -z "$RESULT" ]; then
-        crit "Some unowned files are present"
+        crit "Some ungrouped files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
-        ok "No unowned files found"
+        ok "No ungrouped files found"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
     if [ ! -z $EXCLUDED ]; then
-        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -regextype 'egrep' ! -regex "$EXCLUDED" -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -regextype 'egrep' ! -regex "$EXCLUDED" -ls 2>/dev/null)
     else
-        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -ls 2>/dev/null)
     fi
     if [ ! -z "$RESULT" ]; then
-        warn "Applying chown on all unowned files in the system"
-        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown $USER
+        warn "Applying chgrp on all ungrouped files in the system"
+        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null | xargs chgrp $GROUP
     else
-        ok "No unowned files found, nothing to apply"
+        ok "No ungrouped files found, nothing to apply"
     fi
 }
 

@@ -5,7 +5,7 @@
 #
 
 #
-# Check iptables firewall default policy for DROP on INPUT and FORWARD.
+# 3.5.1.1 Ensure default deny firewall policy (Scored)
 #
 
 set -e # One error, it's over

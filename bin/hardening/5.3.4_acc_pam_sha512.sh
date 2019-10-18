@@ -5,7 +5,7 @@
 #
 
 #
-# Check that any password that may exist in /etc/shadow is SHA512 hashed and salted
+# 5.3.4 Ensure password hashing algorithm is SHA-512 (Scored)
 #
 
 set -e # One error, it's over

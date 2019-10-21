@@ -5,18 +5,17 @@
 #
 
 #
-# 2.6.4 Set noexec option for /var/tmp Partition (Scored)
+# 1.1.7 Ensure separate partition exists for /var/tmp (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=3
-DESCRIPTION="/var/tmp partition with noexec option."
+DESCRIPTION="/var/tmp on a separate partition."
 
 # Quick factoring as many script use the same logic
 PARTITION="/var/tmp"
-OPTION="noexec"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -28,21 +27,16 @@ audit () {
         FNRET=2
     else
         ok "$PARTITION is a partition"
-        has_mount_option $PARTITION $OPTION
+        is_mounted "$PARTITION"
         if [ $FNRET -gt 0 ]; then
-            crit "$PARTITION has no option $OPTION in fstab!"
+            warn "$PARTITION is not mounted"
             FNRET=1
         else
-            ok "$PARTITION has $OPTION in fstab"
-            has_mounted_option $PARTITION $OPTION
-            if [ $FNRET -gt 0 ]; then
-                warn "$PARTITION is not mounted with $OPTION at runtime"
-                FNRET=3 
-            else
-                ok "$PARTITION mounted with $OPTION"
-            fi
-        fi       
+            ok "$PARTITION is mounted"
+        fi
     fi
+     
+    :
 }
 
 # This function will be called if the script status is on enabled mode
@@ -51,20 +45,15 @@ apply () {
         ok "$PARTITION is correctly set"
     elif [ $FNRET = 2 ]; then
         crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
-    elif [ $FNRET = 1 ]; then
-        info "Adding $OPTION to fstab"
-        add_option_to_fstab $PARTITION $OPTION
-        info "Remounting $PARTITION from fstab"
-        remount_partition $PARTITION
-    elif [ $FNRET = 3 ]; then
-        info "Remounting $PARTITION from fstab"
-        remount_partition $PARTITION
-    fi 
+    else
+        info "mounting $PARTITION"
+        mount $PARTITION
+    fi
 }
 
 # This function will check config parameters required
 check_config() {
-    # No param for this script
+    # No parameter for this script
     :
 }
 

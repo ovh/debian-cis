@@ -5,7 +5,7 @@
 #
 
 #
-# 2.6.3 Set nosuid option for /var/tmp Partition (Scored)
+# 1.1.9 Ensure nosuid option set on /var/tmp partition (Scored)
 #
 
 set -e # One error, it's over

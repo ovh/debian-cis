@@ -24,7 +24,7 @@ audit () {
         USER=$(awk -F: {'print $1'} <<< $LINE)
         USERID=$(awk -F: {'print $2'} <<< $LINE)
         DIR=$(awk -F: {'print $3'} <<< $LINE)
-        if [ $USERID -ge 1000 -a ! -d "$DIR" -a $USER != "nfsnobody" -a $USER != "nobody" ]; then
+        if [ $USERID -ge 1000 -a ! -d "$DIR" -a $USER != "nfsnobody" -a $USER != "nobody" -a "$DIR" != "/nonexistent" ]; then
             crit "The home directory ($DIR) of user $USER does not exist."
             ERRORS=$((ERRORS+1))    
         fi

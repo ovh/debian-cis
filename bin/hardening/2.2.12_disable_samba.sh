@@ -15,7 +15,8 @@ HARDENING_LEVEL=3
 DESCRIPTION="Ensure Samba is not enabled."
 HARDENING_EXCEPTION=samba
 
-PACKAGES='samba smbd'
+PACKAGES='samba'
+SERVICE='smbd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -27,6 +28,12 @@ audit () {
             ok "$PACKAGE is absent"
         fi
     done
+    is_service_enabled $SERVICE
+    if [ $FNRET = 1 ]; then
+        crit "Service $SERVICE is enabled!"
+    else
+        ok "Service $SERVICE is disabled"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
@@ -41,6 +48,13 @@ apply () {
             ok "$PACKAGE is absent"
         fi
     done
+    is_service_enabled $SERVICE
+    if [ $FNRET = 1 ]; then
+        crit "Service $SERVICE is enabled!"
+        systemctl disable $SERVICE
+    else
+        ok "Service $SERVICE is disabled"
+    fi
 }
 
 # This function will check config parameters required

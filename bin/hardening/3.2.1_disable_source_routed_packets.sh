@@ -13,8 +13,8 @@ set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
 DESCRIPTION="Disable source routed packet acceptance."
-
-SYSCTL_PARAMS='net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv6.conf.all.accept_source_route=0 net.ipv6.conf.default.accept_source_route=0'
+# set in config file
+SYSCTL_PARAMS=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -52,6 +52,14 @@ apply () {
     done
 }
 
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=audit
+# Specify system parameters to audit, space separated
+SYSCTL_PARAMS="net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv6.conf.all.accept_source_route=0 net.ipv6.conf.default.accept_source_route=0"
+EOF
+}
 # This function will check config parameters required
 check_config() {
     :

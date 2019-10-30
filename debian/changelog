@@ -1,3 +1,39 @@
+cis-hardening (2.0-3) unstable; urgency=medium
+
+  * Add comprehensive tests for 6.1.x
+  * Add comprehensive tests for 6.2.x
+  * Add comprehensive tests for 5.1.x (except 5.1.1)
+  * Add comprehensive tests for 5.2.1, 5.2.2, 5.2.3
+  * Add skippable tests (for docker)
+  * Skip 99.2 on docker (USB devices disabling)
+  * Skip 1.4.1, 1.4.2, 1.4.3 on docker (bootloader)
+  * Skip 1.1.21, 6.1.10 on docker (world writable)
+  * Skip 8.0 on docker (kernel)
+  * Skip 1.5.1 on docker (kernel)
+  * Skip 1.1.1.x (filesystem, needs kernel)
+  * Clean old num 3.2 and 8.2.4 tests (checks were already deleted)
+  * Clean 13.13 (same as 6.2.9)
+  * Rename 7.7 to 3.5 (not explicitely in CIS)
+  * Rename 8.2.1 to 4.2.2 (not explicitely in CIS)
+  * Rename 2.18 and 2.23 to 1.1.1.6 and 1.1.1.7 (not explicitely in CIS 9)
+  * Rename 1.7.1.4 (falsly named warning_banners, now motd_perm)
+  * Add netsat to docker images to fix 2.2.15 tests
+  * Fix 5.2.2 and 5.2.3 (it's cleaner now)
+  * Fix 6.2.9 unbound variable
+
+ -- Thibault Ayanides <tayanide@ovhcloud.com>  Wed, 28 Oct 2020 09:28:18 +0100
+
+cis-hardening (2.0-2) unstable; urgency=medium
+
+  * FIX: change name to fit check content (cracklib -> pwquality)
+  * CLEAN: remove 8.2.4
+  * CLEAN(12.x) remove unused checks that were merged with ownsership/perms
+  * IMP(3.2.1-2): set sysctl params in config file
+  * Fix typos
+  * FIX(2.2.12) handle smbd as a service
+
+ -- Charles Herlin <charles.herlin@corp.ovh.com>  Wed, 30 Oct 2019 15:42:19 +0100
+
 cis-hardening (2.0-1) unstable; urgency=medium
 
   * Add missing tests CUPS, telnet and LDAP

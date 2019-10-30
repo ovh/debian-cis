@@ -5,7 +5,7 @@
 #
 
 #
-# 1.8 Ensure updates, patches, and additional security software are installed (Not Scored)
+# 1.8 Ensure updates, patches and additional security software are installed (Not Scored)
 #
 
 set -e # One error, it's over

@@ -15,12 +15,17 @@ HARDENING_LEVEL=2
 DESCRIPTION="Find un-owned files and directories."
 
 USER='root'
+EXCLUDED=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are unowned files"
     FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'} )
-    RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -nouser -print 2>/dev/null)
+    if [ ! -z $EXCLUDED ]; then
+        RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -nouser -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
+    else
+        RESULT=$( $SUDO_CMD find $FS_NAMES -xdev -nouser -print 2>/dev/null)
+    fi
     if [ ! -z "$RESULT" ]; then
         crit "Some unowned files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<< $RESULT | sort | uniq | tr '\n' ' ')

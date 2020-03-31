@@ -14,13 +14,18 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 DESCRIPTION="Find SGID system executables."
+IGNORED_PATH=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if there are sgid files"
     FS_NAMES=$(df --local -P | awk '{ if (NR!=1) print $6 }' )
     # shellcheck disable=2086
-    FOUND_BINARIES=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -print)
+    if [ ! -z $IGNORED_PATH ]; then
+        FOUND_BINARIES=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -regextype 'egrep' ! -regex "$IGNORED_PATH" -print)
+    else
+        FOUND_BINARIES=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -print)
+    fi
     BAD_BINARIES=""
     for BINARY in $FOUND_BINARIES; do
         if grep -qw "$BINARY" <<< "$EXCEPTIONS"; then

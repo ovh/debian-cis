@@ -1,7 +1,7 @@
 cis-hardening (1.3-3) unstable; urgency=medium
 
   * changelog: update changelog
-  * IMP(12.8,12.9): be able to exclude some paths
+  * IMP(12.8,12.9,12.10,12.11): be able to exclude some paths
 
  -- Benjamin MONTHOUËL <benjamin.monthouel@ovhcloud.com>  Mon, 30 Mar 2020 19:12:03 +0200
 

@@ -5,7 +5,7 @@
 #
 
 #
-# 4.2.3 Ensure Syslo-ng is installed (Scored)
+# 4.2.3 Ensure Syslog-ng is installed (Scored)
 #
 
 set -e # One error, it's over

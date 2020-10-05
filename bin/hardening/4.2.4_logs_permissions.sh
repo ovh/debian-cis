@@ -12,7 +12,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 HARDENING_LEVEL=2
-DESCRIPTION="Check permissions on logs (other has no permissions on any files andgroup does not have write or execute permissions on any file)"
+DESCRIPTION="Check permissions on logs (other has no permissions on any files and group does not have write or execute permissions on any file)"
 
 DIR='/var/log'
 PERMISSIONS='640'

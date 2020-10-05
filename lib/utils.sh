@@ -88,11 +88,25 @@ has_file_correct_permissions() {
     local FILE=$1
     local PERMISSIONS=$2
     
-    if [ $($SUDO_CMD stat -L -c "%a" $1) = "$PERMISSIONS" ]; then
+    if [ $($SUDO_CMD stat -L -c "%a" $FILE) = "$PERMISSIONS" ]; then
         FNRET=0
     else
         FNRET=1
     fi 
+}
+
+have_files_in_dir_correct_permissions(){
+    local DIR=$1
+    local PERMISSIONS=$2
+
+    FNRET=0
+    for perm in $($SUDO_CMD find "$DIR" -type f -exec stat -L -c "%a" {} \;);
+    do
+    if [ "$perm" != "$PERMISSIONS" ]; then
+        FNRET=1
+        break
+    fi
+    done
 }
 
 does_pattern_exist_in_file_nocase() {

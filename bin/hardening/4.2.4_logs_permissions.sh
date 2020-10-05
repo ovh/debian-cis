@@ -16,10 +16,12 @@ DESCRIPTION="Check permissions on logs (other has no permissions on any files an
 
 DIR='/var/log'
 PERMISSIONS='640'
+OPTIONS=(-type f)
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    have_files_in_dir_correct_permissions $DIR $PERMISSIONS
+    have_files_in_dir_correct_permissions $DIR $PERMISSIONS OPTIONS
+
     if [ $FNRET = 0 ]; then
         ok "Logs in $DIR have correct permissions"
     else
@@ -29,9 +31,9 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    have_files_in_dir_correct_permissions $DIR $PERMISSIONS
+    have_files_in_dir_correct_permissions $DIR $PERMISSIONS OPTIONS
     if [ $FNRET = 0 ]; then
-        ok "$FILE has correct permissions"
+        ok "Logs in $DIR have correct permissions"
     else
         info "fixing $DIR logs permissions to $PERMISSIONS"
         find $DIR -type f -exec chmod 0$PERMISSIONS {} \;

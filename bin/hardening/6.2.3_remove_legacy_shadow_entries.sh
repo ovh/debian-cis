@@ -21,7 +21,7 @@ RESULT=''
 audit () {
     info "Checking if accounts have a legacy password entry"
     if $SUDO_CMD grep '^+:' $FILE -q; then
-        RESULT=$(grep '^+:' $FILE)
+        RESULT=$($SUDO_CMD grep '^+:' $FILE)
         crit "Some accounts have a legacy password entry"
         crit $RESULT
     else

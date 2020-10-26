@@ -59,6 +59,9 @@ ok() {
     printf "%b %b\n" "\033[30m\033[42m[ OK ]\033[0m" "$*" >&2
 }
 
+skip() {
+    printf "%b %b\n" "\033[30m\e[43m[SKIP]\033[0m" "$*" >&2
+}
 # retrieves audit script logfile
 get_stdout()
 {

@@ -2,7 +2,7 @@ FROM debian:jessie
 
 RUN groupadd -g 500 secaudit && useradd  -u 500 -g 500 -s /bin/bash secaudit && mkdir -m 700 /home/secaudit && chown secaudit:secaudit /home/secaudit
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y bc openssh-server sudo syslog-ng
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y bc openssh-server sudo syslog-ng net-tools
 
 COPY --chown=500:500 . /opt/debian-cis/
 

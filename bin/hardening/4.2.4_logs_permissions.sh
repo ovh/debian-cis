@@ -16,27 +16,41 @@ DESCRIPTION="Check permissions on logs (other has no permissions on any files an
 
 DIR='/var/log'
 PERMISSIONS='640'
-OPTIONS=(-type f)
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    have_files_in_dir_correct_permissions $DIR $PERMISSIONS OPTIONS
+    ERRORS=0
+    for FILE in $($SUDO_CMD find $DIR -type f);
+    do
+        perm=$(stat -L -c '%a' $FILE)
+        echo "$perm  ttt $PERMISSIONS"
+        if [ "$perm" != "$PERMISSIONS" ]; then
+            ERRORS=$((ERRORS+1))
+            crit "Some logs in $DIR permissions were not set to $PERMISSIONS"
+        fi
+    done
 
-    if [ $FNRET = 0 ]; then
+    if [ $ERRORS = 0 ]; then
         ok "Logs in $DIR have correct permissions"
-    else
-        crit "Some logs in $DIR permissions were not set to $PERMISSIONS"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    have_files_in_dir_correct_permissions $DIR $PERMISSIONS OPTIONS
-    if [ $FNRET = 0 ]; then
+    ERRORS=0
+    for FILE in $($SUDO_CMD find $DIR -type f);
+    do
+        perm=$(stat -L -c '%a' $FILE)
+        echo "$perm  ttt $PERMISSIONS"
+        if [ "$perm" != "$PERMISSIONS" ]; then
+            info "fixing $DIR logs permissions to $PERMISSIONS"
+            chmod 0$PERMISSIONS $FILE
+            
+        fi
+    done
+    
+    if [ $ERRORS = 0 ]; then
         ok "Logs in $DIR have correct permissions"
-    else
-        info "fixing $DIR logs permissions to $PERMISSIONS"
-        find $DIR -type f -exec chmod 0$PERMISSIONS {} \;
     fi
 }
 

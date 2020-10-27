@@ -8,6 +8,10 @@
 # 6.2.6 Ensure root PATH Integrity (Scored)
 #
 
+# set path to the $PATH environnement variable if path is not defined
+# used in test
+[[  $path && ${path-x} ]] || path=$PATH
+
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
@@ -18,15 +22,15 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    if [ "`echo $PATH | grep :: `" != "" ]; then
+    if [ "`echo $path | grep :: `" != "" ]; then
         crit "Empty Directory in PATH (::)"
         ERRORS=$((ERRORS+1))
     fi
-    if [ "`echo $PATH | grep :$`" != "" ]; then
-        crit "Trailing : in PATH $PATH"
+    if [ "`echo $path | grep :$`" != "" ]; then
+        crit "Trailing : in PATH $path"
         ERRORS=$((ERRORS+1))
     fi
-    FORMATTED_PATH=$(echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g')
+    FORMATTED_PATH=$(echo $path | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g')
     set -- $FORMATTED_PATH
     while [ "${1:-}" != "" ]; do
         if [ "$1" = "." ]; then

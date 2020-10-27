@@ -18,41 +18,68 @@ DIR='/etc/ssh'
 PERMISSIONS='644'
 USER='root'
 GROUP='root'
-OPTIONS=(-xdev -type f -name "ssh_host_*_key.pub")
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    have_files_in_dir_correct_ownership $DIR $USER $GROUP OPTIONS
-    if [ $FNRET = 0 ]; then
-        ok "SSH public keys in $DIR have correct ownership"
-    else
-        crit "Some $DIR SSH public keys ownership were not set to $USER:$GROUP"
-    fi
-    have_files_in_dir_correct_permissions $DIR $PERMISSIONS OPTIONS
-    if [ $FNRET = 0 ]; then
+    ERRORS=0
+    for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
+    do
+        has_file_correct_permissions $FILE $PERMISSIONS
+        if [ $FNRET = 0 ]; then
+            ok "$FILE permissions were set to $PERMISSIONS"
+        else
+            ERRORS=$((ERRORS+1))
+            crit "$FILE permissions were not set to $PERMISSIONS"
+        fi
+
+    done
+
+    if [ $ERRORS = 0 ]; then
         ok "SSH public keys in $DIR have correct permissions"
-    else
-        crit "Some $DIR SSH public keys permissions were not set to $PERMISSIONS"
-    fi 
+    fi
+
+    ERRORS=0
+    for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
+    do
+        has_file_correct_ownership $FILE $USER $GROUP
+        if  [ $FNRET = 0 ]; then
+            ok "$FILE ownership was set to $USER:$GROUP"
+
+        else
+            ERRORS=$((ERRORS+1))
+            crit "$FILE ownership was not set to $USER:$GROUP"
+        fi
+    done
+    
+    if [ $ERRORS = 0 ]; then
+        ok "SSH public keys in $DIR have correct ownership"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply () {
+    for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
+    do
+        has_file_correct_permissions $FILE $PERMISSIONS
+        if [ $FNRET = 0 ]; then
+            ok "$FILE permissions were set to $PERMISSIONS"
+        else
+            warn "fixing $DIR SSH public keys permissions to $USER:$GROUP"
+            chmod 0$PERMISSIONS $FILE
+        fi
+    done
 
-    have_files_in_dir_correct_ownership $DIR $USER $GROUP OPTIONS
-    if [ $FNRET = 0 ]; then
-        ok "SSH public keys in $DIR have correct ownership"
-    else
-        warn "fixing $DIR SSH public keys ownership to $USER:$GROUP"
-        find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chown root:root {} \;
-    fi
-    have_files_in_dir_correct_permissions $DIR $PERMISSIONS OPTIONS
-    if [ $FNRET = 0 ]; then
-        ok "SSH public keys in $DIR have correct permissions"
-    else
-        info "fixing $DIR SSH public keys permissions to $PERMISSIONS"
-        find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chmod 0644 {} \;
-    fi
+    for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
+    do
+        has_file_correct_ownership $FILE $USER $GROUP
+        if [ $FNRET = 0 ]; then
+            ok "$FILE ownership was set to $USER:$GROUP"
+        else
+            warn "fixing $DIR SSH public keys ownership to $PERMISSIONS"
+            chown $USER:$GROUP $FILE
+        fi
+    done
+    
 }
 
 # This function will check config parameters required

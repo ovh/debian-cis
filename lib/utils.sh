@@ -84,29 +84,6 @@ has_file_correct_ownership() {
     fi
 }
 
-have_files_in_dir_correct_ownership(){
-    local DIR=$1
-    local USER=$2
-    local GROUP=$3
-    local name=$4[@]
-    local OPTIONS=("${!name}")
-
-    local USERID=$(id -u $USER)
-    local GROUPID=$(getent group $GROUP | cut -d: -f3)
-
-    FNRET=0
-    OIFS="$IFS"
-    IFS=$'\n' # prevents word splitting
-    for owner in $("$SUDO_CMD find $DIR" "${OPTIONS[@]}" "-exec stat -c '%u %g' {} \;");
-    do
-    if [ "$owner" != "$USERID $GROUPID" ]; then
-        FNRET=1
-        break
-    fi
-    done
-    IFS="$OIFS"
-}
-
 has_file_correct_permissions() {
     local FILE=$1
     local PERMISSIONS=$2
@@ -116,23 +93,6 @@ has_file_correct_permissions() {
     else
         FNRET=1
     fi 
-}
-
-have_files_in_dir_correct_permissions(){
-    local DIR=$1
-    local PERMISSIONS=$2
-    local name=$3[@]
-    local OPTIONS=("${!name}")
-    
-    FNRET=0
-    for perm in $("$SUDO_CMD find $DIR" "${OPTIONS[@]}" "-exec stat -L -c '%a' {} \;");
-    do
-    echo "$perm  ttt $PERMISSIONS"
-    if [ "$perm" != "$PERMISSIONS" ]; then
-        FNRET=1
-        break
-    fi
-    done
 }
 
 does_pattern_exist_in_file_nocase() {

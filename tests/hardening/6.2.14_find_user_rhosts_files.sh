@@ -5,9 +5,9 @@ test_audit() {
     dismiss_count_for_test
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
-    
-    local test_user="testforwarduser"
-    local test_file=".forward"
+
+    local test_user="testrhostsuser"
+    local test_file=".rhosts"
 
     describe Tests purposely failing 
     useradd --create-home $test_user

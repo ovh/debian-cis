@@ -1,3 +1,31 @@
+cis-hardening (2.0-1) unstable; urgency=medium
+
+  * Add missing tests CUPS, telnet and LDAP
+  * Renum 2.6.x to 1.1.x for /var/tmp
+  * Renum logrotate config 8.4 to 4.3
+  * Renumbering custom 99.* scripts as newcomers to CIS benchmark
+  * Renum User and Groups settings 13.x to 6.2.x
+  * Renum 12.x checks to 6.1.x Verify_System_File_Permissions
+  * Renum warning banners checks 11.x to 1.7.x
+  * Renum 10.x to 5.4.x
+  * Renum login.defs 10.1.x to 5.4.1.x
+  * Renum 9.x tty and su checks
+  * Renum ssh config check 9.3.x to 5.2.x
+  * Renum 9.2.x to 5.3.x Pam password settings
+  * Renum 9.1.x to 5.1.x cron checks
+  * Renum 8.2.x to 4.2.2.x for syslog-ng
+  * Renum 8.1.x auditing configuration
+  * Renumber 7.5.x and 7.6
+  * Renumber 7.4.x tcp wrappers
+  * Renumber network params 7.1.x, 7.2.x and 7.3
+  * Renumber special purpose services 6.x
+  * Renumbering OS services checks and removing obsolete ones
+  * Renumbering 4.x checks
+  * Renumbering of bootloader checks
+  * First batch of renaming to comply to comply to 8v2 and 9 pdf
+
+ -- Charles Herlin <charles.herlin@corp.ovh.com>  Wed, 23 Oct 2019 14:07:13 +0200
+ 
 cis-hardening (1.3-4) unstable; urgency=medium
 
   * ADD(1.3.1): Install Ossec
@@ -5,7 +33,6 @@ cis-hardening (1.3-4) unstable; urgency=medium
   * ADD(4.2.4): Logs permissions
   * ADD(5.2.2, 5.2.3): SSH host keys permissions and ownership
   * ADD(5.2.17): SSHD login grace time
-
 
  -- Thibault AYANIDES <tayanide@ovhcloud.com>  Mon, 19 Oct 2020 16:31:48 +0200
 

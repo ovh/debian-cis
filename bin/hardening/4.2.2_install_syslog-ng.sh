@@ -5,7 +5,7 @@
 #
 
 #
-# 8.2.1 Install the syslog-ng package (Scored)
+# 4.2.2 Install the syslog-ng package (Scored)
 #
 
 set -e # One error, it's over

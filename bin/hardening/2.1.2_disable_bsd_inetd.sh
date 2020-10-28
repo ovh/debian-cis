@@ -5,7 +5,7 @@
 #
 
 #
-# 2.1.1 Ensure bsd-inetd is not enabled (Scored)
+# 2.1.2 Ensure bsd-inetd is not enabled (Scored)
 #
 
 set -e # One error, it's over

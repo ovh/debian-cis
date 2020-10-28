@@ -5,7 +5,7 @@
 #
 
 #
-# 7.7 Ensure Firewall is active (Scored)
+# 3.5 Ensure Firewall is active (Scored)
 #
 
 set -e # One error, it's over

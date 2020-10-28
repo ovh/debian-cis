@@ -5,7 +5,7 @@
 #
 
 #
-# 2.18 Disable Mounting of cramfs Filesystems (Not Scored)
+# 1.1.1.6 Disable Mounting of cramfs Filesystems (Not Scored)
 #
 
 set -e # One error, it's over

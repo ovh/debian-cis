@@ -14,6 +14,8 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=2
 DESCRIPTION="Ensure users own their home directories"
 
+EXCEPTIONS=""
+
 ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode

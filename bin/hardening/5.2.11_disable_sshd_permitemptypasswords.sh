@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Set SSH PermitEmptyPasswords to No in order to disallow SSH login to accounts with empty password strigs."
 
 PACKAGE='openssh-server'
-OPTIONS='PermitEmptyPasswords=no'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,15 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the empty password boolean for ssh
+OPTIONS='PermitEmptyPasswords=no'
+EOF
 }
 
 # Source Root Dir Parameter

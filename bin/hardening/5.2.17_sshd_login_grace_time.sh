@@ -15,11 +15,11 @@ HARDENING_LEVEL=3
 DESCRIPTION="Set Login Grace Time for user login."
 
 PACKAGE='openssh-server'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    OPTIONS="LoginGraceTime=$SSHD_LOGIN_GRACE_TIME"
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -75,16 +75,13 @@ create_config() {
 status=audit
 # In seconds, value of LoginGraceTime
 # Settles sshd login grace time
-SSHD_LOGIN_GRACE_TIME=60
+OPTIONS="LoginGraceTime=60"
 EOF
 }
 
 # This function will check config parameters required
 check_config() {
-    if [ -z $SSHD_LOGIN_GRACE_TIME ]; then
-        crit "SSHD_LOGIN_GRACE_TIME is not set, please edit configuration file"
-        exit 128
-    fi
+    :
 }
 
 # Source Root Dir Parameter

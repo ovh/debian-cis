@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Set SSH HostbasedAUthentication to No."
 
 PACKAGE='openssh-server'
-OPTIONS='HostbasedAuthentication=no'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,15 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the hostbase boolean for ssh
+OPTIONS='HostbasedAuthentication=no'
+EOF
 }
 
 # Source Root Dir Parameter

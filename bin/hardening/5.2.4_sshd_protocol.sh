@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Set secure shell (SSH) protocol to 2."
 
 PACKAGE='openssh-server'
-OPTIONS='Protocol=2'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,15 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here your protocol for ssh
+OPTIONS='Protocol=2'
+EOF
 }
 
 # Source Root Dir Parameter

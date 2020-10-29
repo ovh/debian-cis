@@ -16,11 +16,11 @@ HARDENING_LEVEL=3
 DESCRIPTION="Set Idle Timeout Interval for user login."
 
 PACKAGE='openssh-server'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    OPTIONS="ClientAliveInterval=$SSHD_TIMEOUT ClientAliveCountMax=0"
     is_pkg_installed $PACKAGE
     if [ $FNRET != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -76,16 +76,13 @@ create_config() {
 status=audit
 # In seconds, value of ClientAliveInterval, ClientAliveCountMax bedoing set to 0
 # Settles sshd idle timeout
-SSHD_TIMEOUT=300
+OPTIONS="ClientAliveInterval=300 ClientAliveCountMax=0"
 EOF
 }
 
 # This function will check config parameters required
 check_config() {
-    if [ -z $SSHD_TIMEOUT ]; then
-        crit "SSHD_TIMEOUT is not set, please edit configuration file"
-        exit 128
-    fi
+    :
 }
 
 # Source Root Dir Parameter

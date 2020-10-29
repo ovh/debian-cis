@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Use only approved ciphers in counter mode (ctr) or Galois counter mode (gcm)."
 
 PACKAGE='openssh-server'
-OPTIONS='Ciphers=chacha20-poly1305@openssh\.com,aes256-gcm@openssh\.com,aes128-gcm@openssh\.com,aes256-ctr,aes192-ctr,aes128-ctr'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,16 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the ciphers
+OPTIONS='Ciphers=chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr'
+EOF
 }
 
 # Source Root Dir Parameter

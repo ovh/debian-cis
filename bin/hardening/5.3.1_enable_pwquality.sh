@@ -16,11 +16,11 @@ DESCRIPTION="Set password creation requirement parameters using pam.cracklib."
 
 PACKAGE='libpam-pwquality'
 
-PATTERN_COMMON="pam_pwquality.so"
-FILE_COMMON="/etc/pam.d/common-password"
+PATTERN_COMMON='pam_pwquality.so'
+FILE_COMMON='/etc/pam.d/common-password'
 
-PATTERNS_QUALITY=""
-FILE_QUALITY="/etc/security/pwquality.conf"
+OPTIONS=''
+FILE_QUALITY='/etc/security/pwquality.conf'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -35,11 +35,12 @@ audit () {
         else
             crit "$PATTERN_COMMON is not present in $FILE_COMMON"
         fi
-        for PATTERN in $PATTERNS_QUALITY; do
-            OPTION=$(cut -d = -f 1 <<< $PATTERN)
-            PARAM=$(cut -d = -f 2 <<< $PATTERN)
-            PATTERN="$OPTION *= *$PARAM"
-            does_pattern_exist_in_file $FILE_QUALITY $PATTERN
+        for PW_OPT in $OPTIONS; do
+            PW_PARAM=$(echo $PW_OPT | cut -d= -f1)
+            PW_VALUE=$(echo $PW_OPT | cut -d= -f2)
+            PATTERN="^$PW_PARAM[[:space:]]+=[[:space:]]+$PW_VALUE"
+            does_pattern_exist_in_file $FILE_QUALITY "$PATTERN"
+
             if [ $FNRET = 0 ]; then
                 ok "$PATTERN is present in $FILE_QUALITY"
             else
@@ -58,13 +59,32 @@ apply () {
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
-    does_pattern_exist_in_file $FILE $PATTERN
+    does_pattern_exist_in_file $FILE_COMMON $PATTERN_COMMON
     if [ $FNRET = 0 ]; then
-        ok "$PATTERN is present in $FILE"
+        ok "$PATTERN_COMMON is present in $FILE_COMMON"
     else
-        crit "$PATTERN is not present in $FILE"
-        add_line_file_before_pattern $FILE "password    requisite           pam_cracklib.so retry=3 minlen=8 difok=3" "# pam-auth-update(8) for details."
+        warn "$PATTERN_COMMON is not present in $FILE_COMMON"
+        add_line_file_before_pattern $FILE_COMMON "password requisite pam_pwquality.so retry=3" "# pam-auth-update(8) for details."
     fi 
+    
+    for PW_OPT in $OPTIONS; do
+        PW_PARAM=$(echo $PW_OPT | cut -d= -f1)
+        PW_VALUE=$(echo $PW_OPT | cut -d= -f2)
+        PATTERN="^$PW_PARAM[[:space:]]+=[[:space:]]+$PW_VALUE"
+        does_pattern_exist_in_file $FILE_QUALITY $PATTERN
+        if [ $FNRET = 0 ]; then
+            ok "$PATTERN is present in $FILE_QUALITY"
+        else
+            warn "$PATTERN is not present in $FILE_QUALITY, adding it"
+            does_pattern_exist_in_file $FILE_QUALITY "^$PW_PARAM"
+            if [ $FNRET != 0 ]; then
+                add_end_of_file $FILE_QUALITY "$PW_PARAM = $PW_VALUE"
+            else
+                info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
+                replace_in_file $FILE_QUALITY "^$PW_PARAM*.*" "$PW_PARAM = $PW_VALUE"
+            fi
+        fi
+    done
 }
 
 # This function will create the config file for this check with default values
@@ -72,7 +92,7 @@ create_config() {
     cat <<EOF
 status=audit
 # Put your custom configuration here
-PATTERNS_QUALITY="^minlen=14 ^dcredit=-1 ^ucredit=-1 ^ocredit=-1 ^lcredit=-1"
+OPTIONS="minlen=14 dcredit=-1 ucredit=-1 ocredit=-1 lcredit=-1"
 EOF
 }
 

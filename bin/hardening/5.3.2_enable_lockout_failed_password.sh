@@ -15,8 +15,10 @@ HARDENING_LEVEL=3
 DESCRIPTION="Set lockout for failed password attemps."
 
 PACKAGE='libpam-modules-bin'
-PATTERN='^auth[[:space:]]*required[[:space:]]*pam_tally[2]?.so'
-FILE='/etc/pam.d/login'
+PATTERN_AUTH='^auth[[:space:]]*required[[:space:]]*pam_tally[2]?\.so'
+PATTERN_ACCOUNT='pam_tally[2]?\.so'
+FILE_AUTH='/etc/pam.d/common-auth'
+FILE_ACCOUNT='/etc/pam.d/common-account'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -25,11 +27,17 @@ audit () {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        does_pattern_exist_in_file $FILE $PATTERN
+        does_pattern_exist_in_file $FILE_AUTH "$PATTERN_AUTH"
         if [ $FNRET = 0 ]; then
-            ok "$PATTERN is present in $FILE"
+            ok "$PATTERN_AUTH is present in $FILE_AUTH"
         else
-            crit "$PATTERN is not present in $FILE"
+            crit "$PATTERN_AUTH is not present in $FILE_AUTH"
+        fi
+        does_pattern_exist_in_file $FILE_ACCOUNT "$PATTERN_ACCOUNT"
+        if [ $FNRET = 0 ]; then
+            ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
+        else
+            crit "$PATTERN_ACCOUNT is not present in $FILE_ACCOUNT"
         fi
     fi
 }
@@ -43,13 +51,21 @@ apply () {
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
-    does_pattern_exist_in_file $FILE $PATTERN
+    does_pattern_exist_in_file $FILE_AUTH "$PATTERN_AUTH"
     if [ $FNRET = 0 ]; then
-        ok "$PATTERN is present in $FILE"
+        ok "$PATTERN_AUTH is present in $FILE_AUTH"
     else
-        crit "$PATTERN is not present in $FILE"
-        add_line_file_before_pattern $FILE "auth    required    pam_tally.so onerr=fail deny=6 unlock_time=1800" "# Uncomment and edit \/etc\/security\/time.conf if you need to set"
-    fi 
+        warn "$PATTERN_AUTH is not present in $FILE_AUTH, adding it"
+        add_line_file_before_pattern $FILE_AUTH "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
+    fi
+    does_pattern_exist_in_file $FILE_ACCOUNT "$PATTERN_ACCOUNT"
+    if [ $FNRET = 0 ]; then
+        ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
+    else
+        warn "$PATTERN_ACCOUNT is not present in $FILE_ACCOUNT, adding it"
+        add_line_file_before_pattern $FILE_ACCOUNT "account required pam_tally.so" "# pam-auth-update(8) for details."
+
+    fi
 }
 
 # This function will check config parameters required

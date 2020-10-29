@@ -34,8 +34,19 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    :
+    if $SUDO_CMD [ ! -r $CONF_FILE ]; then
+        crit "$CONF_FILE is not readable"
+    else
+        does_pattern_exist_in_file $CONF_FILE "$(sed 's/ /[[:space:]]+/g' <<< "$CONF_LINE")"
+        if [ "$FNRET" = 0 ]; then
+            ok "$CONF_LINE is present in $CONF_FILE"
+        else
+            warn "$CONF_LINE is not present in $CONF_FILE"
+            add_line_file_before_pattern $CONF_FILE "password [success=1 default=ignore] pam_unix.so sha512" "# pam-auth-update(8) for details."
+        fi
+    fi
 }
+
 
 # This function will check config parameters required
 check_config() {

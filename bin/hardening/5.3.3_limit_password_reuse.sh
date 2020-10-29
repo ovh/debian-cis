@@ -25,7 +25,7 @@ audit () {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        does_pattern_exist_in_file $FILE $PATTERN
+        does_pattern_exist_in_file $FILE "$PATTERN"
         if [ $FNRET = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
@@ -43,11 +43,11 @@ apply () {
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
-    does_pattern_exist_in_file $FILE $PATTERN
+    does_pattern_exist_in_file $FILE "$PATTERN"
     if [ $FNRET = 0 ]; then
         ok "$PATTERN is present in $FILE"
     else
-        warn "$PATTERN is not present in $FILE"
+        warn "$PATTERN is not present in $FILE, adding it"
         add_line_file_before_pattern $FILE "password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5" "# pam-auth-update(8) for details."
     fi 
 }

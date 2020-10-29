@@ -15,7 +15,7 @@ HARDENING_LEVEL=3
 DESCRIPTION="Disable SSH Root Login."
 
 PACKAGE='openssh-server'
-OPTIONS='PermitRootLogin=no'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,15 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the root login boolean for ssh
+OPTIONS='PermitRootLogin=no'
+EOF
 }
 
 # Source Root Dir Parameter

@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Do not allow users to set environment options."
 
 PACKAGE='openssh-server'
-OPTIONS='PermitUserEnvironment=no'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,15 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the permit user env boolean for ssh
+OPTIONS='PermitUserEnvironment=no'
+EOF
 }
 
 # Source Root Dir Parameter

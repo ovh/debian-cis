@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Disable SSH X11 forwarding."
 
 PACKAGE='openssh-server'
-OPTIONS='X11Forwarding=no'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,16 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the forwarding boolean for ssh
+OPTIONS='X11Forwarding=no'
+EOF
 }
 
 # Source Root Dir Parameter

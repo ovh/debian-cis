@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Set SSH IgnoreRhosts to Yes."
 
 PACKAGE='openssh-server'
-OPTIONS='IgnoreRhosts=yes'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -74,6 +74,14 @@ check_config() {
     :
 }
 
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the rhosts boolean for ssh
+OPTIONS='IgnoreRhosts=yes'
+EOF
+}
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening

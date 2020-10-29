@@ -15,7 +15,7 @@ HARDENING_LEVEL=2
 DESCRIPTION="Set SSH MaxAuthTries to 4."
 
 PACKAGE='openssh-server'
-OPTIONS='MaxAuthTries=4'
+OPTIONS=''
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -72,6 +72,15 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the max auth tries for ssh
+OPTIONS='MaxAuthTries=4'
+EOF
 }
 
 # Source Root Dir Parameter

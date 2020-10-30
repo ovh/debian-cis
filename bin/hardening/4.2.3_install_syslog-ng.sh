@@ -14,6 +14,7 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=3
 DESCRIPTION="Install syslog-ng to manage logs"
 
+# NB : in CIS, rsyslog has been chosen, however we chose syslog-ng
 PACKAGE='syslog-ng'
 
 # This function will be called if the script status is on enabled / audit mode

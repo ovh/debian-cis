@@ -6,5 +6,12 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    # TODO fill comprehensive tests
+    describe Correcting situation
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    /opt/debian-cis/bin/hardening/"${script}".sh || true
+
+    describe Checking resolved state
+    register_test retvalshouldbe 0
+    register_test contain "[ OK ] ^PASS_MIN_DAYS[[:space:]]*7 is present in /etc/login.defs"
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

@@ -15,7 +15,7 @@ HARDENING_LEVEL=3
 DESCRIPTION="Set password expiration warning days."
 
 PACKAGE='login'
-OPTIONS='PASS_WARN_AGE=7'
+OPTIONS=''
 FILE='/etc/login.defs'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -25,10 +25,10 @@ audit () {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        for SSH_OPTION in $OPTIONS; do
-            SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
-            SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-            PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
+        for SHADOW_OPTION in $OPTIONS; do
+            SHADOW_PARAM=$(echo $SHADOW_OPTION | cut -d= -f 1)
+            SHADOW_VALUE=$(echo $SHADOW_OPTION | cut -d= -f 2)
+            PATTERN="^$SHADOW_PARAM[[:space:]]*$SHADOW_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ $FNRET = 0 ]; then
                 ok "$PATTERN is present in $FILE"
@@ -48,21 +48,21 @@ apply () {
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
-    for SSH_OPTION in $OPTIONS; do
-            SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
-            SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-            PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
+    for SHADOW_OPTION in $OPTIONS; do
+            SHADOW_PARAM=$(echo $SHADOW_OPTION | cut -d= -f 1)
+            SHADOW_VALUE=$(echo $SHADOW_OPTION | cut -d= -f 2)
+            PATTERN="^$SHADOW_PARAM[[:space:]]*$SHADOW_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ $FNRET = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
                 warn "$PATTERN is not present in $FILE, adding it"
-                does_pattern_exist_in_file $FILE "^$SSH_PARAM"
+                does_pattern_exist_in_file $FILE "^$SHADOW_PARAM"
                 if [ $FNRET != 0 ]; then
-                    add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
+                    add_end_of_file $FILE "$SHADOW_PARAM $SHADOW_VALUE"
                 else
-                    info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                    replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+                    info "Parameter $SHADOW_PARAM is present but with the wrong value -- Fixing"
+                    replace_in_file $FILE "^$SHADOW_PARAM[[:space:]]*.*" "$SHADOW_PARAM $SHADOW_VALUE"
                 fi
             fi
     done
@@ -71,6 +71,16 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here your protocol for shadow
+OPTIONS='PASS_WARN_AGE=7'
+EOF
 }
 
 # Source Root Dir Parameter

@@ -6,5 +6,12 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    # TODO fill comprehensive tests
+    describe Correcting situation
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    /opt/debian-cis/bin/hardening/"${script}".sh || true
+
+    describe Checking resolved state
+    register_test retvalshouldbe 0
+    register_test contain "[ OK ] ^auth[[:space:]]*required[[:space:]]*pam_wheel.so is present in /etc/pam.d/su"
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

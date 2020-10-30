@@ -1,3 +1,14 @@
+cis-hardening (2.0-4) unstable; urgency=medium
+  * Add deleted checks during renaming which should be here (3.2.6, 3.2.7, 6.2.7)
+  * Delete 4.2.2, duplicate with 4.2.3
+  * Fix bug in hardening.sh final printf when locals are not US
+  * Improve 4.2.4 to use utils.sh functions
+  * Add 2.3.18 to check for telnet sever (not anymore in CIS hardening)
+  * Fix 2.2.12 where the condition was inverted
+  * Skip IPV6 checks if IPv6 is disabled
+
+ -- Thibault Ayanides <tayanide@ovhcloud.com>  Fri, 28 Oct 2020 16:12:34 +0100
+
 cis-hardening (2.0-3) unstable; urgency=medium
 
   * Add comprehensive tests for 6.1.x

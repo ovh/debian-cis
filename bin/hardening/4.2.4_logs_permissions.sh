@@ -22,12 +22,13 @@ audit () {
     ERRORS=0
     for FILE in $($SUDO_CMD find $DIR -type f);
     do
-        perm=$(stat -L -c '%a' $FILE)
-        echo "$perm  ttt $PERMISSIONS"
-        if [ "$perm" != "$PERMISSIONS" ]; then
+        has_file_correct_permissions $FILE $PERMISSIONS
+        if [ $FNRET = 0 ]; then
+            ok "$FILE permissions were set to $PERMISSIONS"
+        else
             ERRORS=$((ERRORS+1))
-            crit "Some logs in $DIR permissions were not set to $PERMISSIONS"
-        fi
+            crit "$FILE permissions were not set to $PERMISSIONS"
+       fi
     done
 
     if [ $ERRORS = 0 ]; then
@@ -40,12 +41,12 @@ apply () {
     ERRORS=0
     for FILE in $($SUDO_CMD find $DIR -type f);
     do
-        perm=$(stat -L -c '%a' $FILE)
-        echo "$perm  ttt $PERMISSIONS"
-        if [ "$perm" != "$PERMISSIONS" ]; then
-            info "fixing $DIR logs permissions to $PERMISSIONS"
+        has_file_correct_permissions $FILE $PERMISSIONS
+        if [ $FNRET = 0 ]; then
+            ok "$FILE permissions were set to $PERMISSIONS"
+        else
+            warn "fixing $DIRlogs ownership to $PERMISSIONS"
             chmod 0$PERMISSIONS $FILE
-            
         fi
     done
     

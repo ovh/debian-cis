@@ -19,16 +19,20 @@ SYSCTL_PARAMS=''
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     for SYSCTL_VALUES in $SYSCTL_PARAMS; do
-        SYSCTL_PARAM=$(echo $SYSCTL_VALUES | cut -d= -f 1)
-        SYSCTL_EXP_RESULT=$(echo $SYSCTL_VALUES | cut -d= -f 2)
-        debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
-        has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-        if [ $FNRET != 0 ]; then
-            crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-        elif [ $FNRET = 255 ]; then
-            warn "$SYSCTL_PARAM does not exist -- Typo?"
-        else
-            ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+        does_sysctl_param_exists "net.ipv6"
+        if [ $FNRET = 0 ] || [[ ! $SYSCTL_VALUES =~ .*ipv6.* ]]; then # IPv6 is enabled or SYSCTL_VALUES doesn't contain ipv6
+            SYSCTL_PARAM=$(echo $SYSCTL_VALUES | cut -d= -f 1)
+            SYSCTL_EXP_RESULT=$(echo $SYSCTL_VALUES | cut -d= -f 2)
+            debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
+            
+            has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+            if [ $FNRET != 0 ]; then
+                crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+            elif [ $FNRET = 255 ]; then
+                warn "$SYSCTL_PARAM does not exist -- Typo?"
+            else
+                ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+            fi
         fi
     done
 }

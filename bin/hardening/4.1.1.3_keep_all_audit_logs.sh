@@ -44,6 +44,7 @@ apply () {
     does_file_exist $FILE
     if [ $FNRET != 0 ]; then
         warn "$FILE does not exist, creating it"
+        mkdir -p /etc/audit
         touch $FILE
     else
         ok "$FILE exists"

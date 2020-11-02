@@ -29,7 +29,7 @@ audit () {
         fi
     done
     is_service_enabled $SERVICE
-    if [ $FNRET = 1 ]; then
+    if [ $FNRET = 0 ]; then
         crit "Service $SERVICE is enabled!"
     else
         ok "Service $SERVICE is disabled"
@@ -49,7 +49,7 @@ apply () {
         fi
     done
     is_service_enabled $SERVICE
-    if [ $FNRET = 1 ]; then
+    if [ $FNRET = 0 ]; then
         crit "Service $SERVICE is enabled!"
         systemctl disable $SERVICE
     else

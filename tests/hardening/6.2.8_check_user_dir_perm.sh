@@ -6,7 +6,7 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    local test_user="testhomeuser"
+    local test_user="testhomepermuser"
 
     describe Tests purposely failing 
     useradd --create-home $test_user

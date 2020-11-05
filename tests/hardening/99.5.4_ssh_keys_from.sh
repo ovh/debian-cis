@@ -71,7 +71,7 @@ test_audit()  {
 
     # Cleanup
     userdel jeantestuser
-    userdel jeantest2
+    userdel -r jeantest2
     rm -f /tmp/key1 /tmp/key1.pub
 }
 

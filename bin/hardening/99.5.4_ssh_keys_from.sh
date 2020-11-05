@@ -24,6 +24,7 @@ AUTHKEYFILE_PATTERN_DEFAULT=".ssh/authorized_keys .ssh/authorized_keys2"
 
 ALLOWED_IPS=""
 USERS_TO_CHECK=""
+EXCEPTION_USER=""
 
 ALLOWED_NOLOGIN_SHELLS="/bin/false /usr/sbin/nologin"
 
@@ -71,7 +72,7 @@ check_file() {
         debug "Treating $file"
         FOUND_AUTHKF=1
         if $SUDO_CMD grep -vqP "$REGEX_OK_LINES" "${file}" ; then
-            bad_lines="$(grep -vnP "$REGEX_OK_LINES" "${file}" | cut -d ':' -f 1 | tr '\n' ' ' | sed 's/ $//' )"
+            bad_lines="$($SUDO_CMD grep -vnP "$REGEX_OK_LINES" "${file}" | cut -d ':' -f 1 | tr '\n' ' ' | sed 's/ $//' )"
             crit "There are anywhere access keys in ${file} at lines (${bad_lines})."
         else
             ok "File ${file} is cleared from anywhere access keys."
@@ -128,7 +129,7 @@ audit () {
             continue
         else
             info "User $user has a valid shell ($shell).";
-            if [ "x$user" = "xroot" ]; then
+            if [ "x$user" = "xroot" ] && [ "$user" != "$EXCEPTION_USER" ]; then
                 check_dir /root
                 continue
             elif $SUDO_CMD [ ! -d /home/"$user" ]; then
@@ -155,6 +156,7 @@ status=audit
 # Put authorized IPs you want to allow in "from" field of authorized_keys
 ALLOWED_IPS=""
 USERS_TO_CHECK=""
+EXCEPTION_USER=""
 EOF
 }
 

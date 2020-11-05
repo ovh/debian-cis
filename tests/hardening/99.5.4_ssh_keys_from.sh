@@ -1,5 +1,8 @@
 # run-shellcheck
 test_audit()  {
+    # shellcheck disable=2154
+    echo 'EXCEPTION_USER="root"' >>  /opt/debian-cis/etc/conf.d/"${script}".cfg
+
     skip_tests
     # shellcheck disable=2154
     run genconf /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
@@ -7,6 +10,7 @@ test_audit()  {
     useradd -s /bin/bash jeantestuser
     describe Running on blank host
     register_test retvalshouldbe 0
+    dismiss_count_for_test
     register_test contain "[WARN] secaudit has a valid shell but no authorized_keys file"
     register_test contain "[INFO] User jeantestuser has a valid shell"
     register_test contain "[INFO] User jeantestuser has no home directory"

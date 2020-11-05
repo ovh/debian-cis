@@ -3,6 +3,7 @@ test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 0
     register_test contain "There is no password in /etc/shadow"
+    dismiss_count_for_test
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 

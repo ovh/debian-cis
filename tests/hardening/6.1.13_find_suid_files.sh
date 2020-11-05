@@ -8,7 +8,7 @@ test_audit() {
 
     describe Running on blank host
     register_test retvalshouldbe 0
-    register_test contain "No unknown suid files found"
+    dismiss_count_for_test
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe Tests purposely failing

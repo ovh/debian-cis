@@ -4,7 +4,7 @@ test_audit() {
 
     describe Running on blank host
     register_test retvalshouldbe 1
-    register_test contain "None of the following time sync packages are installed"
+    dismiss_count_for_test
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe Correcting situation

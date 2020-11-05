@@ -1,5 +1,10 @@
 # run-shellcheck
 test_audit() {
+    # shellcheck disable=2154
+    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    # shellcheck disable=2016
+    echo 'EXCEPT="$EXCEPT debian"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+
     describe Running on blank host
     register_test retvalshouldbe 0
     dismiss_count_for_test
@@ -17,7 +22,7 @@ test_audit() {
 
 
     # shellcheck disable=2016
-    echo 'EXCEPT="$EXCEPT jeantestuser"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+    echo 'EXCEPT="$EXCEPT debian jeantestuser"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
     describe Adding jeantestuser to exceptions
     register_test retvalshouldbe 0
     register_test contain "[ OK ] jeantestuser ALL = (ALL) NOPASSWD:ALL is present in /etc/sudoers.d/jeantestuser but was EXCUSED because jeantestuser is part of exceptions"

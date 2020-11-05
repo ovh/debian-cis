@@ -20,5 +20,6 @@ test_audit() {
     run exceptions /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # Cleanup
-    userdel testhomeuser
+    rm -rf /home/testhomeuser
+    userdel -r testhomeuser
 }

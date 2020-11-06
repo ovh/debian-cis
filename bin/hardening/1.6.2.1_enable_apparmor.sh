@@ -24,7 +24,12 @@ audit () {
     else
         ok "$PACKAGE is installed"
     fi
-    :
+    RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
+    for line in $RESULT; do
+        if [[ ! $line =~ "apparmor=1" ]] || [[ ! $line =~ "security=apparmor" ]]; then
+            crit "$line is not configured"
+        fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode
@@ -35,7 +40,18 @@ apply () {
     else
         ok "$PACKAGE is installed"
     fi
-    :
+    ERROR=0
+    RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
+    for line in $RESULT; do
+        if [[ ! $line =~ "apparmor=1" ]] || [[ ! $line =~ "security=apparmor" ]]; then
+            crit "$line is not configured"
+            ERROR=1
+        fi
+    done
+    if [ $ERROR = 1 ]; then
+        $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor\/"
+    fi
+    $SUDO_CMD update-grub
 }
 
 # This function will check config parameters required

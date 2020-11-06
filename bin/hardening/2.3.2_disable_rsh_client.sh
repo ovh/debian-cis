@@ -36,7 +36,7 @@ apply () {
         if [ $FNRET = 0 ]; then
             warn "$PACKAGE is installed, purging"
             apt-get purge $PACKAGE -y
-            apt-get autoremove
+            apt-get autoremove -y
         else
             ok "$PACKAGE is absent"
         fi

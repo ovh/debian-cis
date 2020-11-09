@@ -15,7 +15,7 @@ HARDENING_LEVEL=4
 DESCRIPTION="Disable system on audit log full."
 
 FILE='/etc/audit/auditd.conf'
-OPTIONS='space_left_action=email action_mail_acct=root admin_space_left_action=halt'
+OPTIONS=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
@@ -74,6 +74,15 @@ apply () {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+create_config() {
+    cat << EOF
+# shellcheck disable=2034
+status=audit
+# Put here the conf for auditd
+OPTIONS='space_left_action=email action_mail_acct=root admin_space_left_action=halt'
+EOF
 }
 
 # Source Root Dir Parameter

@@ -10,6 +10,8 @@ test_audit() {
 
     describe Correcting situation
     sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    # to avoid error during auditd installation in 4.1.1.2, only necessary during tests
+    sed  -i "s/OPTIONS='/OPTIONS='space_left=100 admin_space_left=50 /" /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh || true
 
     describe Checking resolved state

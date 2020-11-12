@@ -21,9 +21,9 @@ SYSCTL_EXP_RESULT=0
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     for SYSCTL_PARAM in $SYSCTL_PARAMS; do
-    does_sysctl_param_exists "net.ipv6"
-    if [ $FNRET = 0 ] || [[ ! $SYSCTL_VALUES =~ .*ipv6.* ]]; then # IPv6 is enabled or SYSCTL_VALUES doesn't contain ipv6
-        has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+        does_sysctl_param_exists "net.ipv6"
+        if [ $FNRET = 0 ] || [[ ! $SYSCTL_PARAM =~ .*ipv6.* ]]; then # IPv6 is enabled or SYSCTL_VALUES doesn't contain ipv6
+            has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
             if [ $FNRET != 0 ]; then
                 crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
             elif [ $FNRET = 255 ]; then
@@ -37,16 +37,18 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-    if [ $FNRET != 0 ]; then
-        warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
-        set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-        sysctl -w net.ipv4.route.flush=1 > /dev/null
-    elif [ $FNRET = 255 ]; then
-        warn "$SYSCTL_PARAM does not exist -- Typo?"
-    else
-        ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
-    fi
+    for SYSCTL_PARAM in $SYSCTL_PARAMS; do
+        has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+        if [ $FNRET != 0 ]; then
+            warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
+            set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+            sysctl -w net.ipv4.route.flush=1 > /dev/null
+        elif [ $FNRET = 255 ]; then
+            warn "$SYSCTL_PARAM does not exist -- Typo?"
+        else
+            ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+        fi
+    done
 }
 
 # This function will check config parameters required

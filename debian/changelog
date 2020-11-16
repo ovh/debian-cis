@@ -1,3 +1,11 @@
+cis-hardening (2.0-6) unstable; urgency=medium
+
+  * Fix race condition issue with cat /etc/passwd, /etc/shadow, /etc/group
+  * Fix permissions in 5.2.3
+  * Revert 4.2.2.3 to old check (8.2.4)
+
+ -- Thibault Ayanides <tayanide@owhcloud.com>  Mon, 16 Nov 2020 14:19:35 +0100
+
 cis-hardening (2.0-5) unstable; urgency=medium
 
   * Hotfix for 3.1.1 wich resulted to a fail check if ipv6 is disabled 

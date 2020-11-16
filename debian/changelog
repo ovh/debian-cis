@@ -1,3 +1,19 @@
+cis-hardening (2.1-1) stable; urgency=medium
+  * Move to most recent docker image for buster
+  * Rename 6.1.2,6.1.3,6.1.4 to be CIS9 compliant
+  * Rename 4.5 to 1.6.1.2 to be CIS9 compliant
+  * Fix apt autoremove to be non interactive
+  * Add disclaimer when checks don't require comprehensive checks
+  * Add comprehensive tests for 4.1.x
+  * Add comprehensive tests for 5.2.x
+  * Add comprehensive test for 5.3.x, add config function for the checks, upgrade PAM conf
+  * Add comprehensive tests for 5.4.1.x
+  * Add comprehensive tests for 5.4.3, 5.4.4
+  * Add comprehensive test for 5.6
+  * Skip 4.1.3 on docker (bootloader)
+
+ -- Thibault Ayanides <tayanide@ovhcloud.com>  Fri, 13 Nov 2020 13:32:50 +0100
+
 cis-hardening (2.0-6) unstable; urgency=medium
 
   * Fix race condition issue with cat /etc/passwd, /etc/shadow, /etc/group

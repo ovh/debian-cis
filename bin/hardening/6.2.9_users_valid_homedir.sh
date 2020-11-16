@@ -21,7 +21,7 @@ ERRORS=0
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     debug "Checking homedir exists"
-    RESULT=$(cat /etc/passwd | awk -F: '{ print $1 ":" $3 ":" $6 }')
+    RESULT=$(get_db passwd | awk -F: '{ print $1 ":" $3 ":" $6 }')
     for LINE in $RESULT; do
         debug "Working on $LINE"
         USER=$(awk -F: {'print $1'} <<< $LINE)

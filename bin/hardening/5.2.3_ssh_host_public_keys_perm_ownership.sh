@@ -28,8 +28,13 @@ audit () {
         if [ $FNRET = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            ERRORS=$((ERRORS+1))
-            crit "$FILE permissions were not set to $PERMISSIONS"
+            has_file_correct_permissions $FILE 640
+            if [ $FNRET = 0 ]; then
+                ok "$FILE permissions were set to $PERMISSIONS"
+            else
+                ERRORS=$((ERRORS+1))
+                crit "$FILE permissions were not set to $PERMISSIONS"
+            fi
         fi
 
     done
@@ -64,8 +69,13 @@ apply () {
         if [ $FNRET = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            warn "fixing $DIR SSH public keys permissions to $USER:$GROUP"
-            chmod 0$PERMISSIONS $FILE
+            has_file_correct_permissions $FILE 640
+            if [ $FNRET = 0 ]; then
+                ok "$FILE permissions were set to $PERMISSIONS"
+            else
+                warn "fixing $DIR SSH public keys permissions to $USER:$GROUP"
+                chmod 0$PERMISSIONS $FILE
+            fi
         fi
     done
 

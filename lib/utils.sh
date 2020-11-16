@@ -126,6 +126,11 @@ _does_pattern_exist_in_file() {
     fi
 }
 
+get_db() {
+    local DB="$1"
+    $SUDO_CMD getent --service files "$DB"
+}
+
 # Look for pattern in file that can spread over multiple lines
 # The func will remove commented lines (that begin with '#')
 # and consider the file as one long line.

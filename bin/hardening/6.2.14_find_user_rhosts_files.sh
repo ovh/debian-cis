@@ -19,7 +19,7 @@ FILENAME=".rhosts"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    for DIR in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    for DIR in $(get_db passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
     debug "Working on $DIR"
         for FILE in $DIR/$FILENAME; do
             if [ ! -h "$FILE" -a -f "$FILE" ]; then

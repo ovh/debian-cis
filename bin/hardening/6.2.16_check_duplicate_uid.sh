@@ -21,7 +21,7 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    RESULT=$(cut -f3 -d":" < /etc/passwd | sort -n | uniq -c | awk '{print $1":"$2}' )
+    RESULT=$(get_db passwd | cut -f3 -d":" | sort -n | uniq -c | awk '{print $1":"$2}' )
     FOUND_EXCEPTIONS=""
     for LINE in $RESULT; do
         debug "Working on line $LINE"

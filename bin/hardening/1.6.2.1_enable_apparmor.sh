@@ -27,12 +27,18 @@ audit () {
 
     ERROR=0
     RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
+    
+    # define custom IFS and save default one
+    d_IFS=$IFS
+    c_IFS=$'\n'
+    IFS=$c_IFS
     for line in $RESULT; do
         if [[ ! $line =~ "apparmor=1" ]] || [[ ! $line =~ "security=apparmor" ]]; then
             crit "$line is not configured"
             ERROR=1
         fi
     done
+    IFS=$d_IFS
     if [ $ERROR = 0 ]; then
         ok "$PACKAGE is configured"
     
@@ -47,15 +53,22 @@ apply () {
     else
         ok "$PACKAGE is installed"
     fi
-    
+
     ERROR=0
     RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
+    
+    # define custom IFS and save default one
+    d_IFS=$IFS
+    c_IFS=$'\n'
+    IFS=$c_IFS
     for line in $RESULT; do
         if [[ ! $line =~ "apparmor=1" ]] || [[ ! $line =~ "security=apparmor" ]]; then
             crit "$line is not configured"
             ERROR=1
         fi
     done
+    IFS=$d_IFS
+    
     if [ $ERROR = 1 ]; then
         $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor/" /etc/default/grub
         $SUDO_CMD update-grub

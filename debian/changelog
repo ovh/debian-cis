@@ -1,3 +1,9 @@
+cis-hardening (2.1-2) unstable; urgency=medium
+
+  * Add --create-config-files-only mode that only create config files without running audit
+
+ -- Thibault Ayanides <tayanide@ovhcloud.com>  Mon, 23 Nov 2020 13:40:14 +0100
+ 
 cis-hardening (2.1-1) stable; urgency=medium
   * Move to most recent docker image for buster
   * Rename 6.1.2,6.1.3,6.1.4 to be CIS9 compliant

@@ -20,6 +20,7 @@ AUDIT=0
 APPLY=0
 AUDIT_ALL=0
 AUDIT_ALL_ENABLE_PASSED=0
+CREATE_CONFIG=0
 ALLOW_SERVICE_LIST=0
 SET_HARDENING_LEVEL=0
 SUDO_MODE=''
@@ -76,6 +77,10 @@ $LONG_SCRIPT_NAME <RUN_MODE> [OPTIONS], where RUN_MODE is one of:
         Modifies the policy to allow a certain kind of services on the machine, such
         as http, mail, etc. Can be specified multiple times to allow multiple services.
         Use --allow-service-list to get a list of supported services.
+    
+    --create-config-files-only
+        Create the config files in etc/conf.d
+        Must be run as root, before running the audit with user secaudit
 
 OPTIONS:
 
@@ -126,6 +131,9 @@ while [[ $# > 0 ]]; do
         --allow-service-list)
             ALLOW_SERVICE_LIST=1
         ;;
+        --create-config-files-only)
+            CREATE_CONFIG=1
+        ;;
         --allow-service)
             ALLOWED_SERVICES_LIST[${#ALLOWED_SERVICES_LIST[@]}]="$2"
             shift
@@ -156,7 +164,7 @@ while [[ $# > 0 ]]; do
 done
 
 # if no RUN_MODE was passed, usage and quit
-if [ "$AUDIT" -eq 0 -a "$AUDIT_ALL" -eq 0 -a "$AUDIT_ALL_ENABLE_PASSED" -eq 0 -a "$APPLY" -eq 0 ]; then
+if [ "$AUDIT" -eq 0 -a "$AUDIT_ALL" -eq 0 -a "$AUDIT_ALL_ENABLE_PASSED" -eq 0 -a "$APPLY" -eq 0 -a "$CREATE_CONFIG" -eq 0 ]; then
     usage
 fi
 
@@ -210,6 +218,11 @@ if [ -n "$SET_HARDENING_LEVEL" -a "$SET_HARDENING_LEVEL" != 0 ] ; then
     exit 0
 fi
 
+if [ $CREATE_CONFIG = 1 ] && [ "$EUID" -ne 0 ]; then
+    echo "For --create-config-files-only, please run as root"
+    exit 1
+fi
+
 # Parse every scripts and execute them in the required mode
 for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     if [ ${#TEST_LIST[@]} -gt 0 ] ; then
@@ -223,8 +236,10 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     fi
 
     info "Treating $SCRIPT"
-
-    if [ $AUDIT = 1 ]; then
+    if [ $CREATE_CONFIG = 1 ]; then
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --create-config-files-only"
+        $SCRIPT --create-config-files-only $BATCH_MODE
+    elif [ $AUDIT = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit $SUDO_MODE $BATCH_MODE"
         $SCRIPT --audit $SUDO_MODE $BATCH_MODE
     elif [ $AUDIT_ALL = 1 ]; then

@@ -32,6 +32,10 @@ while [[ $# > 0 ]]; do
             info "Audit argument passed but script is disabled"
         fi
         ;;
+        --create-config-files-only)
+            debug "Create config files"
+            forcedstatus=createconfig
+        ;;
         --sudo)
         SUDO_CMD="sudo_wrapper"
         ;;
@@ -62,7 +66,14 @@ if ! [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] ; then
     else
         echo "status=audit" >> $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
     fi
+
 fi
+
+if [ $forcedstatus = "createconfig" ]; then
+    debug "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg has been created"
+    exit 0
+fi
+
 [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] && . $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
 
 # Now check configured value for status, and potential cmdline parameter

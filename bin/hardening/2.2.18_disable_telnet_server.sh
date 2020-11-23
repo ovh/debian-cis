@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# run-shellcheck
 #
 # Legacy CIS Debian Hardening
 #

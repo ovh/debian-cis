@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# run-shellcheck
 #
 # CIS Debian Hardening
 # Authors : Thibault Dewailly, OVH <thibault.dewailly@corp.ovh.com>

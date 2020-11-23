@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# run-shellcheck
 #
 # CIS Debian Hardening /!\ Not in the Guide
 #

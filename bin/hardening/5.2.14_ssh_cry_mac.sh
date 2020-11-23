@@ -1,6 +1,6 @@
 #!/bin/bash
-# run-shellcheck
 
+# run-shellcheck
 #
 # CIS Debian 7/8 Hardening
 #

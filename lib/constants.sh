@@ -1,5 +1,6 @@
 # Defines constants for CIS Debian Hardening
 
+# run-shellcheck
 # Script and shell commands homogeneity
 export LANG=C
 

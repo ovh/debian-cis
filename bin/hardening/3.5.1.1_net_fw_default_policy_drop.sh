@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # run-shellcheck
 #
 # OVH Security audit

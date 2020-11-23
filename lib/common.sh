@@ -1,5 +1,6 @@
 # CIS Debian Hardening common functions
 
+# run-shellcheck
 #
 # File Backup functions
 #

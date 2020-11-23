@@ -1,5 +1,7 @@
 # CIS Debian Hardening Utility functions
 
+# run-shellcheck
+
 #
 # Sysctl 
 #

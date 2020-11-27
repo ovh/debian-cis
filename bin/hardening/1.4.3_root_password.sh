@@ -23,7 +23,7 @@ PATTERN="^root:[*\!]:"
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     does_pattern_exist_in_file $FILE $PATTERN
-    if [ $FNRET != 1 ]; then
+    if [ "$FNRET" != 1 ]; then
         crit "$PATTERN is present in $FILE"
     else
         ok "$PATTERN is not present in $FILE"
@@ -33,7 +33,7 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     does_pattern_exist_in_file $FILE $PATTERN
-    if [ $FNRET != 1 ]; then
+    if [ "$FNRET" != 1 ]; then
         warn "$PATTERN is present in $FILE, please put a root password"
     else
         ok "$PATTERN is not present in $FILE"
@@ -58,9 +58,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

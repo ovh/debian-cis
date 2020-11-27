@@ -24,7 +24,7 @@ PATTERN='^shadow:x:[[:digit:]]+:'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     does_pattern_exist_in_file $FILEGROUP $PATTERN
-    if [ $FNRET = 0 ]; then
+    if [ "$FNRET" = 0 ]; then
         info "shadow group exists"
         RESULT=$(grep -E "$PATTERN" $FILEGROUP | cut -d: -f4)
         GROUPID=$(getent group shadow | cut -d: -f3)
@@ -69,9 +69,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

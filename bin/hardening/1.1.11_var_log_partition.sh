@@ -42,13 +42,13 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    if [ $FNRET = 0 ]; then
+    if [ "$FNRET" = 0 ]; then
         ok "$PARTITION is correctly set"
-    elif [ $FNRET = 2 ]; then
+    elif [ "$FNRET" = 2 ]; then
         crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
     else
         info "mounting $PARTITION"
-        mount $PARTITION
+        mount "$PARTITION"
     fi
 }
 
@@ -70,9 +70,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

@@ -35,7 +35,7 @@ audit () {
     debug "Files to search $LIMIT_FILE $LIMIT_FILES"
     for file in $LIMIT_FILE $LIMIT_FILES; do
         does_pattern_exist_in_file $file $LIMIT_PATTERN
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             debug "$LIMIT_PATTERN not present in $file"
         else
             ok "$LIMIT_PATTERN present in $file"
@@ -47,9 +47,9 @@ audit () {
         crit "$LIMIT_PATTERN is not present in $LIMIT_FILE $LIMIT_FILES"
     fi
     has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-    elif [ $FNRET = 255 ]; then
+    elif [ "$FNRET" = 255 ]; then
         warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
         ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
@@ -59,17 +59,17 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     does_pattern_exist_in_file $LIMIT_FILE $LIMIT_PATTERN
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         warn "$LIMIT_PATTERN not present in $LIMIT_FILE, adding at the end of  $LIMIT_FILE"
         add_end_of_file $LIMIT_FILE "* hard core 0"
     else
         ok "$LIMIT_PATTERN present in $LIMIT_FILE"
     fi
     has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
         set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-    elif [ $FNRET = 255 ]; then
+    elif [ "$FNRET" = 255 ]; then
         warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
         ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
@@ -94,9 +94,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

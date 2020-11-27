@@ -27,16 +27,16 @@ audit () {
     ERRORS=0
     for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
     do
-        has_file_correct_permissions $FILE $PERMISSIONS
-        if [ $FNRET = 0 ]; then
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            has_file_correct_permissions $FILE 640
-            if [ $FNRET = 0 ]; then
+            has_file_correct_permissions "$FILE" 640
+            if [ "$FNRET" = 0 ]; then
                 ok "$FILE permissions were set to $PERMISSIONS"
             else
-                has_file_correct_permissions $FILE 600
-                if [ $FNRET = 0 ]; then
+                has_file_correct_permissions "$FILE" 600
+                if [ "$FNRET" = 0 ]; then
                     ok "$FILE permissions were set to $PERMISSIONS"
                 else
                     ERRORS=$((ERRORS+1))
@@ -54,8 +54,8 @@ audit () {
     ERRORS=0
     for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
     do
-        has_file_correct_ownership $FILE $USER $GROUP
-        if  [ $FNRET = 0 ]; then
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if  [ "$FNRET" = 0 ]; then
             ok "$FILE ownership was set to $USER:$GROUP"
 
         else
@@ -73,20 +73,20 @@ audit () {
 apply () {
     for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
     do
-        has_file_correct_permissions $FILE $PERMISSIONS
-        if [ $FNRET = 0 ]; then
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            has_file_correct_permissions $FILE 640
-            if [ $FNRET = 0 ]; then
+            has_file_correct_permissions "$FILE" 640
+            if [ "$FNRET" = 0 ]; then
                 ok "$FILE permissions were set to $PERMISSIONS"
             else
-                has_file_correct_permissions $FILE 600
-                if [ $FNRET = 0 ]; then
+                has_file_correct_permissions "$FILE" 600
+                if [ "$FNRET" = 0 ]; then
                     ok "$FILE permissions were set to $PERMISSIONS"
                 else
                     warn "fixing $DIR SSH public keys permissions to $USER:$GROUP"
-                    chmod 0$PERMISSIONS $FILE
+                    chmod 0"$PERMISSIONS" "$FILE"
                 fi
             fi
         fi
@@ -94,8 +94,8 @@ apply () {
 
     for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub');
     do
-        has_file_correct_ownership $FILE $USER $GROUP
-        if [ $FNRET = 0 ]; then
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
             ok "$FILE ownership was set to $USER:$GROUP"
         else
             warn "fixing $DIR SSH public keys ownership to $PERMISSIONS"
@@ -108,12 +108,12 @@ apply () {
 # This function will check config parameters required
 check_config() {
     does_user_exist $USER
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         crit "$USER does not exist"
         exit 128
     fi
     does_group_exist $GROUP
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         crit "$GROUP does not exist"
         exit 128
     fi
@@ -131,9 +131,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

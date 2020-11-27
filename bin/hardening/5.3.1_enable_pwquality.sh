@@ -27,13 +27,13 @@ FILE_QUALITY='/etc/security/pwquality.conf'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
         does_pattern_exist_in_file $FILE_COMMON $PATTERN_COMMON
-        if [ $FNRET = 0 ]; then
+        if [ "$FNRET" = 0 ]; then
             ok "$PATTERN_COMMON is present in $FILE_COMMON"
         else
             crit "$PATTERN_COMMON is not present in $FILE_COMMON"
@@ -44,7 +44,7 @@ audit () {
             PATTERN="^$PW_PARAM[[:space:]]+=[[:space:]]+$PW_VALUE"
             does_pattern_exist_in_file $FILE_QUALITY "$PATTERN"
 
-            if [ $FNRET = 0 ]; then
+            if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE_QUALITY"
             else
                 crit "$PATTERN is not present in $FILE_QUALITY"
@@ -55,15 +55,15 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET = 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
     does_pattern_exist_in_file $FILE_COMMON $PATTERN_COMMON
-    if [ $FNRET = 0 ]; then
+    if [ "$FNRET" = 0 ]; then
         ok "$PATTERN_COMMON is present in $FILE_COMMON"
     else
         warn "$PATTERN_COMMON is not present in $FILE_COMMON"
@@ -75,12 +75,12 @@ apply () {
         PW_VALUE=$(echo $PW_OPT | cut -d= -f2)
         PATTERN="^$PW_PARAM[[:space:]]+=[[:space:]]+$PW_VALUE"
         does_pattern_exist_in_file $FILE_QUALITY $PATTERN
-        if [ $FNRET = 0 ]; then
+        if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE_QUALITY"
         else
             warn "$PATTERN is not present in $FILE_QUALITY, adding it"
             does_pattern_exist_in_file $FILE_QUALITY "^$PW_PARAM"
-            if [ $FNRET != 0 ]; then
+            if [ "$FNRET" != 0 ]; then
                 add_end_of_file $FILE_QUALITY "$PW_PARAM = $PW_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
@@ -116,9 +116,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

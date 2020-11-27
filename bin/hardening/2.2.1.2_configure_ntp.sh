@@ -27,19 +27,19 @@ NTP_INIT_FILE='/etc/init.d/ntp'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed, checking configuration"
         does_pattern_exist_in_file $NTP_CONF_FILE $NTP_CONF_DEFAULT_PATTERN
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             crit "$NTP_CONF_DEFAULT_PATTERN not found in $NTP_CONF_FILE"
         else
             ok "$NTP_CONF_DEFAULT_PATTERN found in $NTP_CONF_FILE"
         fi
         does_pattern_exist_in_file $NTP_INIT_FILE "^$NTP_INIT_PATTERN"
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             crit "$NTP_INIT_PATTERN not found in $NTP_INIT_FILE"
         else
             ok "$NTP_INIT_PATTERN found in $NTP_INIT_FILE"
@@ -49,8 +49,8 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
             ok "$PACKAGE is installed"
         else
             crit "$PACKAGE is absent, installing it"
@@ -58,7 +58,7 @@ apply () {
             info "Checking $PACKAGE configuration"
         fi
         does_pattern_exist_in_file $NTP_CONF_FILE $NTP_CONF_DEFAULT_PATTERN
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             warn "$NTP_CONF_DEFAULT_PATTERN not found in $NTP_CONF_FILE, adding it"
             backup_file $NTP_CONF_FILE
             add_end_of_file $NTP_CONF_FILE "restrict -4 default kod notrap nomodify nopeer noquery"
@@ -66,7 +66,7 @@ apply () {
             ok "$NTP_CONF_DEFAULT_PATTERN found in $NTP_CONF_FILE"
         fi
         does_pattern_exist_in_file $NTP_INIT_FILE "^$NTP_INIT_PATTERN"
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             warn "$NTP_INIT_PATTERN not found in $NTP_INIT_FILE, adding it"
             backup_file $NTP_INIT_FILE
             add_line_file_before_pattern $NTP_INIT_FILE $NTP_INIT_PATTERN "^UGID" 
@@ -92,9 +92,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

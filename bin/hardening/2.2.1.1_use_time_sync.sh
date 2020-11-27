@@ -23,8 +23,8 @@ PACKAGES="ntp chrony"
 audit () {
     FOUND=false
     for PACKAGE in $PACKAGES; do
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
             ok "Time synchronization is available through $PACKAGE"
             FOUND=true
         fi
@@ -57,9 +57,9 @@ fi
 
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

@@ -23,7 +23,7 @@ OPTIONS='GRUB_CMDLINE_LINUX="audit=1"'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
         ok "$FILE exists, checking configuration"
@@ -33,7 +33,7 @@ audit () {
         PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
         debug "$GRUB_PARAM should be set to $GRUB_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             crit "$PATTERN is not present in $FILE"
         else
             ok "$PATTERN is present in $FILE"
@@ -45,7 +45,7 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         warn "$FILE does not exist, creating it"
         touch $FILE
     else
@@ -57,10 +57,10 @@ apply () {
         debug "$GRUB_PARAM should be set to $GRUB_VALUE"
         PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             warn "$PATTERN is not present in $FILE, adding it"
             does_pattern_exist_in_file $FILE "^$GRUB_PARAM"
-            if [ $FNRET != 0 ]; then
+            if [ "$FNRET" != 0 ]; then
                 info "Parameter $GRUB_PARAM seems absent from $FILE, adding at the end" 
                 add_end_of_file $FILE "$GRUB_PARAM = $GRUB_VALUE"
             else
@@ -90,9 +90,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

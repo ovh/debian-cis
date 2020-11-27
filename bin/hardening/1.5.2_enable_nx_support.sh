@@ -36,9 +36,9 @@ nx_supported_and_enabled() {
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     does_pattern_exist_in_dmesg $PATTERN
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         nx_supported_and_enabled
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
         else
             ok "NX is supported and enabled"
@@ -51,9 +51,9 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     does_pattern_exist_in_dmesg $PATTERN
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         nx_supported_and_enabled
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
         else
             ok "NX is supported and enabled"
@@ -80,9 +80,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

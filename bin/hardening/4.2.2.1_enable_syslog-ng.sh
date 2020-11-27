@@ -22,8 +22,8 @@ SERVICE_NAME="syslog-ng"
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET = 0 ]; then
+    is_service_enabled "$SERVICE_NAME"
+    if [ "$FNRET" = 0 ]; then
         ok "$SERVICE_NAME is enabled"
     else
         crit "$SERVICE_NAME is disabled"
@@ -33,8 +33,8 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled $SERVICE_NAME
-    if [ $FNRET != 0 ]; then
+    is_service_enabled "$SERVICE_NAME"
+    if [ "$FNRET" != 0 ]; then
         info "Enabling $SERVICE_NAME"
         update-rc.d $SERVICE_NAME remove > /dev/null 2>&1
         update-rc.d $SERVICE_NAME defaults > /dev/null 2>&1
@@ -60,9 +60,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

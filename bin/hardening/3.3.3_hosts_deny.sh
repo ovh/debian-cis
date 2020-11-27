@@ -23,12 +23,12 @@ PATTERN='ALL: ALL'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
         ok "$FILE exists, checking configuration"
         does_pattern_exist_in_file $FILE "$PATTERN"
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             crit "$PATTERN is not present in $FILE, we have to deny everything"
         else
             ok "$PATTERN is present in $FILE"
@@ -39,14 +39,14 @@ audit () {
 # This function will be called if the script status is on enabled mode
 apply () {
     does_file_exist $FILE
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         warn "$FILE does not exist, creating it"
         touch $FILE
     else
         ok "$FILE exists"
     fi
     does_pattern_exist_in_file $FILE "$PATTERN"
-    if [ $FNRET != 0 ]; then
+    if [ "$FNRET" != 0 ]; then
         crit "$PATTERN is not present in $FILE, we have to deny everything"
         add_end_of_file $FILE "$PATTERN"
         warn "YOU MAY HAVE CUT YOUR ACCESS, CHECK BEFORE DISCONNECTING"
@@ -72,9 +72,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

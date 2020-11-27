@@ -31,7 +31,7 @@ audit () {
             debug "$FILE_SEARCHED is a directory"
             for file_in_dir in $(ls $FILE_SEARCHED); do
                 does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
-                if [ $FNRET != 0 ]; then
+                if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
                 else
                     ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
@@ -41,7 +41,7 @@ audit () {
             done
         else
             does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
-            if [ $FNRET != 0 ]; then
+            if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
                 ok "$PATTERN is present in $FILES_TO_SEARCH"
@@ -63,7 +63,7 @@ apply () {
             debug "$FILE_SEARCHED is a directory"
             for file_in_dir in $(ls $FILE_SEARCHED); do
                 does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
-                if [ $FNRET != 0 ]; then
+                if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
                 else
                     ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
@@ -73,7 +73,7 @@ apply () {
             done
         else
             does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
-            if [ $FNRET != 0 ]; then
+            if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
                 ok "$PATTERN is present in $FILES_TO_SEARCH"
@@ -106,9 +106,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

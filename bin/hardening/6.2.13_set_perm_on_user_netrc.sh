@@ -26,8 +26,8 @@ audit () {
     debug "Working on $DIR"
         for FILE in $DIR/.netrc; do
             if [ ! -h "$FILE" -a -f "$FILE" ]; then
-                has_file_correct_permissions $FILE $PERMISSIONS
-                if [ $FNRET = 0 ]; then
+                has_file_correct_permissions "$FILE" "$PERMISSIONS"
+                if [ "$FNRET" = 0 ]; then
                     ok "$FILE has correct permissions"
                 else
                     crit "$FILE permissions were not set to $PERMISSIONS"
@@ -49,8 +49,8 @@ apply () {
     debug "Working on $DIR"
         for FILE in $DIR/.netrc; do
             if [ ! -h "$FILE" -a -f "$FILE" ]; then
-                has_file_correct_permissions $FILE $PERMISSIONS
-                if [ $FNRET = 0 ]; then
+                has_file_correct_permissions "$FILE" "$PERMISSIONS"
+                if [ "$FNRET" = 0 ]; then
                     ok "$FILE has correct permissions"
                 else
                     warn "$FILE permissions were not set to $PERMISSIONS"
@@ -78,9 +78,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

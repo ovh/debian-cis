@@ -22,13 +22,13 @@ SERVICE_NAME='auditd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        is_service_enabled $SERVICE_NAME
-        if [ $FNRET = 0 ]; then
+        is_service_enabled "$SERVICE_NAME"
+        if [ "$FNRET" = 0 ]; then
             ok "$SERVICE_NAME is enabled"
         else
             crit "$SERVICE_NAME is not enabled"
@@ -38,15 +38,15 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-        is_pkg_installed $PACKAGE
-        if [ $FNRET = 0 ]; then
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
             ok "$PACKAGE is installed"
         else
             warn "$PACKAGE is absent, installing it"
             apt_install $PACKAGE
         fi
-        is_service_enabled $SERVICE_NAME
-        if [ $FNRET = 0 ]; then
+        is_service_enabled "$SERVICE_NAME"
+        if [ "$FNRET" = 0 ]; then
             ok "$SERVICE_NAME is enabled"
         else
             warn "$SERVICE_NAME is not enabled, enabling it"
@@ -72,9 +72,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

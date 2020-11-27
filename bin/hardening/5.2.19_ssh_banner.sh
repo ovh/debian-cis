@@ -23,8 +23,8 @@ FILE='/etc/ssh/sshd_config'
 # This function will be called if the script status is on enabled / audit mode
 audit () {
     OPTIONS="Banner=$BANNER_FILE"
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
@@ -32,7 +32,7 @@ audit () {
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             PATTERN="^$SSH_PARAM[[:space:]]*"
             does_pattern_exist_in_file $FILE "$PATTERN"
-            if [ $FNRET = 0 ]; then
+            if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
                 crit "$PATTERN is not present in $FILE"
@@ -43,8 +43,8 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET = 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
@@ -55,12 +55,12 @@ apply () {
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
             PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
-            if [ $FNRET = 0 ]; then
+            if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
                 warn "$PATTERN is not present in $FILE, adding it"
                 does_pattern_exist_in_file $FILE "^$SSH_PARAM"
-                if [ $FNRET != 0 ]; then
+                if [ "$FNRET" != 0 ]; then
                     add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
                 else
                     info "Parameter $SSH_PARAM is present and activated"
@@ -99,9 +99,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

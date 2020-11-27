@@ -22,10 +22,10 @@ SYSCTL_EXP_RESULT=2
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-    if [ $FNRET != 0 ]; then
+    has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
+    if [ "$FNRET" != 0 ]; then
         crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-    elif [ $FNRET = 255 ]; then
+    elif [ "$FNRET" = 255 ]; then
         warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
         ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
@@ -34,11 +34,11 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    has_sysctl_param_expected_result $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-    if [ $FNRET != 0 ]; then
+    has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
+    if [ "$FNRET" != 0 ]; then
         warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
         set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
-    elif [ $FNRET = 255 ]; then
+    elif [ "$FNRET" = 255 ]; then
         warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
         ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
@@ -62,9 +62,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

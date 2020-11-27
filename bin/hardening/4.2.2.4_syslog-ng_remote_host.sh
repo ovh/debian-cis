@@ -25,7 +25,7 @@ audit () {
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
     for FILE in $FILES; do
        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ $FNRET = 0 ]; then
+        if [ "$FNRET" = 0 ]; then
             FOUND=1
         fi
     done
@@ -43,7 +43,7 @@ apply () {
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
     for FILE in $FILES; do
        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ $FNRET = 0 ]; then
+        if [ "$FNRET" = 0 ]; then
             FOUND=1
         fi
     done
@@ -79,9 +79,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

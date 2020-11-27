@@ -32,13 +32,13 @@ audit () {
         FNRET=2
     else
         ok "$PARTITION is a partition"
-        has_mount_option $PARTITION $OPTION
+        has_mount_option "$PARTITION" "$OPTION"
         if [ $FNRET -gt 0 ]; then
             crit "$PARTITION has no option $OPTION in fstab!"
             FNRET=1
         else
             ok "$PARTITION has $OPTION in fstab"
-            has_mounted_option $PARTITION $OPTION
+            has_mounted_option "$PARTITION" "$OPTION"
             if [ $FNRET -gt 0 ]; then
                 warn "$PARTITION is not mounted with $OPTION at runtime"
                 FNRET=3
@@ -51,18 +51,18 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    if [ $FNRET = 0 ]; then
+    if [ "$FNRET" = 0 ]; then
         ok "$PARTITION is correctly set"
-    elif [ $FNRET = 2 ]; then
+    elif [ "$FNRET" = 2 ]; then
         crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
-    elif [ $FNRET = 1 ]; then
+    elif [ "$FNRET" = 1 ]; then
         info "Adding $OPTION to fstab"
         add_option_to_fstab $PARTITION $OPTION
         info "Remounting $PARTITION from fstab"
-        remount_partition $PARTITION
-    elif [ $FNRET = 3 ]; then
+        remount_partition "$PARTITION"
+    elif [ "$FNRET" = 3 ]; then
         info "Remounting $PARTITION from fstab"
-        remount_partition $PARTITION
+        remount_partition "$PARTITION"
     fi
 }
 
@@ -86,7 +86,7 @@ fi
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
     # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

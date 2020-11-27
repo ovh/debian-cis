@@ -25,19 +25,19 @@ FILE_ACCOUNT='/etc/pam.d/common-account'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
         does_pattern_exist_in_file $FILE_AUTH "$PATTERN_AUTH"
-        if [ $FNRET = 0 ]; then
+        if [ "$FNRET" = 0 ]; then
             ok "$PATTERN_AUTH is present in $FILE_AUTH"
         else
             crit "$PATTERN_AUTH is not present in $FILE_AUTH"
         fi
         does_pattern_exist_in_file $FILE_ACCOUNT "$PATTERN_ACCOUNT"
-        if [ $FNRET = 0 ]; then
+        if [ "$FNRET" = 0 ]; then
             ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
         else
             crit "$PATTERN_ACCOUNT is not present in $FILE_ACCOUNT"
@@ -47,22 +47,22 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET = 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
         apt_install $PACKAGE
     fi
     does_pattern_exist_in_file $FILE_AUTH "$PATTERN_AUTH"
-    if [ $FNRET = 0 ]; then
+    if [ "$FNRET" = 0 ]; then
         ok "$PATTERN_AUTH is present in $FILE_AUTH"
     else
         warn "$PATTERN_AUTH is not present in $FILE_AUTH, adding it"
         add_line_file_before_pattern $FILE_AUTH "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
     fi
     does_pattern_exist_in_file $FILE_ACCOUNT "$PATTERN_ACCOUNT"
-    if [ $FNRET = 0 ]; then
+    if [ "$FNRET" = 0 ]; then
         ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
     else
         warn "$PATTERN_ACCOUNT is not present in $FILE_ACCOUNT, adding it"
@@ -88,9 +88,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

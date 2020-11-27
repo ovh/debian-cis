@@ -26,13 +26,13 @@ RSYNC_DEFAULT_PATTERN_TO_SEARCH='RSYNC_ENABLE=true'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         ok "$PACKAGE is not installed"
     else
         ok "$PACKAGE is installed, checking configuration"
         does_pattern_exist_in_file $RSYNC_DEFAULT_FILE "^$RSYNC_DEFAULT_PATTERN"
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             crit "$RSYNC_DEFAULT_PATTERN not found in $RSYNC_DEFAULT_FILE"
         else
             ok "$RSYNC_DEFAULT_PATTERN found in $RSYNC_DEFAULT_FILE"
@@ -42,13 +42,13 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         ok "$PACKAGE is not installed"
     else
         ok "$PACKAGE is installed, checking configuration"
         does_pattern_exist_in_file $RSYNC_DEFAULT_FILE "^$RSYNC_DEFAULT_PATTERN"
-        if [ $FNRET != 0 ]; then
+        if [ "$FNRET" != 0 ]; then
             warn "$RSYNC_DEFAULT_PATTERN not found in $RSYNC_DEFAULT_FILE, adding it"
             backup_file $RSYNC_DEFAULT_FILE
             replace_in_file $RSYNC_DEFAULT_FILE $RSYNC_DEFAULT_PATTERN_TO_SEARCH $RSYNC_DEFAULT_PATTERN
@@ -75,9 +75,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

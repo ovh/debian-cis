@@ -23,8 +23,8 @@ MODULE_NAME="cramfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_kernel_option_enabled $KERNEL_OPTION $MODULE_NAME
-    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
+    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
+    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
         crit "$KERNEL_OPTION is enabled!"
     else
         ok "$KERNEL_OPTION is disabled"
@@ -34,8 +34,8 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_kernel_option_enabled $KERNEL_OPTION
-    if [ $FNRET = 0 ]; then # 0 means true in bash, so it IS activated
+    is_kernel_option_enabled "$KERNEL_OPTION"
+    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
         warn "I cannot fix $KERNEL_OPTION enabled, recompile your kernel please"
     else
         ok "$KERNEL_OPTION is disabled, nothing to do"
@@ -60,9 +60,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

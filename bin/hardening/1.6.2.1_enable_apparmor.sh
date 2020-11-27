@@ -21,8 +21,8 @@ PACKAGE='apparmor'
 
 # This function will be called if the script status is on enabled / audit mode
 audit () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is absent!"
     else
         ok "$PACKAGE is installed"
@@ -50,8 +50,8 @@ audit () {
 
 # This function will be called if the script status is on enabled mode
 apply () {
-    is_pkg_installed $PACKAGE
-    if [ $FNRET != 0 ]; then
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed, please install $PACKAGE and configure it"
     else
         ok "$PACKAGE is installed"
@@ -97,9 +97,9 @@ if [ -z "$CIS_ROOT_DIR" ]; then
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
 # shellcheck source=../../lib/main.sh
-    . $CIS_ROOT_DIR/lib/main.sh
+    . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
     exit 128

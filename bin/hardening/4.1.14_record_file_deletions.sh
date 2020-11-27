@@ -12,7 +12,9 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# shellcheck disable=2034
 HARDENING_LEVEL=4
+# shellcheck disable=2034
 DESCRIPTION="Collects file deletion events by users."
 
 AUDIT_PARAMS='-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
@@ -62,6 +64,7 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
+# shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
@@ -72,6 +75,7 @@ fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+# shellcheck source=../../lib/main.sh
     . $CIS_ROOT_DIR/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

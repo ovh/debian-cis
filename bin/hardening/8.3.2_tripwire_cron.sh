@@ -63,6 +63,7 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
+# shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then

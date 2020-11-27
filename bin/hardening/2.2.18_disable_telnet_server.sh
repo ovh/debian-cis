@@ -14,7 +14,9 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
+# shellcheck disable=2034
 HARDENING_LEVEL=2
+# shellcheck disable=2034
 DESCRIPTION="Ensure telnet server is not enabled. Recommended alternative : sshd (OpenSSH-server)."
 
 # Based on  aptitude search '~Ptelnet-server'
@@ -81,6 +83,7 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
+# shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
@@ -91,6 +94,7 @@ fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r $CIS_ROOT_DIR/lib/main.sh ]; then
+# shellcheck source=../../lib/main.sh
     . $CIS_ROOT_DIR/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

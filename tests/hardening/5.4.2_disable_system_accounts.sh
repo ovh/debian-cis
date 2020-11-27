@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # run-shellcheck
 test_audit() {
     cp -a /etc/passwd /tmp/passwd.bak

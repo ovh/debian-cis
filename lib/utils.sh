@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # CIS Debian Hardening Utility functions
 
 # run-shellcheck

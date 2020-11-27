@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # run-shellcheck
 test_audit() {
     # Make all variable local to the function by using `local`

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # run-shellcheck
 
 LONG_SCRIPT_NAME=$(basename $0)

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Defines constants for CIS Debian Hardening
 
 # run-shellcheck

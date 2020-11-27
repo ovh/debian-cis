@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # run-shellcheck
 test_audit() {
     describe Running void to generate the conf file that will later be edited

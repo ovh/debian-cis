@@ -15,8 +15,8 @@ test_audit() {
 
     describe Tests purposely failing
     local targetfile="/home/secaudit/sgid_file"
-    touch $targetfile
-    chmod 2700 $targetfile
+    touch "$targetfile"
+    chmod 2700 "$targetfile"
     register_test retvalshouldbe 1
     register_test contain "Some sgid files are present"
     register_test contain "$targetfile"

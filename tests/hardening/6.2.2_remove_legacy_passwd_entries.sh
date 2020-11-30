@@ -10,7 +10,7 @@ test_audit() {
     local test_user="testetcpasswduser"
 
     describe Tests purposely failing 
-    useradd $test_user
+    useradd "$test_user"
     sed -i "s/$test_user:x/+:$test_user:x/" /etc/passwd
     register_test retvalshouldbe 1
     register_test contain "Some accounts have a legacy password entry"
@@ -27,6 +27,6 @@ test_audit() {
 
     # cleanup
     groupdel $test_user
-    useradd $test_user
-    userdel $test_user
+    useradd "$test_user"
+    userdel "$test_user"
 }

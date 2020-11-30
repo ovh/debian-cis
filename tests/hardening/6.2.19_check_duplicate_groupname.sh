@@ -11,14 +11,14 @@ test_audit() {
     local dir="/etc/group"
 
     describe Tests purposely failing 
-    useradd $test_group
-    temp=$(tail -1 $dir)
-    echo $temp >> $dir
+    useradd "$test_group"
+    temp=$(tail -1 "$dir")
+    echo "$temp" >> "$dir"
     register_test retvalshouldbe 1
     register_test contain "Duplicate group"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # cleanup
-    sed -i '$ d' $dir
-    userdel $test_group
+    sed -i '$ d' "$dir"
+    userdel "$test_group"
 }

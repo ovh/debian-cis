@@ -10,7 +10,7 @@ test_audit() {
     local test_user="testetcshadowusr"
 
     describe Tests purposely failing 
-    useradd $test_user
+    useradd "$test_user"
     sed -i "s/$test_user:/+:$test_user:/" /etc/shadow
     register_test retvalshouldbe 1
     register_test contain "Some accounts have a legacy password entry"
@@ -26,6 +26,6 @@ test_audit() {
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # cleanup
-    userdel $test_user
+    userdel "$test_user"
 
 }

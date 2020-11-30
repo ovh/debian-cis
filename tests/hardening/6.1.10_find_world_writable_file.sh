@@ -14,8 +14,8 @@ test_audit() {
 
         describe Tests purposely failing
         local targetfile="/home/secaudit/worldwritable"
-        touch $targetfile
-        chmod 777 $targetfile
+        touch "$targetfile"
+        chmod 777 "$targetfile"
         register_test retvalshouldbe 1
         register_test contain "Some world writable files are present"
         run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all

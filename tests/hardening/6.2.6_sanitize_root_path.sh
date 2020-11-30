@@ -26,30 +26,30 @@ test_audit() {
     run noncompliant path="$PATH:." /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe Tests purposely failing
-    mkdir -m 770 $dir 
+    mkdir -m 770 "$dir" 
     register_test retvalshouldbe 1
     register_test contain "Group Write permission set on directory $dir"
     run noncompliant path="$PATH:$dir" /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
     # clean
-    rmdir $dir
+    rmdir "$dir"
 
     describe Tests purposely failing
-    mkdir -m 707 $dir 
+    mkdir -m 707 "$dir"
     register_test retvalshouldbe 1
     register_test contain "Other Write permission set on directory $dir"
     run noncompliant path="$PATH:$dir" /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
     # clean
-    rmdir $dir
+    rmdir "$dir"
 
     describe Tests purposely failing
-    useradd $test_user
-    mkdir -m 700 $dir
-    chown userrootpathtest:userrootpathtest $dir
+    useradd "$test_user"
+    mkdir -m 700 "$dir"
+    chown "$test_user":"$test_user" "$dir"
     register_test retvalshouldbe 1
     register_test contain "$dir is not owned by root"
     run noncompliant path="$PATH:$dir" /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
     # clean
-    rmdir $dir
-    userdel $test_user
+    rmdir "$dir"
+    userdel "$test_user"
 
 }

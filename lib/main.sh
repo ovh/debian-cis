@@ -69,7 +69,7 @@ if ! [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] ; then
 
 fi
 
-if [ $forcedstatus = "createconfig" ]; then
+if [ "$forcedstatus" = "createconfig" ] ; then
     debug "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg has been created"
     exit 0
 fi

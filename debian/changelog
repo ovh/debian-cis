@@ -1,3 +1,10 @@
+cis-hardening (2.1-3) unstable; urgency=medium
+
+  * Fix permissions on 5.2.3 (authorize 600)
+  * Fix minor bug with --create-config-files-only
+
+ -- Thibault Ayanides <tayanide@ovhcloud.com>  Mon, 30 Nov 2020 15:14:17 +0100
+
 cis-hardening (2.1-2) unstable; urgency=medium
 
   * Add --create-config-files-only mode that only create config files without running audit

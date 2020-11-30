@@ -11,9 +11,9 @@ test_audit() {
     local test_file=".test"
 
     describe Tests purposely failing 
-    useradd --create-home $test_user
-    touch /home/$test_user/$test_file
-    chmod 777 /home/$test_user/$test_file
+    useradd --create-home "$test_user"
+    touch "/home/$test_user/$test_file"
+    chmod 777 "/home/$test_user/$test_file"
     register_test retvalshouldbe 1
     register_test contain "Group Write permission set on FILE"
     register_test contain "Other Write permission set on FILE"
@@ -29,5 +29,5 @@ test_audit() {
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # cleanup
-    userdel -r $test_user
+    userdel -r "$test_user"
 }

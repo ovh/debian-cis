@@ -22,28 +22,28 @@ test_audit() {
 
     touch /etc/cron.allow /etc/at.allow
     describe Tests purposely failing
-    useradd $test_user
-    chown $test_user:$test_user /etc/cron.allow
-    chown $test_user:$test_user /etc/at.allow
+    useradd "$test_user"
+    chown "$test_user":"$test_user" /etc/cron.allow
+    chown "$test_user":"$test_user" /etc/at.allow
     register_test retvalshouldbe 1
     register_test contain "/etc/cron.allow ownership was not set to"
     register_test contain "/etc/at.allow ownership was not set to"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
-    userdel $test_user
+    userdel "$test_user"
 
     describe correcting situation
     sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Tests purposely failing
-    useradd $test_user
+    useradd "$test_user"
     chmod 777 /etc/cron.allow
     chmod 777 /etc/at.allow
     register_test retvalshouldbe 1
     register_test contain "/etc/cron.allow permissions were not set to"
     register_test contain "/etc/at.allow permissions were not set to"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
-    userdel $test_user
+    userdel "$test_user"
 
     describe correcting situation
     sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg

@@ -15,8 +15,8 @@ test_audit() {
     local test_user="testhomeuser"
 
     describe Test purposely failing
-    useradd -m $test_user
-    chown root:root /home/$test_user
+    useradd -m "$test_user"
+    chown root:root /home/"$test_user"
     register_test retvalshouldbe 1
     register_test contain "[ KO ] The home directory (/home/$test_user) of user testhomeuser is owned by root"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all 
@@ -31,5 +31,5 @@ test_audit() {
 
     # Cleanup
     rm -rf "/home/${test_user:?}"
-    userdel -r $test_user
+    userdel -r "$test_user"
 }

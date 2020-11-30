@@ -14,8 +14,8 @@ test_audit() {
 
     describe Tests purposely failing
     local targetfile="/home/secaudit/suid_file"
-    touch $targetfile
-    chmod 4700 $targetfile
+    touch "$targetfile"
+    chmod 4700 "$targetfile"
     register_test retvalshouldbe 1
     register_test contain "Some suid files are present"
     register_test contain "$targetfile"

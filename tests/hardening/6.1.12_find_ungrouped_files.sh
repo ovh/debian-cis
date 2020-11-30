@@ -9,8 +9,8 @@ test_audit() {
 
     describe Tests purposely failing
     local targetfile="/home/secaudit/ungrouped"
-    touch $targetfile
-    chown 1200:1200 $targetfile
+    touch "$targetfile"
+    chown 1200:1200 "$targetfile"
     register_test retvalshouldbe 1
     register_test contain "Some ungrouped files are present"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all

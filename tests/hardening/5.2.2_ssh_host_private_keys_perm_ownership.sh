@@ -10,10 +10,10 @@ test_audit() {
     local test_user="testsshduser"
     local test_file="/etc/ssh/ssh_host_test_key"
 
-    touch $test_file
+    touch "$test_file"
 
     describe Tests purposely failing
-    chmod 777 $test_file
+    chmod 777 "$test_file"
     register_test retvalshouldbe 1
     register_test contain "permissions were not set to"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
@@ -23,8 +23,8 @@ test_audit() {
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Tests purposely failing
-    useradd $test_user
-    chown $test_user:$test_user $test_file
+    useradd "$test_user"
+    chown "$test_user":"$test_user" "$test_file"
     register_test retvalshouldbe 1
     register_test contain "ownership was not set to"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
@@ -40,5 +40,5 @@ test_audit() {
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # Cleanup
-    userdel $test_user
+    userdel "$test_user"
 }

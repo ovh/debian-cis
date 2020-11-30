@@ -18,5 +18,5 @@ test_audit() {
     describe Checking resolved state
     register_test retvalshouldbe 0
     register_test contain "[ OK ] ^IgnoreRhosts[[:space:]]*yes is present in /etc/ssh/sshd_config"
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all}
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

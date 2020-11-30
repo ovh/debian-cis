@@ -10,18 +10,18 @@ test_audit() {
     local test_user="testshadowuser"
 
     describe Tests purposely failing 
-    useradd $test_user
-    usermod -aG shadow $test_user
+    useradd "$test_user"
+    usermod -aG shadow "$test_user"
     register_test retvalshouldbe 1
     register_test contain "Some users belong to shadow group"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
-    userdel $test_user
+    userdel "$test_user"
 
     describe Tests purposely failing 
-    useradd --no-user-group -g shadow $test_user
+    useradd --no-user-group -g shadow "$test_user"
     register_test retvalshouldbe 1
     register_test contain "Some users have shadow id as their primary group"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
-    userdel $test_user
+    userdel "$test_user"
     
 }

@@ -8,12 +8,12 @@ test_audit() {
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     local test_user="userwithouthome"
-    useradd $test_user
+    useradd "$test_user"
     describe Tests purposely failing
     register_test retvalshouldbe 1
     register_test contain "does not exist."
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # cleanup
-    userdel $test_user
+    userdel "$test_user"
 }

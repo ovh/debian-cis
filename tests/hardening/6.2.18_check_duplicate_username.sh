@@ -11,14 +11,14 @@ test_audit() {
     local dir="/etc/passwd"
 
     describe Tests purposely failing 
-    useradd $test_user
-    temp=$(tail -1 $dir)
-    echo $temp >> $dir
+    useradd "$test_user"
+    temp=$(tail -1 "$dir")
+    echo "$temp" >> "$dir"
     register_test retvalshouldbe 1
     register_test contain "Duplicate username"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # cleanup
-    sed -i '$ d' $dir
-    userdel $test_user
+    sed -i '$ d' "$dir"
+    userdel "$test_user"
 }

@@ -40,7 +40,7 @@ audit() {
             debug "$ACCOUNT not found in exceptions"
         fi
     done
-    if [ ! -z "$RESULT" ]; then
+    if [ -n "$RESULT" ]; then
         crit "Some accounts have uid 0: $(tr '\n' ' ' <<<"$RESULT")"
     else
         ok "No account with uid 0 appart from root ${FOUND_EXCEPTIONS:+and configured exceptions:}$FOUND_EXCEPTIONS"

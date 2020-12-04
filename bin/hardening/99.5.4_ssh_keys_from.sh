@@ -53,12 +53,12 @@ check_ip() {
         ok_ips=$(sed 's/ $//' <<<"${ok_ips_allowed}")
         bad_ips=$(sed 's/ $//' <<<"${bad_ips}")
         if [[ -z $bad_ips ]]; then
-            if [[ ! -z $ok_ips ]]; then
+            if [[ -n $ok_ips ]]; then
                 ok "Line $linum of $file allows ssh access only from allowed IPs ($ok_ips)."
             fi
         else
             crit "Line $linum of $file allows ssh access from (${bad_ips}) that are not allowed."
-            if [[ ! -z $ok_ips ]]; then
+            if [[ -n $ok_ips ]]; then
                 ok "Line $linum of $file allows ssh access from at least allowed IPs ($ok_ips)."
             fi
         fi

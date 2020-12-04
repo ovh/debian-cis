@@ -22,7 +22,7 @@ audit() {
     info "Checking if setuid is set on world writable Directories"
     FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'})
     RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
-    if [ ! -z "$RESULT" ]; then
+    if [ -n "$RESULT" ]; then
         crit "Some world writable directories are not on sticky bit mode!"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<<$RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
@@ -34,7 +34,7 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
-    if [ ! -z "$RESULT" ]; then
+    if [ -n "$RESULT" ]; then
         df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type d -perm -0002 2>/dev/null | xargs chmod a+t
     else
         ok "All world writable directories have a sticky bit, nothing to apply"

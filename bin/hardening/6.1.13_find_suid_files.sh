@@ -23,7 +23,7 @@ audit() {
     info "Checking if there are suid files"
     FS_NAMES=$(df --local -P | awk '{ if (NR!=1) print $6 }')
     # shellcheck disable=2086
-    if [ ! -z $IGNORED_PATH ]; then
+    if [ -n "$IGNORED_PATH" ]; then
         FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -4000 -regextype 'egrep' ! -regex "$IGNORED_PATH" -print)
     else
         FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -4000 -print)
@@ -36,7 +36,7 @@ audit() {
             BAD_BINARIES="$BAD_BINARIES $BINARY"
         fi
     done
-    if [ ! -z "$BAD_BINARIES" ]; then
+    if [ -n "$BAD_BINARIES" ]; then
         crit "Some suid files are present"
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<<"$BAD_BINARIES" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"

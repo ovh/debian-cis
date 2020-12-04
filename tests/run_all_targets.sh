@@ -70,7 +70,7 @@ for target in $("$(dirname "$0")"/docker_build_and_run_tests.sh 2>&1 | grep "Sup
     fi
 done
 
-if [[ ! -z "$failedtarget" && "$nowait" -eq 0 ]]; then
+if [[ -n "$failedtarget" && "$nowait" -eq 0 ]]; then
     echo -e "\nPress \e[1mENTER\e[0m to display failed test logs"
     echo -e "Use \e[1m:n\e[0m (next) and \e[1m:p\e[0m (previous) to navigate between log files"
     echo -e "and \e[1mq\e[0m to quit"

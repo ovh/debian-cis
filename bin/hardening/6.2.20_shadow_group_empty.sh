@@ -17,7 +17,6 @@ HARDENING_LEVEL=1
 # shellcheck disable=2034
 DESCRIPTION="There is no user in shadow group (that can read /etc/shadow file)."
 
-ERRORS=0
 FILEGROUP='/etc/group'
 PATTERN='^shadow:x:[[:digit:]]+:'
 
@@ -29,7 +28,7 @@ audit() {
         RESULT=$(grep -E "$PATTERN" $FILEGROUP | cut -d: -f4)
         GROUPID=$(getent group shadow | cut -d: -f3)
         debug "$RESULT $GROUPID"
-        if [ ! -z "$RESULT" ]; then
+        if [ -n "$RESULT" ]; then
             crit "Some users belong to shadow group: $RESULT"
         else
             ok "No user belongs to shadow group"
@@ -37,7 +36,7 @@ audit() {
 
         info "Checking if a user has $GROUPID as primary group"
         RESULT=$(awk -F: '($4 == shadowid) { print $1 }' shadowid=$GROUPID /etc/passwd)
-        if [ ! -z "$RESULT" ]; then
+        if [ -n "$RESULT" ]; then
             crit "Some users have shadow id as their primary group: $RESULT"
         else
             ok "No user has shadow id as their primary group"

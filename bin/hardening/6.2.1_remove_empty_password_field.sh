@@ -21,9 +21,9 @@ DESCRIPTION="Ensure password fields are not empty in /etc/shadow."
 audit() {
     info "Checking if accounts have an empty password"
     RESULT=$(get_db shadow | awk -F: '($2 == "" ) { print $1 }')
-    if [ ! -z "$RESULT" ]; then
+    if [ -n "$RESULT" ]; then
         crit "Some accounts have an empty password"
-        crit $RESULT
+        crit "$RESULT"
     else
         ok "All accounts have a password"
     fi
@@ -32,7 +32,7 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     RESULT=$(get_db shadow | awk -F: '($2 == "" ) { print $1 }')
-    if [ ! -z "$RESULT" ]; then
+    if [ -n "$RESULT" ]; then
         warn "Some accounts have an empty password"
         for ACCOUNT in $RESULT; do
             info "Locking $ACCOUNT"

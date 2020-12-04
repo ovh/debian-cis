@@ -24,7 +24,7 @@ audit() {
     for DIR in $(get_db passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $DIR"
         for FILE in $DIR/.[A-Za-z0-9]*; do
-            if [ ! -h "$FILE" -a -f "$FILE" ]; then
+            if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then
                 FILEPERM=$(ls -ld $FILE | cut -f1 -d" ")
                 if [ $(echo $FILEPERM | cut -c6) != "-" ]; then
                     crit "Group Write permission set on FILE $FILE"
@@ -47,7 +47,7 @@ audit() {
 apply() {
     for DIR in $(get_db passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         for FILE in $DIR/.[A-Za-z0-9]*; do
-            if [ ! -h "$FILE" -a -f "$FILE" ]; then
+            if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then
                 FILEPERM=$(ls -ld $FILE | cut -f1 -d" ")
                 if [ $(echo $FILEPERM | cut -c6) != "-" ]; then
                     warn "Group Write permission set on FILE $FILE"

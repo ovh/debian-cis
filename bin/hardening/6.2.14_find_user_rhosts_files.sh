@@ -25,7 +25,7 @@ audit() {
     for DIR in $(get_db passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $DIR"
         for FILE in $DIR/$FILENAME; do
-            if [ ! -h "$FILE" -a -f "$FILE" ]; then
+            if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then
                 crit "$FILE present"
                 ERRORS=$((ERRORS + 1))
             fi

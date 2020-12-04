@@ -25,7 +25,7 @@ audit() {
     for DIR in $(get_db passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $DIR"
         for FILE in $DIR/.netrc; do
-            if [ ! -h "$FILE" -a -f "$FILE" ]; then
+            if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then
                 has_file_correct_permissions "$FILE" "$PERMISSIONS"
                 if [ "$FNRET" = 0 ]; then
                     ok "$FILE has correct permissions"
@@ -48,7 +48,7 @@ apply() {
     for DIR in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $DIR"
         for FILE in $DIR/.netrc; do
-            if [ ! -h "$FILE" -a -f "$FILE" ]; then
+            if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then
                 has_file_correct_permissions "$FILE" "$PERMISSIONS"
                 if [ "$FNRET" = 0 ]; then
                     ok "$FILE has correct permissions"

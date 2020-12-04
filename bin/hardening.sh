@@ -165,7 +165,7 @@ while [[ $# > 0 ]]; do
 done
 
 # if no RUN_MODE was passed, usage and quit
-if [ "$AUDIT" -eq 0 -a "$AUDIT_ALL" -eq 0 -a "$AUDIT_ALL_ENABLE_PASSED" -eq 0 -a "$APPLY" -eq 0 -a "$CREATE_CONFIG" -eq 0 ]; then
+if [ "$AUDIT" -eq 0 ] && [ "$AUDIT_ALL" -eq 0 ] && [ "$AUDIT_ALL_ENABLE_PASSED" -eq 0 ] && [ "$APPLY" -eq 0 ] && [ "$CREATE_CONFIG" -eq 0 ]; then
     usage
 fi
 
@@ -198,7 +198,7 @@ if [ "$ALLOW_SERVICE_LIST" = 1 ]; then
 fi
 
 # If --set-hardening-level is specified, don't run anything, just apply config for each script
-if [ -n "$SET_HARDENING_LEVEL" -a "$SET_HARDENING_LEVEL" != 0 ]; then
+if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
     if ! grep -q "^[12345]$" <<<"$SET_HARDENING_LEVEL"; then
         echo "Bad --set-hardening-level specified ('$SET_HARDENING_LEVEL'), expected 1 to 5"
         exit 1

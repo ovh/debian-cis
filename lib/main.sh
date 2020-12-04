@@ -28,7 +28,7 @@ while [[ $# > 0 ]]; do
         forcedstatus=auditall
         ;;
     --audit)
-        if [ "$status" != 'disabled' -a "$status" != 'false' ]; then
+        if [ "$status" != 'disabled' ] && [ "$status" != 'false' ]; then
             debug "Audit argument detected, setting status to audit"
             forcedstatus=audit
         else
@@ -85,7 +85,7 @@ if [ "$forcedstatus" = "auditall" ]; then
     status=audit
 elif [ "$forcedstatus" = "audit" ]; then
     # We want to audit only enabled scripts
-    if [ "$status" != 'disabled' -a "$status" != 'false' ]; then
+    if [ "$status" != 'disabled' ] && [ "$status" != 'false' ]; then
         debug "Audit argument detected, setting status to audit"
         status=audit
     else

@@ -14,7 +14,6 @@ test_audit() {
     register_test contain "[ KO ] ^\s*AcceptEnv\s+LANG LC_\* is not present in /etc/ssh/sshd_config"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-
     describe Correcting situation
     # `apply` performs a service reload after each change in the config file
     # the service needs to be started for the reload to succeed
@@ -28,4 +27,3 @@ test_audit() {
     register_test contain "[ OK ] ^\s*AcceptEnv\s+LANG LC_\* is present in /etc/ssh/sshd_config"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

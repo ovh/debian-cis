@@ -20,11 +20,11 @@ DESCRIPTION="Configure syslog-ng to send logs to a remote log host."
 PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     FOUND=0
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
     for FILE in $FILES; do
-       does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
+        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             FOUND=1
         fi
@@ -38,11 +38,11 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     FOUND=0
     FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
     for FILE in $FILES; do
-       does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
+        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             FOUND=1
         fi
@@ -69,18 +69,18 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
-# shellcheck source=../../lib/main.sh
+    # shellcheck source=../../lib/main.sh
     . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

@@ -20,23 +20,23 @@ DESCRIPTION="There is no group in /etc/passwd that is not in /etc/group."
 ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
 
-    for GROUP in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
+    for GROUP in $(cut -s -d: -f4 /etc/passwd | sort -u); do
         debug "Working on group $GROUP"
         if ! grep -q -P "^.*?:[^:]*:$GROUP:" /etc/group; then
             crit "Group $GROUP is referenced by /etc/passwd but does not exist in /etc/group"
-            ERRORS=$((ERRORS+1))
+            ERRORS=$((ERRORS + 1))
         fi
     done
 
     if [ $ERRORS = 0 ]; then
         ok "passwd and group Groups are consistent"
-    fi 
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     info "Solving passwd and group consistency automatically may seriously harm your system, report only here"
 }
 
@@ -47,18 +47,18 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
-# shellcheck source=../../lib/main.sh
+    # shellcheck source=../../lib/main.sh
     . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

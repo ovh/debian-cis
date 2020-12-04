@@ -10,10 +10,10 @@ test_audit() {
     local test_group="testduplicategroup"
     local dir="/etc/group"
 
-    describe Tests purposely failing 
+    describe Tests purposely failing
     useradd "$test_group"
     temp=$(tail -1 "$dir")
-    echo "$temp" >> "$dir"
+    echo "$temp" >>"$dir"
     register_test retvalshouldbe 1
     register_test contain "Duplicate group"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all

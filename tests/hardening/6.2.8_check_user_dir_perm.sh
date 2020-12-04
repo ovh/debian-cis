@@ -9,7 +9,7 @@ test_audit() {
 
     local test_user="testhomepermuser"
 
-    describe Tests purposely failing 
+    describe Tests purposely failing
     useradd --create-home "$test_user"
     chmod 777 /home/"$test_user"
     register_test retvalshouldbe 1
@@ -21,7 +21,7 @@ test_audit() {
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
-    sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Checking resolved state

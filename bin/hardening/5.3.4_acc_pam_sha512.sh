@@ -19,12 +19,12 @@ CONF_FILE="/etc/pam.d/common-password"
 CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*sha512"
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
-# Check conf file for default SHA512 hash
+audit() {
+    # Check conf file for default SHA512 hash
     if $SUDO_CMD [ ! -r $CONF_FILE ]; then
         crit "$CONF_FILE is not readable"
     else
-        does_pattern_exist_in_file $CONF_FILE "$(sed 's/ /[[:space:]]+/g' <<< "$CONF_LINE")"
+        does_pattern_exist_in_file $CONF_FILE "$(sed 's/ /[[:space:]]+/g' <<<"$CONF_LINE")"
         if [ "$FNRET" = 0 ]; then
             ok "$CONF_LINE is present in $CONF_FILE"
         else
@@ -34,11 +34,11 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     if $SUDO_CMD [ ! -r $CONF_FILE ]; then
         crit "$CONF_FILE is not readable"
     else
-        does_pattern_exist_in_file $CONF_FILE "$(sed 's/ /[[:space:]]+/g' <<< "$CONF_LINE")"
+        does_pattern_exist_in_file $CONF_FILE "$(sed 's/ /[[:space:]]+/g' <<<"$CONF_LINE")"
         if [ "$FNRET" = 0 ]; then
             ok "$CONF_LINE is present in $CONF_FILE"
         else
@@ -48,7 +48,6 @@ apply () {
     fi
 }
 
-
 # This function will check config parameters required
 check_config() {
     :
@@ -56,12 +55,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

@@ -16,7 +16,7 @@ test_audit() {
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
-    sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Checking resolved state
@@ -24,4 +24,3 @@ test_audit() {
     register_test contain "No ungrouped files found"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

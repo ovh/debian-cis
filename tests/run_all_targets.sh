@@ -30,27 +30,36 @@ eval set -- "$OPTIONS"
 # Treating options
 while true; do
     case "$1" in
-        --nodel ) nodel=1; shift ;;
-        --nowait ) nowait=1; shift ;;
-        -- ) shift; break ;;
-        * ) break ;;
+    --nodel)
+        nodel=1
+        shift
+        ;;
+    --nowait)
+        nowait=1
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    *) break ;;
     esac
 done
 
 # Execution summary
 if [ "$nodel" -eq 1 ]; then
-        echo -e "\e[34mLog directory: $tmpdir \e[0m"
+    echo -e "\e[34mLog directory: $tmpdir \e[0m"
 fi
 if [ "$nowait" -eq 1 ]; then
-        echo -e "\e[34mRunning in non-interactive mode\e[0m"
+    echo -e "\e[34mRunning in non-interactive mode\e[0m"
 fi
 
 # Actual execution
 # Loops over found targets and runs docker_build_and_run_tests
 for target in $("$(dirname "$0")"/docker_build_and_run_tests.sh 2>&1 | grep "Supported" | cut -d ':' -f 2); do
     echo "Running $target $*"
-    "$(dirname "$0")"/docker_build_and_run_tests.sh "$target" "$@" 2>&1 | \
-        tee "${tmpdir}"/"${target}" | \
+    "$(dirname "$0")"/docker_build_and_run_tests.sh "$target" "$@" 2>&1 |
+        tee "${tmpdir}"/"${target}" |
         grep -q "All tests succeeded"
     ret=$?
     if [[ 0 -eq $ret ]]; then
@@ -61,7 +70,7 @@ for target in $("$(dirname "$0")"/docker_build_and_run_tests.sh 2>&1 | grep "Sup
     fi
 done
 
-if [[ ! -z "$failedtarget"  && "$nowait" -eq 0 ]]; then
+if [[ ! -z "$failedtarget" && "$nowait" -eq 0 ]]; then
     echo -e "\nPress \e[1mENTER\e[0m to display failed test logs"
     echo -e "Use \e[1m:n\e[0m (next) and \e[1m:p\e[0m (previous) to navigate between log files"
     echo -e "and \e[1mq\e[0m to quit"

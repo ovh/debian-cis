@@ -17,7 +17,7 @@ test_audit() {
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # shellcheck disable=2016
-    echo 'EXCEPTIONS="$EXCEPTIONS 1001"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+    echo 'EXCEPTIONS="$EXCEPTIONS 1001"' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
 
     describe Adding exceptions
     register_test retvalshouldbe 0
@@ -28,4 +28,3 @@ test_audit() {
     userdel usertest1
     userdel usertest2
 }
-

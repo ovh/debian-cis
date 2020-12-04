@@ -26,7 +26,7 @@ test_audit() {
     run noncompliant path="$PATH:." /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe Tests purposely failing
-    mkdir -m 770 "$dir" 
+    mkdir -m 770 "$dir"
     register_test retvalshouldbe 1
     register_test contain "Group Write permission set on directory $dir"
     run noncompliant path="$PATH:$dir" /opt/debian-cis/bin/hardening/"${script}".sh --audit-all

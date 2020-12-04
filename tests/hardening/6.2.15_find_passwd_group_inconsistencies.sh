@@ -10,8 +10,8 @@ test_audit() {
     local test_user="testpasswdgroupuser"
     local dir="/etc/passwd"
 
-    describe Tests purposely failing 
-    echo "$test_user:x:1100:1100::/home/$test_user:" >> "$dir"
+    describe Tests purposely failing
+    echo "$test_user:x:1100:1100::/home/$test_user:" >>"$dir"
     register_test retvalshouldbe 1
     register_test contain "is referenced by /etc/passwd but does not exist in /etc/group"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all

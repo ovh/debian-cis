@@ -21,13 +21,13 @@ FILES_TO_SEARCH='/etc/udev/rules.d'
 FILE='/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh'
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
         if [ $SEARCH_RES = 1 ]; then break; fi
         if $SUDO_CMD test -d $FILE_SEARCHED; then
             debug "$FILE_SEARCHED is a directory"
-            for file_in_dir in $( $SUDO_CMD ls $FILE_SEARCHED); do
+            for file_in_dir in $($SUDO_CMD ls $FILE_SEARCHED); do
                 does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
                 if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
@@ -53,7 +53,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
         if [ $SEARCH_RES = 1 ]; then break; fi
@@ -106,18 +106,18 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
-# shellcheck source=../../lib/main.h
+    # shellcheck source=../../lib/main.h
     . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

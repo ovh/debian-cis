@@ -22,12 +22,12 @@ FW_CHAINS="INPUT FORWARD"
 FW_POLICY="DROP"
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
-        ipt=$($SUDO_CMD $PACKAGE -nL 2>/dev/null || true )
+        ipt=$($SUDO_CMD $PACKAGE -nL 2>/dev/null || true)
         if [[ -z $ipt ]]; then
             crit "Empty return from $PACKAGE command. Aborting..."
             return
@@ -50,7 +50,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     :
 }
 
@@ -61,12 +61,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

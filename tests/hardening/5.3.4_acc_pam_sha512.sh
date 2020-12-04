@@ -7,4 +7,3 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

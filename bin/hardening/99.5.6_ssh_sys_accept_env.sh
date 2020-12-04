@@ -22,7 +22,7 @@ PATTERN='^\s*AcceptEnv\s+LANG LC_\*'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -38,7 +38,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" = 0 ]; then
         ok "$PACKAGE is installed"
@@ -52,14 +52,14 @@ apply () {
     else
         warn "$PATTERN is not present in $FILE, adding it"
         does_pattern_exist_in_file_nocase $FILE "^$PATTERN"
-        PATTERN=$( sed 's/\^//' <<< "$PATTERN" | sed -r 's/\\s\*//' | sed -r 's/\\s\+/ /g' | sed 's/\\//g')
+        PATTERN=$(sed 's/\^//' <<<"$PATTERN" | sed -r 's/\\s\*//' | sed -r 's/\\s\+/ /g' | sed 's/\\//g')
         if [ "$FNRET" != 0 ]; then
             add_end_of_file $FILE "$PATTERN"
         else
             info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
             replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$PATTERN"
         fi
-        /etc/init.d/ssh reload > /dev/null 2>&1
+        /etc/init.d/ssh reload >/dev/null 2>&1
     fi
 }
 
@@ -70,12 +70,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment." 
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

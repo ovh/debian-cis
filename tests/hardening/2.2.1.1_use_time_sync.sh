@@ -18,4 +18,3 @@ test_audit() {
     register_test contain "Time synchronization is available through"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

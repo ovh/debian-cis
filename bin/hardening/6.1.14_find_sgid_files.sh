@@ -19,18 +19,18 @@ DESCRIPTION="Find SGID system executables."
 IGNORED_PATH=''
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     info "Checking if there are sgid files"
-    FS_NAMES=$(df --local -P | awk '{ if (NR!=1) print $6 }' )
+    FS_NAMES=$(df --local -P | awk '{ if (NR!=1) print $6 }')
     # shellcheck disable=2086
     if [ ! -z $IGNORED_PATH ]; then
-        FOUND_BINARIES=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -regextype 'egrep' ! -regex "$IGNORED_PATH" -print)
+        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -regextype 'egrep' ! -regex "$IGNORED_PATH" -print)
     else
-        FOUND_BINARIES=$( $SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -print)
+        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -2000 -print)
     fi
     BAD_BINARIES=""
     for BINARY in $FOUND_BINARIES; do
-        if grep -qw "$BINARY" <<< "$EXCEPTIONS"; then
+        if grep -qw "$BINARY" <<<"$EXCEPTIONS"; then
             debug "$BINARY is confirmed as an exception"
         else
             BAD_BINARIES="$BAD_BINARIES $BINARY"
@@ -38,7 +38,7 @@ audit () {
     done
     if [ ! -z "$BAD_BINARIES" ]; then
         crit "Some sgid files are present"
-        FORMATTED_RESULT=$(sed "s/ /\n/g" <<< "$BAD_BINARIES" | sort | uniq | tr '\n' ' ')
+        FORMATTED_RESULT=$(sed "s/ /\n/g" <<<"$BAD_BINARIES" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
         ok "No unknown sgid files found"
@@ -46,7 +46,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     info "Removing sgid on valid binary may seriously harm your system, report only here"
 }
 
@@ -68,12 +68,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

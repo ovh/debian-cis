@@ -20,4 +20,3 @@ test_audit() {
     register_test contain "[ OK ] ^RekeyLimit[[:space:]]*512M\s+6h is present in /etc/ssh/sshd_config"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # run-shellcheck
-test_audit()  {
+test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 1
     register_test contain "openssh-server is installed"
@@ -20,4 +20,3 @@ test_audit()  {
     register_test contain "[ OK ] ^UsePrivilegeSeparation[[:space:]]*sandbox is present in /etc/ssh/sshd_config"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

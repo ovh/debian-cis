@@ -24,4 +24,3 @@ test_audit() {
     register_test contain "No unowned files found"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

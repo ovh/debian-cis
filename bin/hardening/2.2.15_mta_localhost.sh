@@ -20,7 +20,7 @@ DESCRIPTION="Configure Mail Transfert Agent for Local-Only Mode."
 HARDENING_EXCEPTION=mail
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     info "Checking netport ports opened"
     RESULT=$($SUDO_CMD netstat -an | grep LIST | grep ":25[[:space:]]") || :
     RESULT=${RESULT:-}
@@ -29,7 +29,7 @@ audit () {
         ok "Nothing listens on 25 port, probably unix socket configured"
     else
         info "Checking $RESULT"
-        if  $(grep -q "127.0.0.1" <<< $RESULT); then
+        if $(grep -q "127.0.0.1" <<<$RESULT); then
             ok "MTA is configured to localhost only"
         else
             crit "MTA listens worldwide"
@@ -38,7 +38,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     info "Checking netport ports opened"
     RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]") || :
     RESULT=${RESULT:-}
@@ -47,7 +47,7 @@ apply () {
         ok "Nothing listens on 25 port, probably unix socket configured"
     else
         info "Checking $RESULT"
-        if  $(grep -q "127.0.0.1" <<< $RESULT); then
+        if $(grep -q "127.0.0.1" <<<$RESULT); then
             ok "MTA is configured to localhost only"
         else
             warn "MTA listens worldwide, correct this considering your MTA"
@@ -63,18 +63,18 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
-# shellcheck source=../../lib/main.sh
+    # shellcheck source=../../lib/main.sh
     . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

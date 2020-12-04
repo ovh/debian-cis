@@ -8,7 +8,7 @@ test_audit() {
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
-    sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Checking resolved state

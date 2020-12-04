@@ -21,13 +21,13 @@ EXCEPTIONS=""
 ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
-    RESULT=$(get_db passwd | cut -f3 -d":" | sort -n | uniq -c | awk '{print $1":"$2}' )
+audit() {
+    RESULT=$(get_db passwd | cut -f3 -d":" | sort -n | uniq -c | awk '{print $1":"$2}')
     FOUND_EXCEPTIONS=""
     for LINE in $RESULT; do
         debug "Working on line $LINE"
-        OCC_NUMBER=$(awk -F: '{print $1}' <<< "$LINE")
-        USERID=$(awk -F: '{print $2}' <<< "$LINE")
+        OCC_NUMBER=$(awk -F: '{print $1}' <<<"$LINE")
+        USERID=$(awk -F: '{print $2}' <<<"$LINE")
         if [ "$OCC_NUMBER" -gt 1 ]; then
             USERS=$(awk -F: '($3 == n) { print $1 }' n="$USERID" /etc/passwd | xargs)
             ID_NAMES="($USERID): ${USERS}"
@@ -35,7 +35,7 @@ audit () {
                 debug "$USERID is confirmed as an exception"
                 FOUND_EXCEPTIONS="$FOUND_EXCEPTIONS $ID_NAMES"
             else
-                ERRORS=$((ERRORS+1))
+                ERRORS=$((ERRORS + 1))
                 crit "Duplicate UID $ID_NAMES"
             fi
         fi
@@ -47,7 +47,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     info "Editing automatically uids may seriously harm your system, report only here"
 }
 
@@ -69,12 +69,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

@@ -10,7 +10,7 @@ test_audit() {
     local test_user="testnetrcuser"
     local test_file=".netrc"
 
-    describe Tests purposely failing 
+    describe Tests purposely failing
     useradd --create-home "$test_user"
     touch "/home/$test_user/$test_file"
     chmod 777 "/home/$test_user/$test_file"
@@ -19,7 +19,7 @@ test_audit() {
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
-    sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Checking resolved state

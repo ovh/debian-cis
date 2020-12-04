@@ -1,15 +1,26 @@
+cis-hardening (2.1-4) unstable; urgency=medium
+
+  * Quoting variables to commply with shellcheck SC2086
+  * Add follow files prefixes SC1091
+  * Add unused var disabling SC2034
+  * Add prefix to define shell SC2148
+  * Add run-shellcheck prefixes
+  * Add shfmt to have a consitent way to format the code
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Fri, 04 Dec 2020 14:17:45 +0100
+
 cis-hardening (2.1-3) unstable; urgency=medium
 
   * Fix permissions on 5.2.3 (authorize 600)
   * Fix minor bug with --create-config-files-only
 
- -- Thibault Ayanides <tayanide@ovhcloud.com>  Mon, 30 Nov 2020 15:14:17 +0100
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 30 Nov 2020 15:14:17 +0100
 
 cis-hardening (2.1-2) unstable; urgency=medium
 
   * Add --create-config-files-only mode that only create config files without running audit
 
- -- Thibault Ayanides <tayanide@ovhcloud.com>  Mon, 23 Nov 2020 13:40:14 +0100
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 23 Nov 2020 13:40:14 +0100
  
 cis-hardening (2.1-1) stable; urgency=medium
   * Move to most recent docker image for buster
@@ -25,7 +36,7 @@ cis-hardening (2.1-1) stable; urgency=medium
   * Add comprehensive test for 5.6
   * Skip 4.1.3 on docker (bootloader)
 
- -- Thibault Ayanides <tayanide@ovhcloud.com>  Fri, 13 Nov 2020 13:32:50 +0100
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Fri, 13 Nov 2020 13:32:50 +0100
 
 cis-hardening (2.0-6) unstable; urgency=medium
 
@@ -33,13 +44,13 @@ cis-hardening (2.0-6) unstable; urgency=medium
   * Fix permissions in 5.2.3
   * Revert 4.2.2.3 to old check (8.2.4)
 
- -- Thibault Ayanides <tayanide@owhcloud.com>  Mon, 16 Nov 2020 14:19:35 +0100
+ -- Thibault Ayanides <thibault.ayanides@owhcloud.com>  Mon, 16 Nov 2020 14:19:35 +0100
 
 cis-hardening (2.0-5) unstable; urgency=medium
 
   * Hotfix for 3.1.1 wich resulted to a fail check if ipv6 is disabled 
 
- -- Thibault Ayanides <tayanide@ovhcloud.com>  Thu, 12 Nov 2020 10:15:46 +0100
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Thu, 12 Nov 2020 10:15:46 +0100
 
 cis-hardening (2.0-4) unstable; urgency=medium
   * Add deleted checks during renaming which should be here (3.2.6, 3.2.7, 6.2.7)
@@ -50,7 +61,7 @@ cis-hardening (2.0-4) unstable; urgency=medium
   * Fix 2.2.12 where the condition was inverted
   * Skip IPV6 checks if IPv6 is disabled
 
- -- Thibault Ayanides <tayanide@ovhcloud.com>  Fri, 28 Oct 2020 16:12:34 +0100
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Fri, 28 Oct 2020 16:12:34 +0100
 
 cis-hardening (2.0-3) unstable; urgency=medium
 
@@ -75,7 +86,7 @@ cis-hardening (2.0-3) unstable; urgency=medium
   * Fix 5.2.2 and 5.2.3 (it's cleaner now)
   * Fix 6.2.9 unbound variable
 
- -- Thibault Ayanides <tayanide@ovhcloud.com>  Wed, 28 Oct 2020 09:28:18 +0100
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Wed, 28 Oct 2020 09:28:18 +0100
 
 cis-hardening (2.0-2) unstable; urgency=medium
 
@@ -124,7 +135,7 @@ cis-hardening (1.3-4) unstable; urgency=medium
   * ADD(5.2.2, 5.2.3): SSH host keys permissions and ownership
   * ADD(5.2.17): SSHD login grace time
 
- -- Thibault AYANIDES <tayanide@ovhcloud.com>  Mon, 19 Oct 2020 16:31:48 +0200
+ -- Thibault AYANIDES <thibault.ayanides@ovhcloud.com>  Mon, 19 Oct 2020 16:31:48 +0200
 
 cis-hardening (1.3-3) unstable; urgency=medium
 

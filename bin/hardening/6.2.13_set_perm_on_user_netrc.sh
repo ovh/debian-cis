@@ -37,7 +37,7 @@ audit() {
         done
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "permission $PERMISSIONS set on .netrc users files"
     fi
 
@@ -54,7 +54,7 @@ apply() {
                     ok "$FILE has correct permissions"
                 else
                     warn "$FILE permissions were not set to $PERMISSIONS"
-                    chmod 600 $FILE
+                    chmod 600 "$FILE"
                 fi
             fi
         done

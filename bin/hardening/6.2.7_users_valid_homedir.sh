@@ -33,7 +33,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "All home directories exists"
     fi
 }

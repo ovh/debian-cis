@@ -58,7 +58,7 @@ audit() {
 apply() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
-        if [ $SEARCH_RES = 1 ]; then break; fi
+        if [ "$SEARCH_RES" = 1 ]; then break; fi
         if test -d $FILE_SEARCHED; then
             debug "$FILE_SEARCHED is a directory"
             for file_in_dir in $(ls $FILE_SEARCHED); do
@@ -81,10 +81,10 @@ apply() {
             fi
         fi
     done
-    if [ $SEARCH_RES = 0 ]; then
+    if [ "$SEARCH_RES" = 0 ]; then
         warn "$PATTERN is not present in $FILES_TO_SEARCH"
-        touch $FILE
-        chmod 644 $FILE
+        touch "$FILE"
+        chmod 644 "$FILE"
         add_end_of_file $FILE "$PATTERN"
     fi
 }

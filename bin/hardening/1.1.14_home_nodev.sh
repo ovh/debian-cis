@@ -26,19 +26,19 @@ audit() {
     info "Verifying that $PARTITION is a partition"
     FNRET=0
     is_a_partition "$PARTITION"
-    if [ $FNRET -gt 0 ]; then
+    if [ "$FNRET" -gt 0 ]; then
         crit "$PARTITION is not a partition"
         FNRET=2
     else
         ok "$PARTITION is a partition"
         has_mount_option "$PARTITION" "$OPTION"
-        if [ $FNRET -gt 0 ]; then
+        if [ "$FNRET" -gt 0 ]; then
             crit "$PARTITION has no option $OPTION in fstab!"
             FNRET=1
         else
             ok "$PARTITION has $OPTION in fstab"
             has_mounted_option "$PARTITION" "$OPTION"
-            if [ $FNRET -gt 0 ]; then
+            if [ "$FNRET" -gt 0 ]; then
                 warn "$PARTITION is not mounted with $OPTION at runtime"
                 FNRET=3
             else

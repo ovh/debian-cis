@@ -76,7 +76,7 @@ apply() {
             ok "$FILE has correct ownership"
         else
             warn "fixing $FILE ownership to $USER:$GROUP"
-            chown $USER:$GROUP $FILE
+            chown "$USER":"$GROUP" "$FILE"
         fi
         has_file_correct_permissions "$FILE" "$PERMISSIONS"
         if [ "$FNRET" = 0 ]; then

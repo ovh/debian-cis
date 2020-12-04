@@ -41,7 +41,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "No duplicate UIDs${FOUND_EXCEPTIONS:+ apart from configured exceptions:}${FOUND_EXCEPTIONS}"
     fi
 }

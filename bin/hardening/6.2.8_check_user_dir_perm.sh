@@ -52,7 +52,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "No incorrect permissions on home directories"
     fi
 
@@ -74,19 +74,19 @@ apply() {
             dirperm=$(/bin/ls -ld $dir | cut -f1 -d" ")
             if [ $(echo $dirperm | cut -c6) != "-" ]; then
                 warn "Group Write permission set on directory $dir"
-                chmod g-w $dir
+                chmod g-w "$dir"
             fi
             if [ $(echo $dirperm | cut -c8) != "-" ]; then
                 warn "Other Read permission set on directory $dir"
-                chmod o-r $dir
+                chmod o-r "$dir"
             fi
             if [ $(echo $dirperm | cut -c9) != "-" ]; then
                 warn "Other Write permission set on directory $dir"
-                chmod o-w $dir
+                chmod o-w "$dir"
             fi
             if [ $(echo $dirperm | cut -c10) != "-" ]; then
                 warn "Other Execute permission set on directory $dir"
-                chmod o-x $dir
+                chmod o-x "$dir"
             fi
         fi
     done

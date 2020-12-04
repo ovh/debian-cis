@@ -28,13 +28,13 @@ audit() {
     info "Verifying if there is $PARTITION like partition"
     FNRET=0
     is_a_partition "$PARTITION"
-    if [ $FNRET -gt 0 ]; then
+    if [ "$FNRET" -gt 0 ]; then
         ok "There is no partition like $PARTITION"
         FNRET=0
     else
         info "detected $PARTITION like"
         has_mount_option "$PARTITION" "$OPTION"
-        if [ $FNRET -gt 0 ]; then
+        if [ "$FNRET" -gt 0 ]; then
             crit "$PARTITION has no option $OPTION in fstab!"
             FNRET=1
         else

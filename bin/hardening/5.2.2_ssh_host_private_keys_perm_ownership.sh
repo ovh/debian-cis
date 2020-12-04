@@ -36,7 +36,7 @@ audit() {
 
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "SSH private keys in $DIR have correct permissions"
     fi
 
@@ -52,7 +52,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "SSH private keys in $DIR have correct ownership"
     fi
 }
@@ -65,7 +65,7 @@ apply() {
             ok "$FILE ownership was set to $USER:$GROUP"
         else
             warn "fixing $DIR SSH private keys permissions to $USER:$GROUP"
-            chown $USER:$GROUP $FILE
+            chown "$USER":"$GROUP" "$FILE"
 
         fi
     done

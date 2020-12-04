@@ -48,7 +48,7 @@ apply() {
         ok "$FILE has correct ownership"
     else
         info "fixing $FILE ownership to $USER:$GROUP"
-        chown $USER:$GROUP $FILE
+        chown "$USER":"$GROUP" "$FILE"
     fi
 
     has_file_correct_permissions "$FILE" "$PERMISSIONS"

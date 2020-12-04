@@ -4,7 +4,7 @@ test_audit() {
     describe Running void to generate the conf file that will later be edited
     # shellcheck disable=2154
     /opt/debian-cis/bin/hardening/"${script}".sh || true
-    echo "EXCEPTIONS=\"/:systemd-coredump:root\"" >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+    echo "EXCEPTIONS=\"/:systemd-coredump:root\"" >>/opt/debian-cis/etc/conf.d/"${script}".cfg
 
     describe Running on blank host
     register_test retvalshouldbe 0
@@ -19,11 +19,10 @@ test_audit() {
     chown root:root /home/"$test_user"
     register_test retvalshouldbe 1
     register_test contain "[ KO ] The home directory (/home/$test_user) of user testhomeuser is owned by root"
-    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all 
+    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
-    echo "EXCEPTIONS=\"/:systemd-coredump:root /home/$test_user:$test_user:root\"" > /opt/debian-cis/etc/conf.d/"${script}".cfg
-
+    echo "EXCEPTIONS=\"/:systemd-coredump:root /home/$test_user:$test_user:root\"" >/opt/debian-cis/etc/conf.d/"${script}".cfg
 
     describe Checking resolved state
     register_test retvalshouldbe 0

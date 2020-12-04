@@ -24,9 +24,9 @@ FILE='/etc/passwd'
 RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     info "Checking if accounts have uid 0"
-    RESULT=$(awk -F: '($3 == 0 && $1!="root" ) { print $1 }' "$FILE" )
+    RESULT=$(awk -F: '($3 == 0 && $1!="root" ) { print $1 }' "$FILE")
     FOUND_EXCEPTIONS=""
     for ACCOUNT in $RESULT; do
         debug "Account : $ACCOUNT"
@@ -34,21 +34,21 @@ audit () {
         debug "echo \"$EXCEPTIONS\" | grep -qw $ACCOUNT"
         if echo "$EXCEPTIONS" | grep -qw "$ACCOUNT"; then
             debug "$ACCOUNT is confirmed as an exception"
-            RESULT=$(sed "s!$ACCOUNT!!" <<< "$RESULT")
+            RESULT=$(sed "s!$ACCOUNT!!" <<<"$RESULT")
             FOUND_EXCEPTIONS="$FOUND_EXCEPTIONS $ACCOUNT"
         else
             debug "$ACCOUNT not found in exceptions"
         fi
     done
     if [ ! -z "$RESULT" ]; then
-        crit "Some accounts have uid 0: $(tr '\n' ' ' <<< "$RESULT")"
+        crit "Some accounts have uid 0: $(tr '\n' ' ' <<<"$RESULT")"
     else
         ok "No account with uid 0 appart from root ${FOUND_EXCEPTIONS:+and configured exceptions:}$FOUND_EXCEPTIONS"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     info "Removing accounts with uid 0 may seriously harm your system, report only here"
 }
 
@@ -70,12 +70,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

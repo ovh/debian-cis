@@ -20,7 +20,7 @@ DESCRIPTION="Activate AppArmor to enforce permissions control."
 PACKAGE='apparmor'
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is absent!"
@@ -30,7 +30,7 @@ audit () {
 
     ERROR=0
     RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
-    
+
     # define custom IFS and save default one
     d_IFS=$IFS
     c_IFS=$'\n'
@@ -44,12 +44,12 @@ audit () {
     IFS=$d_IFS
     if [ $ERROR = 0 ]; then
         ok "$PACKAGE is configured"
-    
+
     fi
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed, please install $PACKAGE and configure it"
@@ -59,7 +59,7 @@ apply () {
 
     ERROR=0
     RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
-    
+
     # define custom IFS and save default one
     d_IFS=$IFS
     c_IFS=$'\n'
@@ -71,7 +71,7 @@ apply () {
         fi
     done
     IFS=$d_IFS
-    
+
     if [ $ERROR = 1 ]; then
         $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor/" /etc/default/grub
         $SUDO_CMD update-grub
@@ -87,18 +87,18 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
-# shellcheck source=../../lib/main.sh
+    # shellcheck source=../../lib/main.sh
     . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

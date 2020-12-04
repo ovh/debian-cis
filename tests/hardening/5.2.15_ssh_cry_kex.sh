@@ -27,4 +27,3 @@ test_audit() {
     register_test retvalshouldbe 0
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

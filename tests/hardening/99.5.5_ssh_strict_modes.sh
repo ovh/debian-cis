@@ -21,4 +21,3 @@ test_audit() {
     register_test contain "[ OK ] ^StrictModes[[:space:]]*yes is present in /etc/ssh/sshd_config"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

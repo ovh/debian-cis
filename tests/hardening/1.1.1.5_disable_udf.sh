@@ -4,11 +4,11 @@ test_audit() {
     if [ -f "/.dockerenv" ]; then
         skip "SKIPPED on docker"
     else
-    describe Running on blank host
-    register_test retvalshouldbe 0
-    dismiss_count_for_test
-    # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+        describe Running on blank host
+        register_test retvalshouldbe 0
+        dismiss_count_for_test
+        # shellcheck disable=2154
+        run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
     fi
 
     ##################################################################
@@ -18,4 +18,3 @@ test_audit() {
     # long to test and not very useful.                              #
     ##################################################################
 }
-

@@ -5,7 +5,7 @@ test_audit() {
     # shellcheck disable=2154
     /opt/debian-cis/bin/hardening/"${script}".sh || true
     # shellcheck disable=2016
-    echo 'EXCEPTIONS="$EXCEPTIONS /usr/bin/dotlock.mailutils /usr/lib/x86_64-linux-gnu/utempter/utempter"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+    echo 'EXCEPTIONS="$EXCEPTIONS /usr/bin/dotlock.mailutils /usr/lib/x86_64-linux-gnu/utempter/utempter"' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
 
     describe Running on blank host
     register_test retvalshouldbe 0
@@ -30,4 +30,3 @@ test_audit() {
     register_test contain "No unknown sgid files found"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

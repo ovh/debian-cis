@@ -25,7 +25,7 @@ GROUP=''
 EXCEPTIONS=''
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     FILES=$(grep "file(" "$SYSLOG_BASEDIR"/syslog-ng.conf | grep '"' | cut -d'"' -f 2)
     for FILE in $FILES; do
         does_file_exist "$FILE"
@@ -33,16 +33,16 @@ audit () {
             warn "$FILE does not exist"
         else
             FOUND_EXC=0
-            if grep -q "$FILE" <(tr ' ' '\n' <<< "$EXCEPTIONS" | cut -d ":" -f 1); then
+            if grep -q "$FILE" <(tr ' ' '\n' <<<"$EXCEPTIONS" | cut -d ":" -f 1); then
                 debug "$FILE is found in exceptions"
                 debug "Setting special user:group:perm"
                 FOUND_EXC=1
                 local user_bak="$USER"
                 local group_bak="$GROUP"
                 local perm_bak="$PERMISSIONS"
-                USER="$(tr ' ' '\n' <<< "$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 2)"
-                GROUP="$(tr ' ' '\n' <<< "$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 3)"
-                PERMISSIONS="$(tr ' ' '\n' <<< "$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 4)"
+                USER="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 2)"
+                GROUP="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 3)"
+                PERMISSIONS="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 4)"
             fi
             has_file_correct_ownership "$FILE" "$USER" "$GROUP"
             if [ "$FNRET" = 0 ]; then
@@ -67,7 +67,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     for FILE in $FILES; do
         does_file_exist "$FILE"
         if [ "$FNRET" != 0 ]; then
@@ -81,16 +81,16 @@ apply () {
             touch "$FILE"
         fi
         FOUND_EXC=0
-        if grep "$FILE" <(tr ' ' '\n' <<< "$EXCEPTIONS" | cut -d ":" -f 1); then
+        if grep "$FILE" <(tr ' ' '\n' <<<"$EXCEPTIONS" | cut -d ":" -f 1); then
             debug "$FILE is found in exceptions"
             debug "Setting special user:group:perm"
             FOUND_EXC=1
             local user_bak="$USER"
             local group_bak="$GROUP"
             local perm_bak="$PERMISSIONS"
-            USER="$(tr ' ' '\n' <<< "$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 2)"
-            GROUP="$(tr ' ' '\n' <<< "$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 3)"
-            PERMISSIONS="$(tr ' ' '\n' <<< "$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 4)"
+            USER="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 2)"
+            GROUP="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 3)"
+            PERMISSIONS="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 4)"
         fi
         has_file_correct_ownership "$FILE" "$USER" "$GROUP"
         if [ "$FNRET" = 0 ]; then
@@ -145,12 +145,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

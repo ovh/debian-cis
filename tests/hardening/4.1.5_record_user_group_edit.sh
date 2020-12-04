@@ -14,7 +14,7 @@ test_audit() {
     describe Checking resolved state
     register_test retvalshouldbe 0
     register_test contain "[ OK ] -w /etc/group -p wa -k identity is present in /etc/audit/audit.rules"
-    register_test contain "[ OK ] -w /etc/passwd -p wa -k identity is present in /etc/audit/audit.rules"    
+    register_test contain "[ OK ] -w /etc/passwd -p wa -k identity is present in /etc/audit/audit.rules"
     register_test contain "[ OK ] -w /etc/gshadow -p wa -k identity is present in /etc/audit/audit.rules"
     register_test contain "[ OK ] -w /etc/shadow -p wa -k identity is present in /etc/audit/audit.rules"
     register_test contain "[ OK ] -w /etc/security/opasswd -p wa -k identity is present in /etc/audit/audit.rules"

@@ -10,7 +10,7 @@ test_audit() {
     local test_user="testrhostsuser"
     local test_file=".rhosts"
 
-    describe Tests purposely failing 
+    describe Tests purposely failing
     useradd --create-home "$test_user"
     touch "/home/$test_user/$test_file"
     register_test retvalshouldbe 1

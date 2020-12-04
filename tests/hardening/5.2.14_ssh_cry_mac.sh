@@ -20,4 +20,3 @@ test_audit() {
     register_test contain "[ OK ] ^MACs[[:space:]]*umac-128-etm@openssh.com,umac-64-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128@openssh.com,umac-64@openssh.com,hmac-sha2-512,hmac-sha2-256 is present in /etc/ssh/sshd_config"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

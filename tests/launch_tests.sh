@@ -63,8 +63,7 @@ skip() {
     printf "%b %b\n" "\033[30m\e[43m[SKIP]\033[0m" "$*" >&2
 }
 # retrieves audit script logfile
-get_stdout()
-{
+get_stdout() {
     cat "$outdir"/"$usecase_name".log
 }
 
@@ -107,7 +106,7 @@ play_consistency_tests() {
     retfile_root=$outdir/${usecase_name_root}.retval
     retfile_sudo=$outdir/${usecase_name_sudo}.retval
     cmp "$retfile_root" "$retfile_sudo" && ret=0 || ret=1
-    if [[ ! 0 -eq $ret ]] ; then
+    if [[ ! 0 -eq $ret ]]; then
         fail "$name" return values differ
         diff "$retfile_root" "$retfile_sudo" || true
         consist_test=1
@@ -118,28 +117,28 @@ play_consistency_tests() {
     retfile_root=$outdir/${usecase_name_root}.log
     retfile_sudo=$outdir/${usecase_name_sudo}.log
     cmp "$retfile_root" "$retfile_sudo" && ret=0 || ret=1
-    if [[ ! 0 -eq $ret ]] ; then
+    if [[ ! 0 -eq $ret ]]; then
         fail "$name" logs differ
-        diff  "$retfile_root" "$retfile_sudo" || true
+        diff "$retfile_root" "$retfile_sudo" || true
         consist_test=1
     else
         ok "$name logs are identical"
     fi
 
     if [ 1 -eq $consist_test ]; then
-        nbfailedconsist=$(( nbfailedconsist + 1 ))
+        nbfailedconsist=$((nbfailedconsist + 1))
         listfailedconsist="$listfailedconsist $(make_usecase_name "$usecase" consist)"
     fi
 }
 
 # Actually runs one signel audit script
-_run()
-{
+_run() {
     usecase_name=$1
     shift
     printf "\033[34m*** [%03d] %s \033[0m(%s)\n" "$testno" "$usecase_name" "$*"
-    bash -c "$*" >"$outdir/$usecase_name.log" && true; echo $? > "$outdir/$usecase_name.retval"
-    ret=$(< "$outdir"/"$usecase_name".retval)
+    bash -c "$*" >"$outdir/$usecase_name.log" && true
+    echo $? >"$outdir/$usecase_name.retval"
+    ret=$(<"$outdir"/"$usecase_name".retval)
     get_stdout
 }
 
@@ -153,17 +152,16 @@ fi
 ###################
 # Execution start #
 ###################
-printf "\033[1;36m###\n### %s\n### \033[0m\n"  "Starting debian-cis functional testing"
+printf "\033[1;36m###\n### %s\n### \033[0m\n" "Starting debian-cis functional testing"
 
 # if no scripts were passed as arguments, list all available test scenarii to be played
 if [ $# -eq 0 ]; then
     tests_list=$(ls -v "$(dirname "$0")"/hardening/)
-    testcount=$(wc -l <<< "$tests_list")
+    testcount=$(wc -l <<<"$tests_list")
 else
     tests_list="$*"
     testcount=$#
 fi
-
 
 for test_file in $tests_list; do
     test_file_path=$(dirname "$0")/hardening/"$test_file"
@@ -176,9 +174,9 @@ for test_file in $tests_list; do
     # source test scenario file to add `test_audit` func
     # shellcheck disable=1090
     . "$test_file_path"
-    testno=$(( testno + 1 ))
+    testno=$((testno + 1))
     # shellcheck disable=2001
-    name="$(echo "${test_file%%.sh}" | sed 's/\d+\.\d+_//' )"
+    name="$(echo "${test_file%%.sh}" | sed 's/\d+\.\d+_//')"
     printf "\033[1;36m### [%03d/%03d] %s \033[0m\n" "$testno" "$testcount" "$test_file"
     # test_audit is the function defined in $test_file, that carries the actual functional tests for this script
     test_audit
@@ -190,22 +188,22 @@ for test_file in $tests_list; do
     echo ""
 done
 
-printf "\033[1;36m###\n### %s \033[0m\n"  "Test report"
-if [ $((nbfailedret + nbfailedgrep + nbfailedconsist )) -eq 0 ] ; then
+printf "\033[1;36m###\n### %s \033[0m\n" "Test report"
+if [ $((nbfailedret + nbfailedgrep + nbfailedconsist)) -eq 0 ]; then
     echo -e "\033[42m\033[30mAll tests succeeded :)\033[0m"
 else
     (
-    echo -e "\033[41mOne or more tests failed :(\033[0m"
-    echo -e "- $nbfailedret unexpected return values ${listfailedret}"
-    echo -e "- $nbfailedgrep unexpected text values $listfailedgrep"
-    echo -e "- $nbfailedconsist root/sudo consistency $listfailedconsist"
+        echo -e "\033[41mOne or more tests failed :(\033[0m"
+        echo -e "- $nbfailedret unexpected return values ${listfailedret}"
+        echo -e "- $nbfailedgrep unexpected text values $listfailedgrep"
+        echo -e "- $nbfailedconsist root/sudo consistency $listfailedconsist"
     ) | tee "$outdir"/summary
 fi
 echo
 
 set +e
 set +u
-let totalerrors=$((nbfailedret + nbfailedgrep + nbfailedconsist ))
+let totalerrors=$((nbfailedret + nbfailedgrep + nbfailedconsist))
 # leave `exit 255` for runtime errors
 [ $totalerrors -ge 255 ] && totalerrors=254
 exit $totalerrors

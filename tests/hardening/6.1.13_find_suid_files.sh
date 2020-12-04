@@ -5,7 +5,7 @@ test_audit() {
     # shellcheck disable=2154
     /opt/debian-cis/bin/hardening/"${script}".sh || true
     # shellcheck disable=2016
-    echo 'EXCEPTIONS="$EXCEPTIONS /usr/lib/dbus-1.0/dbus-daemon-launch-helper /usr/sbin/exim4 /bin/fusermount /usr/lib/eject/dmcrypt-get-device /usr/bin/pkexec /usr/lib/policykit-1/polkit-agent-helper-1"' >> /opt/debian-cis/etc/conf.d/"${script}".cfg
+    echo 'EXCEPTIONS="$EXCEPTIONS /usr/lib/dbus-1.0/dbus-daemon-launch-helper /usr/sbin/exim4 /bin/fusermount /usr/lib/eject/dmcrypt-get-device /usr/bin/pkexec /usr/lib/policykit-1/polkit-agent-helper-1"' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
 
     describe Running on blank host
     register_test retvalshouldbe 0
@@ -29,4 +29,3 @@ test_audit() {
     register_test contain "No unknown suid files found"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

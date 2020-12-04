@@ -18,24 +18,23 @@ describe() {
 register_test() {
     export numtest=0
     if [[ "notempty" == "${REGISTERED_TESTS[*]:+notempty}" ]]; then
-       numtest=${#REGISTERED_TESTS[@]}
-   fi
-   REGISTERED_TESTS[numtest]="$*"
+        numtest=${#REGISTERED_TESTS[@]}
+    fi
+    REGISTERED_TESTS[numtest]="$*"
 }
 
 # retvalshouldbe checks that the audit return value equals the one passed as parameter
 # retvalshoudbe <NUMBER>
-retvalshouldbe()
-{
+retvalshouldbe() {
     # shellcheck disable=2154
     retfile=$outdir/${usecase_name}.retval
     shouldbe=$1
-    got=$(< "$retfile")
-    if [ "$got" = "$shouldbe" ] ; then
+    got=$(<"$retfile")
+    if [ "$got" = "$shouldbe" ]; then
         ok "RETURN VALUE" "($shouldbe)"
     else
         if [ 0 -eq "$dismiss_count" ]; then
-            nbfailedret=$(( nbfailedret + 1 ))
+            nbfailedret=$((nbfailedret + 1))
             listfailedret="$listfailedret $usecase_name"
         fi
         fail "RETURN VALUE" "(got $got instead of $shouldbe)"
@@ -44,10 +43,9 @@ retvalshouldbe()
 
 # contain looks for a string in audit logfile
 # contain [REGEX] <STRING|regexSTRING>
-contain()
-{
+contain() {
     local specialoption=''
-    if [ "$1" != "REGEX" ] ; then
+    if [ "$1" != "REGEX" ]; then
         specialoption='-F'
     else
         specialoption='-E'
@@ -59,8 +57,8 @@ contain()
         ok "MUST CONTAIN" "($pattern)"
     else
         if [ 0 -eq "$dismiss_count" ]; then
-        nbfailedgrep=$(( nbfailedgrep + 1 ))
-        listfailedgrep="$listfailedgrep $usecase_name"
+            nbfailedgrep=$((nbfailedgrep + 1))
+            listfailedgrep="$listfailedgrep $usecase_name"
         fi
         fail "MUST CONTAIN" "($pattern)"
     fi
@@ -95,4 +93,3 @@ run() {
     play_consistency_tests
     clear_registered_tests
 }
-

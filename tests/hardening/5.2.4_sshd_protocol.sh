@@ -6,7 +6,7 @@ test_audit() {
     dismiss_count_for_test
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
- 
+
     describe Correcting situation
     # `apply` performs a service reload after each change in the config file
     # the service needs to be started for the reload to succeed

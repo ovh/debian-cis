@@ -10,10 +10,10 @@ test_audit() {
     local test_user="testduplicateuser"
     local dir="/etc/passwd"
 
-    describe Tests purposely failing 
+    describe Tests purposely failing
     useradd "$test_user"
     temp=$(tail -1 "$dir")
-    echo "$temp" >> "$dir"
+    echo "$temp" >>"$dir"
     register_test retvalshouldbe 1
     register_test contain "Duplicate username"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all

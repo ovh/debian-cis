@@ -11,7 +11,7 @@ backup_file() {
         crit "Cannot backup $FILE, it's not a file"
         FNRET=1
     else
-        TARGET=$(echo $FILE | sed -s -e 's/\//./g' -e 's/^.//' -e "s/$/.$(date +%F-%H_%M_%S)/" )
+        TARGET=$(echo $FILE | sed -s -e 's/\//./g' -e 's/^.//' -e "s/$/.$(date +%F-%H_%M_%S)/")
         TARGET="$BACKUPDIR/$TARGET"
         debug "Backuping $FILE to $TARGET"
         cp -a $FILE $TARGET
@@ -19,29 +19,29 @@ backup_file() {
     fi
 }
 
-
 #
 # Logging functions
 #
 
 case $LOGLEVEL in
-    error )
-        MACHINE_LOG_LEVEL=1
-        ;;
-    warning )
-        MACHINE_LOG_LEVEL=2
-        ;;
-    ok )
-        MACHINE_LOG_LEVEL=3
-        ;;
-    info )
-        MACHINE_LOG_LEVEL=4
-        ;;
-    debug )
-        MACHINE_LOG_LEVEL=5
-        ;;
-    *)
-        MACHINE_LOG_LEVEL=4 ## Default loglevel value to info
+error)
+    MACHINE_LOG_LEVEL=1
+    ;;
+warning)
+    MACHINE_LOG_LEVEL=2
+    ;;
+ok)
+    MACHINE_LOG_LEVEL=3
+    ;;
+info)
+    MACHINE_LOG_LEVEL=4
+    ;;
+debug)
+    MACHINE_LOG_LEVEL=5
+    ;;
+*)
+    MACHINE_LOG_LEVEL=4 ## Default loglevel value to info
+    ;;
 esac
 
 _logger() {
@@ -59,23 +59,23 @@ becho() {
     builtin echo "$toprint"
 }
 
-cecho () {
+cecho() {
     COLOR=$1
     shift
     builtin echo -e "${COLOR}$*${NC}"
 }
 
-crit () {
+crit() {
     if [ ${BATCH_MODE:-0} -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT KO{$*}"
     else
         if [ $MACHINE_LOG_LEVEL -ge 1 ]; then _logger $BRED "[ KO ] $*"; fi
     fi
     # This variable incrementation is used to measure failure or success in tests
-    CRITICAL_ERRORS_NUMBER=$((CRITICAL_ERRORS_NUMBER+1))
+    CRITICAL_ERRORS_NUMBER=$((CRITICAL_ERRORS_NUMBER + 1))
 }
 
-warn () {
+warn() {
     if [ ${BATCH_MODE:-0} -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT WARN{$*}"
     else
@@ -83,7 +83,7 @@ warn () {
     fi
 }
 
-ok () {
+ok() {
     if [ ${BATCH_MODE:-0} -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT OK{$*}"
     else
@@ -91,14 +91,13 @@ ok () {
     fi
 }
 
-info () {
-    if [ $MACHINE_LOG_LEVEL -ge 4 ]; then _logger ''      "[INFO] $*"; fi
+info() {
+    if [ $MACHINE_LOG_LEVEL -ge 4 ]; then _logger '' "[INFO] $*"; fi
 }
 
-debug () {
+debug() {
     if [ $MACHINE_LOG_LEVEL -ge 5 ]; then _logger $GRAY "[DBG ] $*"; fi
 }
-
 
 #
 # sudo wrapper
@@ -106,10 +105,9 @@ debug () {
 # for the specified command
 #
 sudo_wrapper() {
-    if  sudo -l "$@" >/dev/null 2>&1 ; then
+    if sudo -l "$@" >/dev/null 2>&1; then
         sudo -n "$@"
     else
         crit "Not allowed to \"sudo -n $*\" "
     fi
 }
-

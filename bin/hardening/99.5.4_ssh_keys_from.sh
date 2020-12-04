@@ -32,17 +32,17 @@ ALLOWED_NOLOGIN_SHELLS="/bin/false /usr/sbin/nologin"
 check_ip() {
     file=$1
     if [ -z "$ALLOWED_IPS" ]; then
-        warn  "No allowed IPs to treat";
-        return ;
+        warn "No allowed IPs to treat"
+        return
     fi
-    for line in $($SUDO_CMD grep -noP "$REGEX_FROM_IP" "$file" | tr -s " " | sed 's/ /_/g' ); do
+    for line in $($SUDO_CMD grep -noP "$REGEX_FROM_IP" "$file" | tr -s " " | sed 's/ /_/g'); do
         linum=$(echo "$line" | cut -d ':' -f 1)
         ips=$(echo "$line" | cut -d '"' -f 2 | tr ',' ' ')
         ok_ips_allowed=""
         bad_ips=""
         for ip in $ips; do
-            ip_escaped=$(sed 's/\./\\./g' <<< "$ip")
-            if grep -qw "$ip_escaped" <<< $ALLOWED_IPS ; then
+            ip_escaped=$(sed 's/\./\\./g' <<<"$ip")
+            if grep -qw "$ip_escaped" <<<$ALLOWED_IPS; then
                 debug "Line $linum of $file allows access from exused IP (${ip})."
                 ok_ips_allowed+="$ip "
             else
@@ -50,8 +50,8 @@ check_ip() {
                 bad_ips+="$ip "
             fi
         done
-        ok_ips=$( sed 's/ $//' <<< "${ok_ips_allowed}")
-        bad_ips=$( sed 's/ $//' <<< "${bad_ips}")
+        ok_ips=$(sed 's/ $//' <<<"${ok_ips_allowed}")
+        bad_ips=$(sed 's/ $//' <<<"${bad_ips}")
         if [[ -z $bad_ips ]]; then
             if [[ ! -z $ok_ips ]]; then
                 ok "Line $linum of $file allows ssh access only from allowed IPs ($ok_ips)."
@@ -67,12 +67,15 @@ check_ip() {
 
 check_file() {
     file=$1
-    if $SUDO_CMD [ ! -e "$file" ]; then debug "$file does not exist"; return; fi
+    if $SUDO_CMD [ ! -e "$file" ]; then
+        debug "$file does not exist"
+        return
+    fi
     if $SUDO_CMD [ -r "$file" ]; then
         debug "Treating $file"
         FOUND_AUTHKF=1
-        if $SUDO_CMD grep -vqP "$REGEX_OK_LINES" "${file}" ; then
-            bad_lines="$($SUDO_CMD grep -vnP "$REGEX_OK_LINES" "${file}" | cut -d ':' -f 1 | tr '\n' ' ' | sed 's/ $//' )"
+        if $SUDO_CMD grep -vqP "$REGEX_OK_LINES" "${file}"; then
+            bad_lines="$($SUDO_CMD grep -vnP "$REGEX_OK_LINES" "${file}" | cut -d ':' -f 1 | tr '\n' ' ' | sed 's/ $//')"
             crit "There are anywhere access keys in ${file} at lines (${bad_lines})."
         else
             ok "File ${file} is cleared from anywhere access keys."
@@ -95,12 +98,12 @@ check_dir() {
 }
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     # Retrieve authorized_key file pattern from sshd_config
     if $SUDO_CMD [ ! -r /etc/ssh/sshd_config ]; then
         crit "/etc/ssh/sshd_config is not readable."
     else
-        ret=$($SUDO_CMD grep -iP "^AuthorizedKeysFile" /etc/ssh/sshd_config || echo '#KO' )
+        ret=$($SUDO_CMD grep -iP "^AuthorizedKeysFile" /etc/ssh/sshd_config || echo '#KO')
         if [ "x$ret" = "x#KO" ]; then
             debug "No AuthorizedKeysFile defined in sshd_config."
         else
@@ -109,7 +112,7 @@ audit () {
         fi
     fi
 
-    if [ -z "$AUTHKEYFILE_PATTERN" ] ; then
+    if [ -z "$AUTHKEYFILE_PATTERN" ]; then
         AUTHKEYFILE_PATTERN=$AUTHKEYFILE_PATTERN_DEFAULT
         debug "Set default pattern for authorized_keys file."
     fi
@@ -124,11 +127,11 @@ audit () {
     for user in $USERS_TO_CHECK; do
         # Checking if at least one AuthKeyFile has been found for this user
         FOUND_AUTHKF=0
-        shell=$(getent passwd "$user" | cut -d ':' -f 7);
-        if grep -q "$shell" <<< "$ALLOWED_NOLOGIN_SHELLS" ; then
+        shell=$(getent passwd "$user" | cut -d ':' -f 7)
+        if grep -q "$shell" <<<"$ALLOWED_NOLOGIN_SHELLS"; then
             continue
         else
-            info "User $user has a valid shell ($shell).";
+            info "User $user has a valid shell ($shell)."
             if [ "x$user" = "xroot" ] && [ "$user" != "$EXCEPTION_USER" ]; then
                 check_dir /root
                 continue
@@ -146,7 +149,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     :
 }
 
@@ -167,12 +170,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

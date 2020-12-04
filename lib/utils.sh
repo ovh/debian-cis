@@ -4,7 +4,7 @@
 # run-shellcheck
 
 #
-# Sysctl 
+# Sysctl
 #
 
 has_sysctl_param_expected_result() {
@@ -24,13 +24,12 @@ has_sysctl_param_expected_result() {
 
 does_sysctl_param_exists() {
     local SYSCTL_PARAM=$1
-    if [ "$($SUDO_CMD sysctl -a 2>/dev/null |grep "$SYSCTL_PARAM" -c)" = 0 ]; then
+    if [ "$($SUDO_CMD sysctl -a 2>/dev/null | grep "$SYSCTL_PARAM" -c)" = 0 ]; then
         FNRET=1
     else
         FNRET=0
     fi
 }
-
 
 set_sysctl_param() {
     local SYSCTL_PARAM=$1
@@ -48,7 +47,7 @@ set_sysctl_param() {
 }
 
 #
-# Dmesg 
+# Dmesg
 #
 
 does_pattern_exist_in_dmesg() {
@@ -61,7 +60,7 @@ does_pattern_exist_in_dmesg() {
 }
 
 #
-# File 
+# File
 #
 
 does_file_exist() {
@@ -90,12 +89,12 @@ has_file_correct_ownership() {
 has_file_correct_permissions() {
     local FILE=$1
     local PERMISSIONS=$2
-    
+
     if [ $($SUDO_CMD stat -L -c "%a" $FILE) = "$PERMISSIONS" ]; then
         FNRET=0
     else
         FNRET=1
-    fi 
+    fi
 }
 
 does_pattern_exist_in_file_nocase() {
@@ -114,7 +113,7 @@ _does_pattern_exist_in_file() {
     local PATTERN="$*"
 
     debug "Checking if $PATTERN is present in $FILE"
-    if $SUDO_CMD [ -r "$FILE" ] ; then
+    if $SUDO_CMD [ -r "$FILE" ]; then
         debug "$SUDO_CMD grep -q $OPTIONS -- '$PATTERN' $FILE"
         if $($SUDO_CMD grep -q $OPTIONS -- "$PATTERN" $FILE); then
             debug "Pattern found in $FILE"
@@ -145,9 +144,9 @@ does_pattern_exist_in_file_multiline() {
     local PATTERN="$*"
 
     debug "Checking if multiline pattern: $PATTERN is present in $FILE"
-    if $SUDO_CMD [ -r "$FILE" ] ; then
+    if $SUDO_CMD [ -r "$FILE" ]; then
         debug "$SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN""
-        if $($SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN" ); then
+        if $($SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN"); then
             debug "Pattern found in $FILE"
             FNRET=0
         else
@@ -166,9 +165,9 @@ add_end_of_file() {
 
     debug "Adding $LINE at the end of $FILE"
     backup_file "$FILE"
-    echo "$LINE" >> $FILE
+    echo "$LINE" >>$FILE
 }
-    
+
 add_line_file_before_pattern() {
     local FILE=$1
     local LINE=$2
@@ -176,7 +175,7 @@ add_line_file_before_pattern() {
 
     backup_file "$FILE"
     debug "Inserting $LINE before $PATTERN in $FILE"
-    PATTERN=$(sed 's@/@\\\/@g' <<< $PATTERN)
+    PATTERN=$(sed 's@/@\\\/@g' <<<$PATTERN)
     debug "sed -i '/$PATTERN/i $LINE' $FILE"
     sed -i "/$PATTERN/i $LINE" $FILE
     FNRET=0
@@ -189,7 +188,7 @@ replace_in_file() {
 
     backup_file "$FILE"
     debug "Replacing $SOURCE to $DESTINATION in $FILE"
-    SOURCE=$(sed 's@/@\\\/@g' <<< $SOURCE)
+    SOURCE=$(sed 's@/@\\\/@g' <<<$SOURCE)
     debug "sed -i 's/$SOURCE/$DESTINATION/g' $FILE"
     sed -i "s/$SOURCE/$DESTINATION/g" $FILE
     FNRET=0
@@ -201,7 +200,7 @@ delete_line_in_file() {
 
     backup_file "$FILE"
     debug "Deleting lines from $FILE containing $PATTERN"
-    PATTERN=$(sed 's@/@\\\/@g' <<< $PATTERN)
+    PATTERN=$(sed 's@/@\\\/@g' <<<$PATTERN)
     debug "sed -i '/$PATTERN/d' $FILE"
     sed -i "/$PATTERN/d" $FILE
     FNRET=0
@@ -244,7 +243,6 @@ is_service_enabled() {
     fi
 }
 
-
 #
 # Kernel Options checks
 #
@@ -252,15 +250,15 @@ is_service_enabled() {
 is_kernel_option_enabled() {
     local KERNEL_OPTION="$1"
     local MODULE_NAME=""
-    if [ $# -ge 2 ] ; then
+    if [ $# -ge 2 ]; then
         MODULE_NAME="$2"
     fi
-    if $SUDO_CMD [ -r "/proc/config.gz" ] ; then
+    if $SUDO_CMD [ -r "/proc/config.gz" ]; then
         RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
-    elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ] ; then
+    elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ]; then
         RESULT=$($SUDO_CMD grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
     fi
-    ANSWER=$(cut -d = -f 2 <<< "$RESULT")
+    ANSWER=$(cut -d = -f 2 <<<"$RESULT")
     if [ "x$ANSWER" = "xy" ]; then
         debug "Kernel option $KERNEL_OPTION enabled"
         FNRET=0
@@ -272,16 +270,16 @@ is_kernel_option_enabled() {
         FNRET=2 # Not found
     fi
 
-    if $SUDO_CMD [ "$FNRET" -ne 0 -a -n "$MODULE_NAME" -a -d "/lib/modules/$(uname -r)" ] ; then
+    if $SUDO_CMD [ "$FNRET" -ne 0 -a -n "$MODULE_NAME" -a -d "/lib/modules/$(uname -r)" ]; then
         # also check in modules, because even if not =y, maybe
         # the admin compiled it separately later (or out-of-tree)
         # as a module (regardless of the fact that we have =m or not)
         debug "Checking if we have $MODULE_NAME.ko"
         local modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
-        if $SUDO_CMD [ -n "$modulefile" ] ; then
+        if $SUDO_CMD [ -n "$modulefile" ]; then
             debug "We do have $modulefile!"
             # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
-            if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/ ; then
+            if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/; then
                 debug "... but it's blacklisted!"
                 FNRET=1 # Not found (found but blacklisted)
                 # FIXME: even if blacklisted, it might be present in the initrd and
@@ -359,7 +357,7 @@ add_option_to_fstab() {
     local OPTION=$2
     debug "Setting $OPTION for $PARTITION in fstab"
     backup_file "/etc/fstab"
-    # For example : 
+    # For example :
     # /dev/sda9       /home           ext4  auto,acl,errors=remount-ro  0       2
     # /dev/sda9       /home           ext4  auto,acl,errors=remount-ro,nodev  0       2
     debug "Sed command :  sed -ie \"s;\(.*\)\(\s*\)\s\($PARTITION\)\s\(\s*\)\(\w*\)\(\s*\)\(\w*\)*;\1\2 \3 \4\5\6\7,$OPTION;\" /etc/fstab"
@@ -373,17 +371,14 @@ remount_partition() {
 }
 
 #
-# APT 
+# APT
 #
 
-apt_update_if_needed() 
-{
-    if [ -e /var/cache/apt/pkgcache.bin ]
-    then
-        UPDATE_AGE=$(( $(date +%s) - $(stat -c '%Y'  /var/cache/apt/pkgcache.bin)  ))
+apt_update_if_needed() {
+    if [ -e /var/cache/apt/pkgcache.bin ]; then
+        UPDATE_AGE=$(($(date +%s) - $(stat -c '%Y' /var/cache/apt/pkgcache.bin)))
 
-        if [ $UPDATE_AGE -gt 21600 ]
-        then
+        if [ $UPDATE_AGE -gt 21600 ]; then
             # update too old, refresh database
             $SUDO_CMD apt-get update -y >/dev/null 2>/dev/null
         fi
@@ -392,12 +387,11 @@ apt_update_if_needed()
     fi
 }
 
-apt_check_updates()
-{
+apt_check_updates() {
     local NAME="$1"
     local DETAILS="/dev/shm/${NAME}"
-    $SUDO_CMD apt-get upgrade -s 2>/dev/null | grep -E "^Inst" > $DETAILS || : 
-    local COUNT=$(wc -l < "$DETAILS")
+    $SUDO_CMD apt-get upgrade -s 2>/dev/null | grep -E "^Inst" >$DETAILS || :
+    local COUNT=$(wc -l <"$DETAILS")
     FNRET=128 # Unknown function return result
     RESULT="" # Result output for upgrade
     if [ $COUNT -gt 0 ]; then
@@ -410,22 +404,19 @@ apt_check_updates()
     rm $DETAILS
 }
 
-apt_install() 
-{
+apt_install() {
     local PACKAGE=$1
     DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $PACKAGE -y
     FNRET=0
 }
 
-
 #
 #   Returns if a package is installed
 #
 
-is_pkg_installed()
-{
+is_pkg_installed() {
     PKG_NAME=$1
-    if $(dpkg -s $PKG_NAME 2> /dev/null | grep -q '^Status: install ') ; then
+    if $(dpkg -s $PKG_NAME 2>/dev/null | grep -q '^Status: install '); then
         debug "$PKG_NAME is installed"
         FNRET=0
     else
@@ -434,11 +425,9 @@ is_pkg_installed()
     fi
 }
 
-
 # Returns Debian major version
 
-get_debian_major_version()
-{
+get_debian_major_version() {
     DEB_MAJ_VER=""
     does_file_exist /etc/debian_version
     if [ $FNRET ]; then
@@ -447,4 +436,3 @@ get_debian_major_version()
         DEB_MAJ_VER=$(lsb_release -r | cut -f2 | cut -d '.' -f 1)
     fi
 }
-

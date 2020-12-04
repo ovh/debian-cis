@@ -16,10 +16,9 @@ set -u # One variable unset, it's over
 DESCRIPTION="Check that any password that may exist in /etc/shadow is SHA512 hashed and salted"
 FILE="/etc/shadow"
 
-
 # This function will be called if the script status is on enabled / audit mode
-audit () {
-# Review shadow file for existing passwords
+audit() {
+    # Review shadow file for existing passwords
     pw_found=""
     users_reviewed=""
     if $SUDO_CMD [ ! -r "$FILE" ]; then
@@ -54,7 +53,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     :
 }
 
@@ -65,12 +64,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

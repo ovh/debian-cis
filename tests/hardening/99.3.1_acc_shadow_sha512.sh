@@ -22,7 +22,7 @@ test_audit() {
     run lockedpasswd /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     mv /tmp/shadow.bak /etc/shadow
-    chpasswd << EOF
+    chpasswd <<EOF
 secaudit:mypassword
 EOF
     describe Pass: Found properly hashed password
@@ -30,4 +30,3 @@ EOF
     register_test contain "User secaudit has suitable SHA512 hashed password"
     run sha512pass /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }
-

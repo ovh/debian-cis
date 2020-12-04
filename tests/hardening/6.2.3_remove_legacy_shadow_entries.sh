@@ -9,7 +9,7 @@ test_audit() {
 
     local test_user="testetcshadowusr"
 
-    describe Tests purposely failing 
+    describe Tests purposely failing
     useradd "$test_user"
     sed -i "s/$test_user:/+:$test_user:/" /etc/shadow
     register_test retvalshouldbe 1
@@ -17,7 +17,7 @@ test_audit() {
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
-    sed  -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
 
     describe Checking resolved state

@@ -13,7 +13,7 @@ test_audit() {
         # shellcheck disable=2154
         run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-        echo 'ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"' > /etc/udev/rules.d/10-CIS_99.2_usb_devices.sh
+        echo 'ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"' >/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh
 
         describe compliant
         register_test retvalshouldbe 0
@@ -22,6 +22,6 @@ test_audit() {
         # TODO fill comprehensive tests
 
         # Cleanup
-        rm  /etc/udev/rules.d/10-CIS_99.2_usb_devices.sh
+        rm /etc/udev/rules.d/10-CIS_99.2_usb_devices.sh
     fi
 }

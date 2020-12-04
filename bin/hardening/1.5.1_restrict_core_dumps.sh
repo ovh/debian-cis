@@ -24,7 +24,7 @@ SYSCTL_PARAM='fs.suid_dumpable'
 SYSCTL_EXP_RESULT=0
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     SEARCH_RES=0
     LIMIT_FILES=""
     if $SUDO_CMD [ -d $LIMIT_DIR ]; then
@@ -57,7 +57,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     does_pattern_exist_in_file $LIMIT_FILE $LIMIT_PATTERN
     if [ "$FNRET" != 0 ]; then
         warn "$LIMIT_PATTERN not present in $LIMIT_FILE, adding at the end of  $LIMIT_FILE"
@@ -73,7 +73,7 @@ apply () {
         warn "$SYSCTL_PARAM does not exist -- Typo?"
     else
         ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
-    fi 
+    fi
 
 }
 
@@ -84,18 +84,18 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
-# shellcheck source=../../lib/main.sh
+    # shellcheck source=../../lib/main.sh
     . "$CIS_ROOT_DIR"/lib/main.sh
 else
     echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"

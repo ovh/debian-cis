@@ -12,7 +12,7 @@ if [ $# -gt 0 ]; then
         shift
     fi
 fi
-if [ -z "$target" ] ; then
+if [ -z "$target" ]; then
     echo "Usage: $0 <TARGET> [test_script...]" >&2
     echo -n "Supported targets are: " >&2
     #ls -1v  "$(dirname "$0")"/docker/Dockerfile.* | sed -re 's=^.+/Dockerfile\.==' | tr "\n" " " >&2
@@ -21,15 +21,12 @@ if [ -z "$target" ] ; then
     exit 1
 fi
 
-
 dockerfile="$(dirname "$0")"/docker/Dockerfile.${target}
-if [ ! -f "$dockerfile" ] ; then
-    echo "ERROR: No target available for $target"  >&2
+if [ ! -f "$dockerfile" ]; then
+    echo "ERROR: No target available for $target" >&2
     exit 1
 fi
-
 
 docker build -f "$dockerfile" -t "debian_cis_test:${target}" "$(dirname "$0")"/../
 
 docker run --rm debian_cis_test:"${target}" "$@"
-

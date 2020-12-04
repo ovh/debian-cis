@@ -23,7 +23,7 @@ REGEX="ALL = \( ALL( : ALL)? \)( NOPASSWD:)? ALL"
 EXCEPT=""
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     FILES=""
     if $SUDO_CMD [ ! -r "$FILE" ]; then
         crit "$FILE is not readable"
@@ -35,20 +35,20 @@ audit () {
     elif $SUDO_CMD [ ! -x "$DIRECTORY" ]; then
         crit "Cannot browse $DIRECTORY"
     else
-        FILES="$FILES $($SUDO_CMD ls -1 $DIRECTORY | sed s=^=$DIRECTORY/= )"
+        FILES="$FILES $($SUDO_CMD ls -1 $DIRECTORY | sed s=^=$DIRECTORY/=)"
     fi
     for file in $FILES; do
         if $SUDO_CMD [ ! -r "$file" ]; then
             crit "$file is not readable"
         else
             # shellcheck disable=2001
-            if ! $SUDO_CMD grep -E "$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')" "$file" &> /dev/null ; then
-                ok  "There is no carte-blanche sudo permission in $file"
+            if ! $SUDO_CMD grep -E "$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')" "$file" &>/dev/null; then
+                ok "There is no carte-blanche sudo permission in $file"
             else
                 # shellcheck disable=2001
-                RET=$($SUDO_CMD grep -E "$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')" "$file" | sed 's/\t/#/g;s/ /#/g' )
+                RET=$($SUDO_CMD grep -E "$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')" "$file" | sed 's/\t/#/g;s/ /#/g')
                 for line in $RET; do
-                    if grep -q "$(echo "$line" | cut -d '#' -f 1)" <<< "$EXCEPT" ; then
+                    if grep -q "$(echo "$line" | cut -d '#' -f 1)" <<<"$EXCEPT"; then
                         # shellcheck disable=2001
                         ok "$(echo "$line" | sed 's/#/ /g') is present in $file but was EXCUSED because $(echo "$line" | cut -d '#' -f 1) is part of exceptions."
                         continue
@@ -63,7 +63,7 @@ audit () {
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     :
 }
 
@@ -82,12 +82,12 @@ check_config() {
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
-# shellcheck source=../../debian/default
+    # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

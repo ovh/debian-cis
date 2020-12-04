@@ -7,7 +7,6 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-
     groupadd -f -g 120 grouptest
     groupadd -fo -g 120 grouptest2
 

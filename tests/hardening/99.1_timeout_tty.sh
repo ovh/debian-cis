@@ -7,7 +7,7 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    echo "TMOUT=600" > /etc/profile.d/CIS_99.1_timeout.sh
+    echo "TMOUT=600" >/etc/profile.d/CIS_99.1_timeout.sh
 
     describe compliant
     register_test retvalshouldbe 0
@@ -16,5 +16,5 @@ test_audit() {
     # TODO fill comprehensive tests
 
     # Cleanup
-    rm  /etc/profile.d/CIS_99.1_timeout.sh
+    rm /etc/profile.d/CIS_99.1_timeout.sh
 }

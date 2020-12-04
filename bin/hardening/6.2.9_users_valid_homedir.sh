@@ -36,7 +36,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "All home directories exists"
     fi
     debug "Checking homedir ownership"
@@ -65,7 +65,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "All home directories have correct ownership"
     fi
 }

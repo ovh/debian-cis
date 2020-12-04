@@ -38,7 +38,7 @@ audit() {
         done
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "Dot file permission in users directories are correct"
     fi
 }
@@ -51,11 +51,11 @@ apply() {
                 FILEPERM=$(ls -ld $FILE | cut -f1 -d" ")
                 if [ $(echo $FILEPERM | cut -c6) != "-" ]; then
                     warn "Group Write permission set on FILE $FILE"
-                    chmod g-w $FILE
+                    chmod g-w "$FILE"
                 fi
                 if [ $(echo $FILEPERM | cut -c9) != "-" ]; then
                     warn "Other Write permission set on FILE $FILE"
-                    chmod o-w $FILE
+                    chmod o-w "$FILE"
                 fi
             fi
         done

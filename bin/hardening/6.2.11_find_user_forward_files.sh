@@ -32,7 +32,7 @@ audit() {
         done
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "No $FILENAME present in users home directory"
     fi
 }

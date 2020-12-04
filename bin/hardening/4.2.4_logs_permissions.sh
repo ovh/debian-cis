@@ -33,7 +33,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "Logs in $DIR have correct permissions"
     fi
 }
@@ -51,7 +51,7 @@ apply() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "Logs in $DIR have correct permissions"
     fi
 }

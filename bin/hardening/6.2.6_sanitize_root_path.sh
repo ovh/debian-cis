@@ -63,7 +63,7 @@ audit() {
         shift
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "root PATH is secure"
     fi
 }

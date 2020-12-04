@@ -25,13 +25,13 @@ audit() {
     info "Verifying that $PARTITION is a partition"
     FNRET=0
     is_a_partition "$PARTITION"
-    if [ $FNRET -gt 0 ]; then
+    if [ "$FNRET" -gt 0 ]; then
         crit "$PARTITION is not a partition"
         FNRET=2
     else
         ok "$PARTITION is a partition"
         is_mounted "$PARTITION"
-        if [ $FNRET -gt 0 ]; then
+        if [ "$FNRET" -gt 0 ]; then
             warn "$PARTITION is not mounted"
             FNRET=1
         else

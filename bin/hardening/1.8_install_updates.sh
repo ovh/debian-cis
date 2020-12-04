@@ -23,7 +23,7 @@ audit() {
     apt_update_if_needed
     info "Fetching upgrades ..."
     apt_check_updates "CIS_APT"
-    if [ $FNRET -gt 0 ]; then
+    if [ "$FNRET" -gt 0 ]; then
         crit "$RESULT"
         FNRET=1
     else
@@ -34,7 +34,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ $FNRET -gt 0 ]; then
+    if [ "$FNRET" -gt 0 ]; then
         info "Applying Upgrades..."
         DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' upgrade -y
     else

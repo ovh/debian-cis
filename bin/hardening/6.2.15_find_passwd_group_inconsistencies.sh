@@ -30,7 +30,7 @@ audit() {
         fi
     done
 
-    if [ $ERRORS = 0 ]; then
+    if [ "$ERRORS" = 0 ]; then
         ok "passwd and group Groups are consistent"
     fi
 }

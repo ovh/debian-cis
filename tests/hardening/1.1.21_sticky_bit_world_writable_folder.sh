@@ -12,7 +12,7 @@ test_audit() {
         describe Tests purposely failing
         local targetdir="/home/secaudit/world_writable_folder"
         mkdir $targetdir || true
-        chmod 777 $targetdir
+        chmod 777 "$targetdir"
         register_test retvalshouldbe 1
         register_test contain "Some world writable directories are not on sticky bit mode"
         run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all

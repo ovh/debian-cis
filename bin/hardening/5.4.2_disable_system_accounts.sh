@@ -44,7 +44,7 @@ audit() {
         fi
     done
     IFS=$IFS_BAK
-    if [ ! -z "$RESULT" ]; then
+    if [ -n "$RESULT" ]; then
         crit "Some admin accounts don't have any of $ACCEPTED_SHELLS as their login shell"
         crit "$RESULT"
     else
@@ -71,7 +71,7 @@ apply() {
         fi
     done
     IFS=$IFS_BAK
-    if [ ! -z "$RESULT" ]; then
+    if [ -n "$RESULT" ]; then
         warn "Some admin accounts don't have any of $ACCEPTED_SHELLS as their login shell -- Fixing"
         warn "$RESULT"
         for USER in $(echo "$RESULT" | cut -d: -f 1); do

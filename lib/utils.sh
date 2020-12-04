@@ -270,7 +270,7 @@ is_kernel_option_enabled() {
         FNRET=2 # Not found
     fi
 
-    if $SUDO_CMD [ "$FNRET" -ne 0 -a -n "$MODULE_NAME" -a -d "/lib/modules/$(uname -r)" ]; then
+    if $SUDO_CMD [ "$FNRET" -ne 0 ] && [ -n "$MODULE_NAME" ] && [ -d "/lib/modules/$(uname -r)" ]; then
         # also check in modules, because even if not =y, maybe
         # the admin compiled it separately later (or out-of-tree)
         # as a module (regardless of the fact that we have =m or not)

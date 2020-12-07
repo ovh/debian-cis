@@ -16,6 +16,7 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Configure logrotate to prevent logfile from growing unmanageable."
 
+# shellcheck disable=2034
 SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode

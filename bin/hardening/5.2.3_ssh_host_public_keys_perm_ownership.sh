@@ -82,7 +82,7 @@ apply() {
                 if [ "$FNRET" = 0 ]; then
                     ok "$FILE permissions were set to $PERMISSIONS"
                 else
-                    warn "fixing $DIR SSH public keys permissions to $USER:$GROUP"
+                    warn "fixing $DIR SSH public keys permissions to $PERMISSIONS"
                     chmod 0"$PERMISSIONS" "$FILE"
                 fi
             fi
@@ -94,7 +94,7 @@ apply() {
         if [ "$FNRET" = 0 ]; then
             ok "$FILE ownership was set to $USER:$GROUP"
         else
-            warn "fixing $DIR SSH public keys ownership to $PERMISSIONS"
+            warn "fixing $DIR SSH public keys ownership to $USER:$GROUP"
             chown "$USER":"$GROUP" "$FILE"
         fi
     done

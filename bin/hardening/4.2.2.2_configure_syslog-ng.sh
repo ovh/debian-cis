@@ -17,6 +17,7 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Configure /etc/syslog-ng/syslog-ng.conf ."
 
+# shellcheck disable=2034
 SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode

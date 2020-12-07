@@ -203,7 +203,7 @@ echo
 
 set +e
 set +u
-let totalerrors=$((nbfailedret + nbfailedgrep + nbfailedconsist))
+totalerrors=$((nbfailedret + nbfailedgrep + nbfailedconsist))
 # leave `exit 255` for runtime errors
 [ $totalerrors -ge 255 ] && totalerrors=254
 exit $totalerrors

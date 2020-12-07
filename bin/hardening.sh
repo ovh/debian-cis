@@ -114,7 +114,7 @@ fi
 declare -a TEST_LIST ALLOWED_SERVICES_LIST
 
 # Arguments parsing
-while [[ $# > 0 ]]; do
+while [[ $# -gt 0 ]]; do
     ARG="$1"
     case $ARG in
     --audit)

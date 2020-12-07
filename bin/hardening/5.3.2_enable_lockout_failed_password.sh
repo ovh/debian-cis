@@ -52,7 +52,7 @@ apply() {
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
-        apt_install $PACKAGE
+        apt_install "$PACKAGE"
     fi
     does_pattern_exist_in_file $FILE_AUTH "$PATTERN_AUTH"
     if [ "$FNRET" = 0 ]; then

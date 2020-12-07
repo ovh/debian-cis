@@ -29,10 +29,10 @@ audit() {
     else
         ok "$PACKAGE is installed"
         for SSH_OPTION in $OPTIONS; do
-            SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
-            SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
+            SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
+            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
             PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-            does_pattern_exist_in_file_nocase $FILE "$PATTERN"
+            does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
@@ -49,23 +49,23 @@ apply() {
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
-        apt_install $PACKAGE
+        apt_install "$PACKAGE"
     fi
     for SSH_OPTION in $OPTIONS; do
-        SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
-        SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
+        SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
+        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
         PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
         does_pattern_exist_in_file_nocase $FILE "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file_nocase $FILE "^${SSH_PARAM}"
+            does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
-                add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
+                add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+                replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
             fi
             /etc/init.d/ssh reload >/dev/null 2>&1
         fi
@@ -76,9 +76,9 @@ create_config() {
     get_debian_major_version
     set +u
     debug "Debian version : $DEB_MAJ_VER "
-    if [[ -z $DEB_MAJ_VER ]] || [[ 7 -eq $DEB_MAJ_VER ]]; then
+    if [[ -z "$DEB_MAJ_VER" ]] || [[ 7 -eq "$DEB_MAJ_VER" ]]; then
         KEX='diffie-hellman-group-exchange-sha256'
-    elif [[ 8 -eq $DEB_MAJ_VER ]] || [[ 9 -eq $DEB_MAJ_VER ]]; then
+    elif [[ 8 -eq "$DEB_MAJ_VER" ]] || [[ 9 -eq "$DEB_MAJ_VER" ]]; then
         KEX='curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256'
     else
         KEX='diffie-hellman-group-exchange-sha256'

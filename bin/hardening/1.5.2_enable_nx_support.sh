@@ -35,7 +35,7 @@ nx_supported_and_enabled() {
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_pattern_exist_in_dmesg $PATTERN
+    does_pattern_exist_in_dmesg "$PATTERN"
     if [ "$FNRET" != 0 ]; then
         nx_supported_and_enabled
         if [ "$FNRET" != 0 ]; then
@@ -50,7 +50,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_dmesg $PATTERN
+    does_pattern_exist_in_dmesg "$PATTERN"
     if [ "$FNRET" != 0 ]; then
         nx_supported_and_enabled
         if [ "$FNRET" != 0 ]; then

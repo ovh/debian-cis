@@ -37,7 +37,7 @@ apply() {
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
-        apt_install $PACKAGE
+        apt_install "$PACKAGE"
         info "Tripwire is now installed but not fully functionnal, please see readme to go further"
     fi
 }

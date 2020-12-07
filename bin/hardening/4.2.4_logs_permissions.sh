@@ -46,7 +46,7 @@ apply() {
         if [ "$FNRET" = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            warn "fixing $DIRlogs ownership to $PERMISSIONS"
+            warn "fixing $DIR logs ownership to $PERMISSIONS"
             chmod 0"$PERMISSIONS" "$FILE"
         fi
     done

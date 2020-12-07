@@ -60,26 +60,25 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key'); do
-        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-        if [ "$FNRET" = 0 ]; then
-            ok "$FILE ownership was set to $USER:$GROUP"
-        else
-            warn "fixing $DIR SSH private keys permissions to $USER:$GROUP"
-            chown "$USER":"$GROUP" "$FILE"
-
-        fi
-    done
-
-    for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key'); do
         has_file_correct_permissions "$FILE" "$PERMISSIONS"
         if [ "$FNRET" = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            warn "fixing $DIR SSH private keys ownership to $PERMISSIONS"
+            warn "fixing $DIR SSH private keys permissions to $PERMISSIONS"
             chmod 0"$PERMISSIONS" "$FILE"
         fi
     done
 
+    for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key'); do
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE ownership was set to $USER:$GROUP"
+        else
+            warn "fixing $DIR SSH private keys ownership to $USER:$GROUP"
+            chown "$USER":"$GROUP" "$FILE"
+
+        fi
+    done
 }
 
 # This function will check config parameters required

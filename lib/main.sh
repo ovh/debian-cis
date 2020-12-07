@@ -23,7 +23,7 @@ SUDO_CMD=""
 export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
 # Arguments parsing
-while [[ $# > 0 ]]; do
+while [[ $# -gt 0 ]]; do
     ARG="$1"
     case $ARG in
     --audit-all)

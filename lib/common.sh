@@ -15,6 +15,7 @@ backup_file() {
         TARGET="$BACKUPDIR/$TARGET"
         debug "Backuping $FILE to $TARGET"
         cp -a $FILE $TARGET
+        # shellcheck disable=2034
         FNRET=0
     fi
 }

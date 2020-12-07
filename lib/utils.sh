@@ -76,8 +76,10 @@ has_file_correct_ownership() {
     local FILE=$1
     local USER=$2
     local GROUP=$3
-    local USERID=$(id -u $USER)
-    local GROUPID=$(getent group $GROUP | cut -d: -f3)
+    local USERID
+    local GROUPID
+    USERID=$(id -u $USER)
+    GROUPID=$(getent group $GROUP | cut -d: -f3)
     debug "$SUDO_CMD stat -c '%u %g' $FILE"
     if [ "$($SUDO_CMD stat -c "%u %g" $FILE)" = "$USERID $GROUPID" ]; then
         FNRET=0
@@ -275,7 +277,8 @@ is_kernel_option_enabled() {
         # the admin compiled it separately later (or out-of-tree)
         # as a module (regardless of the fact that we have =m or not)
         debug "Checking if we have $MODULE_NAME.ko"
-        local modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
+        local modulefile
+        modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
         if $SUDO_CMD [ -n "$modulefile" ]; then
             debug "We do have $modulefile!"
             # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
@@ -433,6 +436,7 @@ get_debian_major_version() {
     if [ $FNRET ]; then
         DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
     else
+        # shellcheck disable=2034
         DEB_MAJ_VER=$(lsb_release -r | cut -f2 | cut -d '.' -f 1)
     fi
 }

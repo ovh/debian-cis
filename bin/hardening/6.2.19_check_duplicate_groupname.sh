@@ -27,6 +27,7 @@ audit() {
         OCC_NUMBER=$(awk -F: {'print $1'} <<<$LINE)
         GROUPNAME=$(awk -F: {'print $2'} <<<$LINE)
         if [ $OCC_NUMBER -gt 1 ]; then
+            # shellcheck disable=2034
             USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPNAME /etc/passwd | xargs)
             ERRORS=$((ERRORS + 1))
             crit "Duplicate groupname $GROUPNAME"

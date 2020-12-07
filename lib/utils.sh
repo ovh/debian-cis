@@ -327,12 +327,12 @@ is_mounted() {
 has_mount_option() {
     local PARTITION=$1
     local OPTION=$2
-    if $(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk {'print $4'} | grep -q "bind"); then
-        local actual_partition="$(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk {'print $1'})"
+    if $(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "bind"); then
+        local actual_partition="$(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $1}')"
         debug "$PARTITION is a bind mount of $actual_partition"
         PARTITION="$actual_partition"
     fi
-    if $(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk {'print $4'} | grep -q "$OPTION"); then
+    if $(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "$OPTION"); then
         debug "$OPTION has been detected in fstab for partition $PARTITION"
         FNRET=0
     else
@@ -345,7 +345,7 @@ has_mount_option() {
 has_mounted_option() {
     local PARTITION=$1
     local OPTION=$2
-    if $(grep "[[:space:]]$1[[:space:]]" /proc/mounts | awk {'print $4'} | grep -q "$2"); then
+    if $(grep "[[:space:]]$1[[:space:]]" /proc/mounts | awk '{print $4}' | grep -q "$2"); then
         debug "$OPTION has been detected in /proc/mounts for partition $PARTITION"
         FNRET=0
     else

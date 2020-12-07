@@ -24,9 +24,9 @@ audit() {
     RESULT=$(get_db passwd | awk -F: '{ print $1 ":" $3 ":" $6 }')
     for LINE in $RESULT; do
         debug "Working on $LINE"
-        USER=$(awk -F: {'print $1'} <<<$LINE)
-        USERID=$(awk -F: {'print $2'} <<<$LINE)
-        DIR=$(awk -F: {'print $3'} <<<$LINE)
+        USER=$(awk -F: '{print $1}' <<<$LINE)
+        USERID=$(awk -F: '{print $2}' <<<$LINE)
+        DIR=$(awk -F: '{print $3}' <<<$LINE)
         if [ $USERID -ge 1000 ] && [ ! -d "$DIR" ] && [ $USER != "nfsnobody" ] && [ $USER != "nobody" ] && [ "$DIR" != "/nonexistent" ]; then
             crit "The home directory ($DIR) of user $USER does not exist."
             ERRORS=$((ERRORS + 1))

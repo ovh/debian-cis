@@ -27,19 +27,19 @@ audit() {
     does_file_exist $FILE
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
-        continue
-    fi
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
     else
-        crit "$FILE ownership was not set to $USER:$GROUP"
-    fi
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
-    else
-        crit "$FILE permissions were not set to $PERMISSIONS"
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            crit "$FILE ownership was not set to $USER:$GROUP"
+        fi
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            crit "$FILE permissions were not set to $PERMISSIONS"
+        fi
     fi
 }
 

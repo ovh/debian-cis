@@ -2,7 +2,7 @@
 # run-shellcheck
 test_audit() {
 
-    apt update
+    apt-get update
     apt-get install -y libpam-pwquality
 
     describe Running on blank host

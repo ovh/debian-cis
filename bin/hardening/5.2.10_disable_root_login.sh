@@ -31,7 +31,7 @@ audit() {
         for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-            PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
+            PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
@@ -54,7 +54,7 @@ apply() {
     for SSH_OPTION in $OPTIONS; do
         SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
         SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-        PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
+        PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
@@ -65,7 +65,7 @@ apply() {
                 add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+                replace_in_file $FILE "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
             fi
             /etc/init.d/ssh reload
         fi

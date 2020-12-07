@@ -32,7 +32,7 @@ audit() {
             SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
             SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
             SSH_VALUE=$(sed "s/'//g" <<<$SSH_VALUE)
-            PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
+            PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
@@ -56,18 +56,18 @@ apply() {
         SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
         SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
         SSH_VALUE=$(sed "s/'//g" <<<$SSH_VALUE)
-        PATTERN="^$SSH_PARAM[[:space:]]*$SSH_VALUE"
+        PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file $FILE "^$SSH_PARAM"
+            does_pattern_exist_in_file $FILE "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
                 add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+                replace_in_file $FILE "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
             fi
             /etc/init.d/ssh reload
         fi

@@ -57,7 +57,7 @@ apply() {
             add_end_of_file $FILE "$PATTERN"
         else
             info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-            replace_in_file $FILE "^$SSH_PARAM[[:space:]]*.*" "$PATTERN"
+            replace_in_file $FILE "^${SSH_PARAM}[[:space:]]*.*" "$PATTERN"
         fi
         /etc/init.d/ssh reload >/dev/null 2>&1
     fi

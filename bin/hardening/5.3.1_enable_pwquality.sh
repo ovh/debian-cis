@@ -32,17 +32,17 @@ audit() {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        does_pattern_exist_in_file $FILE_COMMON $PATTERN_COMMON
+        does_pattern_exist_in_file "$FILE_COMMON" "$PATTERN_COMMON"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN_COMMON is present in $FILE_COMMON"
         else
             crit "$PATTERN_COMMON is not present in $FILE_COMMON"
         fi
         for PW_OPT in $OPTIONS; do
-            PW_PARAM=$(echo $PW_OPT | cut -d= -f1)
-            PW_VALUE=$(echo $PW_OPT | cut -d= -f2)
+            PW_PARAM=$(echo "$PW_OPT" | cut -d= -f1)
+            PW_VALUE=$(echo "$PW_OPT" | cut -d= -f2)
             PATTERN="^${PW_PARAM}[[:space:]]+=[[:space:]]+$PW_VALUE"
-            does_pattern_exist_in_file $FILE_QUALITY "$PATTERN"
+            does_pattern_exist_in_file "$FILE_QUALITY" "$PATTERN"
 
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE_QUALITY"
@@ -71,20 +71,20 @@ apply() {
     fi
 
     for PW_OPT in $OPTIONS; do
-        PW_PARAM=$(echo $PW_OPT | cut -d= -f1)
-        PW_VALUE=$(echo $PW_OPT | cut -d= -f2)
+        PW_PARAM=$(echo "$PW_OPT" | cut -d= -f1)
+        PW_VALUE=$(echo "$PW_OPT" | cut -d= -f2)
         PATTERN="^${PW_PARAM}[[:space:]]+=[[:space:]]+$PW_VALUE"
-        does_pattern_exist_in_file $FILE_QUALITY $PATTERN
+        does_pattern_exist_in_file "$FILE_QUALITY" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE_QUALITY"
         else
             warn "$PATTERN is not present in $FILE_QUALITY, adding it"
-            does_pattern_exist_in_file $FILE_QUALITY "^${PW_PARAM}"
+            does_pattern_exist_in_file "$FILE_QUALITY" "^${PW_PARAM}"
             if [ "$FNRET" != 0 ]; then
-                add_end_of_file $FILE_QUALITY "$PW_PARAM = $PW_VALUE"
+                add_end_of_file "$FILE_QUALITY" "$PW_PARAM = $PW_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE_QUALITY "^${PW_PARAM}*.*" "$PW_PARAM = $PW_VALUE"
+                replace_in_file "$FILE_QUALITY" "^${PW_PARAM}*.*" "$PW_PARAM = $PW_VALUE"
             fi
         fi
     done

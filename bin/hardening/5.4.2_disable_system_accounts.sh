@@ -32,11 +32,11 @@ audit() {
     IFS=$'\n'
     for LINE in $RESULT; do
         debug "line : $LINE"
-        ACCOUNT=$(echo $LINE | cut -d: -f 1)
+        ACCOUNT=$(echo "$LINE" | cut -d: -f 1)
         debug "Account : $ACCOUNT"
         debug "Exceptions : $EXCEPTIONS"
         debug "echo \"$EXCEPTIONS\" | grep -q $ACCOUNT"
-        if echo "$EXCEPTIONS" | grep -q $ACCOUNT; then
+        if echo "$EXCEPTIONS" | grep -q "$ACCOUNT"; then
             debug "$ACCOUNT is confirmed as an exception"
             RESULT=$(sed "s!$LINE!!" <<<"$RESULT")
         else
@@ -59,11 +59,11 @@ apply() {
     IFS=$'\n'
     for LINE in $RESULT; do
         debug "line : $LINE"
-        ACCOUNT=$(echo $LINE | cut -d: -f 1)
+        ACCOUNT=$(echo "$LINE" | cut -d: -f 1)
         debug "Account : $ACCOUNT"
         debug "Exceptions : $EXCEPTIONS"
         debug "echo \"$EXCEPTIONS\" | grep -q $ACCOUNT"
-        if echo "$EXCEPTIONS" | grep -q $ACCOUNT; then
+        if echo "$EXCEPTIONS" | grep -q "$ACCOUNT"; then
             debug "$ACCOUNT is confirmed as an exception"
             RESULT=$(sed "s!$LINE!!" <<<"$RESULT")
         else

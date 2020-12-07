@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 # run-shellcheck
 
-LONG_SCRIPT_NAME=$(basename $0)
+LONG_SCRIPT_NAME=$(basename "$0")
 SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 # Variable initialization, to avoid crash
 CRITICAL_ERRORS_NUMBER=0 # This will be used to see if a script failed, or passed
@@ -11,13 +11,13 @@ status=""
 forcedstatus=""
 SUDO_CMD=""
 # shellcheck source=constants.sh
-[ -r $CIS_ROOT_DIR/lib/constants.sh ] && . $CIS_ROOT_DIR/lib/constants.sh
+[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
 # shellcheck source=../etc/hardening.cfg
-[ -r $CIS_ROOT_DIR/etc/hardening.cfg ] && . $CIS_ROOT_DIR/etc/hardening.cfg
+[ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
 # shellcheck source=../lib/common.sh
-[ -r $CIS_ROOT_DIR/lib/common.sh ] && . $CIS_ROOT_DIR/lib/common.sh
+[ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
 # shellcheck source=../lib/utils.sh
-[ -r $CIS_ROOT_DIR/lib/utils.sh ] && . $CIS_ROOT_DIR/lib/utils.sh
+[ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
 
 # Environment Sanitizing
 export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
@@ -50,7 +50,7 @@ while [[ $# -gt 0 ]]; do
         BATCH_MODE=1
         LOGLEVEL=ok
         # shellcheck source=../lib/common.sh
-        [ -r $CIS_ROOT_DIR/lib/common.sh ] && . $CIS_ROOT_DIR/lib/common.sh
+        [ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
         ;;
     *)
         debug "Unknown option passed"
@@ -63,15 +63,15 @@ info "Working on $SCRIPT_NAME"
 info "[DESCRIPTION] $DESCRIPTION"
 
 # Source specific configuration file
-if ! [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ]; then
+if ! [ -r "$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg ]; then
     # If it doesn't exist, create it with default values
-    echo "# Configuration for $SCRIPT_NAME, created from default values on $(date)" >$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
+    echo "# Configuration for $SCRIPT_NAME, created from default values on $(date)" >"$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
     # If create_config is a defined function, execute it.
     # Otherwise, just disable the test by default.
     if type -t create_config | grep -qw function; then
-        create_config >>$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
+        create_config >>"$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
     else
-        echo "status=audit" >>$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
+        echo "status=audit" >>"$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
     fi
 
 fi
@@ -81,7 +81,7 @@ if [ "$forcedstatus" = "createconfig" ]; then
     exit 0
 fi
 # shellcheck source=/dev/null
-[ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] && . $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
+[ -r "$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg ] && . "$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
 
 # Now check configured value for status, and potential cmdline parameter
 if [ "$forcedstatus" = "auditall" ]; then
@@ -97,7 +97,7 @@ elif [ "$forcedstatus" = "audit" ]; then
     fi
 fi
 
-if [ -z $status ]; then
+if [ -z "$status" ]; then
     crit "Could not find status variable for $SCRIPT_NAME, considered as disabled"
 
     exit 2
@@ -127,18 +127,18 @@ disabled | false)
     ;;
 esac
 
-if [ $CRITICAL_ERRORS_NUMBER -eq 0 ]; then
+if [ "$CRITICAL_ERRORS_NUMBER" -eq 0 ]; then
     if [ $BATCH_MODE -eq 1 ]; then
         BATCH_OUTPUT="OK $SCRIPT_NAME $BATCH_OUTPUT"
-        becho $BATCH_OUTPUT
+        becho "$BATCH_OUTPUT"
     else
         ok "Check Passed"
     fi
     exit 0 # Means ok status
 else
-    if [ $BATCH_MODE -eq 1 ]; then
+    if [ "$BATCH_MODE" -eq 1 ]; then
         BATCH_OUTPUT="KO $SCRIPT_NAME $BATCH_OUTPUT"
-        becho $BATCH_OUTPUT
+        becho "$BATCH_OUTPUT"
     else
         crit "Check Failed"
     fi

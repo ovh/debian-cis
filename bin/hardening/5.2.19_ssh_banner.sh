@@ -81,7 +81,7 @@ EOF
 
 # This function will check config parameters required
 check_config() {
-    if [ -z $BANNER_FILE ]; then
+    if [ -z "$BANNER_FILE" ]; then
         info "BANNER_FILE is not set, defaults to wildcard"
         BANNER_FILE='/etc/issue.net'
     fi

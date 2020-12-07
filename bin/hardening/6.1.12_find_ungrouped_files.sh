@@ -31,7 +31,7 @@ audit() {
     fi
     if [ -n "$RESULT" ]; then
         crit "Some ungrouped files are present"
-        FORMATTED_RESULT=$(sed "s/ /\n/g" <<<$RESULT | sort | uniq | tr '\n' ' ')
+        FORMATTED_RESULT=$(sed "s/ /\n/g" <<<"$RESULT" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
         ok "No ungrouped files found"

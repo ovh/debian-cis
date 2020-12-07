@@ -20,7 +20,7 @@ DESCRIPTION="Ensure no world writable files exist"
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are world writable files"
-    FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'})
+    FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
     if [ -n "$RESULT" ]; then
         crit "Some world writable files are present"
@@ -33,10 +33,10 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
+    RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
     if [ -n "$RESULT" ]; then
         warn "chmoding o-w all files in the system"
-        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null | xargs chmod o-w
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null | xargs chmod o-w
     else
         ok "No world writable files found, nothing to apply"
     fi

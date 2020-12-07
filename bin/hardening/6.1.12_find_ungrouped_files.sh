@@ -23,7 +23,7 @@ EXCLUDED=''
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are ungrouped files"
-    FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'})
+    FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCLUDED" ]; then
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -nogroup -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
     else
@@ -41,13 +41,13 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     if [ -n "$EXCLUDED" ]; then
-        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -regextype 'egrep' ! -regex "$EXCLUDED" -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -regextype 'egrep' ! -regex "$EXCLUDED" -ls 2>/dev/null)
     else
-        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -ls 2>/dev/null)
     fi
     if [ -n "$RESULT" ]; then
         warn "Applying chgrp on all ungrouped files in the system"
-        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null | xargs chgrp $GROUP
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null | xargs chgrp $GROUP
     else
         ok "No ungrouped files found, nothing to apply"
     fi

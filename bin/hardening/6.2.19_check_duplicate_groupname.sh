@@ -21,11 +21,11 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    RESULT=$(get_db group | cut -f1 -d":" | sort -n | uniq -c | awk {'print $1":"$2'})
+    RESULT=$(get_db group | cut -f1 -d":" | sort -n | uniq -c | awk '{print $1":"$2}')
     for LINE in $RESULT; do
         debug "Working on line $LINE"
-        OCC_NUMBER=$(awk -F: {'print $1'} <<<$LINE)
-        GROUPNAME=$(awk -F: {'print $2'} <<<$LINE)
+        OCC_NUMBER=$(awk -F: '{print $1}' <<<$LINE)
+        GROUPNAME=$(awk -F: '{print $2}' <<<$LINE)
         if [ $OCC_NUMBER -gt 1 ]; then
             # shellcheck disable=2034
             USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPNAME /etc/passwd | xargs)

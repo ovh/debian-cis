@@ -23,7 +23,7 @@ EXCLUDED=''
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are unowned files"
-    FS_NAMES=$(df --local -P | awk {'if (NR!=1) print $6'})
+    FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCLUDED" ]; then
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -nouser -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
     else
@@ -41,13 +41,13 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     if [ -n "$EXCLUDED" ]; then
-        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -regextype 'egrep' ! -regex "$EXCLUDED" -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -regextype 'egrep' ! -regex "$EXCLUDED" -ls 2>/dev/null)
     else
-        RESULT=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -ls 2>/dev/null)
     fi
     if [ -n "$RESULT" ]; then
         warn "Applying chown on all unowned files in the system"
-        df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown $USER
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown $USER
     else
         ok "No unowned files found, nothing to apply"
     fi

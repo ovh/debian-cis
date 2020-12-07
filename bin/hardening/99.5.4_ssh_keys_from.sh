@@ -42,7 +42,7 @@ check_ip() {
         bad_ips=""
         for ip in $ips; do
             ip_escaped=$(sed 's/\./\\./g' <<<"$ip")
-            if grep -qw "$ip_escaped" <<<$ALLOWED_IPS; then
+            if grep -qw "$ip_escaped" <<<"$ALLOWED_IPS"; then
                 debug "Line $linum of $file allows access from exused IP (${ip})."
                 ok_ips_allowed+="$ip "
             else
@@ -93,7 +93,7 @@ check_dir() {
         return
     fi
     for file in $AUTHKEYFILE_PATTERN; do
-        check_file "${directory}"/${file}
+        check_file "${directory}"/"${file}"
     done
 }
 

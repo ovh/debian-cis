@@ -36,7 +36,7 @@ apply() {
         warn "Some accounts have an empty password"
         for ACCOUNT in $RESULT; do
             info "Locking $ACCOUNT"
-            passwd -l $ACCOUNT >/dev/null 2>&1
+            passwd -l "$ACCOUNT" >/dev/null 2>&1
         done
     else
         ok "All accounts have a password"

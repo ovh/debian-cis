@@ -24,11 +24,11 @@ audit() {
     RESULT=$(get_db group | cut -f1 -d":" | sort -n | uniq -c | awk '{print $1":"$2}')
     for LINE in $RESULT; do
         debug "Working on line $LINE"
-        OCC_NUMBER=$(awk -F: '{print $1}' <<<$LINE)
-        GROUPNAME=$(awk -F: '{print $2}' <<<$LINE)
-        if [ $OCC_NUMBER -gt 1 ]; then
+        OCC_NUMBER=$(awk -F: '{print $1}' <<<"$LINE")
+        GROUPNAME=$(awk -F: '{print $2}' <<<"$LINE")
+        if [ "$OCC_NUMBER" -gt 1 ]; then
             # shellcheck disable=2034
-            USERS=$(awk -F: '($3 == n) { print $1 }' n=$GROUPNAME /etc/passwd | xargs)
+            USERS=$(awk -F: '($3 == n) { print $1 }' n="$GROUPNAME" /etc/passwd | xargs)
             ERRORS=$((ERRORS + 1))
             crit "Duplicate groupname $GROUPNAME"
         fi

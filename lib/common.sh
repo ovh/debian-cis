@@ -7,14 +7,14 @@
 #
 backup_file() {
     FILE=$1
-    if [ ! -f $FILE ]; then
+    if [ ! -f "$FILE" ]; then
         crit "Cannot backup $FILE, it's not a file"
         FNRET=1
     else
-        TARGET=$(echo $FILE | sed -s -e 's/\//./g' -e 's/^.//' -e "s/$/.$(date +%F-%H_%M_%S)/")
+        TARGET=$(echo "$FILE" | sed -s -e 's/\//./g' -e 's/^.//' -e "s/$/.$(date +%F-%H_%M_%S)/")
         TARGET="$BACKUPDIR/$TARGET"
         debug "Backuping $FILE to $TARGET"
-        cp -a $FILE $TARGET
+        cp -a "$FILE" "$TARGET"
         # shellcheck disable=2034
         FNRET=0
     fi
@@ -48,10 +48,10 @@ esac
 _logger() {
     COLOR=$1
     shift
-    test -z "$SCRIPT_NAME" && SCRIPT_NAME=$(basename $0)
+    test -z "$SCRIPT_NAME" && SCRIPT_NAME=$(basename "$0")
     builtin echo "$*" | /usr/bin/logger -t "CIS_Hardening[$$] $SCRIPT_NAME" -p "user.info"
     SCRIPT_NAME_FIXEDLEN=$(printf "%-25.25s" "$SCRIPT_NAME")
-    cecho $COLOR "$SCRIPT_NAME_FIXEDLEN $*"
+    cecho "$COLOR" "$SCRIPT_NAME_FIXEDLEN $*"
 }
 
 becho() {
@@ -67,37 +67,37 @@ cecho() {
 }
 
 crit() {
-    if [ ${BATCH_MODE:-0} -eq 1 ]; then
+    if [ "${BATCH_MODE:-0}" -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT KO{$*}"
     else
-        if [ $MACHINE_LOG_LEVEL -ge 1 ]; then _logger $BRED "[ KO ] $*"; fi
+        if [ $MACHINE_LOG_LEVEL -ge 1 ]; then _logger "$BRED" "[ KO ] $*"; fi
     fi
     # This variable incrementation is used to measure failure or success in tests
     CRITICAL_ERRORS_NUMBER=$((CRITICAL_ERRORS_NUMBER + 1))
 }
 
 warn() {
-    if [ ${BATCH_MODE:-0} -eq 1 ]; then
+    if [ "${BATCH_MODE:-0}" -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT WARN{$*}"
     else
-        if [ $MACHINE_LOG_LEVEL -ge 2 ]; then _logger $BYELLOW "[WARN] $*"; fi
+        if [ $MACHINE_LOG_LEVEL -ge 2 ]; then _logger "$BYELLOW" "[WARN] $*"; fi
     fi
 }
 
 ok() {
-    if [ ${BATCH_MODE:-0} -eq 1 ]; then
+    if [ "${BATCH_MODE:-0}" -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT OK{$*}"
     else
-        if [ $MACHINE_LOG_LEVEL -ge 3 ]; then _logger $BGREEN "[ OK ] $*"; fi
+        if [ $MACHINE_LOG_LEVEL -ge 3 ]; then _logger "$BGREEN" "[ OK ] $*"; fi
     fi
 }
 
 info() {
-    if [ $MACHINE_LOG_LEVEL -ge 4 ]; then _logger '' "[INFO] $*"; fi
+    if [ "$MACHINE_LOG_LEVEL" -ge 4 ]; then _logger '' "[INFO] $*"; fi
 }
 
 debug() {
-    if [ $MACHINE_LOG_LEVEL -ge 5 ]; then _logger $GRAY "[DBG ] $*"; fi
+    if [ "$MACHINE_LOG_LEVEL" -ge 5 ]; then _logger "$GRAY" "[DBG ] $*"; fi
 }
 
 #

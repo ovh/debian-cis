@@ -29,8 +29,8 @@ audit() {
     else
         ok "$PACKAGE is installed"
         for SHADOW_OPTION in $OPTIONS; do
-            SHADOW_PARAM=$(echo $SHADOW_OPTION | cut -d= -f 1)
-            SHADOW_VALUE=$(echo $SHADOW_OPTION | cut -d= -f 2)
+            SHADOW_PARAM=$(echo "$SHADOW_OPTION" | cut -d= -f 1)
+            SHADOW_VALUE=$(echo "$SHADOW_OPTION" | cut -d= -f 2)
             PATTERN="^${SHADOW_PARAM}[[:space:]]*$SHADOW_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ "$FNRET" = 0 ]; then
@@ -52,20 +52,20 @@ apply() {
         apt_install "$PACKAGE"
     fi
     for SHADOW_OPTION in $OPTIONS; do
-        SHADOW_PARAM=$(echo $SHADOW_OPTION | cut -d= -f 1)
-        SHADOW_VALUE=$(echo $SHADOW_OPTION | cut -d= -f 2)
+        SHADOW_PARAM=$(echo "$SHADOW_OPTION" | cut -d= -f 1)
+        SHADOW_VALUE=$(echo "$SHADOW_OPTION" | cut -d= -f 2)
         PATTERN="^${SHADOW_PARAM}[[:space:]]*$SHADOW_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file $FILE "^${SHADOW_PARAM}"
+            does_pattern_exist_in_file "$FILE" "^${SHADOW_PARAM}"
             if [ "$FNRET" != 0 ]; then
-                add_end_of_file $FILE "$SHADOW_PARAM $SHADOW_VALUE"
+                add_end_of_file "$FILE" "$SHADOW_PARAM $SHADOW_VALUE"
             else
                 info "Parameter $SHADOW_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE "^${SHADOW_PARAM}[[:space:]]*.*" "$SHADOW_PARAM $SHADOW_VALUE"
+                replace_in_file "$FILE" "^${SHADOW_PARAM}[[:space:]]*.*" "$SHADOW_PARAM $SHADOW_VALUE"
             fi
         fi
     done

@@ -32,7 +32,7 @@ audit() {
             AUDIT_VALUE=$(echo "$AUDIT_OPTION" | cut -d= -f 2)
             PATTERN="^${AUDIT_PARAM}[[:space:]]*=[[:space:]]*$AUDIT_VALUE"
             debug "$AUDIT_PARAM should be set to $AUDIT_VALUE"
-            does_pattern_exist_in_file $FILE "$PATTERN"
+            does_pattern_exist_in_file "$FILE" "$PATTERN"
             if [ "$FNRET" != 0 ]; then
                 crit "$PATTERN is not present in $FILE"
             else
@@ -52,20 +52,20 @@ apply() {
         ok "$FILE exists"
     fi
     for AUDIT_OPTION in $OPTIONS; do
-        AUDIT_PARAM=$(echo $AUDIT_OPTION | cut -d= -f 1)
-        AUDIT_VALUE=$(echo $AUDIT_OPTION | cut -d= -f 2)
+        AUDIT_PARAM=$(echo "$AUDIT_OPTION" | cut -d= -f 1)
+        AUDIT_VALUE=$(echo "$AUDIT_OPTION" | cut -d= -f 2)
         debug "$AUDIT_PARAM should be set to $AUDIT_VALUE"
         PATTERN="^${AUDIT_PARAM}[[:space:]]*=[[:space:]]*$AUDIT_VALUE"
         does_pattern_exist_in_file $FILE "$PATTERN"
         if [ "$FNRET" != 0 ]; then
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file $FILE "^$AUDIT_PARAM"
+            does_pattern_exist_in_file "$FILE" "^$AUDIT_PARAM"
             if [ "$FNRET" != 0 ]; then
                 info "Parameter $AUDIT_PARAM seems absent from $FILE, adding at the end"
-                add_end_of_file $FILE "$AUDIT_PARAM = $AUDIT_VALUE"
+                add_end_of_file "$FILE" "$AUDIT_PARAM = $AUDIT_VALUE"
             else
                 info "Parameter $AUDIT_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE "^${AUDIT_PARAM}[[:space:]]*=.*" "$AUDIT_PARAM = $AUDIT_VALUE"
+                replace_in_file "$FILE" "^${AUDIT_PARAM}[[:space:]]*=.*" "$AUDIT_PARAM = $AUDIT_VALUE"
             fi
         else
             ok "$PATTERN is present in $FILE"

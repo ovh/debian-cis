@@ -11,7 +11,7 @@ has_sysctl_param_expected_result() {
     local SYSCTL_PARAM=$1
     local EXP_RESULT=$2
 
-    if [ "$($SUDO_CMD sysctl $SYSCTL_PARAM 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
+    if [ "$($SUDO_CMD sysctl "$SYSCTL_PARAM" 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
         FNRET=0
     elif [ $? = 255 ]; then
         debug "$SYSCTL_PARAM does not exist"
@@ -35,7 +35,7 @@ set_sysctl_param() {
     local SYSCTL_PARAM=$1
     local VALUE=$2
     debug "Setting $SYSCTL_PARAM to $VALUE"
-    if [ "$(sysctl -w $SYSCTL_PARAM=$VALUE 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
+    if [ "$(sysctl -w "$SYSCTL_PARAM"="$VALUE" 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
         FNRET=0
     elif [ $? = 255 ]; then
         debug "$SYSCTL_PARAM does not exist"
@@ -65,7 +65,7 @@ does_pattern_exist_in_dmesg() {
 
 does_file_exist() {
     local FILE=$1
-    if $SUDO_CMD [ -e $FILE ]; then
+    if $SUDO_CMD [ -e "$FILE" ]; then
         FNRET=0
     else
         FNRET=1
@@ -78,10 +78,10 @@ has_file_correct_ownership() {
     local GROUP=$3
     local USERID
     local GROUPID
-    USERID=$(id -u $USER)
-    GROUPID=$(getent group $GROUP | cut -d: -f3)
+    USERID=$(id -u "$USER")
+    GROUPID=$(getent group "$GROUP" | cut -d: -f3)
     debug "$SUDO_CMD stat -c '%u %g' $FILE"
-    if [ "$($SUDO_CMD stat -c "%u %g" $FILE)" = "$USERID $GROUPID" ]; then
+    if [ "$($SUDO_CMD stat -c "%u %g" "$FILE")" = "$USERID $GROUPID" ]; then
         FNRET=0
     else
         FNRET=1
@@ -92,7 +92,7 @@ has_file_correct_permissions() {
     local FILE=$1
     local PERMISSIONS=$2
 
-    if [ $($SUDO_CMD stat -L -c "%a" $FILE) = "$PERMISSIONS" ]; then
+    if [ $($SUDO_CMD stat -L -c "%a" "$FILE") = "$PERMISSIONS" ]; then
         FNRET=0
     else
         FNRET=1
@@ -117,7 +117,7 @@ _does_pattern_exist_in_file() {
     debug "Checking if $PATTERN is present in $FILE"
     if $SUDO_CMD [ -r "$FILE" ]; then
         debug "$SUDO_CMD grep -q $OPTIONS -- '$PATTERN' $FILE"
-        if $($SUDO_CMD grep -q $OPTIONS -- "$PATTERN" $FILE); then
+        if $($SUDO_CMD grep -q "$OPTIONS" -- "$PATTERN" "$FILE"); then
             debug "Pattern found in $FILE"
             FNRET=0
         else
@@ -148,7 +148,7 @@ does_pattern_exist_in_file_multiline() {
     debug "Checking if multiline pattern: $PATTERN is present in $FILE"
     if $SUDO_CMD [ -r "$FILE" ]; then
         debug "$SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN""
-        if $($SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN"); then
+        if $($SUDO_CMD grep -v '^[[:space:]]*#' "$FILE" | tr '\n' ' ' | grep -Pq -- "$PATTERN"); then
             debug "Pattern found in $FILE"
             FNRET=0
         else
@@ -167,7 +167,7 @@ add_end_of_file() {
 
     debug "Adding $LINE at the end of $FILE"
     backup_file "$FILE"
-    echo "$LINE" >>$FILE
+    echo "$LINE" >>"$FILE"
 }
 
 add_line_file_before_pattern() {
@@ -177,9 +177,9 @@ add_line_file_before_pattern() {
 
     backup_file "$FILE"
     debug "Inserting $LINE before $PATTERN in $FILE"
-    PATTERN=$(sed 's@/@\\\/@g' <<<$PATTERN)
+    PATTERN=$(sed 's@/@\\\/@g' <<<"$PATTERN")
     debug "sed -i '/$PATTERN/i $LINE' $FILE"
-    sed -i "/$PATTERN/i $LINE" $FILE
+    sed -i "/$PATTERN/i $LINE" "$FILE"
     FNRET=0
 }
 
@@ -190,9 +190,9 @@ replace_in_file() {
 
     backup_file "$FILE"
     debug "Replacing $SOURCE to $DESTINATION in $FILE"
-    SOURCE=$(sed 's@/@\\\/@g' <<<$SOURCE)
+    SOURCE=$(sed 's@/@\\\/@g' <<<"$SOURCE")
     debug "sed -i 's/$SOURCE/$DESTINATION/g' $FILE"
-    sed -i "s/$SOURCE/$DESTINATION/g" $FILE
+    sed -i "s/$SOURCE/$DESTINATION/g" "$FILE"
     FNRET=0
 }
 
@@ -202,9 +202,9 @@ delete_line_in_file() {
 
     backup_file "$FILE"
     debug "Deleting lines from $FILE containing $PATTERN"
-    PATTERN=$(sed 's@/@\\\/@g' <<<$PATTERN)
+    PATTERN=$(sed 's@/@\\\/@g' <<<"$PATTERN")
     debug "sed -i '/$PATTERN/d' $FILE"
-    sed -i "/$PATTERN/d" $FILE
+    sed -i "/$PATTERN/d" "$FILE"
     FNRET=0
 }
 
@@ -214,7 +214,7 @@ delete_line_in_file() {
 
 does_user_exist() {
     local USER=$1
-    if $(getent passwd $USER >/dev/null 2>&1); then
+    if $(getent passwd "$USER" >/dev/null 2>&1); then
         FNRET=0
     else
         FNRET=1
@@ -223,7 +223,7 @@ does_user_exist() {
 
 does_group_exist() {
     local GROUP=$1
-    if $(getent group $GROUP >/dev/null 2>&1); then
+    if $(getent group "$GROUP" >/dev/null 2>&1); then
         FNRET=0
     else
         FNRET=1
@@ -370,7 +370,7 @@ add_option_to_fstab() {
 remount_partition() {
     local PARTITION=$1
     debug "Remounting $PARTITION"
-    mount -o remount $PARTITION
+    mount -o remount "$PARTITION"
 }
 
 #
@@ -393,23 +393,23 @@ apt_update_if_needed() {
 apt_check_updates() {
     local NAME="$1"
     local DETAILS="/dev/shm/${NAME}"
-    $SUDO_CMD apt-get upgrade -s 2>/dev/null | grep -E "^Inst" >$DETAILS || :
+    $SUDO_CMD apt-get upgrade -s 2>/dev/null | grep -E "^Inst" >"$DETAILS" || :
     local COUNT=$(wc -l <"$DETAILS")
     FNRET=128 # Unknown function return result
     RESULT="" # Result output for upgrade
-    if [ $COUNT -gt 0 ]; then
-        RESULT="There is $COUNT updates available :\n$(cat $DETAILS)"
+    if [ "$COUNT" -gt 0 ]; then
+        RESULT="There is $COUNT updates available :\n$(cat "$DETAILS")"
         FNRET=1
     else
         RESULT="OK, no updates available"
         FNRET=0
     fi
-    rm $DETAILS
+    rm "$DETAILS"
 }
 
 apt_install() {
     local PACKAGE=$1
-    DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $PACKAGE -y
+    DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "$PACKAGE" -y
     FNRET=0
 }
 
@@ -419,7 +419,7 @@ apt_install() {
 
 is_pkg_installed() {
     PKG_NAME=$1
-    if $(dpkg -s $PKG_NAME 2>/dev/null | grep -q '^Status: install '); then
+    if $(dpkg -s "$PKG_NAME" 2>/dev/null | grep -q '^Status: install '); then
         debug "$PKG_NAME is installed"
         FNRET=0
     else

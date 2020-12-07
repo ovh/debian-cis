@@ -23,10 +23,10 @@ RESULT=''
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if accounts have a legacy password entry"
-    if $SUDO_CMD grep '^+:' $FILE -q; then
-        RESULT=$($SUDO_CMD grep '^+:' $FILE)
+    if $SUDO_CMD grep '^+:' "$FILE" -q; then
+        RESULT=$($SUDO_CMD grep '^+:' "$FILE")
         crit "Some accounts have a legacy password entry"
-        crit $RESULT
+        crit "$RESULT"
     else
         ok "All accounts have a valid password entry format"
     fi
@@ -39,7 +39,7 @@ apply() {
         warn "Some accounts have a legacy password entry"
         for LINE in $RESULT; do
             info "Removing $LINE from $FILE"
-            delete_line_in_file $FILE $LINE
+            delete_line_in_file "$FILE" "$LINE"
         done
     else
         ok "All accounts have a valid password entry format"

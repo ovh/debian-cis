@@ -171,6 +171,7 @@ fi
 
 # Source Root Dir Parameter
 if [ -r /etc/default/cis-hardening ]; then
+    # shellcheck source=../debian/default
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
@@ -178,10 +179,13 @@ if [ -z "$CIS_ROOT_DIR" ]; then
     echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
-
+# shellcheck source=../lib/constants.sh
 [ -r $CIS_ROOT_DIR/lib/constants.sh ] && . $CIS_ROOT_DIR/lib/constants.sh
+# shellcheck source=../etc/hardening.cfg
 [ -r $CIS_ROOT_DIR/etc/hardening.cfg ] && . $CIS_ROOT_DIR/etc/hardening.cfg
+# shellcheck source=../lib/common.sh
 [ -r $CIS_ROOT_DIR/lib/common.sh ] && . $CIS_ROOT_DIR/lib/common.sh
+# shellcheck source=../lib/utils.sh
 [ -r $CIS_ROOT_DIR/lib/utils.sh ] && . $CIS_ROOT_DIR/lib/utils.sh
 
 if [ $BATCH_MODE ]; then MACHINE_LOG_LEVEL=3; fi

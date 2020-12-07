@@ -10,7 +10,7 @@
 # Main script : Execute hardening considering configuration
 #
 
-LONG_SCRIPT_NAME=$(basename $0)
+LONG_SCRIPT_NAME=$(basename "$0")
 SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 DISABLED_CHECKS=0
 PASSED_CHECKS=0
@@ -197,7 +197,7 @@ if [ "$ALLOW_SERVICE_LIST" = 1 ]; then
         template=$(grep "^HARDENING_EXCEPTION=" "$SCRIPT" | cut -d= -f2)
         [ -n "$template" ] && HARDENING_EXCEPTIONS_LIST[${#HARDENING_EXCEPTIONS_LIST[@]}]="$template"
     done
-    echo "Supported services are: "$(echo "${HARDENING_EXCEPTIONS_LIST[@]}" | tr " " "\n" | sort -u | tr "\n" " ")
+    echo "Supported services are:" "$(echo "${HARDENING_EXCEPTIONS_LIST[@]}" | tr " " "\n" | sort -u | tr "\n" " ")"
     exit 0
 fi
 
@@ -209,7 +209,7 @@ if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
     fi
 
     for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
-        SCRIPT_BASENAME=$(basename $SCRIPT .sh)
+        SCRIPT_BASENAME=$(basename "$SCRIPT" .sh)
         script_level=$(grep "^HARDENING_LEVEL=" "$SCRIPT" | cut -d= -f2)
         if [ -z "$script_level" ]; then
             echo "The script $SCRIPT_BASENAME doesn't have a hardening level, configuration untouched for it"
@@ -217,7 +217,7 @@ if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
         fi
         wantedstatus=disabled
         [ "$script_level" -le "$SET_HARDENING_LEVEL" ] && wantedstatus=enabled
-        sed -i -re "s/^status=.+/status=$wantedstatus/" $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg
+        sed -i -re "s/^status=.+/status=$wantedstatus/" "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
     done
     echo "Configuration modified to enable scripts for hardening level at or below $SET_HARDENING_LEVEL"
     exit 0
@@ -230,9 +230,9 @@ fi
 
 # Parse every scripts and execute them in the required mode
 for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
-    if [ ${#TEST_LIST[@]} -gt 0 ]; then
+    if [ "${#TEST_LIST[@]}" -gt 0 ]; then
         # --only X has been specified at least once, is this script in my list ?
-        SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<<"$(basename $SCRIPT)")
+        SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<<"$(basename "$SCRIPT")")
         SCRIPT_PREFIX_RE=$(sed -e 's/\./\\./g' <<<"$SCRIPT_PREFIX")
         if ! grep -qwE "(^| )$SCRIPT_PREFIX_RE" <<<"${TEST_LIST[@]}"; then
             # not in the list
@@ -241,21 +241,21 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     fi
 
     info "Treating $SCRIPT"
-    if [ $CREATE_CONFIG = 1 ]; then
+    if [ "$CREATE_CONFIG" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --create-config-files-only"
-        $SCRIPT --create-config-files-only $BATCH_MODE
-    elif [ $AUDIT = 1 ]; then
+        "$SCRIPT" --create-config-files-only "$BATCH_MODE"
+    elif [ "$AUDIT" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit $SUDO_MODE $BATCH_MODE"
-        $SCRIPT --audit $SUDO_MODE $BATCH_MODE
-    elif [ $AUDIT_ALL = 1 ]; then
+        "$SCRIPT" --audit "$SUDO_MODE" "$BATCH_MODE"
+    elif [ "$AUDIT_ALL" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
-        $SCRIPT --audit-all $SUDO_MODE $BATCH_MODE
-    elif [ $AUDIT_ALL_ENABLE_PASSED = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE" $BATCH_MODE
-        $SCRIPT --audit-all $SUDO_MODE $BATCH_MODE
-    elif [ $APPLY = 1 ]; then
+        "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
+    elif [ "$AUDIT_ALL_ENABLE_PASSED" = 1 ]; then
+        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
+        "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
+    elif [ "$APPLY" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
-        $SCRIPT
+        "$SCRIPT"
     fi
 
     SCRIPT_EXITCODE=$?
@@ -265,9 +265,9 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     0)
         debug "$SCRIPT passed"
         PASSED_CHECKS=$((PASSED_CHECKS + 1))
-        if [ $AUDIT_ALL_ENABLE_PASSED = 1 ]; then
-            SCRIPT_BASENAME=$(basename $SCRIPT .sh)
-            sed -i -re 's/^status=.+/status=enabled/' $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg
+        if [ "$AUDIT_ALL_ENABLE_PASSED" = 1 ]; then
+            SCRIPT_BASENAME=$(basename "$SCRIPT" .sh)
+            sed -i -re 's/^status=.+/status=enabled/' "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
             info "Status set to enabled in $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
         fi
         ;;
@@ -287,18 +287,18 @@ done
 
 TOTAL_TREATED_CHECKS=$((TOTAL_CHECKS - DISABLED_CHECKS))
 
-if [ $BATCH_MODE ]; then
+if [ "$BATCH_MODE" ]; then
     BATCH_SUMMARY="AUDIT_SUMMARY "
     BATCH_SUMMARY+="PASSED_CHECKS:${PASSED_CHECKS:-0} "
     BATCH_SUMMARY+="RUN_CHECKS:${TOTAL_TREATED_CHECKS:-0} "
     BATCH_SUMMARY+="TOTAL_CHECKS_AVAIL:${TOTAL_CHECKS:-0}"
-    if [ $TOTAL_TREATED_CHECKS != 0 ]; then
+    if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
         CONFORMITY_PERCENTAGE=$(bc -l <<<"scale=2; ($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100")
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:$(printf "%s" "$CONFORMITY_PERCENTAGE")"
     else
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:N.A" # No check runned, avoid division by 0
     fi
-    becho $BATCH_SUMMARY
+    becho "$BATCH_SUMMARY"
 else
     printf "%40s\n" "################### SUMMARY ###################"
     printf "%30s %s\n" "Total Available Checks :" "$TOTAL_CHECKS"
@@ -309,7 +309,7 @@ else
     ENABLED_CHECKS_PERCENTAGE=$(bc -l <<<"scale=2; ($TOTAL_TREATED_CHECKS/$TOTAL_CHECKS) * 100")
     CONFORMITY_PERCENTAGE=$(bc -l <<<"scale=2; ($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100")
     printf "%30s %s %%\n" "Enabled Checks Percentage :" "$ENABLED_CHECKS_PERCENTAGE"
-    if [ $TOTAL_TREATED_CHECKS != 0 ]; then
+    if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
         printf "%30s %s %%\n" "Conformity Percentage :" "$CONFORMITY_PERCENTAGE"
     else
         printf "%30s %s %%\n" "Conformity Percentage :" "N.A" # No check runned, avoid division by 0

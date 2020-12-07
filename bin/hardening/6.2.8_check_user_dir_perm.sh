@@ -25,27 +25,27 @@ audit() {
         debug "Working on $dir"
         debug "Exceptions : $EXCEPTIONS"
         debug "echo \"$EXCEPTIONS\" | grep -q $dir"
-        if echo "$EXCEPTIONS" | grep -q $dir; then
+        if echo "$EXCEPTIONS" | grep -q "$dir"; then
             debug "$dir is confirmed as an exception"
             RESULT=$(sed "s!$dir!!" <<<"$RESULT")
         else
             debug "$dir not found in exceptions"
         fi
-        if [ -d $dir ]; then
-            dirperm=$(/bin/ls -ld $dir | cut -f1 -d" ")
-            if [ $(echo $dirperm | cut -c6) != "-" ]; then
+        if [ -d "$dir" ]; then
+            dirperm=$(/bin/ls -ld "$dir" | cut -f1 -d" ")
+            if [ "$(echo "$dirperm" | cut -c6)" != "-" ]; then
                 crit "Group Write permission set on directory $dir"
                 ERRORS=$((ERRORS + 1))
             fi
-            if [ $(echo $dirperm | cut -c8) != "-" ]; then
+            if [ "$(echo "$dirperm" | cut -c8)" != "-" ]; then
                 crit "Other Read permission set on directory $dir"
                 ERRORS=$((ERRORS + 1))
             fi
-            if [ $(echo $dirperm | cut -c9) != "-" ]; then
+            if [ "$(echo "$dirperm" | cut -c9)" != "-" ]; then
                 crit "Other Write permission set on directory $dir"
                 ERRORS=$((ERRORS + 1))
             fi
-            if [ $(echo $dirperm | cut -c10) != "-" ]; then
+            if [ "$(echo "$dirperm" | cut -c10)" != "-" ]; then
                 crit "Other Execute permission set on directory $dir"
                 ERRORS=$((ERRORS + 1))
             fi
@@ -64,27 +64,27 @@ apply() {
         debug "Working on $dir"
         debug "Exceptions : $EXCEPTIONS"
         debug "echo \"$EXCEPTIONS\" | grep -q $dir"
-        if echo "$EXCEPTIONS" | grep -q $dir; then
+        if echo "$EXCEPTIONS" | grep -q "$dir"; then
             debug "$dir is confirmed as an exception"
             RESULT=$(sed "s!$dir!!" <<<"$RESULT")
         else
             debug "$dir not found in exceptions"
         fi
-        if [ -d $dir ]; then
-            dirperm=$(/bin/ls -ld $dir | cut -f1 -d" ")
-            if [ $(echo $dirperm | cut -c6) != "-" ]; then
+        if [ -d "$dir" ]; then
+            dirperm=$(/bin/ls -ld "$dir" | cut -f1 -d" ")
+            if [ "$(echo "$dirperm" | cut -c6)" != "-" ]; then
                 warn "Group Write permission set on directory $dir"
                 chmod g-w "$dir"
             fi
-            if [ $(echo $dirperm | cut -c8) != "-" ]; then
+            if [ "$(echo "$dirperm" | cut -c8)" != "-" ]; then
                 warn "Other Read permission set on directory $dir"
                 chmod o-r "$dir"
             fi
-            if [ $(echo $dirperm | cut -c9) != "-" ]; then
+            if [ "$(echo "$dirperm" | cut -c9)" != "-" ]; then
                 warn "Other Write permission set on directory $dir"
                 chmod o-w "$dir"
             fi
-            if [ $(echo $dirperm | cut -c10) != "-" ]; then
+            if [ "$(echo "$dirperm" | cut -c10)" != "-" ]; then
                 warn "Other Execute permission set on directory $dir"
                 chmod o-x "$dir"
             fi

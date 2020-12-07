@@ -29,9 +29,9 @@ audit() {
     else
         ok "$PACKAGE is installed"
         for SSH_OPTION in $OPTIONS; do
-            SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
-            SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-            SSH_VALUE=$(sed "s/'//g" <<<$SSH_VALUE)
+            SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
+            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
+            SSH_VALUE=$(sed "s/'//g" <<<"$SSH_VALUE")
             PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
             if [ "$FNRET" = 0 ]; then
@@ -50,24 +50,24 @@ apply() {
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
-        apt_install $PACKAGE
+        apt_install "$PACKAGE"
     fi
     for SSH_OPTION in $OPTIONS; do
-        SSH_PARAM=$(echo $SSH_OPTION | cut -d= -f 1)
-        SSH_VALUE=$(echo $SSH_OPTION | cut -d= -f 2)
-        SSH_VALUE=$(sed "s/'//g" <<<$SSH_VALUE)
+        SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
+        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
+        SSH_VALUE=$(sed "s/'//g" <<<"$SSH_VALUE")
         PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-        does_pattern_exist_in_file $FILE "$PATTERN"
+        does_pattern_exist_in_file "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file $FILE "^${SSH_PARAM}"
+            does_pattern_exist_in_file "$FILE" "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
-                add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
+                add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file $FILE "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+                replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
             fi
             /etc/init.d/ssh reload
         fi
@@ -89,19 +89,19 @@ EOF
 
 # This function will check config parameters required
 check_config() {
-    if [ -z $ALLOWED_USERS ]; then
+    if [ -z "$ALLOWED_USERS" ]; then
         info "ALLOWED_USERS is not set, defaults to wildcard"
         ALLOWED_USERS="*"
     fi
-    if [ -z $ALLOWED_GROUPS ]; then
+    if [ -z "$ALLOWED_GROUPS" ]; then
         info "ALLOWED_GROUPS is not set, defaults to wildcard"
         ALLOWED_GROUPS="*"
     fi
-    if [ -z $DENIED_USERS ]; then
+    if [ -z "$DENIED_USERS" ]; then
         info "DENIED_USERS is not set, defaults to nobody"
         DENIED_USERS="nobody"
     fi
-    if [ -z $DENIED_GROUPS ]; then
+    if [ -z "$DENIED_GROUPS" ]; then
         info "DENIED_GROUPS is not set, defaults to nobody"
         DENIED_GROUPS="nobody"
     fi

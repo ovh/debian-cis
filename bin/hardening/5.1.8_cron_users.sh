@@ -26,7 +26,7 @@ GROUP='root'
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     for FILE in $FILES_ABSENT; do
-        does_file_exist $FILE
+        does_file_exist "$FILE"
         if [ "$FNRET" = 0 ]; then
             crit "$FILE exists"
         else
@@ -34,7 +34,7 @@ audit() {
         fi
     done
     for FILE in $FILES_PRESENT; do
-        does_file_exist $FILE
+        does_file_exist "$FILE"
         if [ "$FNRET" != 0 ]; then
             crit "$FILE is absent"
         else
@@ -57,19 +57,19 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     for FILE in $FILES_ABSENT; do
-        does_file_exist $FILE
+        does_file_exist "$FILE"
         if [ "$FNRET" = 0 ]; then
             warn "$FILE exists"
-            rm $FILE
+            rm "$FILE"
         else
             ok "$FILE is absent"
         fi
     done
     for FILE in $FILES_PRESENT; do
-        does_file_exist $FILE
+        does_file_exist "$FILE"
         if [ "$FNRET" != 0 ]; then
             warn "$FILE is absent"
-            touch $FILE
+            touch "$FILE"
         fi
         has_file_correct_ownership "$FILE" "$USER" "$GROUP"
         if [ "$FNRET" = 0 ]; then

@@ -27,14 +27,14 @@ SYSCTL_EXP_RESULT=0
 audit() {
     SEARCH_RES=0
     LIMIT_FILES=""
-    if $SUDO_CMD [ -d $LIMIT_DIR ]; then
+    if $SUDO_CMD [ -d "$LIMIT_DIR" ]; then
         for file in $($SUDO_CMD ls $LIMIT_DIR/*.conf 2>/dev/null); do
             LIMIT_FILES="$LIMIT_FILES $LIMIT_DIR/$file"
         done
     fi
     debug "Files to search $LIMIT_FILE $LIMIT_FILES"
     for file in $LIMIT_FILE $LIMIT_FILES; do
-        does_pattern_exist_in_file $file $LIMIT_PATTERN
+        does_pattern_exist_in_file "$file" "$LIMIT_PATTERN"
         if [ "$FNRET" != 0 ]; then
             debug "$LIMIT_PATTERN not present in $file"
         else
@@ -58,7 +58,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file $LIMIT_FILE $LIMIT_PATTERN
+    does_pattern_exist_in_file "$LIMIT_FILE" "$LIMIT_PATTERN"
     if [ "$FNRET" != 0 ]; then
         warn "$LIMIT_PATTERN not present in $LIMIT_FILE, adding at the end of  $LIMIT_FILE"
         add_end_of_file $LIMIT_FILE "* hard core 0"

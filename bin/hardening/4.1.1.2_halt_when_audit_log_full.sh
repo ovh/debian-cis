@@ -28,8 +28,8 @@ audit() {
     else
         ok "$FILE exists, checking configuration"
         for AUDIT_OPTION in $OPTIONS; do
-            AUDIT_PARAM=$(echo $AUDIT_OPTION | cut -d= -f 1)
-            AUDIT_VALUE=$(echo $AUDIT_OPTION | cut -d= -f 2)
+            AUDIT_PARAM=$(echo "$AUDIT_OPTION" | cut -d= -f 1)
+            AUDIT_VALUE=$(echo "$AUDIT_OPTION" | cut -d= -f 2)
             PATTERN="^${AUDIT_PARAM}[[:space:]]*=[[:space:]]*$AUDIT_VALUE"
             debug "$AUDIT_PARAM should be set to $AUDIT_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"

@@ -43,7 +43,7 @@ apply() {
         ok "$PACKAGE is installed"
     else
         warn "$PACKAGE is absent, installing it"
-        apt_install $PACKAGE
+        apt_install "$PACKAGE"
     fi
     is_service_enabled "$SERVICE_NAME"
     if [ "$FNRET" = 0 ]; then

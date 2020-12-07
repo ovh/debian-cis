@@ -49,7 +49,7 @@ apply() {
         ok "$PARTITION is correctly set"
     elif [ "$FNRET" = 1 ]; then
         info "Adding $OPTION to fstab"
-        add_option_to_fstab $PARTITION $OPTION
+        add_option_to_fstab "$PARTITION" "$OPTION"
     fi
 }
 

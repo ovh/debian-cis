@@ -44,7 +44,7 @@ apply() {
         ok "$PACKAGE is installed"
     else
         crit "$PACKAGE is absent, installing it"
-        apt_install $PACKAGE
+        apt_install "$PACKAGE"
     fi
     does_pattern_exist_in_file_nocase $FILE "$PATTERN"
     if [ "$FNRET" = 0 ]; then

@@ -10,7 +10,7 @@
 echo "Generating Site key file..."
 twadmin -m G -S /etc/tripwire/site.key # Generates Site key file
 echo "Generating Local key file..."
-twadmin -m G -S /etc/tripwire/$(hostname -f)-local.key # Generate local key file
+twadmin -m G -S /etc/tripwire/"$(hostname -f)"-local.key # Generate local key file
 echo "Generating encrypted policy..."
 twadmin -m P /etc/tripwire/twpol.txt # Apply new policy with generated site key file
 echo "Generating Local database with newly created key..."

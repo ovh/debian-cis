@@ -25,32 +25,32 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    if [ "$(echo $path | grep ::)" != "" ]; then
+    if [ "$(echo "$path" | grep ::)" != "" ]; then
         crit "Empty Directory in PATH (::)"
         ERRORS=$((ERRORS + 1))
     fi
-    if [ "$(echo $path | grep :$)" != "" ]; then
+    if [ "$(echo "$path" | grep :$)" != "" ]; then
         crit "Trailing : in PATH $path"
         ERRORS=$((ERRORS + 1))
     fi
-    FORMATTED_PATH=$(echo $path | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g')
+    FORMATTED_PATH=$(echo "$path" | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g')
     set -- $FORMATTED_PATH
     while [ "${1:-}" != "" ]; do
         if [ "$1" = "." ]; then
             crit "PATH contains ."
             ERRORS=$((ERRORS + 1))
         else
-            if [ -d $1 ]; then
-                dirperm=$(ls -ldH $1 | cut -f1 -d" ")
-                if [ $(echo $dirperm | cut -c6) != "-" ]; then
+            if [ -d "$1" ]; then
+                dirperm=$(ls -ldH "$1" | cut -f1 -d" ")
+                if [ "$(echo "$dirperm" | cut -c6)" != "-" ]; then
                     crit "Group Write permission set on directory $1"
                     ERRORS=$((ERRORS + 1))
                 fi
-                if [ $(echo $dirperm | cut -c9) != "-" ]; then
+                if [ "$(echo "$dirperm" | cut -c9)" != "-" ]; then
                     crit "Other Write permission set on directory $1"
                     ERRORS=$((ERRORS + 1))
                 fi
-                dirown=$(ls -ldH $1 | awk '{print $3}')
+                dirown=$(ls -ldH "$1" | awk '{print $3}')
                 if [ "$dirown" != "root" ]; then
                     crit "$1 is not owned by root"
                     ERRORS=$((ERRORS + 1))

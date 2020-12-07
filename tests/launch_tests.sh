@@ -146,7 +146,7 @@ _run() {
 if [ ! -f "$(dirname "$0")"/lib.sh ]; then
     fatal "Cannot locate lib.sh"
 fi
-# shellcheck source=/opt/debian-cis/tests/lib.sh
+# shellcheck source=../tests/lib.sh
 . "$(dirname "$0")"/lib.sh
 
 ###################

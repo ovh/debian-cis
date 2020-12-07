@@ -10,10 +10,13 @@ BATCH_OUTPUT=""
 status=""
 forcedstatus=""
 SUDO_CMD=""
-
+# shellcheck source=constants.sh
 [ -r $CIS_ROOT_DIR/lib/constants.sh ] && . $CIS_ROOT_DIR/lib/constants.sh
+# shellcheck source=../etc/hardening.cfg
 [ -r $CIS_ROOT_DIR/etc/hardening.cfg ] && . $CIS_ROOT_DIR/etc/hardening.cfg
+# shellcheck source=../lib/common.sh
 [ -r $CIS_ROOT_DIR/lib/common.sh ] && . $CIS_ROOT_DIR/lib/common.sh
+# shellcheck source=../lib/utils.sh
 [ -r $CIS_ROOT_DIR/lib/utils.sh ] && . $CIS_ROOT_DIR/lib/utils.sh
 
 # Environment Sanitizing
@@ -46,6 +49,7 @@ while [[ $# > 0 ]]; do
         debug "Auditing in batch mode, will limit output by setting LOGLEVEL to 'ok'."
         BATCH_MODE=1
         LOGLEVEL=ok
+        # shellcheck source=../lib/common.sh
         [ -r $CIS_ROOT_DIR/lib/common.sh ] && . $CIS_ROOT_DIR/lib/common.sh
         ;;
     *)
@@ -76,7 +80,7 @@ if [ "$forcedstatus" = "createconfig" ]; then
     debug "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg has been created"
     exit 0
 fi
-
+# shellcheck source=/dev/null
 [ -r $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg ] && . $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg
 
 # Now check configured value for status, and potential cmdline parameter

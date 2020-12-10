@@ -28,7 +28,7 @@ audit() {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        does_pattern_exist_in_file_nocase $FILE "$PATTERN"
+        does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
@@ -46,19 +46,19 @@ apply() {
         crit "$PACKAGE is absent, installing it"
         apt_install "$PACKAGE"
     fi
-    does_pattern_exist_in_file_nocase $FILE "$PATTERN"
+    does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
     if [ "$FNRET" = 0 ]; then
         ok "$PATTERN is present in $FILE"
     else
         warn "$PATTERN is not present in $FILE, adding it"
-        does_pattern_exist_in_file_nocase $FILE "^$PATTERN"
+        does_pattern_exist_in_file_nocase "$FILE" "^$PATTERN"
         # shellcheck disable=SC2001
         PATTERN=$(sed 's/\^//' <<<"$PATTERN" | sed -r 's/\\s\*//' | sed -r 's/\\s\+/ /g' | sed 's/\\//g')
         if [ "$FNRET" != 0 ]; then
-            add_end_of_file $FILE "$PATTERN"
+            add_end_of_file "$FILE" "$PATTERN"
         else
             info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-            replace_in_file $FILE "^${SSH_PARAM}[[:space:]]*.*" "$PATTERN"
+            replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$PATTERN"
         fi
         /etc/init.d/ssh reload >/dev/null 2>&1
     fi

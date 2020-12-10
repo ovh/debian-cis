@@ -23,12 +23,12 @@ VALUE=5
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
         ok "$FILE exists, checking configuration"
-        does_pattern_exist_in_file $FILE "^${PATTERN}[[:space:]]"
+        does_pattern_exist_in_file "$FILE" "^${PATTERN}[[:space:]]"
         if [ "$FNRET" != 0 ]; then
             crit "$PATTERN is not present in $FILE"
         else
@@ -39,17 +39,17 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         warn "$FILE does not exist, creating it"
         touch $FILE
     else
         ok "$FILE exists"
     fi
-    does_pattern_exist_in_file $FILE "^${PATTERN}[[:space:]]"
+    does_pattern_exist_in_file "$FILE" "^${PATTERN}[[:space:]]"
     if [ "$FNRET" != 0 ]; then
         warn "$PATTERN is not present in $FILE, adding it"
-        add_end_of_file $FILE "$PATTERN = $VALUE"
+        add_end_of_file "$FILE" "$PATTERN = $VALUE"
     else
         ok "$PATTERN is present in $FILE"
     fi

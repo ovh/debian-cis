@@ -30,11 +30,11 @@ audit() {
         is_pkg_installed "$PACKAGE"
         if [ "$FNRET" = 0 ]; then
             warn "$PACKAGE is installed, checking configuration"
-            does_file_exist $FILE
+            does_file_exist "$FILE"
             if [ "$FNRET" != 0 ]; then
                 ok "$FILE does not exist"
             else
-                does_pattern_exist_in_file $FILE $PATTERN
+                does_pattern_exist_in_file "$FILE" "$PATTERN"
                 if [ "$FNRET" = 0 ]; then
                     crit "$PATTERN exists, $PACKAGE services are enabled!"
                 else
@@ -58,18 +58,18 @@ apply() {
         else
             ok "$PACKAGE is absent"
         fi
-        does_file_exist $FILE
+        does_file_exist "$FILE"
         if [ "$FNRET" != 0 ]; then
             ok "$FILE does not exist"
         else
             info "$FILE exists, checking patterns"
-            does_pattern_exist_in_file $FILE $PATTERN
+            does_pattern_exist_in_file "$FILE" "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 warn "$PATTERN is present in $FILE, purging it"
                 backup_file $FILE
                 # shellcheck disable=SC2001
                 ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<<$PATTERN)
-                sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
+                sed -ie "s/$ESCAPED_PATTERN/#&/g" "$FILE"
             else
                 ok "$PATTERN is not present in $FILE"
             fi

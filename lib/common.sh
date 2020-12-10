@@ -70,7 +70,7 @@ crit() {
     if [ "${BATCH_MODE:-0}" -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT KO{$*}"
     else
-        if [ $MACHINE_LOG_LEVEL -ge 1 ]; then _logger "$BRED" "[ KO ] $*"; fi
+        if [ "$MACHINE_LOG_LEVEL" -ge 1 ]; then _logger "$BRED" "[ KO ] $*"; fi
     fi
     # This variable incrementation is used to measure failure or success in tests
     CRITICAL_ERRORS_NUMBER=$((CRITICAL_ERRORS_NUMBER + 1))
@@ -80,7 +80,7 @@ warn() {
     if [ "${BATCH_MODE:-0}" -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT WARN{$*}"
     else
-        if [ $MACHINE_LOG_LEVEL -ge 2 ]; then _logger "$BYELLOW" "[WARN] $*"; fi
+        if [ "$MACHINE_LOG_LEVEL" -ge 2 ]; then _logger "$BYELLOW" "[WARN] $*"; fi
     fi
 }
 
@@ -88,7 +88,7 @@ ok() {
     if [ "${BATCH_MODE:-0}" -eq 1 ]; then
         BATCH_OUTPUT="$BATCH_OUTPUT OK{$*}"
     else
-        if [ $MACHINE_LOG_LEVEL -ge 3 ]; then _logger "$BGREEN" "[ OK ] $*"; fi
+        if [ "$MACHINE_LOG_LEVEL" -ge 3 ]; then _logger "$BGREEN" "[ OK ] $*"; fi
     fi
 }
 

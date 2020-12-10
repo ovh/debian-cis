@@ -32,7 +32,7 @@ audit() {
             SHADOW_PARAM=$(echo "$SHADOW_OPTION" | cut -d= -f 1)
             SHADOW_VALUE=$(echo "$SHADOW_OPTION" | cut -d= -f 2)
             PATTERN="^${SHADOW_PARAM}[[:space:]]*$SHADOW_VALUE"
-            does_pattern_exist_in_file $FILE "$PATTERN"
+            does_pattern_exist_in_file "$FILE" "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
@@ -55,7 +55,7 @@ apply() {
         SHADOW_PARAM=$(echo "$SHADOW_OPTION" | cut -d= -f 1)
         SHADOW_VALUE=$(echo "$SHADOW_OPTION" | cut -d= -f 2)
         PATTERN="^${SHADOW_PARAM}[[:space:]]*$SHADOW_VALUE"
-        does_pattern_exist_in_file $FILE "$PATTERN"
+        does_pattern_exist_in_file "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else

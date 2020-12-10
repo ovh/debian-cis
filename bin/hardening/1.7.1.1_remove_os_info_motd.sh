@@ -22,7 +22,7 @@ PATTERN='(\\v|\\r|\\m|\\s)'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_pattern_exist_in_file $FILE "$PATTERN"
+    does_pattern_exist_in_file "$FILE" "$PATTERN"
     if [ "$FNRET" = 0 ]; then
         crit "$PATTERN is present in $FILE"
     else
@@ -32,10 +32,10 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file $FILE "$PATTERN"
+    does_pattern_exist_in_file "$FILE" "$PATTERN"
     if [ "$FNRET" = 0 ]; then
         warn "$PATTERN is present in $FILE"
-        delete_line_in_file $FILE $PATTERN
+        delete_line_in_file "$FILE" "$PATTERN"
     else
         ok "$PATTERN is not present in $FILE"
     fi

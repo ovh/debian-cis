@@ -32,7 +32,7 @@ audit() {
             SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
             SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
             PATTERN="^${SSH_PARAM}[[:space:]]+$SSH_VALUE"
-            does_pattern_exist_in_file_nocase $FILE "$PATTERN"
+            does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
@@ -60,9 +60,9 @@ apply() {
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file_nocase $FILE "^${SSH_PARAM}"
+            does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
-                add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
+                add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
                 replace_in_file $FILE "^${SSH_PARAM}[[:space:]]+.*" "$SSH_PARAM $SSH_VALUE"

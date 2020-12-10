@@ -24,8 +24,8 @@ FILE='/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh'
 audit() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
-        if [ $SEARCH_RES = 1 ]; then break; fi
-        if $SUDO_CMD test -d $FILE_SEARCHED; then
+        if [ "$SEARCH_RES" = 1 ]; then break; fi
+        if $SUDO_CMD test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
             for file_in_dir in $($SUDO_CMD ls $FILE_SEARCHED); do
                 does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
@@ -56,8 +56,8 @@ audit() {
 apply() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
-        if [ $SEARCH_RES = 1 ]; then break; fi
-        if test -d $FILE_SEARCHED; then
+        if [ "$SEARCH_RES" = 1 ]; then break; fi
+        if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
             for file_in_dir in $(ls $FILE_SEARCHED); do
                 does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
@@ -83,7 +83,7 @@ apply() {
         warn "$PATTERN is not present in $FILES_TO_SEARCH"
         touch "$FILE"
         chmod 644 "$FILE"
-        add_end_of_file $FILE '
+        add_end_of_file "$FILE" '
 # By default, disable all.
 ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"
 

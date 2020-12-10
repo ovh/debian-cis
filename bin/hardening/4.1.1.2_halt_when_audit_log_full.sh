@@ -22,7 +22,7 @@ OPTIONS=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
@@ -44,7 +44,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         warn "$FILE does not exist, creating it"
         touch $FILE
@@ -56,7 +56,7 @@ apply() {
         AUDIT_VALUE=$(echo "$AUDIT_OPTION" | cut -d= -f 2)
         debug "$AUDIT_PARAM should be set to $AUDIT_VALUE"
         PATTERN="^${AUDIT_PARAM}[[:space:]]*=[[:space:]]*$AUDIT_VALUE"
-        does_pattern_exist_in_file $FILE "$PATTERN"
+        does_pattern_exist_in_file "$FILE" "$PATTERN"
         if [ "$FNRET" != 0 ]; then
             warn "$PATTERN is not present in $FILE, adding it"
             does_pattern_exist_in_file "$FILE" "^$AUDIT_PARAM"

@@ -34,7 +34,7 @@ audit() {
             # shellcheck disable=SC2001
             SSH_VALUE=$(sed "s/'//g" <<<"$SSH_VALUE")
             PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-            does_pattern_exist_in_file $FILE "$PATTERN"
+            does_pattern_exist_in_file "$FILE" "$PATTERN"
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else

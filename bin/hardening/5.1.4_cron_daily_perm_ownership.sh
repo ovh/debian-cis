@@ -40,10 +40,10 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         info "$FILE does not exist"
-        touch $FILE
+        touch "$FILE"
     fi
     has_file_correct_ownership "$FILE" "$USER" "$GROUP"
     if [ "$FNRET" = 0 ]; then
@@ -63,12 +63,12 @@ apply() {
 
 # This function will check config parameters required
 check_config() {
-    does_user_exist $USER
+    does_user_exist "$USER"
     if [ "$FNRET" != 0 ]; then
         crit "$USER does not exist"
         exit 128
     fi
-    does_group_exist $GROUP
+    does_group_exist "$GROUP"
     if [ "$FNRET" != 0 ]; then
         crit "$GROUP does not exist"
         exit 128

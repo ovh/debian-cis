@@ -13,7 +13,7 @@ has_sysctl_param_expected_result() {
 
     if [ "$($SUDO_CMD sysctl "$SYSCTL_PARAM" 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
         FNRET=0
-    elif [ $? = 255 ]; then
+    elif [ "$?" = 255 ]; then
         debug "$SYSCTL_PARAM does not exist"
         FNRET=255
     else
@@ -147,7 +147,7 @@ does_pattern_exist_in_file_multiline() {
 
     debug "Checking if multiline pattern: $PATTERN is present in $FILE"
     if $SUDO_CMD [ -r "$FILE" ]; then
-        debug "$SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN""
+        debug "$SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- $PATTERN"
         if $SUDO_CMD grep -v '^[[:space:]]*#' "$FILE" | tr '\n' ' ' | grep -Pq -- "$PATTERN"; then
             debug "Pattern found in $FILE"
             FNRET=0
@@ -239,7 +239,7 @@ does_group_exist() {
 
 is_service_enabled() {
     local SERVICE=$1
-    if [ $($SUDO_CMD find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l) -gt 0 ]; then
+    if [ "$($SUDO_CMD find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l)" -gt 0 ]; then
         debug "Service $SERVICE is enabled"
         FNRET=0
     else
@@ -385,7 +385,7 @@ apt_update_if_needed() {
     if [ -e /var/cache/apt/pkgcache.bin ]; then
         UPDATE_AGE=$(($(date +%s) - $(stat -c '%Y' /var/cache/apt/pkgcache.bin)))
 
-        if [ $UPDATE_AGE -gt 21600 ]; then
+        if [ "$UPDATE_AGE" -gt 21600 ]; then
             # update too old, refresh database
             $SUDO_CMD apt-get update -y >/dev/null 2>/dev/null
         fi
@@ -438,7 +438,7 @@ is_pkg_installed() {
 get_debian_major_version() {
     DEB_MAJ_VER=""
     does_file_exist /etc/debian_version
-    if [ $FNRET ]; then
+    if [ "$FNRET" = 0 ]; then
         DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
     else
         # shellcheck disable=2034

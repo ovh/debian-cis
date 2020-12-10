@@ -28,7 +28,7 @@ audit() {
     SEARCH_RES=0
     LIMIT_FILES=""
     if $SUDO_CMD [ -d "$LIMIT_DIR" ]; then
-        for file in $($SUDO_CMD ls $LIMIT_DIR/*.conf 2>/dev/null); do
+        for file in $($SUDO_CMD ls "$LIMIT_DIR"/*.conf 2>/dev/null); do
             LIMIT_FILES="$LIMIT_FILES $LIMIT_DIR/$file"
         done
     fi
@@ -43,7 +43,7 @@ audit() {
             break
         fi
     done
-    if [ $SEARCH_RES = 0 ]; then
+    if [ "$SEARCH_RES" = 0 ]; then
         crit "$LIMIT_PATTERN is not present in $LIMIT_FILE $LIMIT_FILES"
     fi
     has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
@@ -68,7 +68,7 @@ apply() {
     has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
     if [ "$FNRET" != 0 ]; then
         warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
-        set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+        set_sysctl_param "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
     elif [ "$FNRET" = 255 ]; then
         warn "$SYSCTL_PARAM does not exist -- Typo?"
     else

@@ -34,8 +34,8 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if grep '^+:' $FILE -q; then
-        RESULT=$(grep '^+:' $FILE)
+    if grep '^+:' "$FILE" -q; then
+        RESULT=$(grep '^+:' "$FILE")
         warn "Some accounts have a legacy password entry"
         for LINE in $RESULT; do
             info "Removing $LINE from $FILE"

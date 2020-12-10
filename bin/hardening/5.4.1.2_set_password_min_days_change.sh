@@ -60,7 +60,7 @@ apply() {
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file $FILE "^${SHADOW_PARAM}"
+            does_pattern_exist_in_file "$FILE" "^${SHADOW_PARAM}"
             if [ "$FNRET" != 0 ]; then
                 add_end_of_file "$FILE" "$SHADOW_PARAM $SHADOW_VALUE"
             else

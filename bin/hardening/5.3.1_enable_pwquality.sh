@@ -67,7 +67,7 @@ apply() {
         ok "$PATTERN_COMMON is present in $FILE_COMMON"
     else
         warn "$PATTERN_COMMON is not present in $FILE_COMMON"
-        add_line_file_before_pattern $FILE_COMMON "password requisite pam_pwquality.so retry=3" "# pam-auth-update(8) for details."
+        add_line_file_before_pattern "$FILE_COMMON" "password requisite pam_pwquality.so retry=3" "# pam-auth-update(8) for details."
     fi
 
     for PW_OPT in $OPTIONS; do

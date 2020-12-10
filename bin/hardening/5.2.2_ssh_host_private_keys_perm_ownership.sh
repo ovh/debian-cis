@@ -83,12 +83,12 @@ apply() {
 
 # This function will check config parameters required
 check_config() {
-    does_user_exist $USER
+    does_user_exist "$USER"
     if [ "$FNRET" != 0 ]; then
         crit "$USER does not exist"
         exit 128
     fi
-    does_group_exist $GROUP
+    does_group_exist "$GROUP"
     if [ "$FNRET" != 0 ]; then
         crit "$GROUP does not exist"
         exit 128

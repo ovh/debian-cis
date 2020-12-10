@@ -23,7 +23,7 @@ SYSCTL_PARAMS=''
 audit() {
     for SYSCTL_VALUES in $SYSCTL_PARAMS; do
         does_sysctl_param_exists "net.ipv6"
-        if [ "$FNRET" = 0 ] || [[ ! $SYSCTL_VALUES =~ .*ipv6.* ]]; then # IPv6 is enabled or SYSCTL_VALUES doesn't contain ipv6
+        if [ "$FNRET" = 0 ] || [[ ! "$SYSCTL_VALUES" =~ .*ipv6.* ]]; then # IPv6 is enabled or SYSCTL_VALUES doesn't contain ipv6
             SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
             SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
             debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"

@@ -180,15 +180,15 @@ if [ -z "$CIS_ROOT_DIR" ]; then
     exit 128
 fi
 # shellcheck source=../lib/constants.sh
-[ -r $CIS_ROOT_DIR/lib/constants.sh ] && . $CIS_ROOT_DIR/lib/constants.sh
+[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
 # shellcheck source=../etc/hardening.cfg
-[ -r $CIS_ROOT_DIR/etc/hardening.cfg ] && . $CIS_ROOT_DIR/etc/hardening.cfg
+[ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
 # shellcheck source=../lib/common.sh
-[ -r $CIS_ROOT_DIR/lib/common.sh ] && . $CIS_ROOT_DIR/lib/common.sh
+[ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
 # shellcheck source=../lib/utils.sh
-[ -r $CIS_ROOT_DIR/lib/utils.sh ] && . $CIS_ROOT_DIR/lib/utils.sh
+[ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
 
-if [ $BATCH_MODE ]; then MACHINE_LOG_LEVEL=3; fi
+if [ "$BATCH_MODE" ]; then MACHINE_LOG_LEVEL=3; fi
 
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ]; then
@@ -223,7 +223,7 @@ if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
     exit 0
 fi
 
-if [ $CREATE_CONFIG = 1 ] && [ "$EUID" -ne 0 ]; then
+if [ "$CREATE_CONFIG" = 1 ] && [ "$EUID" -ne 0 ]; then
     echo "For --create-config-files-only, please run as root"
     exit 1
 fi

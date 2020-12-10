@@ -50,8 +50,8 @@ apply() {
         ok "$SERVICE_NAME is enabled"
     else
         warn "$SERVICE_NAME is not enabled, enabling it"
-        update-rc.d $SERVICE_NAME remove >/dev/null 2>&1
-        update-rc.d $SERVICE_NAME defaults >/dev/null 2>&1
+        update-rc.d "$SERVICE_NAME" remove >/dev/null 2>&1
+        update-rc.d "$SERVICE_NAME" defaults >/dev/null 2>&1
     fi
 }
 

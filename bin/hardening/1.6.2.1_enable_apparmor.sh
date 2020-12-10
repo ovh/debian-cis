@@ -36,13 +36,13 @@ audit() {
     c_IFS=$'\n'
     IFS=$c_IFS
     for line in $RESULT; do
-        if [[ ! $line =~ "apparmor=1" ]] || [[ ! $line =~ "security=apparmor" ]]; then
+        if [[ ! "$line" =~ "apparmor=1" ]] || [[ ! "$line" =~ "security=apparmor" ]]; then
             crit "$line is not configured"
             ERROR=1
         fi
     done
     IFS=$d_IFS
-    if [ $ERROR = 0 ]; then
+    if [ "$ERROR" = 0 ]; then
         ok "$PACKAGE is configured"
 
     fi

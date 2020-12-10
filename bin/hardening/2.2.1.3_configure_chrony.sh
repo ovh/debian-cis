@@ -30,7 +30,7 @@ audit() {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exist_in_file $CONF_FILE $CONF_DEFAULT_PATTERN
+        does_pattern_exist_in_file "$CONF_FILE" "$CONF_DEFAULT_PATTERN"
         if [ "$FNRET" != 0 ]; then
             crit "$CONF_DEFAULT_PATTERN not found in $CONF_FILE"
         else

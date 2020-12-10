@@ -48,7 +48,7 @@ apply() {
     fi
     if [ -n "$RESULT" ]; then
         warn "Applying chgrp on all ungrouped files in the system"
-        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null | xargs chgrp $GROUP
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null | xargs chgrp "$GROUP"
     else
         ok "No ungrouped files found, nothing to apply"
     fi

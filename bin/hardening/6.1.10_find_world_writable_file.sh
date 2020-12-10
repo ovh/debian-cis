@@ -25,7 +25,7 @@ audit() {
     if [ -n "$RESULT" ]; then
         crit "Some world writable files are present"
         # shellcheck disable=SC2001
-        FORMATTED_RESULT=$(sed "s/ /\n/g" <<<$RESULT | sort | uniq | tr '\n' ' ')
+        FORMATTED_RESULT=$(sed "s/ /\n/g" <<<"$RESULT" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
         ok "No world writable files found"

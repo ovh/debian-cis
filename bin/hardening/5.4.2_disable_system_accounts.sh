@@ -27,7 +27,7 @@ ACCEPTED_SHELLS_GREP=''
 audit() {
     shells_to_grep_helper
     info "Checking if admin accounts have a login shell different than $ACCEPTED_SHELLS"
-    RESULT=$(egrep -v "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 ) {print}' | grep -v $ACCEPTED_SHELLS_GREP || true)
+    RESULT=$(grep -Ev "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 ) {print}' | grep -v $ACCEPTED_SHELLS_GREP || true)
     IFS_BAK=$IFS
     IFS=$'\n'
     for LINE in $RESULT; do
@@ -54,7 +54,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    RESULT=$(egrep -v "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 ) {print}' | grep -v $ACCEPTED_SHELLS_GREP || true)
+    RESULT=$(grep -Ev "^\+" $FILE | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 ) {print}' | grep -v $ACCEPTED_SHELLS_GREP || true)
     IFS_BAK=$IFS
     IFS=$'\n'
     for LINE in $RESULT; do

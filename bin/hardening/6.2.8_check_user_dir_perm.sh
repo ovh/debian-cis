@@ -21,7 +21,7 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for dir in $(get_db passwd | /bin/egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    for dir in $(get_db passwd | grep -Ev '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $dir"
         debug "Exceptions : $EXCEPTIONS"
         debug "echo \"$EXCEPTIONS\" | grep -q $dir"
@@ -60,7 +60,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for dir in $(get_db passwd | /bin/egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    for dir in $(get_db passwd | grep -Ev '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $dir"
         debug "Exceptions : $EXCEPTIONS"
         debug "echo \"$EXCEPTIONS\" | grep -q $dir"

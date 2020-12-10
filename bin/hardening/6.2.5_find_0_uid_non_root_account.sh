@@ -34,6 +34,7 @@ audit() {
         debug "echo \"$EXCEPTIONS\" | grep -qw $ACCOUNT"
         if echo "$EXCEPTIONS" | grep -qw "$ACCOUNT"; then
             debug "$ACCOUNT is confirmed as an exception"
+            # shellcheck disable=SC2001
             RESULT=$(sed "s!$ACCOUNT!!" <<<"$RESULT")
             FOUND_EXCEPTIONS="$FOUND_EXCEPTIONS $ACCOUNT"
         else

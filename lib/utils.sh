@@ -177,6 +177,7 @@ add_line_file_before_pattern() {
 
     backup_file "$FILE"
     debug "Inserting $LINE before $PATTERN in $FILE"
+    # shellcheck disable=SC2001
     PATTERN=$(sed 's@/@\\\/@g' <<<"$PATTERN")
     debug "sed -i '/$PATTERN/i $LINE' $FILE"
     sed -i "/$PATTERN/i $LINE" "$FILE"
@@ -190,6 +191,7 @@ replace_in_file() {
 
     backup_file "$FILE"
     debug "Replacing $SOURCE to $DESTINATION in $FILE"
+    # shellcheck disable=SC2001
     SOURCE=$(sed 's@/@\\\/@g' <<<"$SOURCE")
     debug "sed -i 's/$SOURCE/$DESTINATION/g' $FILE"
     sed -i "s/$SOURCE/$DESTINATION/g" "$FILE"
@@ -202,6 +204,7 @@ delete_line_in_file() {
 
     backup_file "$FILE"
     debug "Deleting lines from $FILE containing $PATTERN"
+    # shellcheck disable=SC2001
     PATTERN=$(sed 's@/@\\\/@g' <<<"$PATTERN")
     debug "sed -i '/$PATTERN/d' $FILE"
     sed -i "/$PATTERN/d" "$FILE"

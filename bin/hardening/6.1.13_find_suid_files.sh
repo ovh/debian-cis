@@ -38,6 +38,7 @@ audit() {
     done
     if [ -n "$BAD_BINARIES" ]; then
         crit "Some suid files are present"
+        # shellcheck disable=SC2001
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<<"$BAD_BINARIES" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else

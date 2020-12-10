@@ -77,6 +77,7 @@ apply() {
             warn "$PATTERN is not present in $FILE, adding it"
             does_pattern_exist_in_file_nocase $FILE "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
+                # shellcheck disable=SC2001
                 SSH_VALUE=$(sed 's/\\s+/ /' <<<"$SSH_VALUE")
                 add_end_of_file $FILE "$SSH_PARAM $SSH_VALUE"
             else

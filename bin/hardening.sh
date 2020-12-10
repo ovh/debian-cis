@@ -233,6 +233,7 @@ for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
     if [ "${#TEST_LIST[@]}" -gt 0 ]; then
         # --only X has been specified at least once, is this script in my list ?
         SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<<"$(basename "$SCRIPT")")
+        # shellcheck disable=SC2001
         SCRIPT_PREFIX_RE=$(sed -e 's/\./\\./g' <<<"$SCRIPT_PREFIX")
         if ! grep -qwE "(^| )$SCRIPT_PREFIX_RE" <<<"${TEST_LIST[@]}"; then
             # not in the list

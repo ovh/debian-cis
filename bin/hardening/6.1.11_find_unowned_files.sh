@@ -31,6 +31,7 @@ audit() {
     fi
     if [ -n "$RESULT" ]; then
         crit "Some unowned files are present"
+        # shellcheck disable=SC2001
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<<$RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else

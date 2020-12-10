@@ -31,6 +31,7 @@ audit() {
         for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
             SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
+            # shellcheck disable=SC2001
             SSH_VALUE=$(sed "s/'//g" <<<"$SSH_VALUE")
             PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
             does_pattern_exist_in_file $FILE "$PATTERN"
@@ -55,6 +56,7 @@ apply() {
     for SSH_OPTION in $OPTIONS; do
         SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
         SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
+        # shellcheck disable=SC2001
         SSH_VALUE=$(sed "s/'//g" <<<"$SSH_VALUE")
         PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
         does_pattern_exist_in_file "$FILE" "$PATTERN"

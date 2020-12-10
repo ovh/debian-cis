@@ -52,6 +52,7 @@ apply() {
     else
         warn "$PATTERN is not present in $FILE, adding it"
         does_pattern_exist_in_file_nocase $FILE "^$PATTERN"
+        # shellcheck disable=SC2001
         PATTERN=$(sed 's/\^//' <<<"$PATTERN" | sed -r 's/\\s\*//' | sed -r 's/\\s\+/ /g' | sed 's/\\//g')
         if [ "$FNRET" != 0 ]; then
             add_end_of_file $FILE "$PATTERN"

@@ -24,6 +24,7 @@ audit() {
     RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     if [ -n "$RESULT" ]; then
         crit "Some world writable directories are not on sticky bit mode!"
+        # shellcheck disable=SC2001
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<<"$RESULT" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else

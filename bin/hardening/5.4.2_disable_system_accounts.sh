@@ -38,6 +38,7 @@ audit() {
         debug "echo \"$EXCEPTIONS\" | grep -q $ACCOUNT"
         if echo "$EXCEPTIONS" | grep -q "$ACCOUNT"; then
             debug "$ACCOUNT is confirmed as an exception"
+            # shellcheck disable=SC2001
             RESULT=$(sed "s!$LINE!!" <<<"$RESULT")
         else
             debug "$ACCOUNT not found in exceptions"
@@ -65,6 +66,7 @@ apply() {
         debug "echo \"$EXCEPTIONS\" | grep -q $ACCOUNT"
         if echo "$EXCEPTIONS" | grep -q "$ACCOUNT"; then
             debug "$ACCOUNT is confirmed as an exception"
+            # shellcheck disable=SC2001
             RESULT=$(sed "s!$LINE!!" <<<"$RESULT")
         else
             debug "$ACCOUNT not found in exceptions"

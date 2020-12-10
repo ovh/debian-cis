@@ -27,6 +27,7 @@ audit() {
         debug "echo \"$EXCEPTIONS\" | grep -q $dir"
         if echo "$EXCEPTIONS" | grep -q "$dir"; then
             debug "$dir is confirmed as an exception"
+            # shellcheck disable=SC2001
             RESULT=$(sed "s!$dir!!" <<<"$RESULT")
         else
             debug "$dir not found in exceptions"
@@ -66,6 +67,7 @@ apply() {
         debug "echo \"$EXCEPTIONS\" | grep -q $dir"
         if echo "$EXCEPTIONS" | grep -q "$dir"; then
             debug "$dir is confirmed as an exception"
+            # shellcheck disable=SC2001
             RESULT=$(sed "s!$dir!!" <<<"$RESULT")
         else
             debug "$dir not found in exceptions"

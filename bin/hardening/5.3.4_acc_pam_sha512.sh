@@ -24,6 +24,7 @@ audit() {
     if $SUDO_CMD [ ! -r $CONF_FILE ]; then
         crit "$CONF_FILE is not readable"
     else
+        # shellcheck disable=SC2001
         does_pattern_exist_in_file $CONF_FILE "$(sed 's/ /[[:space:]]+/g' <<<"$CONF_LINE")"
         if [ "$FNRET" = 0 ]; then
             ok "$CONF_LINE is present in $CONF_FILE"
@@ -38,6 +39,7 @@ apply() {
     if $SUDO_CMD [ ! -r $CONF_FILE ]; then
         crit "$CONF_FILE is not readable"
     else
+        # shellcheck disable=SC2001
         does_pattern_exist_in_file $CONF_FILE "$(sed 's/ /[[:space:]]+/g' <<<"$CONF_LINE")"
         if [ "$FNRET" = 0 ]; then
             ok "$CONF_LINE is present in $CONF_FILE"

@@ -67,6 +67,7 @@ apply() {
             if [ "$FNRET" = 0 ]; then
                 warn "$PATTERN is present in $FILE, purging it"
                 backup_file $FILE
+                # shellcheck disable=SC2001
                 ESCAPED_PATTERN=$(sed "s/|\|(\|)/\\\&/g" <<<$PATTERN)
                 sed -ie "s/$ESCAPED_PATTERN/#&/g" $FILE
             else

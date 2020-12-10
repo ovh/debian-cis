@@ -24,6 +24,7 @@ audit() {
     RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
     if [ -n "$RESULT" ]; then
         crit "Some world writable files are present"
+        # shellcheck disable=SC2001
         FORMATTED_RESULT=$(sed "s/ /\n/g" <<<$RESULT | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else

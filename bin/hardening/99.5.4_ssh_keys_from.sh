@@ -41,6 +41,7 @@ check_ip() {
         ok_ips_allowed=""
         bad_ips=""
         for ip in $ips; do
+            # shellcheck disable=SC2001
             ip_escaped=$(sed 's/\./\\./g' <<<"$ip")
             if grep -qw "$ip_escaped" <<<"$ALLOWED_IPS"; then
                 debug "Line $linum of $file allows access from exused IP (${ip})."
@@ -50,7 +51,9 @@ check_ip() {
                 bad_ips+="$ip "
             fi
         done
+        # shellcheck disable=SC2001
         ok_ips=$(sed 's/ $//' <<<"${ok_ips_allowed}")
+        # shellcheck disable=SC2001
         bad_ips=$(sed 's/ $//' <<<"${bad_ips}")
         if [[ -z $bad_ips ]]; then
             if [[ -n $ok_ips ]]; then

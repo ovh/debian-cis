@@ -52,7 +52,7 @@ set_sysctl_param() {
 
 does_pattern_exist_in_dmesg() {
     local PATTERN=$1
-    if $($SUDO_CMD dmesg | grep -qE "$PATTERN"); then
+    if $SUDO_CMD dmesg | grep -qE "$PATTERN"; then
         FNRET=0
     else
         FNRET=1
@@ -117,7 +117,7 @@ _does_pattern_exist_in_file() {
     debug "Checking if $PATTERN is present in $FILE"
     if $SUDO_CMD [ -r "$FILE" ]; then
         debug "$SUDO_CMD grep -q $OPTIONS -- '$PATTERN' $FILE"
-        if $($SUDO_CMD grep -q "$OPTIONS" -- "$PATTERN" "$FILE"); then
+        if $SUDO_CMD grep -q "$OPTIONS" -- "$PATTERN" "$FILE"; then
             debug "Pattern found in $FILE"
             FNRET=0
         else
@@ -148,7 +148,7 @@ does_pattern_exist_in_file_multiline() {
     debug "Checking if multiline pattern: $PATTERN is present in $FILE"
     if $SUDO_CMD [ -r "$FILE" ]; then
         debug "$SUDO_CMD grep -v '^[[:space:]]*#' $FILE | tr '\n' ' ' | grep -Pq -- "$PATTERN""
-        if $($SUDO_CMD grep -v '^[[:space:]]*#' "$FILE" | tr '\n' ' ' | grep -Pq -- "$PATTERN"); then
+        if $SUDO_CMD grep -v '^[[:space:]]*#' "$FILE" | tr '\n' ' ' | grep -Pq -- "$PATTERN"; then
             debug "Pattern found in $FILE"
             FNRET=0
         else
@@ -214,7 +214,7 @@ delete_line_in_file() {
 
 does_user_exist() {
     local USER=$1
-    if $(getent passwd "$USER" >/dev/null 2>&1); then
+    if getent passwd "$USER" >/dev/null 2>&1; then
         FNRET=0
     else
         FNRET=1
@@ -223,7 +223,7 @@ does_user_exist() {
 
 does_group_exist() {
     local GROUP=$1
-    if $(getent group "$GROUP" >/dev/null 2>&1); then
+    if getent group "$GROUP" >/dev/null 2>&1; then
         FNRET=0
     else
         FNRET=1
@@ -302,7 +302,7 @@ is_a_partition() {
 
     local PARTITION_NAME=$1
     FNRET=128
-    if $(grep "[[:space:]]$1[[:space:]]" /etc/fstab | grep -vqE "^#"); then
+    if grep "[[:space:]]$1[[:space:]]" /etc/fstab | grep -vqE "^#"; then
         debug "$PARTITION found in fstab"
         FNRET=0
     else
@@ -314,7 +314,7 @@ is_a_partition() {
 # Verify that $1 is mounted at runtime
 is_mounted() {
     local PARTITION_NAME=$1
-    if $(grep -q "[[:space:]]$1[[:space:]]" /proc/mounts); then
+    if grep -q "[[:space:]]$1[[:space:]]" /proc/mounts; then
         debug "$PARTITION found in /proc/mounts, it's mounted"
         FNRET=0
     else
@@ -327,12 +327,12 @@ is_mounted() {
 has_mount_option() {
     local PARTITION=$1
     local OPTION=$2
-    if $(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "bind"); then
+    if grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "bind"; then
         local actual_partition="$(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $1}')"
         debug "$PARTITION is a bind mount of $actual_partition"
         PARTITION="$actual_partition"
     fi
-    if $(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "$OPTION"); then
+    if grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "$OPTION"; then
         debug "$OPTION has been detected in fstab for partition $PARTITION"
         FNRET=0
     else
@@ -345,7 +345,7 @@ has_mount_option() {
 has_mounted_option() {
     local PARTITION=$1
     local OPTION=$2
-    if $(grep "[[:space:]]$1[[:space:]]" /proc/mounts | awk '{print $4}' | grep -q "$2"); then
+    if grep "[[:space:]]$1[[:space:]]" /proc/mounts | awk '{print $4}' | grep -q "$2"; then
         debug "$OPTION has been detected in /proc/mounts for partition $PARTITION"
         FNRET=0
     else
@@ -419,7 +419,7 @@ apt_install() {
 
 is_pkg_installed() {
     PKG_NAME=$1
-    if $(dpkg -s "$PKG_NAME" 2>/dev/null | grep -q '^Status: install '); then
+    if dpkg -s "$PKG_NAME" 2>/dev/null | grep -q '^Status: install '; then
         debug "$PKG_NAME is installed"
         FNRET=0
     else

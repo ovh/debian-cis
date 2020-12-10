@@ -21,7 +21,7 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for DIR in $(get_db passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    for DIR in $(get_db passwd | grep -Ev '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $DIR"
         for FILE in "$DIR"/.[A-Za-z0-9]*; do
             if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then
@@ -45,7 +45,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for DIR in $(get_db passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    for DIR in $(get_db passwd | grep -Ev '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         for FILE in "$DIR"/.[A-Za-z0-9]*; do
             if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then
                 FILEPERM=$(ls -ld "$FILE" | cut -f1 -d" ")

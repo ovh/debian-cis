@@ -92,7 +92,7 @@ has_file_correct_permissions() {
     local FILE=$1
     local PERMISSIONS=$2
 
-    if [ $($SUDO_CMD stat -L -c "%a" "$FILE") = "$PERMISSIONS" ]; then
+    if [ "$($SUDO_CMD stat -L -c "%a" "$FILE")" = "$PERMISSIONS" ]; then
         FNRET=0
     else
         FNRET=1
@@ -331,7 +331,8 @@ has_mount_option() {
     local PARTITION=$1
     local OPTION=$2
     if grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "bind"; then
-        local actual_partition="$(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $1}')"
+        local actual_partition
+        actual_partition="$(grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $1}')"
         debug "$PARTITION is a bind mount of $actual_partition"
         PARTITION="$actual_partition"
     fi
@@ -397,7 +398,8 @@ apt_check_updates() {
     local NAME="$1"
     local DETAILS="/dev/shm/${NAME}"
     $SUDO_CMD apt-get upgrade -s 2>/dev/null | grep -E "^Inst" >"$DETAILS" || :
-    local COUNT=$(wc -l <"$DETAILS")
+    local COUNT
+    COUNT=$(wc -l <"$DETAILS")
     FNRET=128 # Unknown function return result
     RESULT="" # Result output for upgrade
     if [ "$COUNT" -gt 0 ]; then

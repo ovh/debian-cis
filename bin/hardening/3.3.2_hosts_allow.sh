@@ -21,7 +21,7 @@ FILE='/etc/hosts.allow'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
@@ -31,10 +31,10 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         warn "$FILE does not exist, creating it"
-        touch $FILE
+        touch "$FILE"
         warn "You may want to fill it with allowed networks"
     else
         ok "$FILE exist"

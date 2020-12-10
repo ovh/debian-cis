@@ -39,8 +39,8 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     for SYSCTL_VALUES in $SYSCTL_PARAMS; do
-        SYSCTL_PARAM=$(echo $SYSCTL_VALUES | cut -d= -f 1)
-        SYSCTL_EXP_RESULT=$(echo $SYSCTL_VALUES | cut -d= -f 2)
+        SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
+        SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
         debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
         has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
         if [ "$FNRET" != 0 ]; then

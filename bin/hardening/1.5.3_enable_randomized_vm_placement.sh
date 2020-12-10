@@ -37,7 +37,7 @@ apply() {
     has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
     if [ "$FNRET" != 0 ]; then
         warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
-        set_sysctl_param $SYSCTL_PARAM $SYSCTL_EXP_RESULT
+        set_sysctl_param "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
     elif [ "$FNRET" = 255 ]; then
         warn "$SYSCTL_PARAM does not exist -- Typo?"
     else

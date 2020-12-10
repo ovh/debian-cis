@@ -21,10 +21,10 @@ CONF_LINE="ENCRYPT_METHOD SHA512"
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     # Check conf file for default SHA512 hash
-    if $SUDO_CMD [ ! -r $CONF_FILE ]; then
+    if $SUDO_CMD [ ! -r "$CONF_FILE" ]; then
         crit "$CONF_FILE is not readable"
     else
-        does_pattern_exist_in_file $CONF_FILE "^ *${CONF_LINE/ /[[:space:]]+}"
+        does_pattern_exist_in_file "$CONF_FILE" "^ *${CONF_LINE/ /[[:space:]]+}"
         if [ "$FNRET" = 0 ]; then
             ok "$CONF_LINE is present in $CONF_FILE"
         else
@@ -35,14 +35,14 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file $CONF_FILE "^ *${CONF_LINE/ /[[:space:]]+}"
+    does_pattern_exist_in_file "$CONF_FILE" "^ *${CONF_LINE/ /[[:space:]]+}"
     if [ "$FNRET" = 0 ]; then
         ok "$CONF_LINE is present in $CONF_FILE"
     else
         warn "$CONF_LINE is not present in $CONF_FILE, adding it"
         does_pattern_exist_in_file "$CONF_FILE" "^$(echo "$CONF_LINE" | cut -d ' ' -f1)"
         if [ "$FNRET" != 0 ]; then
-            add_end_of_file $CONF_FILE "$CONF_LINE"
+            add_end_of_file "$CONF_FILE" "$CONF_LINE"
         else
             info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
             replace_in_file "$CONF_FILE" "^$(echo "$CONF_LINE" | cut -d ' ' -f1)[[:space:]]*.*" "$CONF_LINE"

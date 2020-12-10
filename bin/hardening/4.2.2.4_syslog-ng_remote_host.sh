@@ -22,7 +22,7 @@ PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
     for FILE in $FILES; do
         does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
@@ -30,7 +30,7 @@ audit() {
         fi
     done
 
-    if [ $FOUND = 1 ]; then
+    if [ "$FOUND" = 1 ]; then
         ok "$PATTERN is present in $FILES"
     else
         crit "$PATTERN is not present in $FILES"
@@ -40,14 +40,14 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L $SYSLOG_BASEDIR/conf.d/ -type f)"
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
     for FILE in $FILES; do
         does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             FOUND=1
         fi
     done
-    if [ $FOUND = 1 ]; then
+    if [ "$FOUND" = 1 ]; then
         ok "$PATTERN is present in $FILES"
     else
         crit "$PATTERN is not present in $FILES, please set a remote host to send your logs"

@@ -26,7 +26,7 @@ FILE='/etc/profile.d/CIS_99.1_timeout.sh'
 audit() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
-        if [ $SEARCH_RES = 1 ]; then break; fi
+        if [ "$SEARCH_RES" = 1 ]; then break; fi
         if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
             # shellcheck disable=2044
@@ -59,7 +59,7 @@ audit() {
 apply() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
-        if [ $SEARCH_RES = 1 ]; then break; fi
+        if [ "$SEARCH_RES" = 1 ]; then break; fi
         if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
             # shellcheck disable=2044
@@ -87,9 +87,9 @@ apply() {
         warn "$PATTERN is not present in $FILES_TO_SEARCH"
         touch "$FILE"
         chmod 644 "$FILE"
-        add_end_of_file $FILE "$PATTERN$VALUE"
-        add_end_of_file $FILE "readonly TMOUT"
-        add_end_of_file $FILE "export TMOUT"
+        add_end_of_file "$FILE" "$PATTERN$VALUE"
+        add_end_of_file "$FILE" "readonly TMOUT"
+        add_end_of_file "$FILE" "export TMOUT"
     else
         ok "$PATTERN is present in $FILES_TO_SEARCH"
     fi

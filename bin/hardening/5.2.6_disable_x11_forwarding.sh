@@ -55,7 +55,7 @@ apply() {
         SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
         SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
         PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-        does_pattern_exist_in_file $FILE "$PATTERN"
+        does_pattern_exist_in_file "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else

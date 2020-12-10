@@ -30,13 +30,13 @@ audit() {
         crit "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        does_pattern_exist_in_file $FILE_AUTH "$PATTERN_AUTH"
+        does_pattern_exist_in_file "$FILE_AUTH" "$PATTERN_AUTH"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN_AUTH is present in $FILE_AUTH"
         else
             crit "$PATTERN_AUTH is not present in $FILE_AUTH"
         fi
-        does_pattern_exist_in_file $FILE_ACCOUNT "$PATTERN_ACCOUNT"
+        does_pattern_exist_in_file "$FILE_ACCOUNT" "$PATTERN_ACCOUNT"
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
         else
@@ -54,19 +54,19 @@ apply() {
         crit "$PACKAGE is absent, installing it"
         apt_install "$PACKAGE"
     fi
-    does_pattern_exist_in_file $FILE_AUTH "$PATTERN_AUTH"
+    does_pattern_exist_in_file "$FILE_AUTH" "$PATTERN_AUTH"
     if [ "$FNRET" = 0 ]; then
         ok "$PATTERN_AUTH is present in $FILE_AUTH"
     else
         warn "$PATTERN_AUTH is not present in $FILE_AUTH, adding it"
-        add_line_file_before_pattern $FILE_AUTH "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
+        add_line_file_before_pattern "$FILE_AUTH" "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
     fi
-    does_pattern_exist_in_file $FILE_ACCOUNT "$PATTERN_ACCOUNT"
+    does_pattern_exist_in_file "$FILE_ACCOUNT" "$PATTERN_ACCOUNT"
     if [ "$FNRET" = 0 ]; then
         ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
     else
         warn "$PATTERN_ACCOUNT is not present in $FILE_ACCOUNT, adding it"
-        add_line_file_before_pattern $FILE_ACCOUNT "account required pam_tally.so" "# pam-auth-update(8) for details."
+        add_line_file_before_pattern "$FILE_ACCOUNT" "account required pam_tally.so" "# pam-auth-update(8) for details."
 
     fi
 }

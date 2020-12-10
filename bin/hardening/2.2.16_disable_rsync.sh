@@ -31,7 +31,7 @@ audit() {
         ok "$PACKAGE is not installed"
     else
         ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exist_in_file $RSYNC_DEFAULT_FILE "^$RSYNC_DEFAULT_PATTERN"
+        does_pattern_exist_in_file "$RSYNC_DEFAULT_FILE" "^$RSYNC_DEFAULT_PATTERN"
         if [ "$FNRET" != 0 ]; then
             crit "$RSYNC_DEFAULT_PATTERN not found in $RSYNC_DEFAULT_FILE"
         else
@@ -47,11 +47,11 @@ apply() {
         ok "$PACKAGE is not installed"
     else
         ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exist_in_file $RSYNC_DEFAULT_FILE "^$RSYNC_DEFAULT_PATTERN"
+        does_pattern_exist_in_file "$RSYNC_DEFAULT_FILE" "^$RSYNC_DEFAULT_PATTERN"
         if [ "$FNRET" != 0 ]; then
             warn "$RSYNC_DEFAULT_PATTERN not found in $RSYNC_DEFAULT_FILE, adding it"
-            backup_file $RSYNC_DEFAULT_FILE
-            replace_in_file $RSYNC_DEFAULT_FILE $RSYNC_DEFAULT_PATTERN_TO_SEARCH $RSYNC_DEFAULT_PATTERN
+            backup_file "$RSYNC_DEFAULT_FILE"
+            replace_in_file "$RSYNC_DEFAULT_FILE" "$RSYNC_DEFAULT_PATTERN_TO_SEARCH" "$RSYNC_DEFAULT_PATTERN"
         else
             ok "$RSYNC_DEFAULT_PATTERN found in $RSYNC_DEFAULT_FILE"
         fi

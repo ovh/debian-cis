@@ -128,7 +128,7 @@ disabled | false)
 esac
 
 if [ "$CRITICAL_ERRORS_NUMBER" -eq 0 ]; then
-    if [ $BATCH_MODE -eq 1 ]; then
+    if [ "$BATCH_MODE" -eq 1 ]; then
         BATCH_OUTPUT="OK $SCRIPT_NAME $BATCH_OUTPUT"
         becho "$BATCH_OUTPUT"
     else

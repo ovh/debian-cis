@@ -56,7 +56,7 @@ apply() {
         crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
     elif [ "$FNRET" = 1 ]; then
         info "Adding $OPTION to fstab"
-        add_option_to_fstab $PARTITION $OPTION
+        add_option_to_fstab "$PARTITION" "$OPTION"
         info "Remounting $PARTITION from fstab"
         remount_partition "$PARTITION"
     elif [ "$FNRET" = 3 ]; then

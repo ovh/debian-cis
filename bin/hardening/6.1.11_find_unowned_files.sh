@@ -32,7 +32,7 @@ audit() {
     if [ -n "$RESULT" ]; then
         crit "Some unowned files are present"
         # shellcheck disable=SC2001
-        FORMATTED_RESULT=$(sed "s/ /\n/g" <<<$RESULT | sort | uniq | tr '\n' ' ')
+        FORMATTED_RESULT=$(sed "s/ /\n/g" <<<"$RESULT" | sort | uniq | tr '\n' ' ')
         crit "$FORMATTED_RESULT"
     else
         ok "No unowned files found"
@@ -48,7 +48,7 @@ apply() {
     fi
     if [ -n "$RESULT" ]; then
         warn "Applying chown on all unowned files in the system"
-        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown $USER
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown "$USER"
     else
         ok "No unowned files found, nothing to apply"
     fi

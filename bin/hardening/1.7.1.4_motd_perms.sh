@@ -24,7 +24,7 @@ FILE='/etc/motd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
@@ -45,10 +45,10 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         info "$FILE does not exist"
-        touch $FILE
+        touch "$FILE"
     fi
     has_file_correct_ownership "$FILE" "$USER" "$GROUP"
     if [ "$FNRET" = 0 ]; then

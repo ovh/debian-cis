@@ -55,13 +55,13 @@ check_ip() {
         ok_ips=$(sed 's/ $//' <<<"${ok_ips_allowed}")
         # shellcheck disable=SC2001
         bad_ips=$(sed 's/ $//' <<<"${bad_ips}")
-        if [[ -z $bad_ips ]]; then
-            if [[ -n $ok_ips ]]; then
+        if [[ -z "$bad_ips" ]]; then
+            if [[ -n "$ok_ips" ]]; then
                 ok "Line $linum of $file allows ssh access only from allowed IPs ($ok_ips)."
             fi
         else
             crit "Line $linum of $file allows ssh access from (${bad_ips}) that are not allowed."
-            if [[ -n $ok_ips ]]; then
+            if [[ -n "$ok_ips" ]]; then
                 ok "Line $linum of $file allows ssh access from at least allowed IPs ($ok_ips)."
             fi
         fi
@@ -143,7 +143,7 @@ audit() {
                 continue
             fi
             check_dir /home/"${user}"
-            if [ $FOUND_AUTHKF = 0 ]; then
+            if [ "$FOUND_AUTHKF" = 0 ]; then
                 warn "$user has a valid shell but no authorized_keys file"
             fi
         fi

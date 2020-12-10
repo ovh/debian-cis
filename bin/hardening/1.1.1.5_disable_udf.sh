@@ -22,7 +22,7 @@ MODULE_FILE="udf"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_kernel_option_enabled "$KERNEL_OPTION" $MODULE_FILE
+    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_FILE"
     if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
         crit "$KERNEL_OPTION is enabled!"
     else

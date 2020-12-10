@@ -36,7 +36,7 @@ apply() {
     is_service_enabled "$SERVICE_NAME"
     if [ "$FNRET" = 0 ]; then
         info "Disabling $SERVICE_NAME"
-        update-rc.d $SERVICE_NAME remove >/dev/null 2>&1
+        update-rc.d "$SERVICE_NAME" remove >/dev/null 2>&1
     else
         ok "$SERVICE_NAME is disabled"
     fi

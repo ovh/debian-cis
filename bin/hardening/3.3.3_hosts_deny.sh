@@ -22,12 +22,12 @@ PATTERN='ALL: ALL'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
         ok "$FILE exists, checking configuration"
-        does_pattern_exist_in_file $FILE "$PATTERN"
+        does_pattern_exist_in_file "$FILE" "$PATTERN"
         if [ "$FNRET" != 0 ]; then
             crit "$PATTERN is not present in $FILE, we have to deny everything"
         else
@@ -38,17 +38,17 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist $FILE
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         warn "$FILE does not exist, creating it"
-        touch $FILE
+        touch "$FILE"
     else
         ok "$FILE exists"
     fi
-    does_pattern_exist_in_file $FILE "$PATTERN"
+    does_pattern_exist_in_file "$FILE" "$PATTERN"
     if [ "$FNRET" != 0 ]; then
         crit "$PATTERN is not present in $FILE, we have to deny everything"
-        add_end_of_file $FILE "$PATTERN"
+        add_end_of_file "$FILE" "$PATTERN"
         warn "YOU MAY HAVE CUT YOUR ACCESS, CHECK BEFORE DISCONNECTING"
     else
         ok "$PATTERN is present in $FILE"

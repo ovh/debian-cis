@@ -32,7 +32,7 @@ audit() {
             ok "$PACKAGE is absent"
         fi
     done
-    is_service_enabled $SERVICE
+    is_service_enabled "$SERVICE"
     if [ "$FNRET" = 0 ]; then
         crit "Service $SERVICE is enabled!"
     else
@@ -52,10 +52,10 @@ apply() {
             ok "$PACKAGE is absent"
         fi
     done
-    is_service_enabled $SERVICE
+    is_service_enabled "$SERVICE"
     if [ "$FNRET" = 0 ]; then
         crit "Service $SERVICE is enabled!"
-        systemctl disable $SERVICE
+        systemctl disable "$SERVICE"
     else
         ok "Service $SERVICE is disabled"
     fi

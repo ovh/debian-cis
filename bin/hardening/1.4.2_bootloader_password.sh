@@ -23,13 +23,13 @@ PWD_PATTERN="^password_pbkdf2"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_pattern_exist_in_file $FILE "$USER_PATTERN"
+    does_pattern_exist_in_file "$FILE" "$USER_PATTERN"
     if [ "$FNRET" != 0 ]; then
         crit "$USER_PATTERN not present in $FILE"
     else
         ok "$USER_PATTERN is present in $FILE"
     fi
-    does_pattern_exist_in_file $FILE "$PWD_PATTERN"
+    does_pattern_exist_in_file "$FILE" "$PWD_PATTERN"
     if [ "$FNRET" != 0 ]; then
         crit "$PWD_PATTERN not present in $FILE"
     else
@@ -39,13 +39,13 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file $FILE "$USER_PATTERN"
+    does_pattern_exist_in_file "$FILE" "$USER_PATTERN"
     if [ "$FNRET" != 0 ]; then
         warn "$USER_PATTERN not present in $FILE, please configure password for grub"
     else
         ok "$USER_PATTERN is present in $FILE"
     fi
-    does_pattern_exist_in_file $FILE "$PWD_PATTERN"
+    does_pattern_exist_in_file "$FILE" "$PWD_PATTERN"
     if [ "$FNRET" != 0 ]; then
         warn "$PWD_PATTERN not present in $FILE, please configure password for grub"
     else

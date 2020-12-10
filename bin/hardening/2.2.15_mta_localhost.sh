@@ -29,7 +29,7 @@ audit() {
         ok "Nothing listens on 25 port, probably unix socket configured"
     else
         info "Checking $RESULT"
-        if $(grep -q "127.0.0.1" <<<"$RESULT"); then
+        if grep -q "127.0.0.1" <<<"$RESULT"; then
             ok "MTA is configured to localhost only"
         else
             crit "MTA listens worldwide"
@@ -47,7 +47,7 @@ apply() {
         ok "Nothing listens on 25 port, probably unix socket configured"
     else
         info "Checking $RESULT"
-        if $(grep -q "127.0.0.1" <<<"$RESULT"); then
+        if grep -q "127.0.0.1" <<<"$RESULT"; then
             ok "MTA is configured to localhost only"
         else
             warn "MTA listens worldwide, correct this considering your MTA"

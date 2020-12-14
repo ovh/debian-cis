@@ -21,6 +21,7 @@ DESCRIPTION="Set sticky bit on world writable directories to prevent users from 
 audit() {
     info "Checking if setuid is set on world writable Directories"
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
+    # shellcheck disable=SC2086
     RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     if [ -n "$RESULT" ]; then
         crit "Some world writable directories are not on sticky bit mode!"

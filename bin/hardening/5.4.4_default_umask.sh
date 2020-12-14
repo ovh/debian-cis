@@ -30,7 +30,7 @@ audit() {
         if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
             for file_in_dir in "$FILE_SEARCHED"/*; do
-                [[ -e "$file_in_dir" ]] || break  # handle the case of no file in dir
+                [[ -e "$file_in_dir" ]] || break # handle the case of no file in dir
                 does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
                 if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $file_in_dir"
@@ -63,7 +63,7 @@ apply() {
         if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
             for file_in_dir in "$FILE_SEARCHED"/*; do
-                [[ -e "$file_in_dir" ]] || break  # handle the case of no file in dir
+                [[ -e "$file_in_dir" ]] || break # handle the case of no file in dir
                 does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
                 if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $file_in_dir"

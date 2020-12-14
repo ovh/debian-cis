@@ -34,6 +34,7 @@ audit() {
         ERRORS=$((ERRORS + 1))
     fi
     FORMATTED_PATH=$(echo "$path" | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g')
+    # shellcheck disable=SC2086
     set -- $FORMATTED_PATH
     while [ "${1:-}" != "" ]; do
         if [ "$1" = "." ]; then
@@ -41,7 +42,8 @@ audit() {
             ERRORS=$((ERRORS + 1))
         else
             if [ -d "$1" ]; then
-                dirperm=$(ls -ldH "$1" | cut -f1 -d" ")
+                dirperm=$(stat -L -c "%A" "$1")
+                dirown=$(stat -c "%U" "$1")
                 if [ "$(echo "$dirperm" | cut -c6)" != "-" ]; then
                     crit "Group Write permission set on directory $1"
                     ERRORS=$((ERRORS + 1))
@@ -50,7 +52,6 @@ audit() {
                     crit "Other Write permission set on directory $1"
                     ERRORS=$((ERRORS + 1))
                 fi
-                dirown=$(ls -ldH "$1" | awk '{print $3}')
                 if [ "$dirown" != "root" ]; then
                     crit "$1 is not owned by root"
                     ERRORS=$((ERRORS + 1))

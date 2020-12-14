@@ -100,11 +100,11 @@ has_file_correct_permissions() {
 }
 
 does_pattern_exist_in_file_nocase() {
-    _does_pattern_exist_in_file "-Ei" $*
+    _does_pattern_exist_in_file "-Ei" "$@"
 }
 
 does_pattern_exist_in_file() {
-    _does_pattern_exist_in_file "-E" $*
+    _does_pattern_exist_in_file "-E" "$@"
 }
 
 _does_pattern_exist_in_file() {

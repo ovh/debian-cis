@@ -29,12 +29,13 @@ audit() {
         if [ "$SEARCH_RES" = 1 ]; then break; fi
         if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
-            for file_in_dir in $(ls "$FILE_SEARCHED"); do
-                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
+            for file_in_dir in "$FILE_SEARCHED"/*; do
+                [[ -e "$file_in_dir" ]] || break  # handle the case of no file in dir
+                does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
                 if [ "$FNRET" != 0 ]; then
-                    debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
+                    debug "$PATTERN is not present in $file_in_dir"
                 else
-                    ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
+                    ok "$PATTERN is present in $file_in_dir"
                     SEARCH_RES=1
                     break
                 fi
@@ -61,12 +62,13 @@ apply() {
         if [ "$SEARCH_RES" = 1 ]; then break; fi
         if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
-            for file_in_dir in $(ls "$FILE_SEARCHED"); do
-                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
+            for file_in_dir in "$FILE_SEARCHED"/*; do
+                [[ -e "$file_in_dir" ]] || break  # handle the case of no file in dir
+                does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
                 if [ "$FNRET" != 0 ]; then
-                    debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
+                    debug "$PATTERN is not present in $file_in_dir"
                 else
-                    ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
+                    ok "$PATTERN is present in $file_in_dir"
                     SEARCH_RES=1
                     break
                 fi

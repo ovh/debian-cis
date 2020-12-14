@@ -21,6 +21,7 @@ DESCRIPTION="Ensure no world writable files exist"
 audit() {
     info "Checking if there are world writable files"
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
+    # shellcheck disable=SC2086
     RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
     if [ -n "$RESULT" ]; then
         crit "Some world writable files are present"

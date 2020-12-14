@@ -193,7 +193,7 @@ if [ "$BATCH_MODE" ]; then MACHINE_LOG_LEVEL=3; fi
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ]; then
     declare -a HARDENING_EXCEPTIONS_LIST
-    for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
+    for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
         template=$(grep "^HARDENING_EXCEPTION=" "$SCRIPT" | cut -d= -f2)
         [ -n "$template" ] && HARDENING_EXCEPTIONS_LIST[${#HARDENING_EXCEPTIONS_LIST[@]}]="$template"
     done
@@ -208,7 +208,7 @@ if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
         exit 1
     fi
 
-    for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
+    for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
         SCRIPT_BASENAME=$(basename "$SCRIPT" .sh)
         script_level=$(grep "^HARDENING_LEVEL=" "$SCRIPT" | cut -d= -f2)
         if [ -z "$script_level" ]; then
@@ -229,7 +229,7 @@ if [ "$CREATE_CONFIG" = 1 ] && [ "$EUID" -ne 0 ]; then
 fi
 
 # Parse every scripts and execute them in the required mode
-for SCRIPT in $(ls $CIS_ROOT_DIR/bin/hardening/*.sh -v); do
+for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
     if [ "${#TEST_LIST[@]}" -gt 0 ]; then
         # --only X has been specified at least once, is this script in my list ?
         SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<<"$(basename "$SCRIPT")")

@@ -21,8 +21,8 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-
-    for GROUP in $(cut -s -d: -f4 /etc/passwd | sort -u); do
+    RESULT=$(cut -s -d: -f4 /etc/passwd | sort -u)
+    for GROUP in $RESULT; do
         debug "Working on group $GROUP"
         if ! grep -q -P "^.*?:[^:]*:$GROUP:" /etc/group; then
             crit "Group $GROUP is referenced by /etc/passwd but does not exist in /etc/group"

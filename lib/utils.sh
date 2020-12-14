@@ -302,8 +302,7 @@ is_kernel_option_enabled() {
 
 # Verify $1 is a partition declared in fstab
 is_a_partition() {
-
-    local PARTITION_NAME=$1
+    local PARTITION=$1
     FNRET=128
     if grep "[[:space:]]$1[[:space:]]" /etc/fstab | grep -vqE "^#"; then
         debug "$PARTITION found in fstab"
@@ -316,7 +315,7 @@ is_a_partition() {
 
 # Verify that $1 is mounted at runtime
 is_mounted() {
-    local PARTITION_NAME=$1
+    local PARTITION=$1
     if grep -q "[[:space:]]$1[[:space:]]" /proc/mounts; then
         debug "$PARTITION found in /proc/mounts, it's mounted"
         FNRET=0

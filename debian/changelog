@@ -1,3 +1,20 @@
+cis-hardening (2.1-5) unstable; urgency=medium
+
+  * Fix various shellcheck warnrings and errors
+  * Quote every variables that should be quoted SC2086
+  * Move shfmt
+  * Disable some shellcheck rules like sed replacement by shell expansion SC2001
+  * Replace egrep SC2196
+  * Fix execution of output SC2091
+  * Replace ls by glob in loop SC2045
+  * Add prefix to follow scripts SC1090
+  * Replace -a  by && SC2166
+  * Replace ! -z by -n SC2236
+  * Fix bug on race condition (shoud have been fixed in 2.0-6)
+
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 14 Dec 2020 16:30:32 +0100
+
 cis-hardening (2.1-4) unstable; urgency=medium
 
   * Quoting variables to commply with shellcheck SC2086

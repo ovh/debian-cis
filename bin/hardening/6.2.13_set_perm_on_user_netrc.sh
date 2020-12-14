@@ -45,7 +45,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for DIR in $(cat /etc/passwd | grep -Ev '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
+    for DIR in $(get_db passwd | grep -Ev '(root|halt|sync|shutdown)' | awk -F: '($7 != "/usr/sbin/nologin" && $7 != "/bin/false" && $7 !="/nonexistent" ) { print $6 }'); do
         debug "Working on $DIR"
         for FILE in $DIR/.netrc; do
             if [ ! -h "$FILE" ] && [ -f "$FILE" ]; then

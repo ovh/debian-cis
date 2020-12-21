@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.7 Disable Mounting of squashfs Filesystems (Not Scored)
+# 1.1.1.6 Disable Mounting of udf Filesystems (Not Scored)
 #
 
 set -e # One error, it's over
@@ -15,10 +15,10 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Disable mounting of squashfs filesytems."
+DESCRIPTION="Disable mounting of udf filesystems."
 
-KERNEL_OPTION="CONFIG_SQUASHFS"
-MODULE_FILE="squashfs"
+KERNEL_OPTION="CONFIG_UDF_FS"
+MODULE_FILE="udf"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -28,7 +28,6 @@ audit() {
     else
         ok "$KERNEL_OPTION is disabled"
     fi
-    :
 }
 
 # This function will be called if the script status is on enabled mode
@@ -39,7 +38,6 @@ apply() {
     else
         ok "$KERNEL_OPTION is disabled, nothing to do"
     fi
-    :
 }
 
 # This function will check config parameters required

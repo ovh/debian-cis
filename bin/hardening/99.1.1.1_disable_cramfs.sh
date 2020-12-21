@@ -2,11 +2,11 @@
 
 # run-shellcheck
 #
-# CIS Debian Hardening
+# CIS Debian Hardening Bonus Check
 #
 
 #
-# 1.1.1.5 Disable Mounting of udf Filesystems (Not Scored)
+# 99.1.1.1 Disable Mounting of cramfs Filesystems (Not Scored)
 #
 
 set -e # One error, it's over
@@ -15,19 +15,20 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Disable mounting of udf filesystems."
+DESCRIPTION="Disable mounting of cramfs filesystems."
 
-KERNEL_OPTION="CONFIG_UDF_FS"
-MODULE_FILE="udf"
+KERNEL_OPTION="CONFIG_CRAMFS"
+MODULE_NAME="cramfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_FILE"
+    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
     if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
         crit "$KERNEL_OPTION is enabled!"
     else
         ok "$KERNEL_OPTION is disabled"
     fi
+    :
 }
 
 # This function will be called if the script status is on enabled mode
@@ -38,6 +39,7 @@ apply() {
     else
         ok "$KERNEL_OPTION is disabled, nothing to do"
     fi
+    :
 }
 
 # This function will check config parameters required

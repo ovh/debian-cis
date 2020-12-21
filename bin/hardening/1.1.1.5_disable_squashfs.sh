@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.6 Disable Mounting of cramfs Filesystems (Not Scored)
+# 1.1.1.5 Disable Mounting of squashfs Filesystems (Not Scored)
 #
 
 set -e # One error, it's over
@@ -15,14 +15,14 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Disable mounting of cramfs filesystems."
+DESCRIPTION="Disable mounting of squashfs filesytems."
 
-KERNEL_OPTION="CONFIG_CRAMFS"
-MODULE_NAME="cramfs"
+KERNEL_OPTION="CONFIG_SQUASHFS"
+MODULE_FILE="squashfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
+    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_FILE"
     if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
         crit "$KERNEL_OPTION is enabled!"
     else

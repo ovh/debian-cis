@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.3 Ensure remote login warning banner is configured properly (Scored)
+# 1.9 Ensure updates, patches and additional security software are installed (Not Scored)
 #
 
 set -e # One error, it's over
@@ -15,34 +15,36 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Remove OS information from remote Login Warning Banners."
-
-FILE='/etc/issue.net'
-PATTERN='(\\v|\\r|\\m|\\s)'
+DESCRIPTION="Ensure updates, patches, and additional security software are installed (Not Scored)"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_pattern_exist_in_file "$FILE" "$PATTERN"
-    if [ "$FNRET" = 0 ]; then
-        crit "$PATTERN is present in $FILE"
+    info "Checking if apt needs an update"
+    apt_update_if_needed
+    info "Fetching upgrades ..."
+    apt_check_updates "CIS_APT"
+    if [ "$FNRET" -gt 0 ]; then
+        crit "$RESULT"
+        FNRET=1
     else
-        ok "$PATTERN is not present in $FILE"
+        ok "No upgrades available"
+        FNRET=0
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file "$FILE" "$PATTERN"
-    if [ "$FNRET" = 0 ]; then
-        warn "$PATTERN is present in $FILE"
-        delete_line_in_file "$FILE" "$PATTERN"
+    if [ "$FNRET" -gt 0 ]; then
+        info "Applying Upgrades..."
+        DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' upgrade -y
     else
-        ok "$PATTERN is not present in $FILE"
+        ok "No Upgrades to apply"
     fi
 }
 
 # This function will check config parameters required
 check_config() {
+    # No parameters for this function
     :
 }
 

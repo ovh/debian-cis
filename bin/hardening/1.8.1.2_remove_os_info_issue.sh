@@ -6,7 +6,7 @@
 #
 
 #
-# 1.4.3 Ensure authentication required for single user mode (Scored)
+# 1.8.1.2 Ensure local login warning banner is configured properly (Scored)
 #
 
 set -e # One error, it's over
@@ -15,15 +15,15 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Root password for single user mode."
+DESCRIPTION="Remove OS information from Login Warning Banners."
 
-FILE="/etc/shadow"
-PATTERN="^root:[*\!]:"
+FILE='/etc/issue'
+PATTERN='(\\v|\\r|\\m|\\s)'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     does_pattern_exist_in_file "$FILE" "$PATTERN"
-    if [ "$FNRET" != 1 ]; then
+    if [ "$FNRET" = 0 ]; then
         crit "$PATTERN is present in $FILE"
     else
         ok "$PATTERN is not present in $FILE"
@@ -32,13 +32,13 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file "$FILE" "$PATTERN"
-    if [ "$FNRET" != 1 ]; then
-        warn "$PATTERN is present in $FILE, please put a root password"
+    does_pattern_exist_in_file $FILE "$PATTERN"
+    if [ "$FNRET" = 0 ]; then
+        warn "$PATTERN is present in $FILE"
+        delete_line_in_file "$FILE" "$PATTERN"
     else
         ok "$PATTERN is not present in $FILE"
     fi
-    :
 }
 
 # This function will check config parameters required

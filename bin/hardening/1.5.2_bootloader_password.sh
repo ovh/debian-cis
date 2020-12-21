@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.5 Ensure permissions on /etc/issue are configured (Scored)
+# 1.5.2 Ensure bootloader password is set (Scored)
 #
 
 set -e # One error, it's over
@@ -15,60 +15,56 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Checking root ownership and 644 permissions on banner files: /etc/motd|issue|issue.net ."
+DESCRIPTION="Setting bootloader password to secure boot parameters."
 
-PERMISSIONS='644'
-USER='root'
-GROUP='root'
-FILE='/etc/issue'
+FILE='/boot/grub/grub.cfg'
+USER_PATTERN="^set superusers"
+PWD_PATTERN="^password_pbkdf2"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist "$FILE"
+    does_pattern_exist_in_file "$FILE" "$USER_PATTERN"
     if [ "$FNRET" != 0 ]; then
-        crit "$FILE does not exist"
+        crit "$USER_PATTERN not present in $FILE"
     else
-        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-        if [ "$FNRET" = 0 ]; then
-            ok "$FILE has correct ownership"
-        else
-            crit "$FILE ownership was not set to $USER:$GROUP"
-        fi
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
-        if [ "$FNRET" = 0 ]; then
-            ok "$FILE has correct permissions"
-        else
-            crit "$FILE permissions were not set to $PERMISSIONS"
-        fi
+        ok "$USER_PATTERN is present in $FILE"
+    fi
+    does_pattern_exist_in_file "$FILE" "$PWD_PATTERN"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PWD_PATTERN not present in $FILE"
+    else
+        ok "$PWD_PATTERN is present in $FILE"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
+    does_pattern_exist_in_file "$FILE" "$USER_PATTERN"
     if [ "$FNRET" != 0 ]; then
-        info "$FILE does not exist"
-        touch "$FILE"
-    fi
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
+        warn "$USER_PATTERN not present in $FILE, please configure password for grub"
     else
-        warn "fixing $FILE ownership to $USER:$GROUP"
-        chown "$USER":"$GROUP" "$FILE"
+        ok "$USER_PATTERN is present in $FILE"
     fi
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_pattern_exist_in_file "$FILE" "$PWD_PATTERN"
+    if [ "$FNRET" != 0 ]; then
+        warn "$PWD_PATTERN not present in $FILE, please configure password for grub"
     else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0"$PERMISSIONS" "$FILE"
+        ok "$PWD_PATTERN is present in $FILE"
     fi
+    :
 }
 
 # This function will check config parameters required
 check_config() {
-    :
+    is_pkg_installed "grub-pc"
+    if [ "$FNRET" != 0 ]; then
+        warn "grub-pc is not installed, not handling configuration"
+        exit 128
+    fi
+    if [ "$FNRET" != 0 ]; then
+        crit "$FILE does not exist"
+        exit 128
+    fi
 }
 
 # Source Root Dir Parameter

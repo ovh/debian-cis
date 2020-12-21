@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.2 Ensure local login warning banner is configured properly (Scored)
+# 1.8.1.1 Ensure message of the day is configured properly (Scored)
 #
 
 set -e # One error, it's over
@@ -15,9 +15,9 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Remove OS information from Login Warning Banners."
+DESCRIPTION="Remove OS information from motd"
 
-FILE='/etc/issue'
+FILE='/etc/motd'
 PATTERN='(\\v|\\r|\\m|\\s)'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -32,7 +32,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file $FILE "$PATTERN"
+    does_pattern_exist_in_file "$FILE" "$PATTERN"
     if [ "$FNRET" = 0 ]; then
         warn "$PATTERN is present in $FILE"
         delete_line_in_file "$FILE" "$PATTERN"

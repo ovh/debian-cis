@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.6 Ensure permissions on /etc/issue.net are configured (Scored)
+# 1.8.1.4 Ensure permissions on /etc/motd are configured (Scored)
 #
 
 set -e # One error, it's over
@@ -20,7 +20,7 @@ DESCRIPTION="Checking root ownership and 644 permissions on banner files: /etc/m
 PERMISSIONS='644'
 USER='root'
 GROUP='root'
-FILE='/etc/issue.net'
+FILE='/etc/motd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

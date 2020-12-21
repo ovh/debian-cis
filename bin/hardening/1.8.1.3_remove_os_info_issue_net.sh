@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.1 Ensure message of the day is configured properly (Scored)
+# 1.8.1.3 Ensure remote login warning banner is configured properly (Scored)
 #
 
 set -e # One error, it's over
@@ -15,9 +15,9 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Remove OS information from motd"
+DESCRIPTION="Remove OS information from remote Login Warning Banners."
 
-FILE='/etc/motd'
+FILE='/etc/issue.net'
 PATTERN='(\\v|\\r|\\m|\\s)'
 
 # This function will be called if the script status is on enabled / audit mode

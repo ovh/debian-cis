@@ -6,42 +6,25 @@
 #
 
 #
-# 1.5.4 Ensure prelink is disabled (Scored)
+# 1.8.2 Ensure GDM login banner is configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=2
+HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Disable prelink to prevent libraries compromission."
-
-PACKAGE='prelink'
+DESCRIPTION="Set graphical warning banner."
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        crit "$PACKAGE is installed!"
-    else
-        ok "$PACKAGE is absent"
-    fi
-    :
+    info "Not implemented yet"
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        crit "$PACKAGE is installed, purging it"
-        /usr/sbin/prelink -ua
-        apt-get purge "$PACKAGE" -y
-        apt-get autoremove
-    else
-        ok "$PACKAGE is absent"
-    fi
-    :
+    info "Not implemented yet"
 }
 
 # This function will check config parameters required

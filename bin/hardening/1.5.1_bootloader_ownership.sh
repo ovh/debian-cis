@@ -6,57 +6,51 @@
 #
 
 #
-# 1.7.1.4 Ensure permissions on /etc/motd are configured (Scored)
+# 1.5.1 Ensure permissions on bootloader config are configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=3
+HARDENING_LEVEL=1
 # shellcheck disable=2034
-DESCRIPTION="Checking root ownership and 644 permissions on banner files: /etc/motd|issue|issue.net ."
+DESCRIPTION="User and group root owner of grub bootloader config."
 
-PERMISSIONS='644'
+# Assertion : Grub Based.
+
+FILE='/boot/grub/grub.cfg'
 USER='root'
 GROUP='root'
-FILE='/etc/motd'
+PERMISSIONS='400'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$FILE does not exist"
+    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+    if [ "$FNRET" = 0 ]; then
+        ok "$FILE has correct ownership"
     else
-        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-        if [ "$FNRET" = 0 ]; then
-            ok "$FILE has correct ownership"
-        else
-            crit "$FILE ownership was not set to $USER:$GROUP"
-        fi
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
-        if [ "$FNRET" = 0 ]; then
-            ok "$FILE has correct permissions"
-        else
-            crit "$FILE permissions were not set to $PERMISSIONS"
-        fi
+        crit "$FILE ownership was not set to $USER:$GROUP"
+    fi
+
+    has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    if [ "$FNRET" = 0 ]; then
+        ok "$FILE has correct permissions"
+    else
+        crit "$FILE permissions were not set to $PERMISSIONS"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        info "$FILE does not exist"
-        touch "$FILE"
-    fi
     has_file_correct_ownership "$FILE" "$USER" "$GROUP"
     if [ "$FNRET" = 0 ]; then
         ok "$FILE has correct ownership"
     else
-        warn "fixing $FILE ownership to $USER:$GROUP"
+        info "fixing $FILE ownership to $USER:$GROUP"
         chown "$USER":"$GROUP" "$FILE"
     fi
+
     has_file_correct_permissions "$FILE" "$PERMISSIONS"
     if [ "$FNRET" = 0 ]; then
         ok "$FILE has correct permissions"
@@ -68,7 +62,27 @@ apply() {
 
 # This function will check config parameters required
 check_config() {
-    :
+
+    is_pkg_installed "grub-pc"
+    if [ "$FNRET" != 0 ]; then
+        warn "Grub is not installed, not handling configuration"
+        exit 128
+    fi
+    does_user_exist "$USER"
+    if [ "$FNRET" != 0 ]; then
+        crit "$USER does not exist"
+        exit 128
+    fi
+    does_group_exist "$GROUP"
+    if [ "$FNRET" != 0 ]; then
+        crit "$GROUP does not exist"
+        exit 128
+    fi
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$FILE does not exist"
+        exit 128
+    fi
 }
 
 # Source Root Dir Parameter

@@ -6,45 +6,46 @@
 #
 
 #
-# 1.8 Ensure updates, patches and additional security software are installed (Not Scored)
+# 1.6.3 Ensure prelink is disabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=3
+HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Ensure updates, patches, and additional security software are installed (Not Scored)"
+DESCRIPTION="Disable prelink to prevent libraries compromission."
+
+PACKAGE='prelink'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Checking if apt needs an update"
-    apt_update_if_needed
-    info "Fetching upgrades ..."
-    apt_check_updates "CIS_APT"
-    if [ "$FNRET" -gt 0 ]; then
-        crit "$RESULT"
-        FNRET=1
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
+        crit "$PACKAGE is installed!"
     else
-        ok "No upgrades available"
-        FNRET=0
+        ok "$PACKAGE is absent"
     fi
+    :
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$FNRET" -gt 0 ]; then
-        info "Applying Upgrades..."
-        DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' upgrade -y
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
+        crit "$PACKAGE is installed, purging it"
+        /usr/sbin/prelink -ua
+        apt-get purge "$PACKAGE" -y
+        apt-get autoremove
     else
-        ok "No Upgrades to apply"
+        ok "$PACKAGE is absent"
     fi
+    :
 }
 
 # This function will check config parameters required
 check_config() {
-    # No parameters for this function
     :
 }
 

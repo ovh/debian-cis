@@ -19,6 +19,7 @@ DESCRIPTION="Checking permissions and ownership to root 644 for ssh public keys.
 
 DIR='/etc/ssh'
 PERMISSIONS='644'
+PERMISSIONSOK='644 640 600'
 USER='root'
 GROUP='root'
 
@@ -26,22 +27,12 @@ GROUP='root'
 audit() {
     ERRORS=0
     for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub'); do
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        has_file_one_of_permissions "$FILE" "$PERMISSIONSOK"
         if [ "$FNRET" = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            has_file_correct_permissions "$FILE" 640
-            if [ "$FNRET" = 0 ]; then
-                ok "$FILE permissions were set to $PERMISSIONS"
-            else
-                has_file_correct_permissions "$FILE" 600
-                if [ "$FNRET" = 0 ]; then
-                    ok "$FILE permissions were set to $PERMISSIONS"
-                else
-                    ERRORS=$((ERRORS + 1))
-                    crit "$FILE permissions were not set to $PERMISSIONS"
-                fi
-            fi
+            ERRORS=$((ERRORS + 1))
+            crit "$FILE permissions were not set to $PERMISSIONS"
         fi
 
     done
@@ -70,22 +61,12 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     for FILE in $($SUDO_CMD find $DIR -xdev -type f -name 'ssh_host_*_key.pub'); do
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        has_file_one_of_permissions "$FILE" "$PERMISSIONSOK"
         if [ "$FNRET" = 0 ]; then
             ok "$FILE permissions were set to $PERMISSIONS"
         else
-            has_file_correct_permissions "$FILE" 640
-            if [ "$FNRET" = 0 ]; then
-                ok "$FILE permissions were set to $PERMISSIONS"
-            else
-                has_file_correct_permissions "$FILE" 600
-                if [ "$FNRET" = 0 ]; then
-                    ok "$FILE permissions were set to $PERMISSIONS"
-                else
-                    warn "fixing $DIR SSH public keys permissions to $PERMISSIONS"
-                    chmod 0"$PERMISSIONS" "$FILE"
-                fi
-            fi
+            warn "fixing $DIR SSH public keys permissions to $PERMISSIONS"
+            chmod 0"$PERMISSIONS" "$FILE"
         fi
     done
 

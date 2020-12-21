@@ -90,19 +90,17 @@ has_file_correct_ownership() {
 
 has_file_one_of_ownership() {
     local FILE=$1
-    local USERS_OK=$2
+    local USER=$2
     local GROUPS_OK=$3
 
     local USEROK=1
     local GROUPOK=1
-    
-    for USER in $USERS_OK; do
-        local USERID
-        USERID=$(id -u "$USER")
-        if [ "$($SUDO_CMD stat -c "%u" "$FILE")" = "$USERID" ]; then
-            USEROK=0
-        fi
-    done
+
+    local USERID
+    USERID=$(id -u "$USER")
+    if [ "$($SUDO_CMD stat -c "%u" "$FILE")" = "$USERID" ]; then
+        USEROK=0
+    fi
 
     for GROUP in $GROUPS_OK; do
         local GROUPID
@@ -128,6 +126,17 @@ has_file_correct_permissions() {
     else
         FNRET=1
     fi
+}
+
+has_file_one_of_permissions() {
+    local FILE=$1
+    local PERMISSIONS=$2
+    FNRET=1
+    for PERMISSION in $PERMISSIONS; do
+        if [ "$($SUDO_CMD stat -L -c "%a" "$FILE")" = "$PERMISSION" ]; then
+            FNRET=0
+        fi
+    done
 }
 
 does_pattern_exist_in_file_nocase() {

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.5.2 Ensure XD/NX support is enabled (Not Scored)
+# 1.6.1 Ensure XD/NX support is enabled (Not Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.6.2.1 Activate AppArmor (Scored)
+# 1.7.2.2 Activate AppArmor (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.4 Ensure permissions on /etc/group are configured (Scored)
+# 6.1.4 Ensure permissions on /etc/shadow are configured (Scored)
 #
 
 set -e # One error, it's over
@@ -15,12 +15,12 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=1
 # shellcheck disable=2034
-DESCRIPTION="Check 644 permissions and root:root ownership on /etc/group"
+DESCRIPTION="Check 640 permissions and root:root ownership on /etc/shadow"
 
-FILE='/etc/group'
-PERMISSIONS='644'
+FILE='/etc/shadow'
+PERMISSIONS='640'
 USER='root'
-GROUP='root'
+GROUP='shadow'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

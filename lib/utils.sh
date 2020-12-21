@@ -88,6 +88,37 @@ has_file_correct_ownership() {
     fi
 }
 
+has_file_one_of_ownership() {
+    local FILE=$1
+    local USERS_OK=$2
+    local GROUPS_OK=$3
+
+    local USEROK=1
+    local GROUPOK=1
+    
+    for USER in $USERS_OK; do
+        local USERID
+        USERID=$(id -u "$USER")
+        if [ "$($SUDO_CMD stat -c "%u" "$FILE")" = "$USERID" ]; then
+            USEROK=0
+        fi
+    done
+
+    for GROUP in $GROUPS_OK; do
+        local GROUPID
+        GROUPID=$(getent group "$GROUP" | cut -d: -f3)
+        if [ "$($SUDO_CMD stat -c "%g" "$FILE")" = "$GROUPID" ]; then
+            GROUPOK=0
+        fi
+    done
+
+    if [[ "$GROUPOK" = 0 ]] && [[ "$USEROK" = 0 ]]; then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
+
 has_file_correct_permissions() {
     local FILE=$1
     local PERMISSIONS=$2

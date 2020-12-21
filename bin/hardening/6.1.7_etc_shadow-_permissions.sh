@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.3 Ensure permissions on /etc/shadow are configured (Scored)
+# 6.1.7 Ensure permissions on /etc/shadow- are configured (Scored)
 #
 
 set -e # One error, it's over
@@ -15,10 +15,10 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=1
 # shellcheck disable=2034
-DESCRIPTION="Check 644 permissions and root:root ownership on /etc/shadow"
+DESCRIPTION="Check 600 permissions and root:shadow ownership on /etc/shadow-"
 
-FILE='/etc/shadow'
-PERMISSIONS='640'
+FILE='/etc/shadow-'
+PERMISSIONS='600'
 USER='root'
 GROUP='shadow'
 

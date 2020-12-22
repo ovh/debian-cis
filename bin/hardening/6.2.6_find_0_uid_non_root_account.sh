@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.5 Ensure root is the only UID 0 account (Scored)
+# 6.2.6 Ensure root is the only UID 0 account (Scored)
 #
 
 set -e # One error, it's over

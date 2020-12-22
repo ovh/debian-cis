@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.8 Set SSH IgnoreRhosts to Yes (Scored)
+# 5.2.8 Ensure SSH IgnoreRhosts is enabled (Scored)
 #
 
 set -e # One error, it's over

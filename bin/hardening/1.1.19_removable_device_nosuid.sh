@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.19 Ensure nosuid Option set on Removable Media Partitions (Not Scored)
+# 1.1.19 Ensure nosuid option set on removable media partitions (Not Scored)
 #
 
 set -e # One error, it's over

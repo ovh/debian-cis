@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.6 Disable Mounting of udf Filesystems (Not Scored)
+# 1.1.1.6 Ensure mounting of udf filesystems is disabled (Scored)
 #
 
 set -e # One error, it's over

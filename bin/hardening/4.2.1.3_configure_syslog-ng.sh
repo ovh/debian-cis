@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.3 Configure /etc/syslog-ng/syslog-ng.conf (Not Scored)
+# 4.2.1.3 Configure /etc/syslog-ng/syslog-ng.conf (Not Scored)
 #
 
 set -e # One error, it's over

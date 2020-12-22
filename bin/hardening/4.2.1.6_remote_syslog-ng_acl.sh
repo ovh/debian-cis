@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.6 Accept Remote rsyslog Messages Only on Designated Log Hosts (Not Scored)
+# 4.2.1.6 Ensure remote rsyslog messages are only accepted on designated log hosts. (Not Scored)
 #
 
 set -e # One error, it's over

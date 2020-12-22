@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.18 Add nodev Option to Removable Media Partitions (Not Scored)
+# 1.1.18 Ensure nodev option set on removable media partition (Not Scored)
 #
 
 set -e # One error, it's over

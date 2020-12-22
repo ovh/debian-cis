@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.12 Create Separate Partition for /var/log/audit (Scored)
+# 1.1.12 Ensure separate partition exists for /var/log/audit (Scored)
 #
 
 set -e # One error, it's over

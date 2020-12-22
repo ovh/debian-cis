@@ -21,7 +21,7 @@ DESCRIPTION="Configure journald to send logs to syslog-ng."
 audit() {
     :
 }
-rsyslog
+
 # This function will be called if the script status is on enabled mode
 apply() {
     :

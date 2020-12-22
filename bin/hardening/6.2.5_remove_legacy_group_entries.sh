@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.5 Verify No Legacy "+" Entries Exist in /etc/group File (Scored)
+# 6.2.5 Ensure no legacy "+" entries exist in /etc/group (Scored)
 #
 
 set -e # One error, it's over

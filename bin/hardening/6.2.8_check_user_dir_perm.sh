@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.8 Check Permissions on User Home Directories (Scored)
+# 6.2.8 Ensure users' home directories permissions are 750 or more restrictive (Scored
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.11 Ensure no unowned files or directories exist
+# 6.1.11 Ensure no unowned files or directories exist (Scored)
 #
 
 set -e # One error, it's over
@@ -15,7 +15,7 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Ensure no unowned files or directories exist"
+DESCRIPTION="Ensure no unowned files or directories exist."
 
 USER='root'
 EXCLUDED=''

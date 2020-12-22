@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.4 Disable Mounting of hfsplus Filesystems (Not Scored)
+# 1.1.1.4 Ensure mounting of hfsplus filesystems is disabled (Scored)
 #
 
 set -e # One error, it's over

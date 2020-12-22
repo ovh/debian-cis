@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.20 Ensure noexec Option set on Removable Media Partitions (Not Scored)
+# 1.1.20 Ensure noexec option set on removable media partition (Not Scored)
 #
 
 set -e # One error, it's over

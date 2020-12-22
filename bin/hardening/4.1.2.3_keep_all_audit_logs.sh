@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.1.2 Ensure system is disabled when audit logs are full (Scored)
+# 4.1.2.3 Ensure audit logs are not automatically deleted (Scored)
 #
 
 set -e # One error, it's over
@@ -15,10 +15,10 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Disable system on audit log full."
+DESCRIPTION="Keep all auditing information."
 
 FILE='/etc/audit/auditd.conf'
-OPTIONS=''
+OPTIONS='max_log_file_action=keep_logs'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -56,7 +56,7 @@ apply() {
         AUDIT_VALUE=$(echo "$AUDIT_OPTION" | cut -d= -f 2)
         debug "$AUDIT_PARAM should be set to $AUDIT_VALUE"
         PATTERN="^${AUDIT_PARAM}[[:space:]]*=[[:space:]]*$AUDIT_VALUE"
-        does_pattern_exist_in_file "$FILE" "$PATTERN"
+        does_pattern_exist_in_file $FILE "$PATTERN"
         if [ "$FNRET" != 0 ]; then
             warn "$PATTERN is not present in $FILE, adding it"
             does_pattern_exist_in_file "$FILE" "^$AUDIT_PARAM"
@@ -76,15 +76,6 @@ apply() {
 # This function will check config parameters required
 check_config() {
     :
-}
-
-create_config() {
-    cat <<EOF
-# shellcheck disable=2034
-status=audit
-# Put here the conf for auditd
-OPTIONS='space_left_action=email action_mail_acct=root admin_space_left_action=halt'
-EOF
 }
 
 # Source Root Dir Parameter

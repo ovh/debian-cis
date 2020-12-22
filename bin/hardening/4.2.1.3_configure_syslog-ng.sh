@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.3 Ensure Syslog-ng is installed (Scored)
+# 4.2.2.3 Configure /etc/syslog-ng/syslog-ng.conf (Not Scored)
 #
 
 set -e # One error, it's over
@@ -15,30 +15,21 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Install syslog-ng to manage logs"
+DESCRIPTION="Configure /etc/syslog-ng/syslog-ng.conf ."
 
-# NB : in CIS, rsyslog has been chosen, however we chose syslog-ng
-PACKAGE='syslog-ng'
+# shellcheck disable=2034
+SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
-    else
-        ok "$PACKAGE is installed"
-    fi
+    info "Ensure default and local facilities are preserved on the system"
+    info "No measure here, please review the file by yourself"
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        ok "$PACKAGE is installed"
-    else
-        crit "$PACKAGE is absent, installing it"
-        apt_install "$PACKAGE"
-    fi
+    info "Ensure default and local facilities are preserved on the system"
+    info "No measure here, please review the file by yourself"
 }
 
 # This function will check config parameters required

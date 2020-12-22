@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.2 Ensure auditd service is enabled (Scored)
+# 4.1.16 Ensure kernel module loading and unloading is collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,44 +15,48 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Ensure auditd service is installed and running."
+DESCRIPTION="Collect kernel module loading and unloading."
 
-PACKAGE='auditd'
-SERVICE_NAME='auditd'
+AUDIT_PARAMS='-w /sbin/insmod -p x -k modules
+-w /sbin/rmmod -p x -k modules
+-w /sbin/modprobe -p x -k modules
+-a always,exit -F arch=b64 -S init_module -S delete_module -k modules'
+FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
-    else
-        ok "$PACKAGE is installed"
-        is_service_enabled "$SERVICE_NAME"
-        if [ "$FNRET" = 0 ]; then
-            ok "$SERVICE_NAME is enabled"
+    # define custom IFS and save default one
+    d_IFS=$IFS
+    c_IFS=$'\n'
+    IFS=$c_IFS
+    for AUDIT_VALUE in $AUDIT_PARAMS; do
+        debug "$AUDIT_VALUE should be in file $FILE"
+        IFS=$d_IFS
+        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
+        IFS=$c_IFS
+        if [ "$FNRET" != 0 ]; then
+            crit "$AUDIT_VALUE is not in file $FILE"
         else
-            crit "$SERVICE_NAME is not enabled"
+            ok "$AUDIT_VALUE is present in $FILE"
         fi
-    fi
+    done
+    IFS=$d_IFS
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        ok "$PACKAGE is installed"
-    else
-        warn "$PACKAGE is absent, installing it"
-        apt_install "$PACKAGE"
-    fi
-    is_service_enabled "$SERVICE_NAME"
-    if [ "$FNRET" = 0 ]; then
-        ok "$SERVICE_NAME is enabled"
-    else
-        warn "$SERVICE_NAME is not enabled, enabling it"
-        update-rc.d "$SERVICE_NAME" remove >/dev/null 2>&1
-        update-rc.d "$SERVICE_NAME" defaults >/dev/null 2>&1
-    fi
+    IFS=$'\n'
+    for AUDIT_VALUE in $AUDIT_PARAMS; do
+        debug "$AUDIT_VALUE should be in file $FILE"
+        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
+        if [ "$FNRET" != 0 ]; then
+            warn "$AUDIT_VALUE is not in file $FILE, adding it"
+            add_end_of_file "$FILE" "$AUDIT_VALUE"
+            eval "$(pkill -HUP -P 1 auditd)"
+        else
+            ok "$AUDIT_VALUE is present in $FILE"
+        fi
+    done
 }
 
 # This function will check config parameters required

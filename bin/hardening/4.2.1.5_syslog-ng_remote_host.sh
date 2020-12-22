@@ -6,54 +6,60 @@
 #
 
 #
-# 4.2.4 Ensure permissions on all logfiles are configured (Scored)
+# 4.2.2.5 Ensure syslog-ng is configured to send logs to a remote log host (Not Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=2
+HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Check permissions on logs (other has no permissions on any files and group does not have write or execute permissions on any file)"
+DESCRIPTION="Configure syslog-ng to send logs to a remote log host."
 
-DIR='/var/log'
-PERMISSIONS='640'
+PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    ERRORS=0
-    for FILE in $($SUDO_CMD find $DIR -type f); do
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    FOUND=0
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
+    for FILE in $FILES; do
+        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
-            ok "$FILE permissions were set to $PERMISSIONS"
-        else
-            ERRORS=$((ERRORS + 1))
-            crit "$FILE permissions were not set to $PERMISSIONS"
+            FOUND=1
         fi
     done
 
-    if [ "$ERRORS" = 0 ]; then
-        ok "Logs in $DIR have correct permissions"
+    if [ "$FOUND" = 1 ]; then
+        ok "$PATTERN is present in $FILES"
+    else
+        crit "$PATTERN is not present in $FILES"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    ERRORS=0
-    for FILE in $($SUDO_CMD find $DIR -type f); do
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    FOUND=0
+    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
+    for FILE in $FILES; do
+        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
-            ok "$FILE permissions were set to $PERMISSIONS"
-        else
-            warn "fixing $DIR logs ownership to $PERMISSIONS"
-            chmod 0"$PERMISSIONS" "$FILE"
+            FOUND=1
         fi
     done
-
-    if [ "$ERRORS" = 0 ]; then
-        ok "Logs in $DIR have correct permissions"
+    if [ "$FOUND" = 1 ]; then
+        ok "$PATTERN is present in $FILES"
+    else
+        crit "$PATTERN is not present in $FILES, please set a remote host to send your logs"
     fi
+}
+
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=audit
+SYSLOG_BASEDIR='/etc/syslog-ng'
+EOF
 }
 
 # This function will check config parameters required

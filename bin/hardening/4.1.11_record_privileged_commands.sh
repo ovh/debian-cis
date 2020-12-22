@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.17 Ensure kernel module loading and unloading is collected (Scored)
+# 4.1.11 Ensure use of privileged commands is collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,12 +15,12 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Collect kernel module loading and unloading."
+DESCRIPTION="Collect use of privileged commands."
 
-AUDIT_PARAMS='-w /sbin/insmod -p x -k modules
--w /sbin/rmmod -p x -k modules
--w /sbin/modprobe -p x -k modules
--a always,exit -F arch=b64 -S init_module -S delete_module -k modules'
+# Find all files with setuid or setgid set
+SUDO_CMD='sudo -n'
+AUDIT_PARAMS=$($SUDO_CMD find / -xdev \( -perm -4000 -o -perm -2000 \) -type f |
+    awk '{print "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }')
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

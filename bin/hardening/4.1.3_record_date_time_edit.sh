@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.11 Ensure unsuccessful unauthorized file access attempts are collected (Scored)
+# 4.1.3 Ensure events that modify date and time information are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,12 +15,13 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Collect unsuccessful unauthorized access attemps to files."
+DESCRIPTION="Record events that modify date and time information."
 
-AUDIT_PARAMS='-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access'
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

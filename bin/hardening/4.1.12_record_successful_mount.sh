@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.14 Ensure file deletion events by users are collected (Scored)
+# 4.1.12 Ensure successful file system mounts are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,10 +15,10 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Collects file deletion events by users."
+DESCRIPTION="Collect sucessfull file system mounts."
 
-AUDIT_PARAMS='-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete'
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts
+-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

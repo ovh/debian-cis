@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.7 Ensure that events that modify the system's Mandatory Access Controls are collected (Scored)
+# 4.1.14 Ensure changes to system administration scope (sudoers) is collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,9 +15,10 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Record events that modify the system's mandatory access controls (MAC)."
+DESCRIPTION="Collect changes to system administration scopre."
 
-AUDIT_PARAMS='-w /etc/selinux/ -p wa -k MAC-policy'
+AUDIT_PARAMS='-w /etc/sudoers -p wa -k sudoers
+-w /etc/sudoers.d/ -p wa -k sudoers'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

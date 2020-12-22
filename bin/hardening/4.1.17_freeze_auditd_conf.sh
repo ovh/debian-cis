@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.5 Ensure events that modify user/group information are collected (Scored)
+# 4.1.17 Ensure the audit configuration is immutable (Scored)
 #
 
 set -e # One error, it's over
@@ -15,13 +15,9 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Record events that modify user/group information."
+DESCRIPTION="Make the audit configuration immutable."
 
-AUDIT_PARAMS='-w /etc/group -p wa -k identity
--w /etc/passwd -p wa -k identity
--w /etc/gshadow -p wa -k identity
--w /etc/shadow -p wa -k identity
--w /etc/security/opasswd -p wa -k identity'
+AUDIT_PARAMS='-e 2'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

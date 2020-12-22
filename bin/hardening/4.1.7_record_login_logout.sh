@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.18 Ensure the audit configuration is immutable (Scored)
+# 4.1.7 Ensure login and logout events are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,9 +15,11 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Make the audit configuration immutable."
+DESCRIPTION="Collect login and logout events."
 
-AUDIT_PARAMS='-e 2'
+AUDIT_PARAMS='-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

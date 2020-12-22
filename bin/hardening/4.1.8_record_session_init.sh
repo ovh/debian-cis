@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.1.1 Ensure audit log storage size is configured (Scored)
+# 4.1.8 Ensure session initiation information is collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,44 +15,47 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Configure audit log storage size."
+DESCRIPTION="Collec sessions initiation information."
 
-FILE='/etc/audit/auditd.conf'
-PATTERN='max_log_file'
-VALUE=5
+AUDIT_PARAMS='-w /var/run/utmp -p wa -k session
+-w /var/log/wtmp -p wa -k session
+-w /var/log/btmp -p wa -k session'
+FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$FILE does not exist"
-    else
-        ok "$FILE exists, checking configuration"
-        does_pattern_exist_in_file "$FILE" "^${PATTERN}[[:space:]]"
+    # define custom IFS and save default one
+    d_IFS=$IFS
+    c_IFS=$'\n'
+    IFS=$c_IFS
+    for AUDIT_VALUE in $AUDIT_PARAMS; do
+        debug "$AUDIT_VALUE should be in file $FILE"
+        IFS=$d_IFS
+        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
+        IFS=$c_IFS
         if [ "$FNRET" != 0 ]; then
-            crit "$PATTERN is not present in $FILE"
+            crit "$AUDIT_VALUE is not in file $FILE"
         else
-            ok "$PATTERN is present in $FILE"
+            ok "$AUDIT_VALUE is present in $FILE"
         fi
-    fi
+    done
+    IFS=$d_IFS
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        warn "$FILE does not exist, creating it"
-        touch $FILE
-    else
-        ok "$FILE exists"
-    fi
-    does_pattern_exist_in_file "$FILE" "^${PATTERN}[[:space:]]"
-    if [ "$FNRET" != 0 ]; then
-        warn "$PATTERN is not present in $FILE, adding it"
-        add_end_of_file "$FILE" "$PATTERN = $VALUE"
-    else
-        ok "$PATTERN is present in $FILE"
-    fi
+    IFS=$'\n'
+    for AUDIT_VALUE in $AUDIT_PARAMS; do
+        debug "$AUDIT_VALUE should be in file $FILE"
+        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
+        if [ "$FNRET" != 0 ]; then
+            warn "$AUDIT_VALUE is not in file $FILE, adding it"
+            add_end_of_file "$FILE" "$AUDIT_VALUE"
+            eval "$(pkill -HUP -P 1 auditd)"
+        else
+            ok "$AUDIT_VALUE is present in $FILE"
+        fi
+    done
 }
 
 # This function will check config parameters required

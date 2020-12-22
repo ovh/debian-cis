@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.4 Verify No Legacy "+" Entries Exist in /etc/group File (Scored)
+# 6.2.4 Verify No Legacy "+" Entries Exist in /etc/shadow File (Scored)
 #
 
 set -e # One error, it's over
@@ -15,20 +15,20 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=1
 # shellcheck disable=2034
-DESCRIPTION="Verify no legacy + entries exist in /etc/group file."
+DESCRIPTION="Verify no legacy + entries exist in /etc/shadow file."
 
-FILE='/etc/group'
+FILE='/etc/shadow'
 RESULT=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Checking if accounts have a legacy group entry"
-    if grep '^+:' "$FILE" -q; then
-        RESULT=$(grep '^+:' "$FILE")
-        crit "Some accounts have a legacy group entry"
+    info "Checking if accounts have a legacy password entry"
+    if $SUDO_CMD grep '^+:' "$FILE" -q; then
+        RESULT=$($SUDO_CMD grep '^+:' "$FILE")
+        crit "Some accounts have a legacy password entry"
         crit "$RESULT"
     else
-        ok "All accounts have a valid group entry format"
+        ok "All accounts have a valid password entry format"
     fi
 }
 
@@ -36,13 +36,13 @@ audit() {
 apply() {
     if grep '^+:' "$FILE" -q; then
         RESULT=$(grep '^+:' "$FILE")
-        warn "Some accounts have a legacy group entry"
+        warn "Some accounts have a legacy password entry"
         for LINE in $RESULT; do
             info "Removing $LINE from $FILE"
             delete_line_in_file "$FILE" "$LINE"
         done
     else
-        ok "All accounts have a valid group entry format"
+        ok "All accounts have a valid password entry format"
     fi
 }
 

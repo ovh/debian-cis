@@ -6,44 +6,41 @@
 #
 
 #
-# 6.2.3 Verify No Legacy "+" Entries Exist in /etc/shadow File (Scored)
+# 6.2.3 Ensure all users' home directories exist (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=1
+HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Verify no legacy + entries exist in /etc/shadow file."
+DESCRIPTION="Users are assigned valid home directories."
 
-FILE='/etc/shadow'
-RESULT=''
+ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Checking if accounts have a legacy password entry"
-    if $SUDO_CMD grep '^+:' "$FILE" -q; then
-        RESULT=$($SUDO_CMD grep '^+:' "$FILE")
-        crit "Some accounts have a legacy password entry"
-        crit "$RESULT"
-    else
-        ok "All accounts have a valid password entry format"
+    RESULT=$(get_db passwd | awk -F: '{ print $1 ":" $3 ":" $6 }')
+    for LINE in $RESULT; do
+        debug "Working on $LINE"
+        USER=$(awk -F: '{print $1}' <<<"$LINE")
+        USERID=$(awk -F: '{print $2}' <<<"$LINE")
+        DIR=$(awk -F: '{print $3}' <<<"$LINE")
+        if [ "$USERID" -ge 1000 ] && [ ! -d "$DIR" ] && [ "$USER" != "nfsnobody" ] && [ "$USER" != "nobody" ] && [ "$DIR" != "/nonexistent" ]; then
+            crit "The home directory ($DIR) of user $USER does not exist."
+            ERRORS=$((ERRORS + 1))
+        fi
+    done
+
+    if [ "$ERRORS" = 0 ]; then
+        ok "All home directories exists"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if grep '^+:' "$FILE" -q; then
-        RESULT=$(grep '^+:' "$FILE")
-        warn "Some accounts have a legacy password entry"
-        for LINE in $RESULT; do
-            info "Removing $LINE from $FILE"
-            delete_line_in_file "$FILE" "$LINE"
-        done
-    else
-        ok "All accounts have a valid password entry format"
-    fi
+    info "Modifying home directories may seriously harm your system, report only here"
 }
 
 # This function will check config parameters required

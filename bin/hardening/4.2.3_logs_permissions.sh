@@ -6,30 +6,54 @@
 #
 
 #
-# 4.2.2.2 Configure /etc/syslog-ng/syslog-ng.conf (Not Scored)
+# 4.2.3 Ensure permissions on all logfiles are configured (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=3
+HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Configure /etc/syslog-ng/syslog-ng.conf ."
+DESCRIPTION="Check permissions on logs (other has no permissions on any files and group does not have write or execute permissions on any file)"
 
-# shellcheck disable=2034
-SERVICE_NAME="syslog-ng"
+DIR='/var/log'
+PERMISSIONS='640'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Ensure default and local facilities are preserved on the system"
-    info "No measure here, please review the file by yourself"
+    ERRORS=0
+    for FILE in $($SUDO_CMD find $DIR -type f); do
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE permissions were set to $PERMISSIONS"
+        else
+            ERRORS=$((ERRORS + 1))
+            crit "$FILE permissions were not set to $PERMISSIONS"
+        fi
+    done
+
+    if [ "$ERRORS" = 0 ]; then
+        ok "Logs in $DIR have correct permissions"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    info "Ensure default and local facilities are preserved on the system"
-    info "No measure here, please review the file by yourself"
+    ERRORS=0
+    for FILE in $($SUDO_CMD find $DIR -type f); do
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE permissions were set to $PERMISSIONS"
+        else
+            warn "fixing $DIR logs ownership to $PERMISSIONS"
+            chmod 0"$PERMISSIONS" "$FILE"
+        fi
+    done
+
+    if [ "$ERRORS" = 0 ]; then
+        ok "Logs in $DIR have correct permissions"
+    fi
 }
 
 # This function will check config parameters required

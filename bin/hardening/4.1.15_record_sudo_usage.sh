@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.9 Ensure session initiation information is collected (Scored)
+# 4.1.15 Ensure system administrator actions (sudolog) are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,11 +15,9 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Collec sessions initiation information."
+DESCRIPTION="Collect system administration actions (sudolog)."
 
-AUDIT_PARAMS='-w /var/run/utmp -p wa -k session
--w /var/log/wtmp -p wa -k session
--w /var/log/btmp -p wa -k session'
+AUDIT_PARAMS='-w /var/log/auth.log -p wa -k sudoaction'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

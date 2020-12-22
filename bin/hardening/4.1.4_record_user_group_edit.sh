@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.12 Ensure use of privileged commands is collected (Scored)
+# 4.1.4 Ensure events that modify user/group information are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,12 +15,13 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Collect use of privileged commands."
+DESCRIPTION="Record events that modify user/group information."
 
-# Find all files with setuid or setgid set
-SUDO_CMD='sudo -n'
-AUDIT_PARAMS=$($SUDO_CMD find / -xdev \( -perm -4000 -o -perm -2000 \) -type f |
-    awk '{print "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }')
+AUDIT_PARAMS='-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

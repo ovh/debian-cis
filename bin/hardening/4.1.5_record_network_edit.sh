@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.4 Ensure events that modify date and time information are collected (Scored)
+# 4.1.5 Ensure events that modify the system's network environment are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,13 +15,14 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Record events that modify date and time information."
+DESCRIPTION="Record events that modify the system's network environment."
 
-AUDIT_PARAMS='-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
--a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
--a always,exit -F arch=b64 -S clock_settime -k time-change
--a always,exit -F arch=b32 -S clock_settime -k time-change
--w /etc/localtime -p wa -k time-change'
+AUDIT_PARAMS='-a exit,always -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a exit,always -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/network -p wa -k system-locale'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

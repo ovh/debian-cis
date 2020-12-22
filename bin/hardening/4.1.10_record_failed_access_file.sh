@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.8 Ensure login and logout events are collected (Scored)
+# 4.1.10 Ensure unsuccessful unauthorized file access attempts are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,11 +15,12 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Collect login and logout events."
+DESCRIPTION="Collect unsuccessful unauthorized access attemps to files."
 
-AUDIT_PARAMS='-w /var/log/faillog -p wa -k logins
--w /var/log/lastlog -p wa -k logins
--w /var/log/tallylog -p wa -k logins'
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

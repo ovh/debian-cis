@@ -6,54 +6,41 @@
 #
 
 #
-# 4.1.16 Ensure system administrator actions (sudolog) are collected (Scored)
+# 4.2.2.2 Ensure syslog-ng service is enabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=4
+HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Collect system administration actions (sudolog)."
+DESCRIPTION="Ensure syslog-ng service is activated."
 
-AUDIT_PARAMS='-w /var/log/auth.log -p wa -k sudoaction'
-FILE='/etc/audit/audit.rules'
+SERVICE_NAME="syslog-ng"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    # define custom IFS and save default one
-    d_IFS=$IFS
-    c_IFS=$'\n'
-    IFS=$c_IFS
-    for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILE"
-        IFS=$d_IFS
-        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
-        IFS=$c_IFS
-        if [ "$FNRET" != 0 ]; then
-            crit "$AUDIT_VALUE is not in file $FILE"
-        else
-            ok "$AUDIT_VALUE is present in $FILE"
-        fi
-    done
-    IFS=$d_IFS
+    info "Checking if $SERVICE_NAME is enabled"
+    is_service_enabled "$SERVICE_NAME"
+    if [ "$FNRET" = 0 ]; then
+        ok "$SERVICE_NAME is enabled"
+    else
+        crit "$SERVICE_NAME is disabled"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    IFS=$'\n'
-    for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILE"
-        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
-        if [ "$FNRET" != 0 ]; then
-            warn "$AUDIT_VALUE is not in file $FILE, adding it"
-            add_end_of_file "$FILE" "$AUDIT_VALUE"
-            eval "$(pkill -HUP -P 1 auditd)"
-        else
-            ok "$AUDIT_VALUE is present in $FILE"
-        fi
-    done
+    info "Checking if $SERVICE_NAME is enabled"
+    is_service_enabled "$SERVICE_NAME"
+    if [ "$FNRET" != 0 ]; then
+        info "Enabling $SERVICE_NAME"
+        update-rc.d "$SERVICE_NAME" remove >/dev/null 2>&1
+        update-rc.d "$SERVICE_NAME" defaults >/dev/null 2>&1
+    else
+        ok "$SERVICE_NAME is enabled"
+    fi
 }
 
 # This function will check config parameters required

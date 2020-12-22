@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.6 Ensure events that modify the system's network environment are collected (Scored)
+# 4.1.13 Ensure file deletion events by users are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,14 +15,10 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Record events that modify the system's network environment."
+DESCRIPTION="Collects file deletion events by users."
 
-AUDIT_PARAMS='-a exit,always -F arch=b64 -S sethostname -S setdomainname -k system-locale
--a exit,always -F arch=b32 -S sethostname -S setdomainname -k system-locale
--w /etc/issue -p wa -k system-locale
--w /etc/issue.net -p wa -k system-locale
--w /etc/hosts -p wa -k system-locale
--w /etc/network -p wa -k system-locale'
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

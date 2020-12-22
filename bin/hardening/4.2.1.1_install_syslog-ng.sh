@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.4 Ensure syslog-ng is configured to send logs to a remote log host (Not Scored)
+# 4.2.2.1 Ensure Syslog-ng is installed (Scored)
 #
 
 set -e # One error, it's over
@@ -15,51 +15,30 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Configure syslog-ng to send logs to a remote log host."
+DESCRIPTION="Install syslog-ng to manage logs"
 
-PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
+# NB : in CIS, rsyslog has been chosen, however we chose syslog-ng
+PACKAGE='syslog-ng'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
-    for FILE in $FILES; do
-        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            FOUND=1
-        fi
-    done
-
-    if [ "$FOUND" = 1 ]; then
-        ok "$PATTERN is present in $FILES"
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
     else
-        crit "$PATTERN is not present in $FILES"
+        ok "$PACKAGE is installed"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
-    for FILE in $FILES; do
-        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            FOUND=1
-        fi
-    done
-    if [ "$FOUND" = 1 ]; then
-        ok "$PATTERN is present in $FILES"
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
+        ok "$PACKAGE is installed"
     else
-        crit "$PATTERN is not present in $FILES, please set a remote host to send your logs"
+        crit "$PACKAGE is absent, installing it"
+        apt_install "$PACKAGE"
     fi
-}
-
-# This function will create the config file for this check with default values
-create_config() {
-    cat <<EOF
-status=audit
-SYSLOG_BASEDIR='/etc/syslog-ng'
-EOF
 }
 
 # This function will check config parameters required

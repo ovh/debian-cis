@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.15 Ensure changes to system administration scope (sudoers) is collected (Scored)
+# 4.1.9 Ensure discretionary access control permission modification events are collected (Scored)
 #
 
 set -e # One error, it's over
@@ -15,10 +15,14 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=4
 # shellcheck disable=2034
-DESCRIPTION="Collect changes to system administration scopre."
+DESCRIPTION="Collect discretionary access control (DAC) permission modification events."
 
-AUDIT_PARAMS='-w /etc/sudoers -p wa -k sudoers
--w /etc/sudoers.d/ -p wa -k sudoers'
+AUDIT_PARAMS='-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod'
 FILE='/etc/audit/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode

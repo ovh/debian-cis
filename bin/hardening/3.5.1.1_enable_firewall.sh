@@ -6,25 +6,41 @@
 #
 
 #
-# 3.6 Ensure wireless interfaces are disabled (Not Scored)
+# 3.5.1.1 Ensure Firewall is active (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=3
+HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Deactivate wireless interfaces."
+DESCRIPTION="Ensure firewall is active (iptables is installed, does not check for its configuration)."
+
+# Quick note here : CIS recommends your iptables rules to be persistent.
+# Do as you want, but this script does not handle this
+
+PACKAGE='iptables'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Not implemented yet"
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
+    else
+        ok "$PACKAGE is installed"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    info "Not implemented yet"
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
+        ok "$PACKAGE is installed"
+    else
+        crit "$PACKAGE is absent, installing it"
+        apt_install "$PACKAGE"
+    fi
 }
 
 # This function will check config parameters required
@@ -42,18 +58,6 @@ if [ -z "$CIS_ROOT_DIR" ]; then
     echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
-## Source Root Dir Parameter
-#if [ ! -r /etc/default/cis-hardening ]; then
-#    echo "There is no /etc/default/cis-hardening file, cannot source CIS_ROOT_DIR variable, aborting"
-#    exit 128
-#else
-# shellcheck source=../../debian/default
-#    . /etc/default/cis-hardening
-#    if [ -z ${CIS_ROOT_DIR:-} ]; then
-#        echo "No CIS_ROOT_DIR variable, aborting"
-#        exit 128
-#    fi
-#fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
 if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then

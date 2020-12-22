@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.2 Ensure /etc/hosts.allow is configured (Not Scored)
+# 99.3.3.4 Ensure permissions on /etc/hosts.allow are configured (Scored)
 #
 
 set -e # One error, it's over
@@ -15,29 +15,37 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Create /etc/hosts.allow ."
+DESCRIPTION="Check 644 permissions and root:root ownership on /hosts.allow ."
 
 FILE='/etc/hosts.allow'
+PERMISSIONS='644'
+USER='root'
+GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$FILE does not exist"
+    has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    if [ "$FNRET" = 0 ]; then
+        ok "$FILE has correct permissions"
     else
-        ok "$FILE exist"
+        crit "$FILE permissions were not set to $PERMISSIONS"
+    fi
+    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+    if [ "$FNRET" = 0 ]; then
+        ok "$FILE has correct ownership"
+    else
+        crit "$FILE ownership was not set to $USER:$GROUP"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        warn "$FILE does not exist, creating it"
-        touch "$FILE"
-        warn "You may want to fill it with allowed networks"
+    has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    if [ "$FNRET" = 0 ]; then
+        ok "$FILE has correct permissions"
     else
-        ok "$FILE exist"
+        info "fixing $FILE permissions to $PERMISSIONS"
+        chmod 0"$PERMISSIONS" "$FILE"
     fi
 }
 

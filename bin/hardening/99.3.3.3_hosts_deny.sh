@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.3 Ensure /etc/hosts.deny is configured (Not Scored)
+# 99.3.3.3 Ensure /etc/hosts.deny is configured (Not Scored)
 #
 
 set -e # One error, it's over

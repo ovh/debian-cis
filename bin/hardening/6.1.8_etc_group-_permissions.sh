@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.2 Ensure permissions on /etc/group- are configured (Scored)
+# 6.1.8 Ensure permissions on /etc/group- are configured (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.2 Ensure permissions on /etc/passwd are configured (Scored)
+# 6.1.9 Ensure permissions on /etc/gshadow are configured (Scored)
 #
 
 set -e # One error, it's over

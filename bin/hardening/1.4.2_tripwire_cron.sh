@@ -6,7 +6,7 @@
 #
 
 #
-# 8.3.2 Implement Periodic Execution of File Integrity (Scored)
+# 1.4.2 Ensure filesysteme integrity is regularly checked (Scored)
 #
 
 set -e # One error, it's over
@@ -16,6 +16,8 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Implemet periodic execution of file integrity."
+
+# Note : in CIS, AIDE has been chosen, however we chose tripwire
 
 FILES="/etc/crontab"
 DIRECTORY="/etc/cron.d"

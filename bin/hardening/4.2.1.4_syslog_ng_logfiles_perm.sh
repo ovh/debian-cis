@@ -12,12 +12,12 @@
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-# Note: this is not exacly the same check as the one described in CIS PDF
-
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Create and set permissions on syslog-ng logfiles."
+
+# Note: this is not exacly the same check as the one described in CIS PDF
 
 PERMISSIONS=''
 USER=''

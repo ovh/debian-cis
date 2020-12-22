@@ -2,24 +2,23 @@
 
 # run-shellcheck
 #
-# CIS Debian 7/8 Hardening
+# OVH Security audit
 #
 
 #
-# SSH log level is set to VERBOSE
+# 99.5.2.3 Check all special features in sshd_config are disabled
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-DESCRIPTION="SSH log level is set to VERBOSE"
 # shellcheck disable=2034
-HARDENING_LEVEL=2
+DESCRIPTION="Check all special features in sshd_config are disabled"
 
 PACKAGE='openssh-server'
-OPTIONS='LogLevel=VERBOSE'
 FILE='/etc/ssh/sshd_config'
+OPTIONS='AllowAgentForwarding=no AllowTcpForwarding=no AllowStreamLocalForwarding=no PermitTunnel=no PermitUserRC=no GatewayPorts=no'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -70,6 +69,7 @@ apply() {
             /etc/init.d/ssh reload >/dev/null 2>&1
         fi
     done
+
 }
 
 # This function will check config parameters required

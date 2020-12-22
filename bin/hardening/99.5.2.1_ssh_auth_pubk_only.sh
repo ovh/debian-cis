@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure that sshd only allows authentication through public key.
+# 99.5.2.1 Ensure that sshd only allows authentication through public key.
 #
 
 set -e # One error, it's over

@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # run-shellcheck
-# CIS Debian 7 Hardening
+#
+# Legacy CIS Debian Hardening
 #
 
 #
-# Ensure that legacy services rlogin, rlogind and rcp are disabled and not installed
+# 99.5.2.7 Ensure that legacy services rlogin, rlogind and rcp are disabled and not installed
 #
+
 set -e # One error, it's over
 set -u # One variable unset, it's over
 

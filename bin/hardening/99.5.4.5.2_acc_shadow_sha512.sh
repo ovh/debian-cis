@@ -6,7 +6,7 @@
 #
 
 #
-# Check that any password that may exist in /etc/shadow is SHA512 hashed and salted
+# 99.5.4.5.2 Check that any password that may exist in /etc/shadow is SHA512 hashed and salted
 #
 
 set -e # One error, it's over

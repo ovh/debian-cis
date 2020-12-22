@@ -2,36 +2,33 @@
 
 # run-shellcheck
 #
-# CIS Debian Hardening /!\ Not in the Guide
+# CIS Debian Hardening Bonus Check
 #
 
 #
-# 99.1 Set Timeout on ttys
+# 99.1.1.23 Disable USB Devices
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
-# shellcheck disable=2034
 USER='root'
 # shellcheck disable=2034
-DESCRIPTION="Timeout 600 seconds on tty."
+DESCRIPTION="USB devices are disabled."
 
-PATTERN='TMOUT='
-VALUE='600'
-FILES_TO_SEARCH='/etc/bash.bashrc /etc/profile.d /etc/profile'
-FILE='/etc/profile.d/CIS_99.1_timeout.sh'
+PATTERN='ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"' # We do test disabled by default, whitelist is up to you
+FILES_TO_SEARCH='/etc/udev/rules.d'
+FILE='/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     SEARCH_RES=0
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
         if [ "$SEARCH_RES" = 1 ]; then break; fi
-        if test -d "$FILE_SEARCHED"; then
+        if $SUDO_CMD test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
-            # shellcheck disable=2044
-            for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
-                does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
+            for file_in_dir in $($SUDO_CMD ls $FILE_SEARCHED); do
+                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
                 if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
                 else
@@ -62,13 +59,14 @@ apply() {
         if [ "$SEARCH_RES" = 1 ]; then break; fi
         if test -d "$FILE_SEARCHED"; then
             debug "$FILE_SEARCHED is a directory"
-            # shellcheck disable=2044
-            for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
-                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
+
+            for file_in_dir in "$FILE_SEARCHED"/*; do
+                [[ -e "$file_in_dir" ]] || break # handle the case of no file in dir
+                does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
                 if [ "$FNRET" != 0 ]; then
-                    debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
+                    debug "$PATTERN is not present in $file_in_dir"
                 else
-                    ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
+                    ok "$PATTERN is present in $file_in_dir"
                     SEARCH_RES=1
                     break
                 fi
@@ -87,11 +85,19 @@ apply() {
         warn "$PATTERN is not present in $FILES_TO_SEARCH"
         touch "$FILE"
         chmod 644 "$FILE"
-        add_end_of_file "$FILE" "$PATTERN$VALUE"
-        add_end_of_file "$FILE" "readonly TMOUT"
-        add_end_of_file "$FILE" "export TMOUT"
-    else
-        ok "$PATTERN is present in $FILES_TO_SEARCH"
+        add_end_of_file "$FILE" '
+# By default, disable all.
+ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"
+
+# Enable hub devices.
+ACTION=="add", ATTR{bDeviceClass}=="09", TEST=="authorized", ATTR{authorized}="1"
+
+# Enables keyboard devices
+ACTION=="add", ATTR{product}=="*[Kk]eyboard*", TEST=="authorized", ATTR{authorized}="1"
+
+# PS2-USB converter
+ACTION=="add", ATTR{product}=="*Thinnet TM*", TEST=="authorized", ATTR{authorized}="1"
+'
     fi
 }
 

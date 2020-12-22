@@ -2,11 +2,11 @@
 
 # run-shellcheck
 #
-# CIS Debian Hardening
+# CIS Debian Hardening Bonus Check
 #
 
 #
-# 8.0 Ensure CONFIG_AUDIT is enabled in your running kernel
+# 99.4.0 Ensure CONFIG_AUDIT is enabled in your running kernel
 #
 
 set -e # One error, it's over

@@ -1,43 +1,26 @@
 #!/bin/bash
 
 # run-shellcheck
+#
+# OVH Security audit
+#
 
 #
-# CIS Debian 7/8 Hardening
-#
-
-#
-# Checking rekey limit for time (6 hours) or volume (512Mio) whichever comes first.
+# 99.5.2.5 Ensure home directory and ssh sensitive files are verified (not publicly readable)  before connecting.
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=2
-# shellcheck disable=2034
-DESCRIPTION="Checking rekey limit for time (6 hours) or volume (512Mio) whichever comes first."
+DESCRIPTION="Ensure home directory and ssh sensitive files are verified (not publicly readable)  before connecting."
 
 PACKAGE='openssh-server'
-OPTIONS='RekeyLimit=512M\s+6h'
+OPTIONS='StrictModes=yes'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    get_debian_major_version
-    set +u
-    debug "Debian version : $DEB_MAJ_VER "
-    if [[ -z $DEB_MAJ_VER ]]; then
-        set -u
-        crit "Cannot get Debian version. Aborting..."
-        return
-    fi
-    if [[ "${DEB_MAJ_VER}" -lt "8" ]]; then
-        set -u
-        warn "Debian version too old (${DEB_MAJ_VER}), check does not apply, you should disable this check."
-        return
-    fi
-    set -u
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
@@ -75,10 +58,8 @@ apply() {
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
+            does_pattern_exist_in_file_nocase $FILE "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
-                # shellcheck disable=SC2001
-                SSH_VALUE=$(sed 's/\\s+/ /' <<<"$SSH_VALUE")
                 add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
             else
                 info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"

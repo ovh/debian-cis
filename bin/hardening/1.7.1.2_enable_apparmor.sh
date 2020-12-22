@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.2.2 Activate AppArmor (Scored)
+# 1.7.2.2 Ensure AppArmor is enabled in the bootloader configuration (Scored)
 #
 
 set -e # One error, it's over

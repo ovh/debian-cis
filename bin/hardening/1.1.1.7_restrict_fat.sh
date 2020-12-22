@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.7 Ensure mounting of FAT filesystem is limited (Not Scored)
+# 1.1.1.7 Ensure mounting of FAT filesystems is limited (Not Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.5 Disable Mounting of squashfs Filesystems (Not Scored)
+# 1.1.1.5 Ensure mounting of squashfs filesystems is disabled (Scored)
 #
 
 set -e # One error, it's over

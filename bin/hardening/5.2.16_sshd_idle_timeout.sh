@@ -7,7 +7,6 @@
 
 #
 # 5.2.16 Ensure SSH Idle Timeout Interval is configured (Scored)
-# FIXME: the implementation of this script doesn't do what it says
 #
 
 set -e # One error, it's over

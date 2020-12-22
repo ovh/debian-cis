@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.6 Create Separate Partition for /var (Scored)
+# 1.1.6 Ensure separate partition exists for /var (Scored)
 #
 
 set -e # One error, it's over

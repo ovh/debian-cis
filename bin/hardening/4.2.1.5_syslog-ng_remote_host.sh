@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.5 Ensure syslog-ng is configured to send logs to a remote log host (Not Scored)
+# 4.2.1.5 Ensure syslog-ng is configured to send logs to a remote log host (Scored)
 #
 
 set -e # One error, it's over

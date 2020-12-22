@@ -6,7 +6,7 @@
 #
 
 #
-# 99.1.1.1 Disable Mounting of cramfs Filesystems (Not Scored)
+# 99.1.1.1 Ensure mounting of cramfs filesystems is disabled (Not Scored)
 #
 
 set -e # One error, it's over

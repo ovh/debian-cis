@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.2 Disable Mounting of jffs2 Filesystems (Not Scored)
+# 1.1.1.2 Esnure mounting of jffs2 filesystems is disabled (Scored)
 #
 
 set -e # One error, it's over

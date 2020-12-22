@@ -6,7 +6,7 @@
 #
 
 #
-# 5.4.1.4 Lock Inactive User Accounts (Scored)
+# 5.4.1.4 Ensure inactive password lock is 30 days or less (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.4 Verify No Legacy "+" Entries Exist in /etc/shadow File (Scored)
+# 6.2.4 Ensure no legacy "+" entries exist in /etc/shadow (Scored)
 #
 
 set -e # One error, it's over

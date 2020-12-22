@@ -17,8 +17,9 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Ensure firewall is active (iptables is installed, does not check for its configuration)."
 
-# Quick note here : CIS recommends your iptables rules to be persistent.
+# Note: CIS recommends your iptables rules to be persistent.
 # Do as you want, but this script does not handle this
+# At OVH, we use iptables
 
 PACKAGE='iptables'
 

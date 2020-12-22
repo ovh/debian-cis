@@ -6,7 +6,7 @@
 #
 
 #
-# 8.3.1 Install tripwire package (Scored)
+# 1.4.1 Ensure tripwire is installed (Scored)
 #
 
 set -e # One error, it's over
@@ -17,7 +17,8 @@ HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Ensure tripwire package is installed."
 
-# NB : in CIS, AIDE has been chosen, however we chose tripwire
+# Note : in CIS, AIDE has been chosen, however we chose tripwire
+
 PACKAGE='tripwire'
 
 # This function will be called if the script status is on enabled / audit mode

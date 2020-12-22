@@ -17,6 +17,8 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Disable mounting of freevxfs filesystems."
 
+# Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
+
 KERNEL_OPTION="CONFIG_VXFS_FS"
 MODULE_NAME="freevxfs"
 

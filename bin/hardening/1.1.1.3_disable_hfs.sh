@@ -17,6 +17,8 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Disable mounting of hfs filesystems."
 
+# Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
+
 KERNEL_OPTION="CONFIG_HFS_FS"
 MODULE_FILE="hfs"
 

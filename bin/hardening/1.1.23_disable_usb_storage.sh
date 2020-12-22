@@ -17,13 +17,15 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Disable USB storage."
 
+# Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
+
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     :
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     :
 }
 
@@ -38,8 +40,8 @@ if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

@@ -24,7 +24,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-   :
+    :
 }
 
 # This function will check config parameters required

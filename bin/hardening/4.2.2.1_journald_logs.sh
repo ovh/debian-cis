@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.1 Ensure journald is configured to send logs to syslog-ng (Scored) 
+# 4.2.2.1 Ensure journald is configured to send logs to syslog-ng (Scored)
 #
 
 set -e # One error, it's over
@@ -18,12 +18,12 @@ HARDENING_LEVEL=3
 DESCRIPTION="Configure journald to send logs to syslog-ng."
 
 # This function will be called if the script status is on enabled / audit mode
-audit () {
+audit() {
     :
 }
 
 # This function will be called if the script status is on enabled mode
-apply () {
+apply() {
     :
 }
 
@@ -38,8 +38,8 @@ if [ -r /etc/default/cis-hardening ]; then
     . /etc/default/cis-hardening
 fi
 if [ -z "$CIS_ROOT_DIR" ]; then
-     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-     echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
+    echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
 

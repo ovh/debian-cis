@@ -2,7 +2,7 @@
 
 # run-shellcheck
 #
-# OVH Security audit
+# CIS Debian Hardening
 #
 
 #
@@ -16,7 +16,6 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Check that any password that may exist in /etc/shadow is SHA512 hashed and salted"
-
 
 CONF_FILE="/etc/pam.d/common-password"
 CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*sha512"

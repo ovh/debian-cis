@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.1 Ensure TCP Wrappers is installed (Scored)
+# 99.3.3.2 Ensure /etc/hosts.allow is configured (Not Scored)
 #
 
 set -e # One error, it's over
@@ -15,28 +15,29 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Install TCP wrappers for simple access list management and standardized logging method for services."
+DESCRIPTION="Create /etc/hosts.allow ."
 
-PACKAGE='tcpd'
+FILE='/etc/hosts.allow'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
+    does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
+        crit "$FILE does not exist"
     else
-        ok "$PACKAGE is installed"
+        ok "$FILE exist"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        ok "$PACKAGE is installed"
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        warn "$FILE does not exist, creating it"
+        touch "$FILE"
+        warn "You may want to fill it with allowed networks"
     else
-        crit "$PACKAGE is absent, installing it"
-        apt_install "$PACKAGE"
+        ok "$FILE exist"
     fi
 }
 

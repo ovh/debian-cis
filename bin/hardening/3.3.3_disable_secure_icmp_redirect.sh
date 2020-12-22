@@ -6,7 +6,7 @@
 #
 
 #
-# 3.2.4 Ensure suspicious packets are logged (Scored)
+# 3.3.3 Ensure secure ICMP redirects are not accepted (Scored)
 #
 
 set -e # One error, it's over
@@ -15,9 +15,9 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Log suspicious packets, like spoofed packets."
+DESCRIPTION="Disable secure ICMP redirect acceptance to prevent routing tables corruptions."
 
-SYSCTL_PARAMS='net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1'
+SYSCTL_PARAMS='net.ipv4.conf.all.secure_redirects=0 net.ipv4.conf.default.secure_redirects=0'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

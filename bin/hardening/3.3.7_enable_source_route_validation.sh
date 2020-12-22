@@ -6,7 +6,7 @@
 #
 
 #
-# 3.2.3 Ensure secure ICMP redirects are not accepted (Scored)
+# 3.3.7 Ensure Reverse Path Filtering is enabled (Scored)
 #
 
 set -e # One error, it's over
@@ -15,9 +15,9 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Disable secure ICMP redirect acceptance to prevent routing tables corruptions."
+DESCRIPTION="Enable RFC-recommended source route validation."
 
-SYSCTL_PARAMS='net.ipv4.conf.all.secure_redirects=0 net.ipv4.conf.default.secure_redirects=0'
+SYSCTL_PARAMS='net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

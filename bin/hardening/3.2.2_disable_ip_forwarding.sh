@@ -6,42 +6,42 @@
 #
 
 #
-# 3.2.5 Ensure broadcast ICMP requests are ignored (Scored)
+# 3.2.2 Ensure IP forwarding is disabled (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=2
+HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ignore broadcast requests to prevent attacks such as Smurf attack."
+HARDENING_EXCEPTION=gw
+# shellcheck disable=2034
+DESCRIPTION="Disable IP forwarding."
 
-SYSCTL_PARAMS='net.ipv4.icmp_echo_ignore_broadcasts=1'
+SYSCTL_PARAMS='net.ipv4.ip_forward net.ipv6.conf.all.forwarding'
+SYSCTL_EXP_RESULT=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for SYSCTL_VALUES in $SYSCTL_PARAMS; do
-        SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
-        SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
-        debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
-        has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
-        if [ "$FNRET" != 0 ]; then
-            crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-        elif [ "$FNRET" = 255 ]; then
-            warn "$SYSCTL_PARAM does not exist --Typo?"
-        else
-            ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+    for SYSCTL_PARAM in $SYSCTL_PARAMS; do
+        does_sysctl_param_exists "net.ipv6"
+        if [ "$FNRET" = 0 ] || [[ ! $SYSCTL_PARAM =~ .*ipv6.* ]]; then # IPv6 is enabled or SYSCTL_VALUES doesn't contain ipv6
+            has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
+            if [ "$FNRET" != 0 ]; then
+                crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+            elif [ "$FNRET" = 255 ]; then
+                warn "$SYSCTL_PARAM does not exist -- Typo?"
+            else
+                ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+            fi
         fi
     done
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for SYSCTL_VALUES in $SYSCTL_PARAMS; do
-        SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
-        SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
-        debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
+    for SYSCTL_PARAM in $SYSCTL_PARAMS; do
         has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
         if [ "$FNRET" != 0 ]; then
             warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"

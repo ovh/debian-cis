@@ -6,40 +6,46 @@
 #
 
 #
-# 3.5 Ensure Firewall is active (Scored)
+# 99.3.3.5 Verify Permissions on /etc/hosts.deny (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=2
+HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure firewall is active (iptables is installed, does not check for its configuration)."
+DESCRIPTION="Check 644 permissions and root:root ownership on /etc/hosts.deny ."
 
-# Quick note here : CIS recommends your iptables rules to be persistent.
-# Do as you want, but this script does not handle this
-
-PACKAGE='iptables'
+FILE='/etc/hosts.deny'
+PERMISSIONS='644'
+USER='root'
+GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
+    has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    if [ "$FNRET" = 0 ]; then
+        ok "$FILE has correct permissions"
     else
-        ok "$PACKAGE is installed"
+        crit "$FILE permissions were not set to $PERMISSIONS"
+    fi
+    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+    if [ "$FNRET" = 0 ]; then
+        ok "$FILE has correct ownership"
+    else
+        crit "$FILE ownership was not set to $USER:$GROUP"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
+    has_file_correct_permissions "$FILE" "$PERMISSIONS"
     if [ "$FNRET" = 0 ]; then
-        ok "$PACKAGE is installed"
+        ok "$FILE has correct permissions"
     else
-        crit "$PACKAGE is absent, installing it"
-        apt_install "$PACKAGE"
+        info "fixing $FILE permissions to $PERMISSIONS"
+        chmod 0"$PERMISSIONS" "$FILE"
     fi
 }
 

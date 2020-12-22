@@ -2,24 +2,22 @@
 
 # run-shellcheck
 #
-# OVH Security audit
+# CIS Debian Hardening
 #
 
 #
-# 3.5.1.1 Ensure default deny firewall policy (Scored)
+# 99.3.3.1 Ensure TCP Wrappers is installed (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=2
+HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Check iptables firewall default policy for DROP on INPUT and FORWARD."
+DESCRIPTION="Install TCP wrappers for simple access list management and standardized logging method for services."
 
-PACKAGE="iptables"
-FW_CHAINS="INPUT FORWARD"
-FW_POLICY="DROP"
+PACKAGE='tcpd'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -27,31 +25,19 @@ audit() {
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
-        ipt=$($SUDO_CMD "$PACKAGE" -nL 2>/dev/null || true)
-        if [[ -z "$ipt" ]]; then
-            crit "Empty return from $PACKAGE command. Aborting..."
-            return
-        fi
-        for chain in $FW_CHAINS; do
-            regex="Chain $chain \(policy ([A-Z]+)\)"
-            # previous line will capture actual policy
-            if [[ "$ipt" =~ $regex ]]; then
-                actual_policy=${BASH_REMATCH[1]}
-                if [[ "$actual_policy" = "$FW_POLICY" ]]; then
-                    ok "Policy correctly set to $FW_POLICY for chain $chain"
-                else
-                    crit "Policy set to $actual_policy for chain $chain, should be ${FW_POLICY}."
-                fi
-            else
-                echo "cant find chain $chain"
-            fi
-        done
+        ok "$PACKAGE is installed"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
+        ok "$PACKAGE is installed"
+    else
+        crit "$PACKAGE is absent, installing it"
+        apt_install "$PACKAGE"
+    fi
 }
 
 # This function will check config parameters required

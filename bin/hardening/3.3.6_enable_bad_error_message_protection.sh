@@ -6,7 +6,7 @@
 #
 
 #
-# 3.2.7 Ensure Reverse Path Filtering is enabled (Scored)
+# 3.3.6 Ensure bogus ICMP responses are ignored (Scored)
 #
 
 set -e # One error, it's over
@@ -15,9 +15,9 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Enable RFC-recommended source route validation."
+DESCRIPTION="Enable bad error message protection to prevent logfiles fillup."
 
-SYSCTL_PARAMS='net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1'
+SYSCTL_PARAMS='net.ipv4.icmp_ignore_bogus_error_responses=1'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

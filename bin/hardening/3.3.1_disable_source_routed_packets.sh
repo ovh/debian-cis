@@ -6,7 +6,7 @@
 #
 
 #
-# 3.2.6 Ensure bogus ICMP responses are ignored (Scored)
+# 3.3.1 Ensure source routed packets are not accepted (Scored)
 #
 
 set -e # One error, it's over
@@ -15,23 +15,26 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Enable bad error message protection to prevent logfiles fillup."
-
-SYSCTL_PARAMS='net.ipv4.icmp_ignore_bogus_error_responses=1'
+DESCRIPTION="Disable source routed packet acceptance."
+# set in config file
+SYSCTL_PARAMS=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     for SYSCTL_VALUES in $SYSCTL_PARAMS; do
-        SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
-        SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
-        debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
-        has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
-        if [ "$FNRET" != 0 ]; then
-            crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-        elif [ "$FNRET" = 255 ]; then
-            warn "$SYSCTL_PARAM does not exist -- Typo?"
-        else
-            ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+        does_sysctl_param_exists "net.ipv6"
+        if [ "$FNRET" = 0 ] || [[ ! "$SYSCTL_VALUES" =~ .*ipv6.* ]]; then # IPv6 is enabled or SYSCTL_VALUES doesn't contain ipv6
+            SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
+            SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
+            debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
+            has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
+            if [ "$FNRET" != 0 ]; then
+                crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+            elif [ "$FNRET" = 255 ]; then
+                warn "$SYSCTL_PARAM does not exist -- Typo?"
+            else
+                ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
+            fi
         fi
     done
 }
@@ -44,7 +47,7 @@ apply() {
         debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
         has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
         if [ "$FNRET" != 0 ]; then
-            warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT -- Fixing"
+            warn "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT value -- Fixing"
             set_sysctl_param "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
             sysctl -w net.ipv4.route.flush=1 >/dev/null
         elif [ "$FNRET" = 255 ]; then
@@ -55,6 +58,14 @@ apply() {
     done
 }
 
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=audit
+# Specify system parameters to audit, space separated
+SYSCTL_PARAMS="net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv6.conf.all.accept_source_route=0 net.ipv6.conf.default.accept_source_route=0"
+EOF
+}
 # This function will check config parameters required
 check_config() {
     :

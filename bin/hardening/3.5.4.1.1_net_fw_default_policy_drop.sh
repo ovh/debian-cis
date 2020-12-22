@@ -2,51 +2,56 @@
 
 # run-shellcheck
 #
-# CIS Debian Hardening
+# OVH Security audit
 #
 
 #
-# 3.3.4 Ensure permissions on /etc/hosts.allow are configured (Scored)
+# 3.5.4.1.1 Ensure default deny firewall policy (Scored)
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=3
+HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Check 644 permissions and root:root ownership on /hosts.allow ."
+DESCRIPTION="Check iptables firewall default policy for DROP on INPUT and FORWARD."
 
-FILE='/etc/hosts.allow'
-PERMISSIONS='644'
-USER='root'
-GROUP='root'
+PACKAGE="iptables"
+FW_CHAINS="INPUT FORWARD"
+FW_POLICY="DROP"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
     else
-        crit "$FILE permissions were not set to $PERMISSIONS"
-    fi
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
-    else
-        crit "$FILE ownership was not set to $USER:$GROUP"
+        ipt=$($SUDO_CMD "$PACKAGE" -nL 2>/dev/null || true)
+        if [[ -z "$ipt" ]]; then
+            crit "Empty return from $PACKAGE command. Aborting..."
+            return
+        fi
+        for chain in $FW_CHAINS; do
+            regex="Chain $chain \(policy ([A-Z]+)\)"
+            # previous line will capture actual policy
+            if [[ "$ipt" =~ $regex ]]; then
+                actual_policy=${BASH_REMATCH[1]}
+                if [[ "$actual_policy" = "$FW_POLICY" ]]; then
+                    ok "Policy correctly set to $FW_POLICY for chain $chain"
+                else
+                    crit "Policy set to $actual_policy for chain $chain, should be ${FW_POLICY}."
+                fi
+            else
+                echo "cant find chain $chain"
+            fi
+        done
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
-    else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0"$PERMISSIONS" "$FILE"
-    fi
+    :
 }
 
 # This function will check config parameters required

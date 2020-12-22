@@ -6,7 +6,7 @@
 #
 
 #
-# 3.1.2 Ensure packet redirect sending is disabled (Scored)
+# 3.2.1 Ensure packet redirect sending is disabled (Scored)
 #
 
 set -e # One error, it's over

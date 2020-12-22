@@ -6,7 +6,7 @@
 #
 
 #
-# Check <from> field in ssh authorized keys files for users with login shell, and bastions IP if available.
+# 99.5.2.4 Check <from> field in ssh authorized keys files for users with login shell, and bastions IP if available.
 #
 
 set -e # One error, it is over

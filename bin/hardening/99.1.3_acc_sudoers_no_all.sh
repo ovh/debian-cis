@@ -6,7 +6,7 @@
 #
 
 #
-# Checks there are no carte-blanche authorization in sudoers file(s).
+# 99.1.3 Checks there are no carte-blanche authorization in sudoers file(s).
 #
 
 set -e # One error, it's over

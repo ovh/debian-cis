@@ -2,7 +2,7 @@
 
 # run-shellcheck
 #
-# CIS Debian Hardening
+# Legacy CIS Debian Hardening
 #
 
 #

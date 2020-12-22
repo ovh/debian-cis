@@ -2,21 +2,23 @@
 
 # run-shellcheck
 #
-# OVH Security audit
+# Legacy CIS Debian Hardening
 #
 
 #
-# Ensure home directory and ssh sensitive files are verified (not publicly readable)  before connecting.
+# 99.5.2.8 Check UsePrivilegeSeparation set to sandbox.
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-DESCRIPTION="Ensure home directory and ssh sensitive files are verified (not publicly readable)  before connecting."
+HARDENING_LEVEL=2
+# shellcheck disable=2034
+DESCRIPTION="Check UsePrivilegeSeparation set to sandbox."
 
 PACKAGE='openssh-server'
-OPTIONS='StrictModes=yes'
+OPTIONS='UsePrivilegeSeparation=sandbox'
 FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
@@ -58,7 +60,7 @@ apply() {
             ok "$PATTERN is present in $FILE"
         else
             warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file_nocase $FILE "^${SSH_PARAM}"
+            does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
                 add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
             else
@@ -68,7 +70,6 @@ apply() {
             /etc/init.d/ssh reload >/dev/null 2>&1
         fi
     done
-
 }
 
 # This function will check config parameters required

@@ -16,7 +16,7 @@ test_audit() {
 
         describe Checking resolved state
         register_test retvalshouldbe 0
-        register_test contain "is configured"
+        register_test contain "are configured"
         run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
     fi
 }

@@ -19,6 +19,7 @@ Cmnd_Alias SCL_CMD =    /bin/grep ,\
                         /sbin/sysctl kernel.*,\
                         /sbin/sysctl -a,\
                         /bin/dmesg "",\
-                        /bin/netstat
+                        /bin/netstat,\
+                        /usr/sbin/apparmor_status
 
 cisharden ALL = (root) NOPASSWD: SCL_CMD

@@ -19,14 +19,27 @@ DESCRIPTION="Disable USB storage."
 
 # Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
 
+KERNEL_OPTION="CONFIG_USB_STORAGE"
+MODULE_FILE="usb-storage"
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_FILE"
+    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
+        crit "$KERNEL_OPTION is enabled!"
+    else
+        ok "$KERNEL_OPTION is disabled"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    is_kernel_option_enabled "$KERNEL_OPTION"
+    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
+        warn "I cannot fix $KERNEL_OPTION enabled, recompile your kernel please"
+    else
+        ok "$KERNEL_OPTION is disabled, nothing to do"
+    fi
 }
 
 # This function will check config parameters required

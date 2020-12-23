@@ -17,19 +17,74 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Disable SSH AllowTCPForwarding."
 
+PACKAGE='openssh-server'
+OPTIONS=''
+FILE='/etc/ssh/sshd_config'
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
+    else
+        ok "$PACKAGE is installed"
+        for SSH_OPTION in $OPTIONS; do
+            SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
+            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
+            PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
+            does_pattern_exist_in_file $FILE "$PATTERN"
+            if [ "$FNRET" = 0 ]; then
+                ok "$PATTERN is present in $FILE"
+            else
+                crit "$PATTERN is not present in $FILE"
+            fi
+        done
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
+        ok "$PACKAGE is installed"
+    else
+        crit "$PACKAGE is absent, installing it"
+        apt_install "$PACKAGE"
+    fi
+    for SSH_OPTION in $OPTIONS; do
+        SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
+        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
+        PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
+        does_pattern_exist_in_file "$FILE" "$PATTERN"
+        if [ "$FNRET" = 0 ]; then
+            ok "$PATTERN is present in $FILE"
+        else
+            warn "$PATTERN is not present in $FILE, adding it"
+            does_pattern_exist_in_file "$FILE" "^${SSH_PARAM}"
+            if [ "$FNRET" != 0 ]; then
+                add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
+            else
+                info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
+                replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+            fi
+            /etc/init.d/ssh reload
+        fi
+    done
 }
 
 # This function will check config parameters required
 check_config() {
     :
+}
+
+# This function will check config parameters required
+create_config() {
+    cat <<EOF
+status=audit
+# Value of AllowTCPForwarding
+# Settles sshd allowtcpforwarding
+OPTIONS='AllowTCPForwarding=no'
+EOF
 }
 
 # Source Root Dir Parameter

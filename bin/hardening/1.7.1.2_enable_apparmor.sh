@@ -17,16 +17,18 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Activate AppArmor to enforce permissions control."
 
-PACKAGE='apparmor'
+PACKAGES='apparmor apparmor-utils'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is absent!"
-    else
-        ok "$PACKAGE is installed"
-    fi
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" != 0 ]; then
+            crit "$PACKAGE is absent!"
+        else
+            ok "$PACKAGE is installed"
+        fi
+    done
 
     ERROR=0
     RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
@@ -43,19 +45,22 @@ audit() {
     done
     IFS=$d_IFS
     if [ "$ERROR" = 0 ]; then
-        ok "$PACKAGE is configured"
+        ok "$PACKAGES are configured"
 
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed, please install $PACKAGE and configure it"
-    else
-        ok "$PACKAGE is installed"
-    fi
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
+            ok "$PACKAGE is installed"
+        else
+            crit "$PACKAGE is absent, installing it"
+            apt_install "$PACKAGE"
+        fi
+    done
 
     ERROR=0
     RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
@@ -76,7 +81,7 @@ apply() {
         $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor/" /etc/default/grub
         $SUDO_CMD update-grub
     else
-        ok "$PACKAGE is configured"
+        ok "$PACKAGES are configured"
     fi
 }
 

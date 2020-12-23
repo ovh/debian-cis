@@ -17,14 +17,31 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Install AppArmor."
 
+PACKAGES='apparmor apparmor-utils'
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" != 0 ]; then
+            crit "$PACKAGE is absent!"
+        else
+            ok "$PACKAGE is installed"
+        fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
+            ok "$PACKAGE is installed"
+        else
+            crit "$PACKAGE is absent, installing it"
+            apt_install "$PACKAGE"
+        fi
+    done
 }
 
 # This function will check config parameters required

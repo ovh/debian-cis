@@ -17,14 +17,62 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Enforce Apparmor profiles."
 
+PACKAGES='apparmor apparmor-utils'
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" != 0 ]; then
+            crit "$PACKAGE is absent!"
+        else
+            ok "$PACKAGE is installed"
+        fi
+    done
+
+    RESULT_UNCONFINED=$($SUDO_CMD apparmor_status | grep "^0 processes are unconfined but have a profile defined")
+    RESULT_COMPLAIN=$($SUDO_CMD apparmor_status | grep "^0 profiles are in complain mode.")
+
+    if [ -n "$RESULT_UNCONFINED" ]; then
+        ok "No profiles are unconfined"
+    else
+        crit "Some processes are unconfined while they have defined profile"
+    fi
+
+    if [ -n "$RESULT_COMPLAIN" ]; then
+        ok "No profiles are in complain mode"
+    else
+        crit "Some processes are in complain mode"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" != 0 ]; then
+            crit "$PACKAGE is absent!"
+        else
+            ok "$PACKAGE is installed"
+        fi
+    done
+
+    RESULT_UNCONFINED=$(apparmor_status | grep "^0 processes are unconfined but have a profile defined")
+    RESULT_COMPLAIN=$(apparmor_status | grep "^0 profiles are in complain mode.")
+
+    if [ -n "$RESULT_UNCONFINED" ]; then
+        ok "No profiles are unconfined"
+    else
+        warn "Some processes are unconfined while they have defined profile, setting profiles to enforce mode"
+        aa-enforce /etc/apparmor.d/*
+    fi
+
+    if [ -n "$RESULT_COMPLAIN" ]; then
+        ok "No profiles are in complain mode"
+    else
+        warn "Some processes are in complain mode, setting profiles to enforce mode"
+        aa-enforce /etc/apparmor.d/*
+    fi
 }
 
 # This function will check config parameters required

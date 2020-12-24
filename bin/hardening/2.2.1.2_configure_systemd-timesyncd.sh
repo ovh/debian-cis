@@ -13,13 +13,20 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-HARDENING_LEVEL=3
+HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Configure systemd-timesyncd."
 
+SERVICE_NAME="systemd-timesyncd"
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    is_service_enabled "$SERVICE_NAME"
+    if [ "$FNRET" = 0 ]; then
+        ok "$SERVICE_NAME is enabled"
+    else
+        crit "$SERVICE_NAME is disabled"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode

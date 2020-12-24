@@ -7,5 +7,18 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    # TODO fill comprehensive tests
+    describe Tests purposely failing
+    echo "create 0660 root utmp" >/etc/logrotate.conf
+    register_test retvalshouldbe 1
+    register_test contain "Logrotate permissions are not set to"
+    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    describe correcting situation
+    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
+    /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
+
+    describe Checking resolved state
+    register_test retvalshouldbe 0
+    register_test contain "Logrotate permissions are well configured"
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

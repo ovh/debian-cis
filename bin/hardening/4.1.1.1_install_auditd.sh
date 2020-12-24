@@ -17,14 +17,27 @@ HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Install auditd."
 
+PACKAGE="auditd"
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
+    else
+        ok "$PACKAGE is installed"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" = 0 ]; then
+        ok "$PACKAGE is installed"
+    else
+        warn "$PACKAGE is absent, installing it"
+        apt_install "$PACKAGE"
+    fi
 }
 
 # This function will check config parameters required

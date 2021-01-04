@@ -17,7 +17,7 @@ HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Collect kernel module loading and unloading."
 
-AUDIT_PARAMS='-w /sbin/insmod -p x -k modules 
+AUDIT_PARAMS='-w /sbin/insmod -p x -k modules
 -w /sbin/rmmod -p x -k modules
 -w /sbin/modprobe -p x -k modules
 -a always,exit -F arch=b64 -S init_module -S delete_module -k modules'

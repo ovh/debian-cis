@@ -1,3 +1,9 @@
+cis-hardening (2.1-6) unstable; urgency=medium
+
+  * Fix typo in 4.1.17 that leads to false positive
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 04 Jan 2021 08:11:29 +0100
+
 cis-hardening (2.1-5) unstable; urgency=medium
 
   * Fix various shellcheck warnrings and errors

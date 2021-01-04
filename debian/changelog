@@ -1,3 +1,21 @@
+cis-hardening (3.0) unstable; urgency=medium
+
+  * Migration to debian10 numbering
+  * Add utils to compare file permissions to a list of authorized permissions
+  * Update skel, update documentation
+  * Add 1.1.1.7 check and test (disable FAT)
+  * Add 1.1.23 check and test (disable usb storage)
+  * Add 1.7.x checks and tests (apparmor)
+  * Add 2.2.1.2 check and test (systemd-timesyncd)
+  * Add 4.1.1.1,4 check (auditd)
+  * Add 4.2.1.6 check (syslog-ng)
+  * Add 4.2.2.x checks and tests (journald)
+  * Add 4.4 checks and tests (logrotate permission)
+  * Add 5.2.20-23 checks and tests (sshd)
+  * Add 6.1.3-9 checks (/etc/passwd-, /etc/shadow-, ...)
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 04 Jan 2021 08:39:06 +0100
+
 cis-hardening (2.1-6) unstable; urgency=medium
 
   * Fix typo in 4.1.17 that leads to false positive
@@ -17,7 +35,6 @@ cis-hardening (2.1-5) unstable; urgency=medium
   * Replace -a  by && SC2166
   * Replace ! -z by -n SC2236
   * Fix bug on race condition (shoud have been fixed in 2.0-6)
-
 
  -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 14 Dec 2020 16:30:32 +0100
 

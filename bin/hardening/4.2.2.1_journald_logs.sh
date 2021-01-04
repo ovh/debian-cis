@@ -17,14 +17,60 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Configure journald to send logs to syslog-ng."
 
+FILE='/etc/systemd/journald.conf'
+OPTIONS='ForwardToSyslog=yes'
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$FILE does not exist"
+    else
+        ok "$FILE exists, checking configuration"
+        for JOURNALD_OPTION in $OPTIONS; do
+            JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
+            JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
+            PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
+            debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
+            does_pattern_exist_in_file "$FILE" "$PATTERN"
+            if [ "$FNRET" != 0 ]; then
+                crit "$PATTERN is not present in $FILE"
+            else
+                ok "$PATTERN is present in $FILE"
+            fi
+        done
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        warn "$FILE does not exist, creating it"
+        touch "$FILE"
+    else
+        ok "$FILE exists"
+    fi
+    for JOURNALD_OPTION in $OPTIONS; do
+        JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
+        JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
+        debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
+        PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
+        does_pattern_exist_in_file "$FILE" "$PATTERN"
+        if [ "$FNRET" != 0 ]; then
+            warn "$PATTERN is not present in $FILE, adding it"
+            does_pattern_exist_in_file "$FILE" "^$JOURNALD_PARAM"
+            if [ "$FNRET" != 0 ]; then
+                info "Parameter $JOURNALD_PARAM seems absent from $FILE, adding at the end"
+                add_end_of_file "$FILE" "$JOURNALD_PARAM = $JOURNALD_VALUE"
+            else
+                info "Parameter $JOURNALD_PARAM is present but with the wrong value -- Fixing"
+                replace_in_file "$FILE" "^$JOURNALD_PARAM=.*" "$JOURNALD_PARAM=$JOURNALD_VALUE"
+            fi
+        else
+            ok "$PATTERN is present in $FILE"
+        fi
+    done
 }
 
 # This function will check config parameters required

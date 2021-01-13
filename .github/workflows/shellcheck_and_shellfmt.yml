@@ -1,0 +1,17 @@
+name: shell-linter
+on:
+  - pull_request
+  - push
+jobs:
+  sh-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run the sh-checker
+        uses: luizm/action-sh-checker@v0.1.8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Optional if sh_checker_comment is false.
+          SHELLCHECK_OPTS: --color=always --shell=bash -x --source-path=SCRIPTDIR # Optional: exclude some shellcheck warnings.
+          SHFMT_OPTS: -l -i 4 -w # Optional: pass arguments to shfmt.
+        with:
+          sh_checker_comment: true

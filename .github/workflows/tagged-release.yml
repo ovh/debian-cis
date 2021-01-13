@@ -1,0 +1,56 @@
+---
+name: Create Release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build:
+    name: Create Release
+    # only runs on master
+    if: github.event.base_ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest version number
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      # CHECKOUT CODE
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.vars.outputs.tag }}
+      # BUILD THE .DEB PACKAGE
+      - name: Build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential devscripts debhelper
+          sudo debuild -us -uc
+          find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
+      #GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
+      - name: Generate changelog
+        run: sed -n -e "/cis-hardening ($(echo ${{ steps.vars.outputs.tag }} | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
+      - name: debug
+        run: cat changelog.md
+      # CREATE RELEASE
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body_path: changelog.md
+          draft: false
+          prerelease: false
+      # UPLOAD PACKAGE .DEB
+      - name: Upload Release deb
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./cis-hardening.deb
+          asset_name: cis-hardening.deb
+          asset_content_type: application/vnd.debian.binary-package

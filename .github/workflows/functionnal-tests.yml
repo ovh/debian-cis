@@ -1,0 +1,19 @@
+---
+name: Run functionnal tests
+on:
+  - pull_request
+jobs:
+  functionnal-tests-docker-debian9:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Run the tests debian9
+        run: ./tests/docker_build_and_run_tests.sh debian9
+  functionnal-tests-docker-debian10:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Run the tests debian10
+        run: ./tests/docker_build_and_run_tests.sh debian10

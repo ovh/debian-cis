@@ -1,3 +1,4 @@
+---
 name: shell-linter
 on:
   - pull_request
@@ -6,7 +7,8 @@ jobs:
   sh-checker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout repo
+        uses: actions/checkout@v2
       - name: Run the sh-checker
         uses: luizm/action-sh-checker@v0.1.8
         env:
@@ -15,3 +17,4 @@ jobs:
           SHFMT_OPTS: -l -i 4 -w # Optional: pass arguments to shfmt.
         with:
           sh_checker_comment: true
+          sh_checker_exclude: "src/"

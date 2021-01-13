@@ -3,16 +3,16 @@ set -e
 
 case "$1" in
 
-    purge)
-        rm -f /opt/cis-hardening/etc/conf.d/*.cfg
-        ;;
+purge)
+    rm -f /opt/cis-hardening/etc/conf.d/*.cfg
+    ;;
 
-    remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
-        # nothing to do
-        ;;
+remove | upgrade | failed-upgrade | abort-install | abort-upgrade | disappear)
+    # nothing to do
+    ;;
 
-    *)
-        echo "$0 called with unknown argument \`$1\`'" >&2
-        exit 1
+*)
+    echo "$0 called with unknown argument \`$1\`'" >&2
+    exit 1
     ;;
 esac

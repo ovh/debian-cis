@@ -1,6 +1,7 @@
 ---
 name: Run shell-linter
 on:
+  - push
   - pull_request
 jobs:
   sh-checker:

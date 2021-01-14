@@ -23,8 +23,7 @@ jobs:
       #     find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
       # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
       - name: Generate changelog
-        id: changelog
-        run: sed -n -e '/cis-hardening (3.)/,/ -- / p' debian/changelog | tail -n +3 | head -n -2 > changelog.md
+        run: sed -n -e '/cis-hardening ${{ github.ref }}/,/ -- / p' debian/changelog | tail -n +3 | head -n -2 > changelog.md
       # CREATE RELEASE
       - name: Create Release
         id: create_release

@@ -9,9 +9,14 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
+      - name: Get latest version number
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       # CHECKOUT CODE
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.vars.outputs.tag }}
       # BUILD THE .DEB PACKAGE
       # - name: Build
       #   run: |
@@ -21,7 +26,7 @@ jobs:
       #     find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
       # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
       - name: Generate changelog
-        run: sed -n -e '/cis-hardening ${{ github.ref }}/,/ -- / p' debian/changelog | tail -n +3 | head -n -2 > changelog.md
+        run: sed -n -e '/cis-hardening ${{ steps.vars.outputs.tag }}/,/ -- / p' debian/changelog | tail -n +3 | head -n -2 > changelog.md
       # CREATE RELEASE
       - name: Create Release
         id: create_release

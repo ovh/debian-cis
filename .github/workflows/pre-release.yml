@@ -39,9 +39,6 @@ jobs:
           myToken: ${{ secrets.GITHUB_TOKEN }}
           head-ref: ${{ github.sha }}
           base-ref: ${{ steps.get-latest-tag.outputs.tag }}
-      # CREATE CHANGELOG FILE
-      - name: Create changelog
-        run: echo "${{ steps.changelog.outputs.changelog }}" > changelog.md
       # CREATE RELEASE NAMED LATEST
       - name: Create Release
         id: create_release
@@ -51,7 +48,7 @@ jobs:
         with:
           tag_name: latest
           release_name: Pre-release
-          body_path: changelog.md
+          body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: true
       # UPLOAD PACKAGE .DEB

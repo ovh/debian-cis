@@ -27,6 +27,8 @@ jobs:
       # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
       - name: Generate changelog
         run: sed -n -e '/cis-hardening ${{ steps.vars.outputs.tag }}/,/ -- / p' debian/changelog | tail -n +3 | head -n -2 > changelog.md
+      - name: debug
+        run: cat changelog.md
       # CREATE RELEASE
       - name: Create Release
         id: create_release

@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.ref }}
+          ref: v2.1-4
       # BUILD THE .DEB PACKAGE
       # - name: Build
       #   run: |

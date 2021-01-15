@@ -1,0 +1,17 @@
+---
+name: Compile debian man
+on:
+  - push
+jobs:
+  compile-debian-man:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Produce debian man
+        run: 'docker run --rm --volume "`pwd`:/data" --user `id -u`:`id -g` pandoc/latex:2.6 MANUAL.md -s -t man > debian/cis-hardening.8'
+      - uses: EndBug/add-and-commit@v6
+        with:
+          add: 'debian/cis-hardening.8'
+          message: 'Regenerate man pages (Github action)'
+          token: ${{ secrets.GITHUB_TOKEN }}

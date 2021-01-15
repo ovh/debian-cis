@@ -62,5 +62,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./cis-hardening.deb
-          asset_name: cis-hardening.deb
+          asset_name: cis-hardening-${{ steps.vars.outputs.tag }}.deb
           asset_content_type: application/vnd.debian.binary-package

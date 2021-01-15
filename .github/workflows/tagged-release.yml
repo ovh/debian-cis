@@ -26,11 +26,12 @@ jobs:
           sudo apt-get install -y build-essential devscripts debhelper
           sudo debuild -us -uc
           find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
-      #GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
+      # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
       - name: Generate changelog
         run: sed -n -e "/cis-hardening ($(echo ${{ steps.vars.outputs.tag }} | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
-      - name: debug
-        run: cat changelog.md
+      # IF THERE IS A NEW TAG BUT NO CORRESPONDING ENTRY IN DEBIAN/CHANGELOG
+      - name: Abort if changelog is empty
+        run: '[ -s changelog.md ] || exit 0'
       # CREATE RELEASE
       - name: Create Release
         id: create_release

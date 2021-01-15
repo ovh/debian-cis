@@ -11,6 +11,7 @@ jobs:
     if: github.event.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
+      # GET VERSION TAG
       - name: Get latest version number
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
@@ -19,6 +20,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ steps.vars.outputs.tag }}
+      # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
+      - name: Generate changelog
+        run: sed -n -e "/cis-hardening ($(echo ${{ steps.vars.outputs.tag }} | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
+      # IF THERE IS A NEW TAG BUT NO CORRESPONDING ENTRY IN DEBIAN/CHANGELOG, SET JOB TO FAIL
+      - name: Abort if changelog is empty
+        run: '[ -s changelog.md ] || (echo "No entry corresponding to the specified version found in debian/changelog"; exit 1)'
       # BUILD THE .DEB PACKAGE
       - name: Build
         run: |
@@ -26,12 +33,14 @@ jobs:
           sudo apt-get install -y build-essential devscripts debhelper
           sudo debuild -us -uc
           find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
-      # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
-      - name: Generate changelog
-        run: sed -n -e "/cis-hardening ($(echo ${{ steps.vars.outputs.tag }} | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
-      # IF THERE IS A NEW TAG BUT NO CORRESPONDING ENTRY IN DEBIAN/CHANGELOG
-      - name: Abort if changelog is empty
-        run: '[ -s changelog.md ] || exit 0'
+      # DELETE THE TAG NAMED LATEST AND THE CORRESPONDING RELEASE
+      - name: Delete the tag latest and the release latest
+        uses: dev-drprasad/delete-tag-and-release@v0.1.2
+        with:
+          delete_release: true
+          tag_name: latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # CREATE RELEASE
       - name: Create Release
         id: create_release

@@ -2,6 +2,7 @@
 name: Run functionnal tests
 on:
   - pull_request
+  - push
 jobs:
   functionnal-tests-docker-debian9:
     runs-on: ubuntu-latest

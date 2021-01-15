@@ -10,7 +10,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: Run the sh-checker
-        uses: luizm/action-sh-checker@v0.1.8
+        uses: luizm/action-sh-checker@v0.1.10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Optional if sh_checker_comment is false.
           SHELLCHECK_OPTS: --color=always --shell=bash -x --source-path=SCRIPTDIR # Optional: exclude some shellcheck warnings.

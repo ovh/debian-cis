@@ -1,10 +1,23 @@
-# CIS Debian 9/10 Hardening
+# :lock: CIS Debian 9/10 Hardening
 
-**News**: this projet is back in the game and is from now on maintained. Be free to use and to
+:tada: **News**: this projet is back in the game and is from now on maintained. Be free to use and to
 report issues if you find any !
 
+
+<p align="center">
+      <img src="https://repository-images.githubusercontent.com/56690366/bbe7c380-55b2-11eb-84ba-d06bf153fe8b" width="300px">
+</p>
+
+![Shell-linter](https://github.com/thibaultserti/debian-cis/workflows/Run%20shell-linter/badge.svg)
+![Functionnal tests](https://github.com/thibaultserti/debian-cis/workflows/Run%20functionnal%20tests/badge.svg)
+![Release](https://github.com/thibaultserti/debian-cis/workflows/Create%20Release/badge.svg)
+
+![Realease](https://img.shields.io/github/v/release/ovh/debian-cis)
+![License](https://img.shields.io/github/license/ovh/debian-cis)
+---
+
 Modular Debian 9/10 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
-recommendations. We use it at [OVH](https://www.ovh.com) to harden our PCI-DSS infrastructure.
+recommendations. We use it at [OVHcloud](https://www.ovhcloud.com) to harden our PCI-DSS infrastructure.
 
 ```console
 $ bin/hardening.sh --audit-all
@@ -25,7 +38,7 @@ hardening [INFO] Treating /opt/cis-hardening/bin/hardening/6.2.19_check_duplicat
        Conformity Percentage : 85.00 %
 ```
 
-## Quickstart
+## :dizzy: Quickstart
 
 ```console
 $ git clone https://github.com/ovh/debian-cis.git && cd debian-cis
@@ -41,7 +54,7 @@ hardening                 [INFO] Treating /opt/cis-hardening/bin/hardening/1.1.1
 1.1.1.1_disable_freevxfs  [ OK ] Check Passed
 ```
 
-## Usage
+## :hammer: Usage
 
 ### Configuration
 
@@ -107,7 +120,7 @@ Use --allow-service-list to get a list of supported services.
 ``--create-config-files-only``: create the config files in etc/conf.d. Must be run as root,
 before running the audit with user secaudit, to have the rights setup well on the conf files.
 
-## Hacking
+## :computer: Hacking
 
 **Getting the source**
 
@@ -134,8 +147,8 @@ If the check replace somehow one that is in the CIS specifications,
 you can use the numerotation of the check it replaces inplace. For example we check
 the config of OSSEC (file integrity) in `1.4.x` whereas CIS recommends AIDE.
 
-Do not forget to specify in comment if it's a bonus check (suggested by CIS but not in the CIS numerotation), a legacy check (part from previous CIS specification but deleted in more recents one) or an OVH security check
-(part of OVH security policy)
+Do not forget to specify in comment if it's a bonus check (suggested by CIS but not in the CIS numerotation), a legacy check (part from previous CIS specification but deleted in more recents one) or an OVHcloud security check.
+(part of OVHcloud security policy)
 
 
 Code your check explaining what it does then if you want to test
@@ -144,7 +157,7 @@ Code your check explaining what it does then if you want to test
 $ sed -i "s/status=.+/status=enabled/" etc/conf.d/99.99_custom_script.cfg
 $ ./bin/hardening/99.99_custom_script.sh
 ```
-## Functional testing
+## :sparkles: Functional testing
 
 Functional tests are available. They are to be run in a Docker environment.
 
@@ -193,7 +206,7 @@ else
 fi
 ```
 
-## Coding style
+## :art: Coding style
 ### Shellcheck
 
 We use [Shellcheck](https://github.com/koalaman/shellcheck) to check the 
@@ -217,19 +230,19 @@ $ ./shellfmt/launch_shellfmt.sh
 It will automatically fix any styling problem on every script.
 
 
-## Disclaimer
+## :heavy_exclamation_mark: Disclaimer
 
 This project is a set of tools. They are meant to help the system administrator
-built a secure environment. While we use it at OVH to harden our PCI-DSS compliant
+built a secure environment. While we use it at OVHcloud to harden our PCI-DSS compliant
 infrastructure, we can not guarantee that it will work for you. It will not
 magically secure any random host.
 
 Additionally, quoting the License:
 
-> THIS SOFTWARE IS PROVIDED BY OVH SAS AND CONTRIBUTORS ``AS IS'' AND ANY
+> THIS SOFTWARE IS PROVIDED BY OVHcloud SAS AND CONTRIBUTORS ``AS IS'' AND ANY
 > EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 > WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-> DISCLAIMED. IN NO EVENT SHALL OVH SAS AND CONTRIBUTORS BE LIABLE FOR ANY
+> DISCLAIMED. IN NO EVENT SHALL OVHcloud SAS AND CONTRIBUTORS BE LIABLE FOR ANY
 > DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 > (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 > LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -237,11 +250,11 @@ Additionally, quoting the License:
 > (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 > SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-## Reference
+## :satellite: Reference
 
 - **Center for Internet Security**: https://www.cisecurity.org/
 - **CIS recommendations**: https://learn.cisecurity.org/benchmarks
 
-## License
+## :page_facing_up: License
 
 MIT

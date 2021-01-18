@@ -1,3 +1,10 @@
+cis-hardening (3.0-1) unstable; urgency=medium
+
+  * Add workflows for github action
+  * Update man page and README.md
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 18 Jan 2021 09:01:28 +0100
+
 cis-hardening (3.0) unstable; urgency=medium
 
   * Migration to debian10 numbering

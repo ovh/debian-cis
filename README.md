@@ -8,9 +8,9 @@ report issues if you find any !
       <img src="https://repository-images.githubusercontent.com/56690366/bbe7c380-55b2-11eb-84ba-d06bf153fe8b" width="300px">
 </p>
 
-![Shell-linter](https://github.com/thibaultserti/debian-cis/workflows/Run%20shell-linter/badge.svg)
-![Functionnal tests](https://github.com/thibaultserti/debian-cis/workflows/Run%20functionnal%20tests/badge.svg)
-![Release](https://github.com/thibaultserti/debian-cis/workflows/Create%20Release/badge.svg)
+![Shell-linter](https://github.com/ovh/debian-cis/workflows/Run%20shell-linter/badge.svg)
+![Functionnal tests](https://github.com/ovh/debian-cis/workflows/Run%20functionnal%20tests/badge.svg)
+![Release](https://github.com/ovh/debian-cis/workflows/Create%20Release/badge.svg)
 
 ![Realease](https://img.shields.io/github/v/release/ovh/debian-cis)
 ![License](https://img.shields.io/github/license/ovh/debian-cis)

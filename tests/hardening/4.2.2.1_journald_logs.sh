@@ -3,7 +3,6 @@
 test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 0
-    dismiss_count_for_test
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
@@ -13,7 +12,7 @@ test_audit() {
     echo "ForwardToSyslog=no" >>"$FILE"
     register_test retvalshouldbe 1
     register_test contain "$FILE exists, checking configuration"
-    register_test contain "is not present in $FILE"
+    register_test contain "is present in $FILE"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
@@ -22,6 +21,6 @@ test_audit() {
 
     describe Checking resolved state
     register_test retvalshouldbe 0
-    register_test contain "is present in $FILE"
+    register_test contain "is not present in $FILE"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

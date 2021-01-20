@@ -13,7 +13,7 @@ test_audit() {
     echo "Compress=no" >>"$FILE"
     register_test retvalshouldbe 1
     register_test contain "$FILE exists, checking configuration"
-    register_test contain "is not present in $FILE"
+    register_test contain "is present in $FILE"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     describe correcting situation
@@ -22,6 +22,6 @@ test_audit() {
 
     describe Checking resolved state
     register_test retvalshouldbe 0
-    register_test contain "is present in $FILE"
+    register_test contain "is not present in $FILE"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

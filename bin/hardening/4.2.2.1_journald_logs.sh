@@ -18,7 +18,7 @@ HARDENING_LEVEL=3
 DESCRIPTION="Configure journald to send logs to syslog-ng."
 
 FILE='/etc/systemd/journald.conf'
-OPTIONS='ForwardToSyslog=yes'
+OPTIONS='ForwardToSyslog=no'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -34,9 +34,9 @@ audit() {
             debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
             does_pattern_exist_in_file "$FILE" "$PATTERN"
             if [ "$FNRET" != 0 ]; then
-                crit "$PATTERN is not present in $FILE"
+                ok "$PATTERN is not present in $FILE"
             else
-                ok "$PATTERN is present in $FILE"
+                crit "$PATTERN is present in $FILE"
             fi
         done
     fi
@@ -57,18 +57,18 @@ apply() {
         debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
         PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
         does_pattern_exist_in_file "$FILE" "$PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            warn "$PATTERN is not present in $FILE, adding it"
+        if [ "$FNRET" = 0 ]; then
+            warn "$PATTERN is present in $FILE, deleting it"
             does_pattern_exist_in_file "$FILE" "^$JOURNALD_PARAM"
             if [ "$FNRET" != 0 ]; then
                 info "Parameter $JOURNALD_PARAM seems absent from $FILE, adding at the end"
-                add_end_of_file "$FILE" "$JOURNALD_PARAM = $JOURNALD_VALUE"
+                add_end_of_file "$FILE" "$JOURNALD_PARAM=yes"
             else
                 info "Parameter $JOURNALD_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^$JOURNALD_PARAM=.*" "$JOURNALD_PARAM=$JOURNALD_VALUE"
+                replace_in_file "$FILE" "^$JOURNALD_PARAM=.*" "$JOURNALD_PARAM=yes"
             fi
         else
-            ok "$PATTERN is present in $FILE"
+            ok "$PATTERN is not present in $FILE"
         fi
     done
 }

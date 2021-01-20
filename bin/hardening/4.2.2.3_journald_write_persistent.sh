@@ -62,7 +62,7 @@ apply() {
             does_pattern_exist_in_file "$FILE" "^$JOURNALD_PARAM"
             if [ "$FNRET" != 0 ]; then
                 info "Parameter $JOURNALD_PARAM seems absent from $FILE, adding at the end"
-                add_end_of_file "$FILE" "$JOURNALD_PARAM = $JOURNALD_VALUE"
+                add_end_of_file "$FILE" "$JOURNALD_PARAM=$JOURNALD_VALUE"
             else
                 info "Parameter $JOURNALD_PARAM is present but with the wrong value -- Fixing"
                 replace_in_file "$FILE" "^$JOURNALD_PARAM=.*" "$JOURNALD_PARAM=$JOURNALD_VALUE"

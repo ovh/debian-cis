@@ -7,5 +7,10 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
-    # TODO fill comprehensive tests
+    ##################################################################
+    # For this test, we only check that it runs properly on a blank  #
+    # host, and we check root/sudo consistency. But, we don't test   #
+    # the apply function because it can't be automated or it is very #
+    # long to test and not very useful.                              #
+    ##################################################################
 }

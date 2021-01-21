@@ -76,9 +76,11 @@ create_config() {
     get_debian_major_version
     set +u
     debug "Debian version : $DEB_MAJ_VER "
-    if [[ -z "$DEB_MAJ_VER" ]] || [[ 7 -eq "$DEB_MAJ_VER" ]]; then
+    if [[ "sid" = "$DEB_MAJ_VER" ]]; then
+        KEX='curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256'
+    elif [[ 7 -eq "$DEB_MAJ_VER" ]]; then
         KEX='diffie-hellman-group-exchange-sha256'
-    elif [[ 8 -eq "$DEB_MAJ_VER" ]] || [[ 9 -eq "$DEB_MAJ_VER" ]]; then
+    elif [[ 8 -le "$DEB_MAJ_VER" ]]; then
         KEX='curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256'
     else
         KEX='diffie-hellman-group-exchange-sha256'
@@ -89,6 +91,7 @@ status=audit
 # Put your KexAlgorithms
 OPTIONS="KexAlgorithms=$KEX"
 EOF
+
 }
 
 # This function will check config parameters required

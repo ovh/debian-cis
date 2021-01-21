@@ -27,12 +27,12 @@ audit() {
     get_debian_major_version
     set +u
     debug "Debian version : $DEB_MAJ_VER "
-    if [[ -z $DEB_MAJ_VER ]]; then
+    if [[ -z "$DEB_MAJ_VER" ]]; then
         set -u
         crit "Cannot get Debian version. Aborting..."
         return
     fi
-    if [[ "${DEB_MAJ_VER}" -lt "8" ]]; then
+    if [[ "${DEB_MAJ_VER}" != "sid" ]] && [[ "${DEB_MAJ_VER}" -lt "8" ]]; then
         set -u
         warn "Debian version too old (${DEB_MAJ_VER}), check does not apply, you should disable this check."
         return

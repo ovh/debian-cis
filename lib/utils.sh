@@ -538,7 +538,11 @@ get_debian_major_version() {
     DEB_MAJ_VER=""
     does_file_exist /etc/debian_version
     if [ "$FNRET" = 0 ]; then
-        DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
+        if grep -q "sid" /etc/debian_version; then
+            DEB_MAJ_VER="sid"
+        else
+            DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
+        fi
     else
         # shellcheck disable=2034
         DEB_MAJ_VER=$(lsb_release -r | cut -f2 | cut -d '.' -f 1)

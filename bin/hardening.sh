@@ -194,7 +194,7 @@ if [ "$BATCH_MODE" ]; then MACHINE_LOG_LEVEL=3; fi
 # Math functions
 #
 
-function div {
+function div() {
     local _d=${3:-2}
     local _n=0000000000
     _n=${_n:0:$_d}

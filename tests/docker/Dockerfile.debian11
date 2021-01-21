@@ -7,7 +7,7 @@ LABEL description="This image is used to run tests"
 
 RUN groupadd -g 500 secaudit && useradd  -u 500 -g 500 -s /bin/bash secaudit && install -m 700 -o secaudit -g secaudit -d /home/secaudit
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y bc openssh-server sudo syslog-ng net-tools auditd
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y bc openssh-server sudo syslog-ng net-tools auditd cron
 
 COPY --chown=500:500 . /opt/debian-cis/
 

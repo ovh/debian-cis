@@ -24,6 +24,10 @@ GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$FILE does not exist"
+    fi
     has_file_correct_ownership "$FILE" "$USER" "$GROUP"
     if [ "$FNRET" = 0 ]; then
         ok "$FILE has correct ownership"

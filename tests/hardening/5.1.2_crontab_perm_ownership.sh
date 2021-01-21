@@ -10,6 +10,8 @@ test_audit() {
     local test_user="testcrontabduser"
     local test_file="/etc/crontab"
 
+    touch "$test_file"
+
     describe Tests purposely failing
     chmod 777 "$test_file"
     register_test retvalshouldbe 1

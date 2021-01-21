@@ -17,14 +17,29 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Disable Datagram Congestion Control Protocol (DCCP)."
 
+# Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
+
+KERNEL_OPTION="CONFIG_NF_CT_PROTO_DCCP"
+MODULE_NAME="dccp"
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Not implemented yet"
+    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
+    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
+        crit "$KERNEL_OPTION is enabled!"
+    else
+        ok "$KERNEL_OPTION is disabled"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    info "Not implemented yet"
+    is_kernel_option_enabled "$KERNEL_OPTION"
+    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
+        warn "I cannot fix $KERNEL_OPTION enabled, recompile your kernel please"
+    else
+        ok "$KERNEL_OPTION is disabled, nothing to do"
+    fi
 }
 
 # This function will check config parameters required

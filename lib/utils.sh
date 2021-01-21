@@ -298,6 +298,7 @@ is_kernel_option_enabled() {
     if [ $# -ge 2 ]; then
         MODULE_NAME="$2"
     fi
+    RESULT=""
     if $SUDO_CMD [ -r "/proc/config.gz" ]; then
         RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
     elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ]; then

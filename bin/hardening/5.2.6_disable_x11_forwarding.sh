@@ -1,5 +1,4 @@
-
-0;95;0c#!/bin/bash
+#!/bin/bash
 
 # run-shellcheck
 #

@@ -190,6 +190,23 @@ fi
 
 if [ "$BATCH_MODE" ]; then MACHINE_LOG_LEVEL=3; fi
 
+#
+# Math functions
+#
+
+function div {
+    local _d=${3:-2}
+    local _n=0000000000
+    _n=${_n:0:$_d}
+    if (($2 == 0)); then
+        echo "N.A"
+        return
+    fi
+    local _r=$(($1$_n / $2))
+    _r=${_r:0:-$_d}.${_r: -$_d}
+    echo $_r
+}
+
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ]; then
     declare -a HARDENING_EXCEPTIONS_LIST
@@ -294,7 +311,7 @@ if [ "$BATCH_MODE" ]; then
     BATCH_SUMMARY+="RUN_CHECKS:${TOTAL_TREATED_CHECKS:-0} "
     BATCH_SUMMARY+="TOTAL_CHECKS_AVAIL:${TOTAL_CHECKS:-0}"
     if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
-        CONFORMITY_PERCENTAGE=$(bc -l <<<"scale=2; ($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100")
+        CONFORMITY_PERCENTAGE=$(div $(($PASSED_CHECKS * 100)) $TOTAL_TREATED_CHECKS)
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:$(printf "%s" "$CONFORMITY_PERCENTAGE")"
     else
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:N.A" # No check runned, avoid division by 0
@@ -307,8 +324,8 @@ else
     printf "%30s [ %7s ]\n" "Total Passed Checks :" "$PASSED_CHECKS/$TOTAL_TREATED_CHECKS"
     printf "%30s [ %7s ]\n" "Total Failed Checks :" "$FAILED_CHECKS/$TOTAL_TREATED_CHECKS"
 
-    ENABLED_CHECKS_PERCENTAGE=$(bc -l <<<"scale=2; ($TOTAL_TREATED_CHECKS/$TOTAL_CHECKS) * 100")
-    CONFORMITY_PERCENTAGE=$(bc -l <<<"scale=2; ($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100")
+    ENABLED_CHECKS_PERCENTAGE=$(div $(($TOTAL_TREATED_CHECKS * 100)) $TOTAL_CHECKS)
+    CONFORMITY_PERCENTAGE=$(div $(($PASSED_CHECKS * 100)) $TOTAL_TREATED_CHECKS)
     printf "%30s %s %%\n" "Enabled Checks Percentage :" "$ENABLED_CHECKS_PERCENTAGE"
     if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
         printf "%30s %s %%\n" "Conformity Percentage :" "$CONFORMITY_PERCENTAGE"

@@ -23,7 +23,7 @@ FILE='/etc/ssh/sshd_config'
 audit() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
+        ok "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
         for SSH_OPTION in $OPTIONS; do

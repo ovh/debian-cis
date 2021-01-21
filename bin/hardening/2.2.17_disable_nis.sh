@@ -17,14 +17,32 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Disable NIS Server."
 
+PACKAGES='nis'
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    :
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
+            crit "$PACKAGE is installed!"
+        else
+            ok "$PACKAGE is absent"
+        fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    :
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
+            crit "$PACKAGE is installed, purging it"
+            apt-get purge "$PACKAGE" -y
+            apt-get autoremove -y
+        else
+            ok "$PACKAGE is absent"
+        fi
+    done
 }
 
 # This function will check config parameters required

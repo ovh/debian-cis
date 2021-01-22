@@ -294,7 +294,7 @@ if [ "$BATCH_MODE" ]; then
     BATCH_SUMMARY+="RUN_CHECKS:${TOTAL_TREATED_CHECKS:-0} "
     BATCH_SUMMARY+="TOTAL_CHECKS_AVAIL:${TOTAL_CHECKS:-0}"
     if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
-        CONFORMITY_PERCENTAGE=$(bc -l <<<"scale=2; ($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100")
+        CONFORMITY_PERCENTAGE=$(div $(($PASSED_CHECKS * 100)) $TOTAL_TREATED_CHECKS)
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:$(printf "%s" "$CONFORMITY_PERCENTAGE")"
     else
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:N.A" # No check runned, avoid division by 0
@@ -307,8 +307,8 @@ else
     printf "%30s [ %7s ]\n" "Total Passed Checks :" "$PASSED_CHECKS/$TOTAL_TREATED_CHECKS"
     printf "%30s [ %7s ]\n" "Total Failed Checks :" "$FAILED_CHECKS/$TOTAL_TREATED_CHECKS"
 
-    ENABLED_CHECKS_PERCENTAGE=$(bc -l <<<"scale=2; ($TOTAL_TREATED_CHECKS/$TOTAL_CHECKS) * 100")
-    CONFORMITY_PERCENTAGE=$(bc -l <<<"scale=2; ($PASSED_CHECKS/$TOTAL_TREATED_CHECKS) * 100")
+    ENABLED_CHECKS_PERCENTAGE=$(div $(($TOTAL_TREATED_CHECKS * 100)) $TOTAL_CHECKS)
+    CONFORMITY_PERCENTAGE=$(div $(($PASSED_CHECKS * 100)) $TOTAL_TREATED_CHECKS)
     printf "%30s %s %%\n" "Enabled Checks Percentage :" "$ENABLED_CHECKS_PERCENTAGE"
     if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
         printf "%30s %s %%\n" "Conformity Percentage :" "$CONFORMITY_PERCENTAGE"

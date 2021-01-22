@@ -44,7 +44,7 @@ hardening [INFO] Treating /opt/cis-hardening/bin/hardening/6.2.19_check_duplicat
 $ git clone https://github.com/ovh/debian-cis.git && cd debian-cis
 $ cp debian/default /etc/default/cis-hardening
 $ sed -i "s#CIS_ROOT_DIR=.*#CIS_ROOT_DIR='$(pwd)'#" /etc/default/cis-hardening
-$ bin/hardening/1.1_install_updates.sh --audit-all
+$ bin/hardening/1.1.1.1_disable_freevxfs.sh --audit-all
 hardening                 [INFO] Treating /opt/cis-hardening/bin/hardening/1.1.1.1_disable_freevxfs.sh
 1.1.1.1_disable_freevxfs  [INFO] Working on 1.1.1.1_disable_freevxfs
 1.1.1.1_disable_freevxfs  [INFO] [DESCRIPTION] Disable mounting of freevxfs filesystems.

@@ -295,15 +295,22 @@ is_service_enabled() {
 is_kernel_option_enabled() {
     local KERNEL_OPTION="$1"
     local MODULE_NAME=""
+    local RESULT=""
+
     if [ $# -ge 2 ]; then
         MODULE_NAME="$2"
     fi
-    RESULT=""
+
     if $SUDO_CMD [ -r "/proc/config.gz" ]; then
         RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
     elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ]; then
         RESULT=$($SUDO_CMD grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
+    else
+        debug "No information about kernel found, you're probably in a container"
+        FNRET=127
+        return
     fi
+
     ANSWER=$(cut -d = -f 2 <<<"$RESULT")
     if [ "x$ANSWER" = "xy" ]; then
         debug "Kernel option $KERNEL_OPTION enabled"

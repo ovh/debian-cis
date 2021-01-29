@@ -26,6 +26,7 @@ ALLOW_SERVICE_LIST=0
 SET_HARDENING_LEVEL=0
 SUDO_MODE=''
 BATCH_MODE=''
+ASK_LOGLEVEL=''
 
 usage() {
     cat <<EOF
@@ -98,6 +99,10 @@ OPTIONS:
         the '-n' option instructs sudo not to prompt for a password.
         Finally note that '--sudo' mode only works for audit mode.
 
+    --set-log-level <level>
+        This option sets LOGLEVEL, you can choose : info, warning, error, ok, debug.
+        Default value is : info
+
     --batch
         While performing system audit, this option sets LOGLEVEL to 'ok' and
         captures all output to print only one line once the check is done, formatted like :
@@ -143,6 +148,10 @@ while [[ $# -gt 0 ]]; do
         SET_HARDENING_LEVEL="$2"
         shift
         ;;
+    --set-log-level)
+        ASK_LOGLEVEL=$2
+        shift
+        ;;
     --only)
         TEST_LIST[${#TEST_LIST[@]}]="$2"
         shift
@@ -152,7 +161,7 @@ while [[ $# -gt 0 ]]; do
         ;;
     --batch)
         BATCH_MODE='--batch'
-        LOGLEVEL=ok
+        ASK_LOGLEVEL=ok
         ;;
     -h | --help)
         usage
@@ -183,12 +192,11 @@ fi
 [ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
 # shellcheck source=../etc/hardening.cfg
 [ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
+if [ "$ASK_LOGLEVEL" ]; then LOGLEVEL=$ASK_LOGLEVEL; fi
 # shellcheck source=../lib/common.sh
 [ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
 # shellcheck source=../lib/utils.sh
 [ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
-
-if [ "$BATCH_MODE" ]; then MACHINE_LOG_LEVEL=3; fi
 
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ]; then

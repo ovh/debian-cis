@@ -17,28 +17,43 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Disable mounting of udf filesystems."
 
-# Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
-
-KERNEL_OPTION="CONFIG_UDF_FS"
-MODULE_FILE="udf"
+FSTYPE_NAME="udf"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_FILE"
-    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
-        crit "$KERNEL_OPTION is enabled!"
+    if [ $IS_CONTAINER -eq 1 ]; then
+        # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
+        ok "Container detected, consider host enforcing!"
     else
-        ok "$KERNEL_OPTION is disabled"
+        is_kernel_module_enabled "$FSTYPE_NAME" "($FSTYPE_NAME|install)"
+        if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
+            crit "$FSTYPE_NAME is enabled!"
+        else
+            if [ "$(is_kernel_module_list $FSTYPE_NAME)" == "" ]; then
+                ok "$FSTYPE_NAME is disabled"
+            else
+                crit "$FSTYPE_NAME is enabled!"
+            fi
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_kernel_option_enabled "$KERNEL_OPTION"
-    if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
-        warn "I cannot fix $KERNEL_OPTION enabled, recompile your kernel please"
+    if [ $IS_CONTAINER -eq 1 ]; then
+        # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
+        ok "Container detected, consider host enforcing!"
     else
-        ok "$KERNEL_OPTION is disabled, nothing to do"
+        is_kernel_module_enabled "$FSTYPE_NAME" "($FSTYPE_NAME|install)"
+        if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
+            warn "I cannot fix $FSTYPE_NAME, recompile your kernel or blacklist module $FSTYPE_NAME (/etc/modprobe.d/blacklist.conf : +install $FSTYPE_NAME /bin/true)"
+        else
+            if [ "$(is_kernel_module_list $FSTYPE_NAME)" == "" ]; then
+                ok "$FSTYPE_NAME is disabled, nothing to do"
+            else
+                warn "$FSTYPE_NAME is disabled, but list in lsmod, check modprobe !"
+            fi
+        fi
     fi
 }
 

@@ -21,7 +21,7 @@ FSTYPE_NAME="freevxfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    if [ $IS_CONTAINER -eq 1 ]; then
+    if [ "$IS_CONTAINER" -eq 1 ]; then
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing!"
     else
@@ -40,7 +40,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ $IS_CONTAINER -eq 1 ]; then
+    if [ "$IS_CONTAINER" -eq 1 ]; then
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing!"
     else

@@ -348,24 +348,27 @@ is_kernel_option_enabled() {
 is_kernel_module_enabled() {
     local MODULE_NAME=$1
     FNRET=128
+    local module
 
     if [ $# -eq 2 ]; then
-        local module="$($SUDO_CMD modprobe -n -v $MODULE_NAME 2>/dev/null | grep -E $2 | xargs)"
+        module="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$2" | xargs)"
+        FNRET=$?
     else
-        local module="$($SUDO_CMD modprobe -n -v $MODULE_NAME 2>/dev/null | xargs)"
+        module="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | xargs)"
+        FNRET=$?
     fi
 
-    if [ $? = 0 ]; then
-        if [ "$module" == "install /bin/true" -o "$module" == "install /bin/false" ]; then
+    if [ $FNRET -ne 0 ]; then
+        debug "$MODULE_NAME is disabled"
+        FNRET=1
+    else
+        if [ "$module" == "install /bin/true" ] || [ "$module" == "install /bin/false" ]; then
             debug "$MODULE_NAME is disabled (blacklist with override)"
             FNRET=1
         else
             debug "$MODULE_NAME is enabled"
             FNRET=0
         fi
-    else
-        debug "$MODULE_NAME is disabled"
-        FNRET=1
     fi
 }
 

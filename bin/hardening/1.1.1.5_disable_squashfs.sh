@@ -23,7 +23,7 @@ FSTYPE_NAME="squashfs"
 audit() {
     if [ "$IS_CONTAINER" -eq 1 ]; then
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
-        ok "Container detected, consider host enforcing!"
+        ok "Container detected, consider host enforcing or disable this check!"
     else
         is_kernel_module_enabled "$FSTYPE_NAME" "($FSTYPE_NAME|install)"
         if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated

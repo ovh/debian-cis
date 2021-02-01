@@ -127,6 +127,11 @@ Note that you need to provide a sudoers file with NOPASSWD option in
 password.
 Finally note that \f[C]--sudo\f[R] mode only works for audit mode.
 .TP
+.B \f[C]--set-log-level=level\f[R]
+This option sets LOGLEVEL, you can choose : info, warning, error, ok,
+debug.
+Default value is : info
+.TP
 .B \f[C]--batch\f[R]
 While performing system audit, this option sets LOGLEVEL to `ok' and
 captures all output to print only one line once the check is done,

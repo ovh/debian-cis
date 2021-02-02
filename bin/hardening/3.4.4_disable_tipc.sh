@@ -28,7 +28,7 @@ audit() {
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing or disable this check!"
     else
-        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
+        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME" "($MODULE_NAME|install)"
         if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
             crit "$MODULE_NAME is enabled!"
         else
@@ -43,7 +43,7 @@ apply() {
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing!"
     else
-        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
+        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME" "($MODULE_NAME|install)"
         if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
             warn "I cannot fix $MODULE_NAME, recompile your kernel or blacklist module $MODULE_NAME (/etc/modprobe.d/blacklist.conf : +install $MODULE_NAME /bin/true)"
         else

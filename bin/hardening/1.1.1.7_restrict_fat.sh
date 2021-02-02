@@ -25,7 +25,6 @@ MODULE_FILE="vfat"
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     # TODO check if uefi enabled if yes check if only boot partition use FAT
-    # TODO replace kernel_option_enabled => is_kernel_module_enabled + is_kernel_module_list
     is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_FILE"
     if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
         crit "$KERNEL_OPTION is enabled!"

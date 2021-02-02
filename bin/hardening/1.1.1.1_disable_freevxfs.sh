@@ -17,7 +17,8 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Disable mounting of freevxfs filesystems."
 
-FSTYPE_NAME="freevxfs"
+KERNEL_OPTION="CONFIG_VXFS_FS"
+MODULE_NAME="freevxfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -25,15 +26,11 @@ audit() {
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing or disable this check!"
     else
-        is_kernel_module_enabled "$FSTYPE_NAME" "($FSTYPE_NAME|install)"
+        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
         if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
-            crit "$FSTYPE_NAME is enabled!"
+            crit "$MODULE_NAME is enabled!"
         else
-            if [ "$(is_kernel_module_list $FSTYPE_NAME)" == "" ]; then
-                ok "$FSTYPE_NAME is disabled"
-            else
-                crit "$FSTYPE_NAME is enabled!"
-            fi
+            ok "$MODULE_NAME is disabled"
         fi
     fi
 }
@@ -44,15 +41,11 @@ apply() {
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing!"
     else
-        is_kernel_module_enabled "$FSTYPE_NAME" "($FSTYPE_NAME|install)"
+        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
         if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
-            warn "I cannot fix $FSTYPE_NAME, recompile your kernel or blacklist module $FSTYPE_NAME (/etc/modprobe.d/blacklist.conf : +install $FSTYPE_NAME /bin/true)"
+            warn "I cannot fix $MODULE_NAME, recompile your kernel or blacklist module $MODULE_NAME (/etc/modprobe.d/blacklist.conf : +install $MODULE_NAME /bin/true)"
         else
-            if [ "$(is_kernel_module_list $FSTYPE_NAME)" == "" ]; then
-                ok "$FSTYPE_NAME is disabled, nothing to do"
-            else
-                warn "$FSTYPE_NAME is disabled, but list in lsmod, check modprobe !"
-            fi
+            ok "$MODULE_NAME is disabled"
         fi
     fi
 }

@@ -295,7 +295,7 @@ is_service_enabled() {
 is_kernel_option_enabled() {
     local KERNEL_OPTION="$1"
     local MODULE_NAME=""
-    local FILTER=""
+    local MODPROBE_FILTER=""
     local RESULT=""
     local IS_MONOLITHIC_KERNEL=1
     local DEF_MODULE=""
@@ -305,9 +305,10 @@ is_kernel_option_enabled() {
     fi
 
     if [ $# -ge 3 ]; then
-        FILTER="$3"
+        MODPROBE_FILTER="$3"
     fi
 
+    debug "Detect if lsmod is available and does not return an error code (otherwise consider as a monolithic kernel"
     if $SUDO_CMD lsmod >/dev/null 2>&1; then
         IS_MONOLITHIC_KERNEL=0
     fi
@@ -334,9 +335,32 @@ is_kernel_option_enabled() {
             debug "Kernel option $KERNEL_OPTION not found"
             FNRET=2 # Not found
         fi
+
+        if $SUDO_CMD [ "$FNRET" -ne 0 ] && [ -n "$MODULE_NAME" ] && [ -d "/lib/modules/$(uname -r)" ]; then
+            # also check in modules, because even if not =y, maybe
+            # the admin compiled it separately later (or out-of-tree)
+            # as a module (regardless of the fact that we have =m or not)
+            debug "Checking if we have $MODULE_NAME.ko"
+            local modulefile
+            modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
+            if $SUDO_CMD [ -n "$modulefile" ]; then
+                debug "We do have $modulefile!"
+                # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
+                if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/*.conf; then
+                    debug "... but it's blacklisted!"
+                    FNRET=1 # Not found (found but blacklisted)
+                fi
+                # ... but wait, maybe it's override ? check files in /etc/modprobe.d/ for "install xyz /bin/(true|false)"
+                if grep -aRE "^\s*install\s+$MODULE_NAME\s+/bin/(true|false)\s*$" /etc/modprobe.d/*.conf; then
+                    debug "... but it's override!"
+                    FNRET=1 # Not found (found but override)
+                fi
+                FNRET=0 # Found!
+            fi
+        fi
     else
         if [ "$FILTER" != "" ]; then
-            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$FILTER" | xargs)"
+            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$MODPROBE_FILTER" | xargs)"
         else
             DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | xargs)"
         fi
@@ -356,7 +380,6 @@ is_kernel_option_enabled() {
             debug "$MODULE_NAME is enabled"
             FNRET=0
         fi
-
     fi
 }
 

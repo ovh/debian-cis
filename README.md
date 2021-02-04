@@ -117,6 +117,9 @@ to allow a certain kind of services on the machine, such as http, mail, etc.
 Can be specified multiple times to allow multiple services.
 Use --allow-service-list to get a list of supported services.
 
+``--set-log-level <level>``: This option sets LOGLEVEL, you can choose : info, warning, error, ok, debug.
+Default value is : info
+
 ``--create-config-files-only``: create the config files in etc/conf.d. Must be run as root,
 before running the audit with user secaudit, to have the rights setup well on the conf files.
 

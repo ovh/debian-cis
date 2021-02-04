@@ -115,6 +115,10 @@ will create a timestamped backup in this directory.
     the -n option instructs sudo not to prompt for a password.
     Finally note that `--sudo` mode only works for audit mode.
 
+`--set-log-level=level`
+:   This option sets LOGLEVEL, you can choose : info, warning, error, ok, debug.
+    Default value is : info
+
 `--batch`
 :   While performing system audit, this option sets LOGLEVEL to 'ok' and
     captures all output to print only one line once the check is done, formatted like :

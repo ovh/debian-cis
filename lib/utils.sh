@@ -295,51 +295,90 @@ is_service_enabled() {
 is_kernel_option_enabled() {
     local KERNEL_OPTION="$1"
     local MODULE_NAME=""
+    local MODPROBE_FILTER=""
     local RESULT=""
+    local IS_MONOLITHIC_KERNEL=1
+    local DEF_MODULE=""
 
     if [ $# -ge 2 ]; then
         MODULE_NAME="$2"
     fi
 
-    if $SUDO_CMD [ -r "/proc/config.gz" ]; then
-        RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
-    elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ]; then
-        RESULT=$($SUDO_CMD grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
-    else
-        debug "No information about kernel found, you're probably in a container"
-        FNRET=127
-        return
+    if [ $# -ge 3 ]; then
+        MODPROBE_FILTER="$3"
     fi
 
-    ANSWER=$(cut -d = -f 2 <<<"$RESULT")
-    if [ "x$ANSWER" = "xy" ]; then
-        debug "Kernel option $KERNEL_OPTION enabled"
-        FNRET=0
-    elif [ "x$ANSWER" = "xn" ]; then
-        debug "Kernel option $KERNEL_OPTION disabled"
-        FNRET=1
-    else
-        debug "Kernel option $KERNEL_OPTION not found"
-        FNRET=2 # Not found
+    debug "Detect if lsmod is available and does not return an error code (otherwise consider as a monolithic kernel"
+    if $SUDO_CMD lsmod >/dev/null 2>&1; then
+        IS_MONOLITHIC_KERNEL=0
     fi
 
-    if $SUDO_CMD [ "$FNRET" -ne 0 ] && [ -n "$MODULE_NAME" ] && [ -d "/lib/modules/$(uname -r)" ]; then
-        # also check in modules, because even if not =y, maybe
-        # the admin compiled it separately later (or out-of-tree)
-        # as a module (regardless of the fact that we have =m or not)
-        debug "Checking if we have $MODULE_NAME.ko"
-        local modulefile
-        modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
-        if $SUDO_CMD [ -n "$modulefile" ]; then
-            debug "We do have $modulefile!"
-            # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
-            if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/; then
-                debug "... but it's blacklisted!"
-                FNRET=1 # Not found (found but blacklisted)
-                # FIXME: even if blacklisted, it might be present in the initrd and
-                # be insmod from there... but painful to check :/ maybe lsmod would be enough ?
+    if [ $IS_MONOLITHIC_KERNEL -eq 1 ]; then
+        if $SUDO_CMD [ -r "/proc/config.gz" ]; then
+            RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
+        elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ]; then
+            RESULT=$($SUDO_CMD grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
+        else
+            debug "No information about kernel found, you're probably in a container"
+            FNRET=127
+            return
+        fi
+
+        ANSWER=$(cut -d = -f 2 <<<"$RESULT")
+        if [ "x$ANSWER" = "xy" ]; then
+            debug "Kernel option $KERNEL_OPTION enabled"
+            FNRET=0
+        elif [ "x$ANSWER" = "xn" ]; then
+            debug "Kernel option $KERNEL_OPTION disabled"
+            FNRET=1
+        else
+            debug "Kernel option $KERNEL_OPTION not found"
+            FNRET=2 # Not found
+        fi
+
+        if $SUDO_CMD [ "$FNRET" -ne 0 ] && [ -n "$MODULE_NAME" ] && [ -d "/lib/modules/$(uname -r)" ]; then
+            # also check in modules, because even if not =y, maybe
+            # the admin compiled it separately later (or out-of-tree)
+            # as a module (regardless of the fact that we have =m or not)
+            debug "Checking if we have $MODULE_NAME.ko"
+            local modulefile
+            modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
+            if $SUDO_CMD [ -n "$modulefile" ]; then
+                debug "We do have $modulefile!"
+                # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
+                if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/*.conf; then
+                    debug "... but it's blacklisted!"
+                    FNRET=1 # Not found (found but blacklisted)
+                fi
+                # ... but wait, maybe it's override ? check files in /etc/modprobe.d/ for "install xyz /bin/(true|false)"
+                if grep -aRE "^\s*install\s+$MODULE_NAME\s+/bin/(true|false)\s*$" /etc/modprobe.d/*.conf; then
+                    debug "... but it's override!"
+                    FNRET=1 # Not found (found but override)
+                fi
+                FNRET=0 # Found!
             fi
-            FNRET=0 # Found!
+        fi
+    else
+        if [ "$FILTER" != "" ]; then
+            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$MODPROBE_FILTER" | xargs)"
+        else
+            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | xargs)"
+        fi
+
+        if [ "$DEF_MODULE" == "install /bin/true" ] || [ "$DEF_MODULE" == "install /bin/false" ]; then
+            debug "$MODULE_NAME is disabled (blacklist with override)"
+            FNRET=1
+        elif [ "$DEF_MODULE" == "" ]; then
+            debug "$MODULE_NAME is disabled"
+            FNRET=1
+        else
+            debug "$MODULE_NAME is enabled"
+            FNRET=0
+        fi
+
+        if [ "$($SUDO_CMD lsmod | grep -E "$MODULE_NAME" 2>/dev/null)" != "" ]; then
+            debug "$MODULE_NAME is enabled"
+            FNRET=0
         fi
     fi
 }

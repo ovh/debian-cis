@@ -548,3 +548,17 @@ get_debian_major_version() {
         DEB_MAJ_VER=$(lsb_release -r | cut -f2 | cut -d '.' -f 1)
     fi
 }
+
+# Returns the distribution
+
+get_distribution() {
+    DISTRIBUTION=""
+    if [ -f /etc/os-release ]; then
+        # shellcheck disable=2034
+        DISTRIBUTION=$(grep "^ID=" /etc/os-release | sed 's/ID=//' | tr '[:upper:]' '[:lower:]')
+        FNRET=0
+    else
+        debug "Distribution not found !"
+        FNRET=127
+    fi
+}

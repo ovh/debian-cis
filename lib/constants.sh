@@ -57,6 +57,6 @@ get_distribution
 get_debian_major_version
 
 # shellcheck disable=SC2034
-SMALLEST_SUPPORTED_DEBIAN_VERSION="$(cat "$CIS_ROOT_DIR"/debian/compat)"
+SMALLEST_SUPPORTED_DEBIAN_VERSION=9
 # shellcheck disable=SC2034
 HIGHEST_SUPPORTED_DEBIAN_VERSION=10

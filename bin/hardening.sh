@@ -27,6 +27,7 @@ SET_HARDENING_LEVEL=0
 SUDO_MODE=''
 BATCH_MODE=''
 ASK_LOGLEVEL=''
+ALLOW_UNSUPPORTED_DISTRIBUTION=0
 
 usage() {
     cat <<EOF
@@ -107,6 +108,11 @@ OPTIONS:
         While performing system audit, this option sets LOGLEVEL to 'ok' and
         captures all output to print only one line once the check is done, formatted like :
         OK|KO OK|KO|WARN{subcheck results} [OK|KO|WARN{...}]
+    
+    --allow-unsupported-distribution
+        Must be specified manually in the command line to allow the run on non compatible
+        version or distribution. If you want to mute the warning change the LOGLEVEL
+        in /etc/hardening.cfg
 
 EOF
     exit 0
@@ -163,6 +169,9 @@ while [[ $# -gt 0 ]]; do
         BATCH_MODE='--batch'
         ASK_LOGLEVEL=ok
         ;;
+    --allow-unsupported-distribution)
+        ALLOW_UNSUPPORTED_DISTRIBUTION=1
+        ;;
     -h | --help)
         usage
         ;;
@@ -188,8 +197,7 @@ if [ -z "$CIS_ROOT_DIR" ]; then
     echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
-# shellcheck source=../lib/constants.sh
-[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
+
 # shellcheck source=../etc/hardening.cfg
 [ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
 if [ "$ASK_LOGLEVEL" ]; then LOGLEVEL=$ASK_LOGLEVEL; fi
@@ -197,6 +205,45 @@ if [ "$ASK_LOGLEVEL" ]; then LOGLEVEL=$ASK_LOGLEVEL; fi
 [ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
 # shellcheck source=../lib/utils.sh
 [ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
+# shellcheck source=../lib/constants.sh
+[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
+
+# If we're on a unsupported platform and there is no flag --allow-unsupported-distribution
+# print warning, otherwise quit
+
+if [ "$DISTRIBUTION" != "debian" ]; then
+    echo "Your distribution has been identified as $DISTRIBUTION which is not debian"
+    if [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ]; then
+        echo "If you want to run it anyway, you can use the flag --allow-unsupported-distribution"
+        echo "Exiting now"
+        exit 100
+    elif [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ] && [ "$MACHINE_LOG_LEVEL" -ge 2 ]; then
+        echo "Be aware that the result given by this set of scripts can give you a false feedback of security on unsupported distributions !"
+        echo "You can deactivate this message by setting the LOGLEVEL variable in /etc/hardening.cfg"
+    fi
+else
+    if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -gt "$HIGHEST_SUPPORTED_DEBIAN_VERSION" ]; then
+        echo "Your debian version is too recent and is not supported yet because there is no official CIS PDF for this version yet."
+        if [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ]; then
+            echo "If you want to run it anyway, you can use the flag --allow-unsupported-distribution"
+            echo "Exiting now"
+            exit 100
+        elif [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ] && [ "$MACHINE_LOG_LEVEL" -ge 2 ]; then
+            echo "Be aware that the result given by this set of scripts can give you a false feedback of security on unsupported distributions !"
+            echo "You can deactivate this message by setting the LOGLEVEL variable in /etc/hardening.cfg"
+        fi
+    elif [ "$DEB_MAJ_VER" -lt "$SMALLEST_SUPPORTED_DEBIAN_VERSION" ]; then
+        echo "Your debian version is deprecated and is no more maintained. Please upgrade to a supported version."
+        if [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ]; then
+            echo "If you want to run it anyway, you can use the flag --allow-unsupported-distribution"
+            echo "Exiting now"
+            exit 100
+        elif [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ] && [ "$MACHINE_LOG_LEVEL" -ge 2 ]; then
+            echo "Be aware that the result given by this set of scripts can give you a false feedback of security on unsupported distributions, especially on deprecated ones !"
+            echo "You can deactivate this message by setting the LOGLEVEL variable in /etc/hardening.cfg"
+        fi
+    fi
+fi
 
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ]; then

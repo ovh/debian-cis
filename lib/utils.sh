@@ -538,9 +538,33 @@ get_debian_major_version() {
     DEB_MAJ_VER=""
     does_file_exist /etc/debian_version
     if [ "$FNRET" = 0 ]; then
-        DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
+        if grep -q "sid" /etc/debian_version; then
+            DEB_MAJ_VER="sid"
+        else
+            DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
+        fi
     else
         # shellcheck disable=2034
         DEB_MAJ_VER=$(lsb_release -r | cut -f2 | cut -d '.' -f 1)
     fi
+}
+
+# Returns the distribution
+
+get_distribution() {
+    DISTRIBUTION=""
+    if [ -f /etc/os-release ]; then
+        # shellcheck disable=2034
+        DISTRIBUTION=$(grep "^ID=" /etc/os-release | sed 's/ID=//' | tr '[:upper:]' '[:lower:]')
+        FNRET=0
+    else
+        debug "Distribution not found !"
+        FNRET=127
+    fi
+}
+
+# Detect if container based on cgroup detection
+
+is_running_in_container() {
+    awk -F/ '$2 == "'"$1"'"' /proc/self/cgroup
 }

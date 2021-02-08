@@ -10,14 +10,15 @@ BATCH_OUTPUT=""
 status=""
 forcedstatus=""
 SUDO_CMD=""
-# shellcheck source=constants.sh
-[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
+
 # shellcheck source=../etc/hardening.cfg
 [ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
 # shellcheck source=../lib/common.sh
 [ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
 # shellcheck source=../lib/utils.sh
 [ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
+# shellcheck source=constants.sh
+[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
 
 # Environment Sanitizing
 export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'

@@ -124,6 +124,11 @@ will create a timestamped backup in this directory.
     captures all output to print only one line once the check is done, formatted like :
     OK|KO OK|KO|WARN{subcheck results} [OK|KO|WARN{...}]
 
+`--allow-unsupported-distribution`
+    Must be specified manually in the command line to allow the run on non compatible
+    version or distribution. If you want to mute the warning change the LOGLEVEL
+    in /etc/hardening.cfg
+
 
 # AUTHORS
 

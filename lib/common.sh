@@ -114,31 +114,6 @@ sudo_wrapper() {
 }
 
 #
-# detect if container based on cgroup detection
-#
-is_running_in_container() {
-    awk -F/ '$2 == "'"$1"'"' /proc/self/cgroup
-}
-
-CONTAINER_TYPE=""
-IS_CONTAINER=0
-
-if [ "$(is_running_in_container "docker")" != "" ]; then
-    CONTAINER_TYPE="docker"
-    IS_CONTAINER=1
-fi
-if [ "$(is_running_in_container "lxc")" != "" ]; then
-    CONTAINER_TYPE="lxc"
-    IS_CONTAINER=1
-fi
-if [ "$(is_running_in_container "kubepods")" != "" ]; then
-    # shellcheck disable=SC2034
-    CONTAINER_TYPE="kubepods"
-    # shellcheck disable=SC2034
-    IS_CONTAINER=1
-fi
-
-#
 # Math functions
 #
 

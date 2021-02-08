@@ -136,6 +136,12 @@ Default value is : info
 While performing system audit, this option sets LOGLEVEL to `ok' and
 captures all output to print only one line once the check is done,
 formatted like : OK|KO OK|KO|WARN{subcheck results} [OK|KO|WARN{\&...}]
+.PP
+\f[C]--allow-unsupported-distribution\f[R] Must be specified manually in
+the command line to allow the run on non compatible version or
+distribution.
+If you want to mute the warning change the LOGLEVEL in
+/etc/hardening.cfg
 .SH AUTHORS
 .IP \[bu] 2
 Thibault Dewailly, OVHcloud <thibault.dewailly@ovhcloud.com>

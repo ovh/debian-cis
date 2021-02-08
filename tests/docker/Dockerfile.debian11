@@ -1,0 +1,21 @@
+FROM debian:bullseye
+
+LABEL vendor="OVH"
+LABEL project="debian-cis"
+LABEL url="https://github.com/ovh/debian-cis"
+LABEL description="This image is used to run tests"
+
+RUN groupadd -g 500 secaudit && useradd  -u 500 -g 500 -s /bin/bash secaudit && install -m 700 -o secaudit -g secaudit -d /home/secaudit
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server sudo syslog-ng net-tools auditd cron
+
+COPY --chown=500:500 . /opt/debian-cis/
+
+COPY debian/default /etc/default/cis-hardening
+RUN sed -i 's#cis-hardening#debian-cis#' /etc/default/cis-hardening
+
+COPY cisharden.sudoers /etc/sudoers.d/secaudit
+RUN sed -i 's#cisharden#secaudit#' /etc/sudoers.d/secaudit
+
+
+ENTRYPOINT ["/opt/debian-cis/tests/launch_tests.sh"]

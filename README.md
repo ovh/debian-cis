@@ -44,7 +44,7 @@ hardening [INFO] Treating /opt/cis-hardening/bin/hardening/6.2.19_check_duplicat
 $ git clone https://github.com/ovh/debian-cis.git && cd debian-cis
 $ cp debian/default /etc/default/cis-hardening
 $ sed -i "s#CIS_ROOT_DIR=.*#CIS_ROOT_DIR='$(pwd)'#" /etc/default/cis-hardening
-$ bin/hardening/1.1_install_updates.sh --audit-all
+$ bin/hardening/1.1.1.1_disable_freevxfs.sh --audit-all
 hardening                 [INFO] Treating /opt/cis-hardening/bin/hardening/1.1.1.1_disable_freevxfs.sh
 1.1.1.1_disable_freevxfs  [INFO] Working on 1.1.1.1_disable_freevxfs
 1.1.1.1_disable_freevxfs  [INFO] [DESCRIPTION] Disable mounting of freevxfs filesystems.
@@ -122,6 +122,10 @@ Default value is : info
 
 ``--create-config-files-only``: create the config files in etc/conf.d. Must be run as root,
 before running the audit with user secaudit, to have the rights setup well on the conf files.
+
+``--allow-unsupported-distribution``: must be specified manually in the command line to allow 
+the run on non compatible version or distribution. If you want to mute the warning change the
+LOGLEVEL in /etc/hardening.cfg
 
 ## :computer: Hacking
 

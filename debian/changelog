@@ -1,3 +1,22 @@
+cis-hardening (3.1-0) unstable; urgency=medium
+
+  * Add missing HARDENING_LEVEL var for some checks
+  * Add dealing with debian 11
+  * Add warning for unsupported distributions and debian version
+  * Remove bc dependency
+  * Add 1.8.1-4 comprehensive tests
+  * Add 3.1-3.x comprehensive tests
+  * Add missing 3.4.x checks and tests (exotic protocol)
+  * Add environment detection (container)
+  * Improve kernel module detection
+  * Improve partition detection
+  * Add cli option to override loglevel
+  * Improve 5.1.8 to allow more restrictive permissions
+  * Upgrade mac and key to be debian10 CIS compliant
+  * Fix path in 1.6.4
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 22 Feb 2021 8:30:01 +0100
+
 cis-hardening (3.0-1) unstable; urgency=medium
 
   * Add workflows for github action

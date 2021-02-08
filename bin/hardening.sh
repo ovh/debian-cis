@@ -197,8 +197,7 @@ if [ -z "$CIS_ROOT_DIR" ]; then
     echo "Cannot source CIS_ROOT_DIR variable, aborting."
     exit 128
 fi
-# shellcheck source=../lib/constants.sh
-[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
+
 # shellcheck source=../etc/hardening.cfg
 [ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
 if [ "$ASK_LOGLEVEL" ]; then LOGLEVEL=$ASK_LOGLEVEL; fi
@@ -206,12 +205,13 @@ if [ "$ASK_LOGLEVEL" ]; then LOGLEVEL=$ASK_LOGLEVEL; fi
 [ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
 # shellcheck source=../lib/utils.sh
 [ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
+# shellcheck source=../lib/constants.sh
+[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
 
 # If we're on a unsupported platform and there is no flag --allow-unsupported-distribution
 # print warning, otherwise quit
 
-get_distribution
-if [ "debian" != "$DISTRIBUTION" ]; then
+if [ "$DISTRIBUTION" != "debian" ]; then
     echo "Your distribution has been identified as $DISTRIBUTION which is not debian"
     if [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ]; then
         echo "If you want to run it anyway, you can use the flag --allow-unsupported-distribution"
@@ -222,8 +222,7 @@ if [ "debian" != "$DISTRIBUTION" ]; then
         echo "You can deactivate this message by setting the LOGLEVEL variable in /etc/hardening.cfg"
     fi
 else
-    get_debian_major_version
-    if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -ge 11 ]; then
+    if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -gt "$HIGHEST_SUPPORTED_DEBIAN_VERSION" ]; then
         echo "Your debian version is too recent and is not supported yet because there is no official CIS PDF for this version yet."
         if [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ]; then
             echo "If you want to run it anyway, you can use the flag --allow-unsupported-distribution"
@@ -233,7 +232,7 @@ else
             echo "Be aware that the result given by this set of scripts can give you a false feedback of security on unsupported distributions !"
             echo "You can deactivate this message by setting the LOGLEVEL variable in /etc/hardening.cfg"
         fi
-    elif [ "$DEB_MAJ_VER" -le 8 ]; then
+    elif [ "$DEB_MAJ_VER" -lt "$SMALLEST_SUPPORTED_DEBIAN_VERSION" ]; then
         echo "Your debian version is deprecated and is no more maintained. Please upgrade to a supported version."
         if [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ]; then
             echo "If you want to run it anyway, you can use the flag --allow-unsupported-distribution"

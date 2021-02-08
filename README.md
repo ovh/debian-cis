@@ -125,7 +125,7 @@ before running the audit with user secaudit, to have the rights setup well on th
 
 ``--allow-unsupported-distribution``: must be specified manually in the command line to allow 
 the run on non compatible version or distribution. If you want to mute the warning change the
-LOGLEVELin /etc/hardening.cfg
+LOGLEVEL in /etc/hardening.cfg
 
 ## :computer: Hacking
 

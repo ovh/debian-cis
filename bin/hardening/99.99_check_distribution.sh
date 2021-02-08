@@ -19,14 +19,12 @@ DESCRIPTION="Check the distribution and the distribution version"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    get_distribution
-    if [ "debian" != "$DISTRIBUTION" ]; then
+    if [ "$DISTRIBUTION" != "debian" ]; then
         crit "Your distribution has been identified as $DISTRIBUTION which is not debian"
     else
-        get_debian_major_version
-        if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -ge 11 ]; then
+        if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -gt "$HIGHEST_SUPPORTED_DEBIAN_VERSION" ]; then
             crit "Your distribution is too recent and is not yet supported."
-        elif [ "$DEB_MAJ_VER" -le 8 ]; then
+        elif [ "$DEB_MAJ_VER" -lt "$SMALLEST_SUPPORTED_DEBIAN_VERSION" ]; then
             crit "Your distribution is debian but is deprecated. Consider upgrading to a supported version."
         else
             ok "Your distribution is debian and the version is supported"

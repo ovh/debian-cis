@@ -31,3 +31,32 @@ BGREEN='\033[1;32m' # Green
 BYELLOW='\033[1;33m' # Yellow
 # shellcheck disable=2034
 BWHITE='\033[1;37m' # White
+
+# Debian version variables
+
+CONTAINER_TYPE=""
+IS_CONTAINER=0
+
+if [ "$(is_running_in_container "docker")" != "" ]; then
+    CONTAINER_TYPE="docker"
+    IS_CONTAINER=1
+fi
+if [ "$(is_running_in_container "lxc")" != "" ]; then
+    CONTAINER_TYPE="lxc"
+    IS_CONTAINER=1
+fi
+if [ "$(is_running_in_container "kubepods")" != "" ]; then
+    # shellcheck disable=SC2034
+    CONTAINER_TYPE="kubepods"
+    # shellcheck disable=SC2034
+    IS_CONTAINER=1
+fi
+
+get_distribution
+
+get_debian_major_version
+
+# shellcheck disable=SC2034
+SMALLEST_SUPPORTED_DEBIAN_VERSION="$(cat "$CIS_ROOT_DIR"/debian/compat)"
+# shellcheck disable=SC2034
+HIGHEST_SUPPORTED_DEBIAN_VERSION=10

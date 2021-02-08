@@ -562,3 +562,9 @@ get_distribution() {
         FNRET=127
     fi
 }
+
+# Detect if container based on cgroup detection
+
+is_running_in_container() {
+    awk -F/ '$2 == "'"$1"'"' /proc/self/cgroup
+}

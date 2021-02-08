@@ -73,10 +73,9 @@ apply() {
 }
 
 create_config() {
-    get_debian_major_version
     set +u
     debug "Debian version : $DEB_MAJ_VER "
-    if [[ 7 -eq "$DEB_MAJ_VER" ]]; then
+    if [[ 7 -le "$DEB_MAJ_VER" ]]; then
         KEX='diffie-hellman-group-exchange-sha256'
     else
         KEX='curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256'

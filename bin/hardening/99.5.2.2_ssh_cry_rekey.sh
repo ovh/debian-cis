@@ -24,7 +24,6 @@ FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    get_debian_major_version
     set +u
     debug "Debian version : $DEB_MAJ_VER "
     if [[ -z "$DEB_MAJ_VER" ]]; then

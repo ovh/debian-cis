@@ -29,7 +29,7 @@ audit() {
     LIMIT_FILES=""
     if $SUDO_CMD [ -d "$LIMIT_DIR" ]; then
         for file in $($SUDO_CMD ls "$LIMIT_DIR"/*.conf 2>/dev/null); do
-            LIMIT_FILES="$LIMIT_FILES $LIMIT_DIR/$file"
+            LIMIT_FILES="$LIMIT_FILES $file"
         done
     fi
     debug "Files to search $LIMIT_FILE $LIMIT_FILES"

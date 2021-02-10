@@ -359,7 +359,7 @@ is_kernel_option_enabled() {
             fi
         fi
     else
-        if [ "$FILTER" != "" ]; then
+        if [ "$MODPROBE_FILTER" != "" ]; then
             DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$MODPROBE_FILTER" | xargs)"
         else
             DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | xargs)"

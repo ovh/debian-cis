@@ -13,6 +13,9 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 USER='root'
+
+# shellcheck disable=2034
+HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="USB devices are disabled."
 

@@ -13,6 +13,8 @@ set -e # One error, it is over
 set -u # One variable unset, it is over
 
 # shellcheck disable=2034
+HARDENING_LEVEL=3
+# shellcheck disable=2034
 DESCRIPTION="Check <from> field in ssh authorized keys files for users with login shell, and allowed IP if available."
 
 # Regex looking for empty, hash starting lines, or 'from="127.127.127,127.127.127" ssh'

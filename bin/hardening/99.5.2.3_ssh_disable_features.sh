@@ -13,6 +13,7 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
+HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Check all special features in sshd_config are disabled"
 

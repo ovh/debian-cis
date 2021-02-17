@@ -13,7 +13,9 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-DESCRIPTION="Ensure home directory and ssh sensitive files are verified (not publicly readable)  before connecting."
+HARDENING_LEVEL=2
+# shellcheck disable=2034
+DESCRIPTION="Ensure home directory and ssh sensitive files are verified (not publicly readable) before connecting."
 
 PACKAGE='openssh-server'
 OPTIONS='StrictModes=yes'

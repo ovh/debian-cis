@@ -13,6 +13,8 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
+HARDENING_LEVEL=2
+# shellcheck disable=2034
 DESCRIPTION="Check that any password that may exist in /etc/shadow is SHA512 hashed and salted"
 FILE="/etc/shadow"
 

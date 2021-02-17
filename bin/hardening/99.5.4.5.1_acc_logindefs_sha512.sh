@@ -6,14 +6,16 @@
 #
 
 #
-# 99.5.4.5.1 Check that any password that may exist in /etc/shadow is SHA512 hashed and salted
+# 99.5.4.5.1 Check that any password that will be created will be SHA512 hashed and salted
 #
 
 set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
-DESCRIPTION="Check that any password that may exist in /etc/shadow is SHA512 hashed and salted"
+HARDENING_LEVEL=2
+# shellcheck disable=2034
+DESCRIPTION="Check that any password that will be created will be SHA512 hashed and salted"
 
 CONF_FILE="/etc/login.defs"
 CONF_LINE="ENCRYPT_METHOD SHA512"

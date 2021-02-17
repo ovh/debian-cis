@@ -13,6 +13,8 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
+HARDENING_LEVEL=2
+# shellcheck disable=2034
 DESCRIPTION="Checks there are no carte-blanche authorization in sudoers file(s)."
 
 FILE="/etc/sudoers"

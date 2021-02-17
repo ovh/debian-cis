@@ -47,6 +47,30 @@ set_sysctl_param() {
 }
 
 #
+# IPV6
+#
+
+is_ipv6_enabled() {
+    SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
+
+    does_sysctl_param_exists "net.ipv6"
+    local ENABLE=1
+    if [ "$FNRET" = 0 ]; then
+        for SYSCTL_VALUES in $SYSCTL_PARAMS; do
+            SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
+            SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
+            debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
+            has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
+            if [ "$FNRET" != 0 ]; then
+                crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+                ENABLE=0
+            fi
+        done
+    fi
+    FNRET=$ENABLE
+}
+
+#
 # Dmesg
 #
 
@@ -359,7 +383,7 @@ is_kernel_option_enabled() {
             fi
         fi
     else
-        if [ "$FILTER" != "" ]; then
+        if [ "$MODPROBE_FILTER" != "" ]; then
             DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$MODPROBE_FILTER" | xargs)"
         else
             DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | xargs)"

@@ -18,8 +18,8 @@ HARDENING_LEVEL=3
 DESCRIPTION="Set lockout for failed password attemps."
 
 PACKAGE='libpam-modules-bin'
-PATTERN_AUTH='^auth[[:space:]]*required[[:space:]]*pam_tally[2]?\.so'
-PATTERN_ACCOUNT='pam_tally[2]?\.so'
+PATTERN_AUTH='^auth[[:space:]]*required[[:space:]]*pam_((tally[2]?)|(faillock))\.so'
+PATTERN_ACCOUNT='pam_((tally[2]?)|(faillock))\.so'
 FILE_AUTH='/etc/pam.d/common-auth'
 FILE_ACCOUNT='/etc/pam.d/common-account'
 
@@ -59,14 +59,22 @@ apply() {
         ok "$PATTERN_AUTH is present in $FILE_AUTH"
     else
         warn "$PATTERN_AUTH is not present in $FILE_AUTH, adding it"
-        add_line_file_before_pattern "$FILE_AUTH" "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
+        if [ 10 -ge "$DEB_MAJ_VER" ]; then
+            add_line_file_before_pattern "$FILE_AUTH" "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
+        else
+            add_line_file_before_pattern "$FILE_AUTH" "auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
+        fi
     fi
     does_pattern_exist_in_file "$FILE_ACCOUNT" "$PATTERN_ACCOUNT"
     if [ "$FNRET" = 0 ]; then
         ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
     else
         warn "$PATTERN_ACCOUNT is not present in $FILE_ACCOUNT, adding it"
-        add_line_file_before_pattern "$FILE_ACCOUNT" "account required pam_tally.so" "# pam-auth-update(8) for details."
+        if [ 10 -ge "$DEB_MAJ_VER" ]; then
+            add_line_file_before_pattern "$FILE_ACCOUNT" "account required pam_tally2.so" "# pam-auth-update(8) for details."
+        else
+            add_line_file_before_pattern "$FILE_ACCOUNT" "account required pam_faillock.so" "# pam-auth-update(8) for details."
+        fi
 
     fi
 }

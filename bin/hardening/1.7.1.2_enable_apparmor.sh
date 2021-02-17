@@ -78,7 +78,7 @@ apply() {
     IFS=$d_IFS
 
     if [ $ERROR = 1 ]; then
-        $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor/" /etc/default/grub
+        $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor /" /etc/default/grub
         $SUDO_CMD update-grub
     else
         ok "$PACKAGES are configured"

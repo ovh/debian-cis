@@ -13,7 +13,7 @@ test_audit() {
 
     describe Checking resolved state
     register_test retvalshouldbe 0
-    register_test contain "[ OK ] ^auth[[:space:]]*required[[:space:]]*pam_tally[2]?\.so is present in /etc/pam.d/common-auth"
-    register_test contain "[ OK ] pam_tally[2]?\.so is present in /etc/pam.d/common-account"
+    register_test contain "[ OK ] ^auth[[:space:]]*required[[:space:]]*pam_((tally[2]?)|(faillock))\.so is present in /etc/pam.d/common-auth"
+    register_test contain "[ OK ] pam_((tally[2]?)|(faillock))\.so is present in /etc/pam.d/common-account"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

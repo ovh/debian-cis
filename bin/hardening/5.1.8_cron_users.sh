@@ -20,6 +20,7 @@ DESCRIPTION="Restrict at/cron to authorized users."
 FILES_ABSENT='/etc/cron.deny /etc/at.deny'
 FILES_PRESENT='/etc/cron.allow /etc/at.allow'
 PERMISSIONS='644'
+PERMISSIONSOK='644 640 600 440 400'
 USER='root'
 GROUP='root'
 
@@ -44,7 +45,7 @@ audit() {
             else
                 crit "$FILE ownership was not set to $USER:$GROUP"
             fi
-            has_file_correct_permissions "$FILE" "$PERMISSIONS"
+            has_file_one_of_permissions "$FILE" "$PERMISSIONSOK"
             if [ "$FNRET" = 0 ]; then
                 ok "$FILE has correct permissions"
             else
@@ -78,7 +79,7 @@ apply() {
             warn "fixing $FILE ownership to $USER:$GROUP"
             chown "$USER":"$GROUP" "$FILE"
         fi
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        has_file_one_of_permissions "$FILE" "$PERMISSIONSOK"
         if [ "$FNRET" = 0 ]; then
             ok "$FILE has correct permissions"
         else

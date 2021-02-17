@@ -37,7 +37,7 @@ audit() {
     for FILE in $FILES_PRESENT; do
         does_file_exist "$FILE"
         if [ "$FNRET" != 0 ]; then
-            crit "$FILE is absent"
+            crit "$FILE is absent, should exist"
         else
             has_file_correct_ownership "$FILE" "$USER" "$GROUP"
             if [ "$FNRET" = 0 ]; then
@@ -69,7 +69,7 @@ apply() {
     for FILE in $FILES_PRESENT; do
         does_file_exist "$FILE"
         if [ "$FNRET" != 0 ]; then
-            warn "$FILE is absent"
+            warn "$FILE is absent, fixing (touch)"
             touch "$FILE"
         fi
         has_file_correct_ownership "$FILE" "$USER" "$GROUP"

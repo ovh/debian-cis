@@ -21,10 +21,8 @@ SYSCTL_PARAMS='net.ipv6.conf.all.accept_ra=0 net.ipv6.conf.default.accept_ra=0'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_sysctl_param_exists "net.ipv6"
-    if [ "$FNRET" != 0 ]; then
-        ok "ipv6 is disabled"
-    else
+    is_ipv6_enabled
+    if [ "$FNRET" = 0 ]; then
         for SYSCTL_VALUES in $SYSCTL_PARAMS; do
             SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
             SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
@@ -38,15 +36,15 @@ audit() {
                 ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
             fi
         done
+    else
+        ok "ipv6 disabled"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_sysctl_param_exists "net.ipv6"
-    if [ "$FNRET" != 0 ]; then
-        ok "ipv6 is disabled"
-    else
+    is_ipv6_enabled
+    if [ "$FNRET" = 0 ]; then
         for SYSCTL_VALUES in $SYSCTL_PARAMS; do
             SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
             SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
@@ -62,6 +60,8 @@ apply() {
                 ok "$SYSCTL_PARAM correctly set to $SYSCTL_EXP_RESULT"
             fi
         done
+    else
+        ok "ipv6 disabled"
     fi
 }
 

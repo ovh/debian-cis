@@ -13,7 +13,10 @@ set -e # One error, it's over
 set -u # One variable unset, it's over
 
 # shellcheck disable=2034
+HARDENING_LEVEL=3
+# shellcheck disable=2034
 DESCRIPTION="Ensure that legacy services rlogin, rlogind and rcp are disabled and not installed"
+
 # shellcheck disable=2034
 SERVICES="rlogin rlogind rcp"
 

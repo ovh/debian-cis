@@ -21,32 +21,46 @@ PACKAGES='apparmor apparmor-utils'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    ERROR=0
     for PACKAGE in $PACKAGES; do
         is_pkg_installed "$PACKAGE"
         if [ "$FNRET" != 0 ]; then
             crit "$PACKAGE is absent!"
+            ERROR=1
         else
             ok "$PACKAGE is installed"
         fi
     done
 
-    ERROR=0
-    RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
-
-    # define custom IFS and save default one
-    d_IFS=$IFS
-    c_IFS=$'\n'
-    IFS=$c_IFS
-    for line in $RESULT; do
-        if [[ ! "$line" =~ "apparmor=1" ]] || [[ ! "$line" =~ "security=apparmor" ]]; then
-            crit "$line is not configured"
-            ERROR=1
-        fi
-    done
-    IFS=$d_IFS
     if [ "$ERROR" = 0 ]; then
-        ok "$PACKAGES are configured"
+        is_pkg_installed "grub-pc"
+        if [ "$FNRET" != 0 ]; then
+            if [ "$IS_CONTAINER" -eq 1 ]; then
+                ok "Grub is not installed in container"
+            else
+                warn "Grub is not installed"
+                exit 128
+            fi
+        else
+            ERROR=0
+            RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
 
+            # define custom IFS and save default one
+            d_IFS=$IFS
+            c_IFS=$'\n'
+            IFS=$c_IFS
+            for line in $RESULT; do
+                if [[ ! "$line" =~ "apparmor=1" ]] || [[ ! "$line" =~ "security=apparmor" ]]; then
+                    crit "$line is not configured"
+                    ERROR=1
+                fi
+            done
+            IFS=$d_IFS
+            if [ "$ERROR" = 0 ]; then
+                ok "$PACKAGES are configured"
+
+            fi
+        fi
     fi
 }
 
@@ -62,26 +76,35 @@ apply() {
         fi
     done
 
-    ERROR=0
-    RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
-
-    # define custom IFS and save default one
-    d_IFS=$IFS
-    c_IFS=$'\n'
-    IFS=$c_IFS
-    for line in $RESULT; do
-        if [[ ! $line =~ "apparmor=1" ]] || [[ ! $line =~ "security=apparmor" ]]; then
-            crit "$line is not configured"
-            ERROR=1
+    is_pkg_installed "grub-pc"
+    if [ "$FNRET" != 0 ]; then
+        if [ "$IS_CONTAINER" -eq 1 ]; then
+            ok "Grub is not installed in container"
+        else
+            warn "You should use grub. Install it yourself"
         fi
-    done
-    IFS=$d_IFS
-
-    if [ $ERROR = 1 ]; then
-        $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor /" /etc/default/grub
-        $SUDO_CMD update-grub
     else
-        ok "$PACKAGES are configured"
+        ERROR=0
+        RESULT=$($SUDO_CMD grep "^\s*linux" /boot/grub/grub.cfg)
+
+        # define custom IFS and save default one
+        d_IFS=$IFS
+        c_IFS=$'\n'
+        IFS=$c_IFS
+        for line in $RESULT; do
+            if [[ ! $line =~ "apparmor=1" ]] || [[ ! $line =~ "security=apparmor" ]]; then
+                crit "$line is not configured"
+                ERROR=1
+            fi
+        done
+        IFS=$d_IFS
+
+        if [ $ERROR = 1 ]; then
+            $SUDO_CMD sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor /" /etc/default/grub
+            $SUDO_CMD update-grub
+        else
+            ok "$PACKAGES are configured"
+        fi
     fi
 }
 

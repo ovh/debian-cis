@@ -35,31 +35,39 @@ nx_supported_and_enabled() {
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_pattern_exist_in_dmesg "$PATTERN"
-    if [ "$FNRET" != 0 ]; then
-        nx_supported_and_enabled
-        if [ "$FNRET" != 0 ]; then
-            crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
-        else
-            ok "NX is supported and enabled"
-        fi
+    if [ "$IS_CONTAINER" -eq 1 ]; then
+        ok "Container detected, cannot read dmesg!"
     else
-        ok "$PATTERN is present in dmesg"
+        does_pattern_exist_in_dmesg "$PATTERN"
+        if [ "$FNRET" != 0 ]; then
+            nx_supported_and_enabled
+            if [ "$FNRET" != 0 ]; then
+                crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
+            else
+                ok "NX is supported and enabled"
+            fi
+        else
+            ok "$PATTERN is present in dmesg"
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_dmesg "$PATTERN"
-    if [ "$FNRET" != 0 ]; then
-        nx_supported_and_enabled
-        if [ "$FNRET" != 0 ]; then
-            crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
-        else
-            ok "NX is supported and enabled"
-        fi
+    if [ "$IS_CONTAINER" -eq 1 ]; then
+        ok "Container detected, cannot read dmesg!"
     else
-        ok "$PATTERN is present in dmesg"
+        does_pattern_exist_in_dmesg "$PATTERN"
+        if [ "$FNRET" != 0 ]; then
+            nx_supported_and_enabled
+            if [ "$FNRET" != 0 ]; then
+                crit "$PATTERN is not present in dmesg and NX seems unsupported or disabled"
+            else
+                ok "NX is supported and enabled"
+            fi
+        else
+            ok "$PATTERN is present in dmesg"
+        fi
     fi
 }
 

@@ -24,22 +24,36 @@ GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$FILE does not exist"
     else
-        crit "$FILE permissions were not set to $PERMISSIONS"
-    fi
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
-    else
-        crit "$FILE ownership was not set to $USER:$GROUP"
+        ok "$FILE exist"
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            crit "$FILE permissions were not set to $PERMISSIONS"
+        fi
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            crit "$FILE ownership was not set to $USER:$GROUP"
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        warn "$FILE does not exist"
+        touch "$FILE"
+        warn "You may want to fill it with allowed networks"
+    else
+        ok "$FILE exist"
+    fi
     has_file_correct_permissions "$FILE" "$PERMISSIONS"
     if [ "$FNRET" = 0 ]; then
         ok "$FILE has correct permissions"

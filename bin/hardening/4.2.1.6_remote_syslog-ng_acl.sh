@@ -17,64 +17,74 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Configure syslog to accept remote syslog messages only on designated log hosts."
 
+PACKAGE='syslog-ng'
+
 REMOTE_HOST=""
 PATTERN='source[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
-    for FILE in $FILES; do
-        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            FOUND=1
-        fi
-    done
-
-    if [[ "$REMOTE_HOST" ]]; then
-        info "This is the remote host, checking that it only accepts logs from specified zone"
-        if [ "$FOUND" = 1 ]; then
-            ok "$PATTERN is present in $FILES"
-        else
-            crit "$PATTERN is not present in $FILES"
-        fi
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
     else
-        info "This is the not the remote host checking that it doesn't accept remote logs"
-        if [ "$FOUND" = 1 ]; then
-            crit "$PATTERN is present in $FILES"
-        else
-            ok "$PATTERN is not present in $FILES"
-        fi
+        FOUND=0
+        FILES="$SYSLOG_BASEDIR/syslog-ng.conf $($SUDO_CMD find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
+        for FILE in $FILES; do
+            does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
+            if [ "$FNRET" = 0 ]; then
+                FOUND=1
+            fi
+        done
 
+        if [[ "$REMOTE_HOST" ]]; then
+            info "This is the remote host, checking that it only accepts logs from specified zone"
+            if [ "$FOUND" = 1 ]; then
+                ok "$PATTERN is present in $FILES"
+            else
+                crit "$PATTERN is not present in $FILES"
+            fi
+        else
+            info "This is the not the remote host checking that it doesn't accept remote logs"
+            if [ "$FOUND" = 1 ]; then
+                crit "$PATTERN is present in $FILES"
+            else
+                ok "$PATTERN is not present in $FILES"
+            fi
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    FOUND=0
-    FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
-    for FILE in $FILES; do
-        does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            FOUND=1
-        fi
-    done
-
-    if [[ "$REMOTE_HOST" ]]; then
-        info "This is the remote host, checking that it only accepts logs from specified zone"
-        if [ "$FOUND" = 1 ]; then
-            ok "$PATTERN is present in $FILES"
-        else
-            crit "$PATTERN is not present in $FILES, setup the machine to receive the logs"
-        fi
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
     else
-        info "This is the not the remote host checking that it doesn't accept remote logs"
-        if [ "$FOUND" = 1 ]; then
-            warn "$PATTERN is present in $FILES, "
-        else
-            ok "$PATTERN is not present in $FILES"
-        fi
+        FOUND=0
+        FILES="$SYSLOG_BASEDIR/syslog-ng.conf $(find -L "$SYSLOG_BASEDIR"/conf.d/ -type f)"
+        for FILE in $FILES; do
+            does_pattern_exist_in_file_multiline "$FILE" "$PATTERN"
+            if [ "$FNRET" = 0 ]; then
+                FOUND=1
+            fi
+        done
 
+        if [[ "$REMOTE_HOST" ]]; then
+            info "This is the remote host, checking that it only accepts logs from specified zone"
+            if [ "$FOUND" = 1 ]; then
+                ok "$PATTERN is present in $FILES"
+            else
+                crit "$PATTERN is not present in $FILES, setup the machine to receive the logs"
+            fi
+        else
+            info "This is the not the remote host checking that it doesn't accept remote logs"
+            if [ "$FOUND" = 1 ]; then
+                warn "$PATTERN is present in $FILES, "
+            else
+                ok "$PATTERN is not present in $FILES"
+            fi
+        fi
     fi
 }
 

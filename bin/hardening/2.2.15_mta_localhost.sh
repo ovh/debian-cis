@@ -24,7 +24,7 @@ audit() {
     is_pkg_installed net-tools
     if [ "$FNRET" != 0 ]; then
         warn "netsat not installed, cannot execute check"
-        exit 128
+        exit 2
     else
         info "Checking netport ports opened"
         RESULT=$($SUDO_CMD netstat -an | grep LIST | grep ":25[[:space:]]") || :
@@ -48,7 +48,7 @@ apply() {
     is_pkg_installed net-tools
     if [ "$FNRET" != 0 ]; then
         warn "netsat not installed, cannot execute check"
-        exit 128
+        exit 2
     else
         info "Checking netport ports opened"
         RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]") || :

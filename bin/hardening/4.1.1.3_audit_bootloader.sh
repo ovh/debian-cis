@@ -18,7 +18,7 @@ HARDENING_LEVEL=4
 DESCRIPTION="Enable auditing for processes that start prior to auditd."
 
 FILE='/etc/default/grub'
-OPTIONS='GRUB_CMDLINE_LINUX="audit=1"'
+OPTIONS='GRUB_CMDLINE_LINUX=audit=1'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -30,7 +30,7 @@ audit() {
         for GRUB_OPTION in $OPTIONS; do
             GRUB_PARAM=$(echo "$GRUB_OPTION" | cut -d= -f 1)
             GRUB_VALUE=$(echo "$GRUB_OPTION" | cut -d= -f 2,3)
-            PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
+            PATTERN="^$GRUB_PARAM=.*$GRUB_VALUE"
             debug "$GRUB_PARAM should be set to $GRUB_VALUE"
             does_pattern_exist_in_file "$FILE" "$PATTERN"
             if [ "$FNRET" != 0 ]; then
@@ -55,7 +55,7 @@ apply() {
         GRUB_PARAM=$(echo "$GRUB_OPTION" | cut -d= -f 1)
         GRUB_VALUE=$(echo "$GRUB_OPTION" | cut -d= -f 2,3)
         debug "$GRUB_PARAM should be set to $GRUB_VALUE"
-        PATTERN="^$GRUB_PARAM=$GRUB_VALUE"
+        PATTERN="^$GRUB_PARAM=.*$GRUB_VALUE"
         does_pattern_exist_in_file "$FILE" "$PATTERN"
         if [ "$FNRET" != 0 ]; then
             warn "$PATTERN is not present in $FILE, adding it"

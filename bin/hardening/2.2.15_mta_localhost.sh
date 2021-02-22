@@ -21,39 +21,50 @@ HARDENING_EXCEPTION=mail
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Checking netport ports opened"
-    RESULT=$($SUDO_CMD netstat -an | grep LIST | grep ":25[[:space:]]") || :
-    RESULT=${RESULT:-}
-    debug "Result is $RESULT"
-    if [ -z "$RESULT" ]; then
-        ok "Nothing listens on 25 port, probably unix socket configured"
+    is_pkg_installed net-tools
+    if [ "$FNRET" != 0 ]; then
+        warn "netsat not installed, cannot execute check"
+        exit 128
     else
-        info "Checking $RESULT"
-        if grep -q "127.0.0.1" <<<"$RESULT"; then
-            ok "MTA is configured to localhost only"
+        info "Checking netport ports opened"
+        RESULT=$($SUDO_CMD netstat -an | grep LIST | grep ":25[[:space:]]") || :
+        RESULT=${RESULT:-}
+        debug "Result is $RESULT"
+        if [ -z "$RESULT" ]; then
+            ok "Nothing listens on 25 port, probably unix socket configured"
         else
-            crit "MTA listens worldwide"
+            info "Checking $RESULT"
+            if grep -q "127.0.0.1" <<<"$RESULT"; then
+                ok "MTA is configured to localhost only"
+            else
+                crit "MTA listens worldwide"
+            fi
         fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    info "Checking netport ports opened"
-    RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]") || :
-    RESULT=${RESULT:-}
-    debug "Result is $RESULT"
-    if [ -z "$RESULT" ]; then
-        ok "Nothing listens on 25 port, probably unix socket configured"
+    is_pkg_installed net-tools
+    if [ "$FNRET" != 0 ]; then
+        warn "netsat not installed, cannot execute check"
+        exit 128
     else
-        info "Checking $RESULT"
-        if grep -q "127.0.0.1" <<<"$RESULT"; then
-            ok "MTA is configured to localhost only"
+        info "Checking netport ports opened"
+        RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]") || :
+        RESULT=${RESULT:-}
+        debug "Result is $RESULT"
+        if [ -z "$RESULT" ]; then
+            ok "Nothing listens on 25 port, probably unix socket configured"
         else
-            warn "MTA listens worldwide, correct this considering your MTA"
+            info "Checking $RESULT"
+            if grep -q "127.0.0.1" <<<"$RESULT"; then
+                ok "MTA is configured to localhost only"
+            else
+                warn "MTA listens worldwide, correct this considering your MTA"
+            fi
         fi
     fi
-    :
 }
 
 # This function will check config parameters required

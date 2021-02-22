@@ -27,18 +27,19 @@ audit() {
     does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
-    fi
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
     else
-        crit "$FILE ownership was not set to $USER:$GROUP"
-    fi
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
-    else
-        crit "$FILE permissions were not set to $PERMISSIONS"
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            crit "$FILE ownership was not set to $USER:$GROUP"
+        fi
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            crit "$FILE permissions were not set to $PERMISSIONS"
+        fi
     fi
 }
 
@@ -48,20 +49,21 @@ apply() {
     if [ "$FNRET" != 0 ]; then
         info "$FILE does not exist"
         touch "$FILE"
-    fi
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
     else
-        warn "fixing $FILE ownership to $USER:$GROUP"
-        chown "$USER":"$GROUP" "$FILE"
-    fi
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
-    else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0"$PERMISSIONS" "$FILE"
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            warn "fixing $FILE ownership to $USER:$GROUP"
+            chown "$USER":"$GROUP" "$FILE"
+        fi
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            info "fixing $FILE permissions to $PERMISSIONS"
+            chmod 0"$PERMISSIONS" "$FILE"
+        fi
     fi
 }
 

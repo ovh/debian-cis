@@ -22,7 +22,7 @@ test_audit() {
     run lockedpasswd /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     mv /tmp/shadow.bak /etc/shadow
-    chpasswd <<EOF
+    chpasswd -c SHA512 <<EOF
 secaudit:mypassword
 EOF
     describe Pass: Found properly hashed password

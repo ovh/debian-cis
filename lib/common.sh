@@ -121,6 +121,10 @@ div() {
     local _d=${3:-2}
     local _n=0000000000
     _n=${_n:0:$_d}
+    if (($1 == 0)); then
+        echo "0"
+        return
+    fi
     if (($2 == 0)); then
         echo "N.A"
         return

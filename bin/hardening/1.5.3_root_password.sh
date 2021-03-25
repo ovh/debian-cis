@@ -38,7 +38,6 @@ apply() {
     else
         ok "$PATTERN is not present in $FILE"
     fi
-    :
 }
 
 # This function will check config parameters required

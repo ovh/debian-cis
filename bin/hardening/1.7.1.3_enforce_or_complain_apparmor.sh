@@ -21,22 +21,25 @@ PACKAGES='apparmor apparmor-utils'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    ERROR=0
     for PACKAGE in $PACKAGES; do
         is_pkg_installed "$PACKAGE"
         if [ "$FNRET" != 0 ]; then
             crit "$PACKAGE is absent!"
+            ERROR=1
         else
             ok "$PACKAGE is installed"
         fi
     done
+    if [ "$ERROR" = 0 ]; then
+        RESULT_UNCONFINED=$($SUDO_CMD apparmor_status | grep "^0 processes are unconfined but have a profile defined")
 
-    RESULT_UNCONFINED=$($SUDO_CMD apparmor_status | grep "^0 processes are unconfined but have a profile defined")
+        if [ -n "$RESULT_UNCONFINED" ]; then
+            ok "No profiles are unconfined"
 
-    if [ -n "$RESULT_UNCONFINED" ]; then
-        ok "No profiles are unconfined"
-
-    else
-        crit "Some processes are unconfined while they have defined profile"
+        else
+            crit "Some processes are unconfined while they have defined profile"
+        fi
     fi
 }
 
@@ -46,6 +49,7 @@ apply() {
         is_pkg_installed "$PACKAGE"
         if [ "$FNRET" != 0 ]; then
             crit "$PACKAGES is absent!"
+            apt_install "$PACKAGE"
         else
             ok "$PACKAGE is installed"
         fi

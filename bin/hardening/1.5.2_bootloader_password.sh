@@ -51,7 +51,6 @@ apply() {
     else
         ok "$PWD_PATTERN is present in $FILE"
     fi
-    :
 }
 
 # This function will check config parameters required
@@ -59,11 +58,11 @@ check_config() {
     is_pkg_installed "grub-pc"
     if [ "$FNRET" != 0 ]; then
         warn "grub-pc is not installed, not handling configuration"
-        exit 128
+        exit 2
     fi
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
-        exit 128
+        exit 2
     fi
 }
 

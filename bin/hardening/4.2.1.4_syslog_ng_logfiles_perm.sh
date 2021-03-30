@@ -19,6 +19,7 @@ DESCRIPTION="Create and set permissions on syslog-ng logfiles."
 
 # Note: this is not exacly the same check as the one described in CIS PDF
 
+PACKAGE='syslog-ng'
 PERMISSIONS=''
 USER=''
 GROUP=''
@@ -26,14 +27,71 @@ EXCEPTIONS=''
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    FILES=$(grep "file(" "$SYSLOG_BASEDIR"/syslog-ng.conf | grep '"' | cut -d'"' -f 2)
-    for FILE in $FILES; do
-        does_file_exist "$FILE"
-        if [ "$FNRET" != 0 ]; then
-            warn "$FILE does not exist"
-        else
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
+    else
+        FILES=$(grep "file(" "$SYSLOG_BASEDIR"/syslog-ng.conf | grep '"' | cut -d'"' -f 2)
+        for FILE in $FILES; do
+            does_file_exist "$FILE"
+            if [ "$FNRET" != 0 ]; then
+                warn "$FILE does not exist"
+            else
+                FOUND_EXC=0
+                if grep -q "$FILE" <(tr ' ' '\n' <<<"$EXCEPTIONS" | cut -d ":" -f 1); then
+                    debug "$FILE is found in exceptions"
+                    debug "Setting special user:group:perm"
+                    FOUND_EXC=1
+                    local user_bak="$USER"
+                    local group_bak="$GROUP"
+                    local perm_bak="$PERMISSIONS"
+                    USER="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 2)"
+                    GROUP="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 3)"
+                    PERMISSIONS="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 4)"
+                fi
+                has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+                if [ "$FNRET" = 0 ]; then
+                    ok "$FILE has correct ownership ($USER:$GROUP)"
+                else
+                    crit "$FILE ownership was not set to $USER:$GROUP"
+                fi
+                has_file_correct_permissions "$FILE" "$PERMISSIONS"
+                if [ "$FNRET" = 0 ]; then
+                    ok "$FILE has correct permissions ($PERMISSIONS)"
+                else
+                    crit "$FILE permissions were not set to $PERMISSIONS"
+                fi
+                if [ "$FOUND_EXC" = 1 ]; then
+                    debug "Resetting user:group:perm"
+                    USER="$user_bak"
+                    GROUP="$group_bak"
+                    PERMISSIONS="$perm_bak"
+                fi
+            fi
+        done
+    fi
+}
+
+# This function will be called if the script status is on enabled mode
+apply() {
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        crit "$PACKAGE is not installed!"
+    else
+        for FILE in $FILES; do
+            does_file_exist "$FILE"
+            if [ "$FNRET" != 0 ]; then
+                info "$FILE does not exist"
+                filedir=$(dirname "${FILE#/var/log/}")
+                if [ ! "$filedir" = "." ] && [ ! -d /var/log/"$filedir" ]; then
+                    debug "Creating /var/log/$filedir for $FILE"
+                    debug "mkdir -p /var/log/$filedir"
+                    mkdir -p /var/log/"$filedir"
+                fi
+                touch "$FILE"
+            fi
             FOUND_EXC=0
-            if grep -q "$FILE" <(tr ' ' '\n' <<<"$EXCEPTIONS" | cut -d ":" -f 1); then
+            if grep "$FILE" <(tr ' ' '\n' <<<"$EXCEPTIONS" | cut -d ":" -f 1); then
                 debug "$FILE is found in exceptions"
                 debug "Setting special user:group:perm"
                 FOUND_EXC=1
@@ -46,15 +104,17 @@ audit() {
             fi
             has_file_correct_ownership "$FILE" "$USER" "$GROUP"
             if [ "$FNRET" = 0 ]; then
-                ok "$FILE has correct ownership ($USER:$GROUP)"
+                ok "$FILE has correct ownership"
             else
-                crit "$FILE ownership was not set to $USER:$GROUP"
+                warn "fixing $FILE ownership to $USER:$GROUP"
+                chown "$USER":"$GROUP" "$FILE"
             fi
             has_file_correct_permissions "$FILE" "$PERMISSIONS"
             if [ "$FNRET" = 0 ]; then
-                ok "$FILE has correct permissions ($PERMISSIONS)"
+                ok "$FILE has correct permissions"
             else
-                crit "$FILE permissions were not set to $PERMISSIONS"
+                info "fixing $FILE permissions to $PERMISSIONS"
+                chmod 0"$PERMISSIONS" "$FILE"
             fi
             if [ "$FOUND_EXC" = 1 ]; then
                 debug "Resetting user:group:perm"
@@ -62,57 +122,8 @@ audit() {
                 GROUP="$group_bak"
                 PERMISSIONS="$perm_bak"
             fi
-        fi
-    done
-}
-
-# This function will be called if the script status is on enabled mode
-apply() {
-    for FILE in $FILES; do
-        does_file_exist "$FILE"
-        if [ "$FNRET" != 0 ]; then
-            info "$FILE does not exist"
-            filedir=$(dirname "${FILE#/var/log/}")
-            if [ ! "$filedir" = "." ] && [ ! -d /var/log/"$filedir" ]; then
-                debug "Creating /var/log/$filedir for $FILE"
-                debug "mkdir -p /var/log/$filedir"
-                mkdir -p /var/log/"$filedir"
-            fi
-            touch "$FILE"
-        fi
-        FOUND_EXC=0
-        if grep "$FILE" <(tr ' ' '\n' <<<"$EXCEPTIONS" | cut -d ":" -f 1); then
-            debug "$FILE is found in exceptions"
-            debug "Setting special user:group:perm"
-            FOUND_EXC=1
-            local user_bak="$USER"
-            local group_bak="$GROUP"
-            local perm_bak="$PERMISSIONS"
-            USER="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 2)"
-            GROUP="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 3)"
-            PERMISSIONS="$(tr ' ' '\n' <<<"$EXCEPTIONS" | grep "$FILE" | cut -d':' -f 4)"
-        fi
-        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-        if [ "$FNRET" = 0 ]; then
-            ok "$FILE has correct ownership"
-        else
-            warn "fixing $FILE ownership to $USER:$GROUP"
-            chown "$USER":"$GROUP" "$FILE"
-        fi
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
-        if [ "$FNRET" = 0 ]; then
-            ok "$FILE has correct permissions"
-        else
-            info "fixing $FILE permissions to $PERMISSIONS"
-            chmod 0"$PERMISSIONS" "$FILE"
-        fi
-        if [ "$FOUND_EXC" = 1 ]; then
-            debug "Resetting user:group:perm"
-            USER="$user_bak"
-            GROUP="$group_bak"
-            PERMISSIONS="$perm_bak"
-        fi
-    done
+        done
+    fi
 }
 
 # This function will create the config file for this check with default values

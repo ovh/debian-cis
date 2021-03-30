@@ -17,6 +17,7 @@ HARDENING_LEVEL=1
 # shellcheck disable=2034
 DESCRIPTION="Checking permissions and ownership to root 600 for sshd_config."
 
+PACKAGE='openssh-server'
 FILE='/etc/ssh/sshd_config'
 PERMISSIONS='600'
 USER='root'
@@ -24,40 +25,50 @@ GROUP='root'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        ok "$PACKAGE is not installed!"
     else
-        crit "$FILE ownership was not set to $USER:$GROUP"
-    fi
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
-    else
-        crit "$FILE permissions were not set to $PERMISSIONS"
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            crit "$FILE ownership was not set to $USER:$GROUP"
+        fi
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            crit "$FILE permissions were not set to $PERMISSIONS"
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
+    is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
-        info "$FILE does not exist"
-        touch "$FILE"
-    fi
-    has_file_correct_ownership "$FILE" "$USER" "$GROUP"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
+        ok "$PACKAGE is not installed"
     else
-        warn "fixing $FILE ownership to $USER:$GROUP"
-        chown "$USER":"$GROUP" "$FILE"
-    fi
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
-    else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0"$PERMISSIONS" "$FILE"
+        does_file_exist "$FILE"
+        if [ "$FNRET" != 0 ]; then
+            info "$FILE does not exist"
+            touch "$FILE"
+        fi
+        has_file_correct_ownership "$FILE" "$USER" "$GROUP"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            warn "fixing $FILE ownership to $USER:$GROUP"
+            chown "$USER":"$GROUP" "$FILE"
+        fi
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            info "fixing $FILE permissions to $PERMISSIONS"
+            chmod 0"$PERMISSIONS" "$FILE"
+        fi
     fi
 }
 

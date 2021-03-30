@@ -1,3 +1,13 @@
+cis-hardening (3.1-1) unstable; urgency=medium
+
+  * Various mispeling fixes
+  * Fix div function that causes a display bug when runnin test with --only
+  * Fix 4.1.1.4 bad pattern bug
+  * Fix 5.4.2.2
+  * Various verification that package is installed or file exist before running check (openssh, apparmor, crontab)
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Thu, 25 Mar 2021 14:59:49 +0100
+
 cis-hardening (3.1-0) unstable; urgency=medium
 
   * Add missing HARDENING_LEVEL var for some checks

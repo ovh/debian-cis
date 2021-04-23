@@ -36,7 +36,17 @@ audit() {
             if [ "$FNRET" = 0 ]; then
                 ok "$PATTERN is present in $FILE"
             else
-                crit "$PATTERN is not present in $FILE"
+                does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
+                if [ "$FNRET" != 0 ]; then
+                    crit "$PATTERN is not present in $FILE"
+                else
+                    VALUE=$(grep -i "^${SSH_PARAM}" "$FILE" | tr -s ' ' | cut -d' ' -f2)
+                    if [ "$VALUE" -gt "$SSH_VALUE" ]; then
+                        crit "$VALUE is higher than recommended $SSH_VALUE for $SSH_PARAM"
+                    else
+                        ok "$VALUE is lower than recommended $SSH_VALUE for $SSH_PARAM"
+                    fi
+                fi
             fi
         done
     fi
@@ -59,13 +69,18 @@ apply() {
         if [ "$FNRET" = 0 ]; then
             ok "$PATTERN is present in $FILE"
         else
-            warn "$PATTERN is not present in $FILE, adding it"
+            warn "$PATTERN is not present in $FILE"
             does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
             if [ "$FNRET" != 0 ]; then
                 add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
             else
-                info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+                VALUE=$(grep -i "^${SSH_PARAM}" "$FILE" | tr -s ' ' | cut -d' ' -f2)
+                if [ "$VALUE" -gt "$SSH_VALUE" ]; then
+                    warn "$VALUE is higher than recommended $SSH_VALUE for $SSH_PARAM, replacing it"
+                    replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
+                else
+                    ok "$VALUE is lower than recommended $SSH_VALUE for $SSH_PARAM"
+                fi
             fi
             /etc/init.d/ssh reload
         fi

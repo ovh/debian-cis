@@ -1,3 +1,15 @@
+cis-hardening (3.1-3) unstable; urgency=medium
+
+  * Fix 4.1.11 permissions
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Mon, 12 Apr 2021 12:17:16 +0200
+
+cis-hardening (3.1-2) unstable; urgency=medium
+
+  * Fix case for sshd pattern searching
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Fri, 02 Apr 2021 09:16:16 +0200
+
 cis-hardening (3.1-1) unstable; urgency=medium
 
   * Various mispeling fixes

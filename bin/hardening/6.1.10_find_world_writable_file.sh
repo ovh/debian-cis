@@ -23,6 +23,19 @@ audit() {
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     # shellcheck disable=SC2086
     RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
+    IFS_BAK=$IFS
+    IFS=$'\n'
+    for LINE in $RESULT; do
+        debug "line : $LINE"
+        if echo "$EXCEPTIONS" | grep -q "$LINE"; then
+            debug "$LINE is confirmed as an exception"
+            # shellcheck disable=SC2001
+            RESULT=$(sed "s!$LINE!!" <<<"$RESULT")
+        else
+            debug "$LINE not found in exceptions"
+        fi
+    done
+    IFS=$IFS_BAK
     if [ -n "$RESULT" ]; then
         crit "Some world writable files are present"
         # shellcheck disable=SC2001
@@ -36,6 +49,19 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
+    IFS_BAK=$IFS
+    IFS=$'\n'
+    for LINE in $RESULT; do
+        debug "line : $LINE"
+        if echo "$EXCEPTIONS" | grep -q "$ACCOUNT"; then
+            debug "$ACCOUNT is confirmed as an exception"
+            # shellcheck disable=SC2001
+            RESULT=$(sed "s!$LINE!!" <<<"$RESULT")
+        else
+            debug "$ACCOUNT not found in exceptions"
+        fi
+    done
+    IFS=$IFS_BAK
     if [ -n "$RESULT" ]; then
         warn "chmoding o-w all files in the system"
         df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null | xargs chmod o-w
@@ -44,10 +70,20 @@ apply() {
     fi
 }
 
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=audit
+# Put here your exceptions separated by spaces
+EXCEPTIONS=""
+EOF
+}
+
 # This function will check config parameters required
 check_config() {
-    # No param for this function
-    :
+    if [ -z "$EXCEPTIONS" ]; then
+        EXCEPTIONS="@"
+    fi
 }
 
 # Source Root Dir Parameter

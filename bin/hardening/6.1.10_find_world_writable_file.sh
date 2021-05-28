@@ -17,6 +17,8 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Ensure no world writable files exist"
 
+EXCEPTIONS=''
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are world writable files"

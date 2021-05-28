@@ -17,6 +17,8 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Set sticky bit on world writable directories to prevent users from deleting or renaming files that are not owned by them."
 
+EXCEPTIONS=''
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if setuid is set on world writable Directories"

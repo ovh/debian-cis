@@ -25,7 +25,7 @@ audit() {
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCEPTIONS" ]; then
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex "$EXCEPTIONS" -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
     else
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
@@ -44,7 +44,8 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     if [ -n "$EXCEPTIONS" ]; then
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex "$EXCEPTIONS" -print 2>/dev/null)
+        # shellcheck disable=SC2086
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
     else
         RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     fi

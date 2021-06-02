@@ -26,7 +26,7 @@ audit() {
 
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
@@ -45,7 +45,8 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     if [ -n "$EXCLUDED" ]; then
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
+        # shellcheck disable=SC2086
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
         RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
     fi

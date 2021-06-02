@@ -8,7 +8,7 @@ test_audit() {
     echo 'EXCLUDED="$EXCLUDED ^/home/secaudit/6.1.12/.*"' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
     mkdir /home/secaudit/6.1.12/
     touch /home/secaudit/6.1.12/test
-    chmod 1200:1200 /home/secaudit/6.1.12/test
+    chown 1200:1200 /home/secaudit/6.1.12/test
 
     describe Running on blank host
     register_test retvalshouldbe 0

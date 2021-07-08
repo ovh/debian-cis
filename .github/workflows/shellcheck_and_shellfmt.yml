@@ -10,7 +10,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: Run the sh-checker
-        uses: luizm/action-sh-checker@v0.1.12
+        uses: luizm/action-sh-checker@v0.1.13
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Optional if sh_checker_comment is false.
           SHFMT_OPTS: -l -i 4 -w # Optional: pass arguments to shfmt.

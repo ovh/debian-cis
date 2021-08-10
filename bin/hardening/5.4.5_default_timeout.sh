@@ -31,7 +31,7 @@ audit() {
             debug "$FILE_SEARCHED is a directory"
             # shellcheck disable=2044
             for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
-                does_pattern_exist_in_file "$file_in_dir" "^$PATTERN"
+                does_pattern_exist_in_file "$file_in_dir" "$PATTERN"
                 if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
                 else
@@ -41,7 +41,7 @@ audit() {
                 fi
             done
         else
-            does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
+            does_pattern_exist_in_file "$FILE_SEARCHED" "$PATTERN"
             if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
@@ -64,7 +64,7 @@ apply() {
             debug "$FILE_SEARCHED is a directory"
             # shellcheck disable=2044
             for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
-                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "^$PATTERN"
+                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "$PATTERN"
                 if [ "$FNRET" != 0 ]; then
                     debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
                 else
@@ -74,7 +74,7 @@ apply() {
                 fi
             done
         else
-            does_pattern_exist_in_file "$FILE_SEARCHED" "^$PATTERN"
+            does_pattern_exist_in_file "$FILE_SEARCHED" "$PATTERN"
             if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
@@ -87,8 +87,7 @@ apply() {
         warn "$PATTERN is not present in $FILES_TO_SEARCH"
         touch "$FILE"
         chmod 644 "$FILE"
-        add_end_of_file "$FILE" "$PATTERN$VALUE"
-        add_end_of_file "$FILE" "readonly TMOUT"
+        add_end_of_file "$FILE" "readonly $PATTERN$VALUE"
         add_end_of_file "$FILE" "export TMOUT"
     else
         ok "$PATTERN is present in $FILES_TO_SEARCH"

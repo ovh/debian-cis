@@ -17,12 +17,20 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Set sticky bit on world writable directories to prevent users from deleting or renaming files that are not owned by them."
 
+EXCEPTIONS=''
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if setuid is set on world writable Directories"
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
-    # shellcheck disable=SC2086
-    RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
+    if [ -n "$EXCEPTIONS" ]; then
+        # shellcheck disable=SC2086
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
+    else
+        # shellcheck disable=SC2086
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
+    fi
+
     if [ -n "$RESULT" ]; then
         crit "Some world writable directories are not on sticky bit mode!"
         # shellcheck disable=SC2001
@@ -35,8 +43,15 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
+    if [ -n "$EXCEPTIONS" ]; then
+        # shellcheck disable=SC2086
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
+    else
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
+    fi
+
     if [ -n "$RESULT" ]; then
+        warn "Setting sticky bit on world writable directories"
         df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d -perm -0002 2>/dev/null | xargs chmod a+t
     else
         ok "All world writable directories have a sticky bit, nothing to apply"

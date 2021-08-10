@@ -7,6 +7,22 @@ test_audit() {
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
+    echo "MaxAuthTries 2" >>/etc/ssh/sshd_config
+
+    describe Running restrictive
+    register_test retvalshouldbe 0
+    register_test contain "[ OK ] 2 is lower than recommended 4"
+    run restrictive /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    # delete last line
+    sed -i '$ d' /etc/ssh/sshd_config
+    echo "MaxAuthTries 6" >>/etc/ssh/sshd_config
+
+    describe Running too permissive
+    register_test retvalshouldbe 1
+    register_test contain "[ KO ] 6 is higher than recommended 4"
+    run permissive /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
     describe Correcting situation
     # `apply` performs a service reload after each change in the config file
     # the service needs to be started for the reload to succeed

@@ -131,12 +131,12 @@ play_consistency_tests() {
     fi
 }
 
-# Actually runs one signel audit script
+# Actually runs one single audit script
 _run() {
     usecase_name=$1
     shift
     printf "\033[34m*** [%03d] %s \033[0m(%s)\n" "$testno" "$usecase_name" "$*"
-    bash -c "$*" >"$outdir/$usecase_name.log" && true
+    bash -c "$*" >"$outdir/$usecase_name.log" 2>"$outdir/${usecase_name}_err.log" && true
     echo $? >"$outdir/$usecase_name.retval"
     ret=$(<"$outdir"/"$usecase_name".retval)
     get_stdout
@@ -188,15 +188,25 @@ for test_file in $tests_list; do
     echo ""
 done
 
+stderrunexpected=""
+for file in "$outdir"/*_err.log; do
+    if [ -s "$file" ]; then
+        stderrunexpected="$stderrunexpected $(basename "$file")"
+    fi
+done
+
 printf "\033[1;36m###\n### %s \033[0m\n" "Test report"
-if [ $((nbfailedret + nbfailedgrep + nbfailedconsist)) -eq 0 ]; then
+if [ $((nbfailedret + nbfailedgrep + nbfailedconsist)) -eq 0 ] && [ -z "$stderrunexpected" ]; then
     echo -e "\033[42m\033[30mAll tests succeeded :)\033[0m"
+    echo -e "\033[42m\033[30mStderr is empty :)\033[0m"
+
 else
     (
         echo -e "\033[41mOne or more tests failed :(\033[0m"
         echo -e "- $nbfailedret unexpected return values ${listfailedret}"
         echo -e "- $nbfailedgrep unexpected text values $listfailedgrep"
         echo -e "- $nbfailedconsist root/sudo consistency $listfailedconsist"
+        echo -e "- stderr detected on $stderrunexpected"
     ) | tee "$outdir"/summary
 fi
 echo

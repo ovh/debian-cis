@@ -29,4 +29,12 @@ EOF
     register_test retvalshouldbe 0
     register_test contain "User secaudit has suitable SHA512 hashed password"
     run sha512pass /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    chpasswd -c SHA512 -s 1000 <<EOF
+secaudit:mypassword
+EOF
+    describe Pass: Found properly hashed password with custom round number
+    register_test retvalshouldbe 0
+    register_test contain "User secaudit has suitable SHA512 hashed password"
+    run sha512pass /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

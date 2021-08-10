@@ -37,7 +37,7 @@ audit() {
             pw_found+="$user "
             ok "User $user has a disabled password."
         # Check password against $6$<salt>$<encrypted>, see `man 3 crypt`
-        elif [[ $passwd =~ ^\$6\$[a-zA-Z0-9./]{2,16}\$[a-zA-Z0-9./]{86}$ ]]; then
+        elif [[ $passwd =~ ^\$6(\$rounds=[0-9]+)?\$[a-zA-Z0-9./]{2,16}\$[a-zA-Z0-9./]{86}$ ]]; then
             pw_found+="$user "
             ok "User $user has suitable SHA512 hashed password."
         else

@@ -49,7 +49,6 @@ apply() {
             info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
             replace_in_file "$CONF_FILE" "^$(echo "$CONF_LINE" | cut -d ' ' -f1)[[:space:]]*.*" "$CONF_LINE"
         fi
-        /etc/init.d/ssh reload >/dev/null 2>&1
     fi
 }
 

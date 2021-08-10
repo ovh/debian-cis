@@ -21,8 +21,8 @@ SERVICE_NAME="systemd-timesyncd"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_service_enabled "$SERVICE_NAME"
-    if [ "$FNRET" = 0 ]; then
+    status=$(systemctl is-enabled "$SERVICE_NAME")
+    if [ "$status" = "enabled" ]; then
         ok "$SERVICE_NAME is enabled"
     else
         crit "$SERVICE_NAME is disabled"

@@ -29,7 +29,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # GET LATEST VERSION TAG
       - name: Get latest version tag
-        uses: actions-ecosystem/action-get-latest-tag@v1
+        uses: actions-ecosystem/action-get-latest-tag@v1.4.1
         id: get-latest-tag
       # GENERATE CHANGELOG CORRESPONDING TO COMMIT BETWEEN HEAD AND COMPUTED LAST TAG
       - name: Generate changelog

@@ -1,3 +1,16 @@
+cis-hardening (3.1-6) unstable; urgency=medium
+
+  * Improve EXCEPTIONS management (1.1.21,6.1.10)
+  * Fix bug linked with regex quoting (6.1.10-11-12-13-14)
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Wed, 02 Jun 2021 09:45:40 +0200
+
+cis-hardening (3.1-5) unstable; urgency=medium
+
+  * Fix unbound EXCEPTIONS variable in some cases
+
+ -- Thibault Ayanides <thibault.ayanides@ovhcloud.com>  Fri, 28 May 2021 15:02:34 +0200
+
 cis-hardening (3.1-4) unstable; urgency=medium
 
   * Add test to check stderr is empty

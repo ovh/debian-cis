@@ -63,7 +63,7 @@ apply() {
 # This function will check config parameters required
 check_config() {
 
-    is_pkg_installed "grub-pc"
+    is_pkg_installed "grub-common"
     if [ "$FNRET" != 0 ]; then
         warn "Grub is not installed, not handling configuration"
         exit 2

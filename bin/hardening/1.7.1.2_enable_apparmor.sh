@@ -33,7 +33,7 @@ audit() {
     done
 
     if [ "$ERROR" = 0 ]; then
-        is_pkg_installed "grub-pc"
+        is_pkg_installed "grub-common"
         if [ "$FNRET" != 0 ]; then
             if [ "$IS_CONTAINER" -eq 1 ]; then
                 ok "Grub is not installed in container"

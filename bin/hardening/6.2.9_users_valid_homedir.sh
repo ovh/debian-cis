@@ -17,7 +17,7 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Ensure users own their home directories"
 
-EXCEPTIONS=""
+EXCEPTIONS="/:systemd-coredump:root"
 
 ERRORS=0
 

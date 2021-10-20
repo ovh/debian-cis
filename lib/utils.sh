@@ -384,9 +384,9 @@ is_kernel_option_enabled() {
         fi
     else
         if [ "$MODPROBE_FILTER" != "" ]; then
-            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$MODPROBE_FILTER" | xargs)"
+            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$MODPROBE_FILTER" | tail -1 | xargs)"
         else
-            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | xargs)"
+            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | tail -1 | xargs)"
         fi
 
         if [ "$DEF_MODULE" == "install /bin/true" ] || [ "$DEF_MODULE" == "install /bin/false" ]; then

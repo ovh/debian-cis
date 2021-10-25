@@ -34,7 +34,7 @@ jobs:
       # GENERATE CHANGELOG CORRESPONDING TO COMMIT BETWEEN HEAD AND COMPUTED LAST TAG
       - name: Generate changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v1.0.0
+        uses: metcalfc/changelog-generator@v2.0.0
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
           head-ref: ${{ github.sha }}

@@ -25,35 +25,45 @@ GROUPSOK='root shadow'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        ok "$FILE does not exist"
     else
-        crit "$FILE permissions were not set to $PERMISSIONS"
-    fi
-    has_file_one_of_ownership "$FILE" "$USER" "$GROUPSOK"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
-    else
-        crit "$FILE ownership was not set to $USER:$GROUPSOK"
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            crit "$FILE permissions were not set to $PERMISSIONS"
+        fi
+        has_file_one_of_ownership "$FILE" "$USER" "$GROUPSOK"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            crit "$FILE ownership was not set to $USER:$GROUPSOK"
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct permissions"
+    does_file_exist "$FILE"
+    if [ "$FNRET" != 0 ]; then
+        ok "$FILE does not exist"
     else
-        info "fixing $FILE permissions to $PERMISSIONS"
-        chmod 0"$PERMISSIONS" "$FILE"
-    fi
-    has_file_one_of_ownership "$FILE" "$USER" "$GROUPSOK"
-    if [ "$FNRET" = 0 ]; then
-        ok "$FILE has correct ownership"
-    else
-        info "fixing $FILE ownership to $USER:$GROUP"
-        chown "$USER":"$GROUP" "$FILE"
+        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct permissions"
+        else
+            info "fixing $FILE permissions to $PERMISSIONS"
+            chmod 0"$PERMISSIONS" "$FILE"
+        fi
+        has_file_one_of_ownership "$FILE" "$USER" "$GROUPSOK"
+        if [ "$FNRET" = 0 ]; then
+            ok "$FILE has correct ownership"
+        else
+            info "fixing $FILE ownership to $USER:$GROUP"
+            chown "$USER":"$GROUP" "$FILE"
+        fi
     fi
 }
 

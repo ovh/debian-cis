@@ -26,6 +26,7 @@ ALLOW_SERVICE_LIST=0
 SET_HARDENING_LEVEL=0
 SUDO_MODE=''
 BATCH_MODE=''
+SUMMARY_JSON=''
 ASK_LOGLEVEL=''
 ALLOW_UNSUPPORTED_DISTRIBUTION=0
 
@@ -80,7 +81,7 @@ $LONG_SCRIPT_NAME <RUN_MODE> [OPTIONS], where RUN_MODE is one of:
         Modifies the policy to allow a certain kind of services on the machine, such
         as http, mail, etc. Can be specified multiple times to allow multiple services.
         Use --allow-service-list to get a list of supported services.
-    
+
     --create-config-files-only
         Create the config files in etc/conf.d
         Must be run as root, before running the audit with user secaudit
@@ -101,14 +102,18 @@ OPTIONS:
         Finally note that '--sudo' mode only works for audit mode.
 
     --set-log-level <level>
-        This option sets LOGLEVEL, you can choose : info, warning, error, ok, debug.
+        This option sets LOGLEVEL, you can choose : info, warning, error, ok, debug or silent.
         Default value is : info
+
+    --summary-json
+        While performing system audit, this option sets LOGLEVEL to silent and
+        only output a json summary at the end
 
     --batch
         While performing system audit, this option sets LOGLEVEL to 'ok' and
         captures all output to print only one line once the check is done, formatted like :
         OK|KO OK|KO|WARN{subcheck results} [OK|KO|WARN{...}]
-    
+
     --allow-unsupported-distribution
         Must be specified manually in the command line to allow the run on non compatible
         version or distribution. If you want to mute the warning change the LOGLEVEL
@@ -164,6 +169,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     --sudo)
         SUDO_MODE='--sudo'
+        ;;
+    --summary-json)
+        SUMMARY_JSON='--summary-json'
+        ASK_LOGLEVEL=silent
         ;;
     --batch)
         BATCH_MODE='--batch'
@@ -299,19 +308,19 @@ for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
     info "Treating $SCRIPT"
     if [ "$CREATE_CONFIG" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --create-config-files-only"
-        "$SCRIPT" --create-config-files-only "$BATCH_MODE"
+        LOGLEVEL=$LOGLEVEL "$SCRIPT" --create-config-files-only "$BATCH_MODE"
     elif [ "$AUDIT" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit $SUDO_MODE $BATCH_MODE"
-        "$SCRIPT" --audit "$SUDO_MODE" "$BATCH_MODE"
+        LOGLEVEL=$LOGLEVEL "$SCRIPT" --audit "$SUDO_MODE" "$BATCH_MODE"
     elif [ "$AUDIT_ALL" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
-        "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
+        LOGLEVEL=$LOGLEVEL "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
     elif [ "$AUDIT_ALL_ENABLE_PASSED" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
-        "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
+        LOGLEVEL=$LOGLEVEL "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
     elif [ "$APPLY" = 1 ]; then
         debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
-        "$SCRIPT"
+        LOGLEVEL=$LOGLEVEL "$SCRIPT"
     fi
 
     SCRIPT_EXITCODE=$?
@@ -355,6 +364,18 @@ if [ "$BATCH_MODE" ]; then
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:N.A" # No check runned, avoid division by 0
     fi
     becho "$BATCH_SUMMARY"
+elif [ "$SUMMARY_JSON" ]; then
+    if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
+        CONFORMITY_PERCENTAGE=$(div $((PASSED_CHECKS * 100)) $TOTAL_TREATED_CHECKS)
+    else
+        CONFORMITY_PERCENTAGE=0 # No check runned, avoid division by 0
+    fi
+    printf '{'
+    printf '"available_checks": %s, ' "$TOTAL_CHECKS"
+    printf '"run_checks": %s, ' "$TOTAL_TREATED_CHECKS"
+    printf '"passed_checks": %s, ' "$PASSED_CHECKS"
+    printf '"conformity_percentage": %s' "$CONFORMITY_PERCENTAGE"
+    printf '}\n'
 else
     printf "%40s\n" "################### SUMMARY ###################"
     printf "%30s %s\n" "Total Available Checks :" "$TOTAL_CHECKS"

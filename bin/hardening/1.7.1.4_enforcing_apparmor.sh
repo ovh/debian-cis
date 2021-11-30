@@ -32,8 +32,8 @@ audit() {
         fi
     done
     if [ "$ERROR" = 0 ]; then
-        RESULT_UNCONFINED=$($SUDO_CMD apparmor_status | grep "^0 processes are unconfined but have a profile defined")
-        RESULT_COMPLAIN=$($SUDO_CMD apparmor_status | grep "^0 profiles are in complain mode.")
+        RESULT_UNCONFINED=$($SUDO_CMD apparmor_status | grep "^0 processes are unconfined but have a profile defined" || true)
+        RESULT_COMPLAIN=$($SUDO_CMD apparmor_status | grep "^0 profiles are in complain mode." || true)
 
         if [ -n "$RESULT_UNCONFINED" ]; then
             ok "No profiles are unconfined"
@@ -61,8 +61,8 @@ apply() {
         fi
     done
 
-    RESULT_UNCONFINED=$(apparmor_status | grep "^0 processes are unconfined but have a profile defined")
-    RESULT_COMPLAIN=$(apparmor_status | grep "^0 profiles are in complain mode.")
+    RESULT_UNCONFINED=$(apparmor_status | grep "^0 processes are unconfined but have a profile defined" || true)
+    RESULT_COMPLAIN=$(apparmor_status | grep "^0 profiles are in complain mode." || true)
 
     if [ -n "$RESULT_UNCONFINED" ]; then
         ok "No profiles are unconfined"

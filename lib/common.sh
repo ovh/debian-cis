@@ -25,6 +25,9 @@ backup_file() {
 #
 
 case $LOGLEVEL in
+silent)
+    MACHINE_LOG_LEVEL=0
+    ;;
 error)
     MACHINE_LOG_LEVEL=1
     ;;

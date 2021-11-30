@@ -10,9 +10,16 @@ BATCH_OUTPUT=""
 status=""
 forcedstatus=""
 SUDO_CMD=""
+SAVED_LOGLEVEL=""
 
+if [ -n "${LOGLEVEL:-}" ]; then
+    SAVED_LOGLEVEL=$LOGLEVEL
+fi
 # shellcheck source=../etc/hardening.cfg
 [ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
+if [ -n "$SAVED_LOGLEVEL" ]; then
+    LOGLEVEL=$SAVED_LOGLEVEL
+fi
 # shellcheck source=../lib/common.sh
 [ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
 # shellcheck source=../lib/utils.sh

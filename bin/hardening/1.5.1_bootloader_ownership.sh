@@ -23,6 +23,7 @@ FILE='/boot/grub/grub.cfg'
 USER='root'
 GROUP='root'
 PERMISSIONS='400'
+PERMISSIONSOK='400 600'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -33,7 +34,7 @@ audit() {
         crit "$FILE ownership was not set to $USER:$GROUP"
     fi
 
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    has_file_one_of_permissions "$FILE" "$PERMISSIONSOK"
     if [ "$FNRET" = 0 ]; then
         ok "$FILE has correct permissions"
     else
@@ -51,7 +52,7 @@ apply() {
         chown "$USER":"$GROUP" "$FILE"
     fi
 
-    has_file_correct_permissions "$FILE" "$PERMISSIONS"
+    has_file_one_of_permissions "$FILE" "$PERMISSIONSOK"
     if [ "$FNRET" = 0 ]; then
         ok "$FILE has correct permissions"
     else
@@ -63,7 +64,7 @@ apply() {
 # This function will check config parameters required
 check_config() {
 
-    is_pkg_installed "grub-pc"
+    is_pkg_installed "grub-common"
     if [ "$FNRET" != 0 ]; then
         warn "Grub is not installed, not handling configuration"
         exit 2

@@ -1,3 +1,19 @@
+cis-hardening (3.2-1) unstable; urgency=medium
+
+  - Skip NTP and Chrony config check if they are not installed (#120)
+  - Fix 3.4.2 audit rule (#123)
+  - Fix grub detection (#119)
+  - Allow grub.cfg permission to be 600 (#121)
+  - Honor --set-log-level parameter (#127)
+  - fix: kernel module detection (#129)
+  - Add silent mode and json summary (#128)
+  - FIX(1.7.1.4): don't abort script in case of unconfined processes (#130)
+  - FIX(2.2.1.4): Validate debian default ntp config (#118)
+  - 99.5.4.5.2: fix bug where sha512 option rounds provoke KO (#112)
+  - Fix 5.4.5 pattern search (#108)
+
+ -- Thibault Dewailly <thibault.dewailly@ovhcloud.com>  Wed, 01 Dec 2021 10:56:47 +0000
+
 cis-hardening (3.1-6) unstable; urgency=medium
 
   * Improve EXCEPTIONS management (1.1.21,6.1.10)

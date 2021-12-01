@@ -20,7 +20,7 @@ DESCRIPTION="Configure Network Time Protocol (ntp). Check restrict parameters an
 HARDENING_EXCEPTION=ntp
 
 PACKAGE='ntp'
-NTP_CONF_DEFAULT_PATTERN='^restrict -4 default (kod nomodify notrap nopeer noquery|ignore)'
+NTP_CONF_DEFAULT_PATTERN='^restrict -4 default (kod nomodify notrap nopeer noquery|kod notrap nomodify nopeer noquery|ignore)'
 NTP_CONF_FILE='/etc/ntp.conf'
 NTP_INIT_PATTERN='RUNASUSER=ntp'
 NTP_INIT_FILE='/etc/init.d/ntp'

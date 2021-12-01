@@ -27,23 +27,17 @@ NTP_INIT_FILE='/etc/init.d/ntp'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
+    does_pattern_exist_in_file "$NTP_CONF_FILE" "$NTP_CONF_DEFAULT_PATTERN"
     if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
+        crit "$NTP_CONF_DEFAULT_PATTERN not found in $NTP_CONF_FILE"
     else
-        ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exist_in_file "$NTP_CONF_FILE" "$NTP_CONF_DEFAULT_PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            crit "$NTP_CONF_DEFAULT_PATTERN not found in $NTP_CONF_FILE"
-        else
-            ok "$NTP_CONF_DEFAULT_PATTERN found in $NTP_CONF_FILE"
-        fi
-        does_pattern_exist_in_file "$NTP_INIT_FILE" "^$NTP_INIT_PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            crit "$NTP_INIT_PATTERN not found in $NTP_INIT_FILE"
-        else
-            ok "$NTP_INIT_PATTERN found in $NTP_INIT_FILE"
-        fi
+        ok "$NTP_CONF_DEFAULT_PATTERN found in $NTP_CONF_FILE"
+    fi
+    does_pattern_exist_in_file "$NTP_INIT_FILE" "^$NTP_INIT_PATTERN"
+    if [ "$FNRET" != 0 ]; then
+        crit "$NTP_INIT_PATTERN not found in $NTP_INIT_FILE"
+    else
+        ok "$NTP_INIT_PATTERN found in $NTP_INIT_FILE"
     fi
 }
 
@@ -77,7 +71,11 @@ apply() {
 
 # This function will check config parameters required
 check_config() {
-    :
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        warn "$PACKAGE is not installed, not handling configuration"
+        exit 2
+    fi
 }
 
 # Source Root Dir Parameter

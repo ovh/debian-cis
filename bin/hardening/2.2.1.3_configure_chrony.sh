@@ -25,17 +25,11 @@ CONF_FILE='/etc/chrony/chrony.conf'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
+    does_pattern_exist_in_file "$CONF_FILE" "$CONF_DEFAULT_PATTERN"
     if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
+        crit "$CONF_DEFAULT_PATTERN not found in $CONF_FILE"
     else
-        ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exist_in_file "$CONF_FILE" "$CONF_DEFAULT_PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            crit "$CONF_DEFAULT_PATTERN not found in $CONF_FILE"
-        else
-            ok "$CONF_DEFAULT_PATTERN found in $CONF_FILE"
-        fi
+        ok "$CONF_DEFAULT_PATTERN found in $CONF_FILE"
     fi
 }
 
@@ -46,7 +40,11 @@ apply() {
 
 # This function will check config parameters required
 check_config() {
-    :
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" != 0 ]; then
+        warn "$PACKAGE is not installed, not handling configuration"
+        exit 2
+    fi
 }
 
 # Source Root Dir Parameter

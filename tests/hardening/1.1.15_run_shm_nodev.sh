@@ -2,15 +2,14 @@
 # run-shellcheck
 test_audit() {
     describe Running on blank host
-    register_test retvalshouldbe 1
-    dismiss_count_for_test
+    register_test retvalshouldbe 0
     # shellcheck disable=2154
     run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     ln -s /dev/shm /run/shm
 
     describe Partition symlink
-    register_test retvalshouldbe 1
+    register_test retvalshouldbe 0
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
     # Cleanup

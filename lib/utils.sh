@@ -415,9 +415,9 @@ is_kernel_option_enabled() {
 is_a_partition() {
     local PARTITION=$1
     FNRET=128
-    if [ ! -f /etc/fstab ] || [ -n "$(sed '/^#/d' /etc/fstab)" ]; then
+    if [ ! -f /etc/fstab ] || [ -z "$(sed '/^#/d' /etc/fstab)" ]; then
         debug "/etc/fstab not found or empty, searching mountpoint"
-        if mountpoint "$PARTITION" | grep -qE ".*is a mountpoint.*"; then
+        if mountpoint -q "$PARTITION"; then
             FNRET=0
         fi
     else
@@ -448,8 +448,8 @@ is_mounted() {
 has_mount_option() {
     local PARTITION=$1
     local OPTION=$2
-    if [ ! -f /etc/fstab ] || [ -n "$(sed '/^#/d' /etc/fstab)" ]; then
-        debug "/etc/fstab not found or empty, readin current mount options"
+    if [ ! -f /etc/fstab ] || [ -z "$(sed '/^#/d' /etc/fstab)" ]; then
+        debug "/etc/fstab not found or empty, reading current mount options"
         has_mounted_option "$PARTITION" "$OPTION"
     else
         if grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "bind"; then

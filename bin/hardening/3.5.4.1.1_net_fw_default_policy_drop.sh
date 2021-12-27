@@ -20,6 +20,7 @@ DESCRIPTION="Check iptables firewall default policy for DROP on INPUT and FORWAR
 PACKAGE="iptables"
 FW_CHAINS="INPUT FORWARD"
 FW_POLICY="DROP"
+FW_CMD="iptables"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -27,9 +28,9 @@ audit() {
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
-        ipt=$($SUDO_CMD "$PACKAGE" -nL 2>/dev/null || true)
+        ipt=$($SUDO_CMD "$FW_CMD" -nL 2>/dev/null || true)
         if [[ -z "$ipt" ]]; then
-            crit "Empty return from $PACKAGE command. Aborting..."
+            crit "Empty return from $FW_CMD command. Aborting..."
             return
         fi
         for chain in $FW_CHAINS; do

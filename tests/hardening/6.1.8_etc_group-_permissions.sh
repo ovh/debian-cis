@@ -37,6 +37,12 @@ test_audit() {
     register_test contain "has correct ownership"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
+    describe Missing File should be OK as well
+    rm "$test_file"
+    register_test retvalshouldbe 0
+    register_test contain "does not exist"
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
     # Cleanup
     userdel "$test_user"
 }

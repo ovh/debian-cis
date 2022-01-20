@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Produce debian man
         run: 'docker run --rm --volume "`pwd`:/data" --user `id -u`:`id -g` pandoc/latex:2.6 MANUAL.md -s -t man > debian/cis-hardening.8'
-      - uses: EndBug/add-and-commit@v7
+      - uses: EndBug/add-and-commit@v8
         with:
           add: 'debian/cis-hardening.8'
           message: 'Regenerate man pages (Github action)'

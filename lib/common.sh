@@ -103,6 +103,20 @@ debug() {
     if [ "$MACHINE_LOG_LEVEL" -ge 5 ]; then _logger "$GRAY" "[DBG ] $*"; fi
 }
 
+exception() {
+    # Trap exit code is the same as the trapped one unless we call an explicit exit
+    TRAP_CODE=$?
+    if [ "$ACTIONS_DONE" -ne 1 ]; then
+        if [ "$BATCH_MODE" -eq 1 ]; then
+            BATCH_OUTPUT="KO $SCRIPT_NAME $BATCH_OUTPUT KO{Unexpected exit code: $TRAP_CODE}"
+            becho "$BATCH_OUTPUT"
+        else
+            crit "Check failed with unexpected exit code: $TRAP_CODE"
+        fi
+        exit 1 # Means critical status
+    fi
+}
+
 #
 # sudo wrapper
 # issue crit state if not allowed to perform sudo

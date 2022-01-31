@@ -11,6 +11,7 @@ status=""
 forcedstatus=""
 SUDO_CMD=""
 SAVED_LOGLEVEL=""
+ACTIONS_DONE=0
 
 if [ -n "${LOGLEVEL:-}" ]; then
     SAVED_LOGLEVEL=$LOGLEVEL
@@ -111,6 +112,9 @@ if [ -z "$status" ]; then
     exit 2
 fi
 
+# We want to trap unexpected failures in check scripts
+trap exception EXIT
+
 case $status in
 enabled | true)
     info "Checking Configuration"
@@ -128,12 +132,15 @@ audit)
     ;;
 disabled | false)
     info "$SCRIPT_NAME is disabled, ignoring"
+    ACTIONS_DONE=1
     exit 2 # Means unknown status
     ;;
 *)
     warn "Wrong value for status : $status. Must be [ enabled | true | audit | disabled | false ]"
     ;;
 esac
+
+ACTIONS_DONE=1
 
 if [ "$CRITICAL_ERRORS_NUMBER" -eq 0 ]; then
     if [ "$BATCH_MODE" -eq 1 ]; then

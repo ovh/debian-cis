@@ -26,10 +26,10 @@ audit() {
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -nogroup -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -nogroup -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -nogroup -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -nogroup -print 2>/dev/null)
     fi
     if [ -n "$RESULT" ]; then
         crit "Some ungrouped files are present"
@@ -45,13 +45,13 @@ audit() {
 apply() {
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -regextype 'egrep' ! -regex $EXCLUDED -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nogroup -regextype 'egrep' ! -regex $EXCLUDED -ls 2>/dev/null)
     else
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nogroup -ls 2>/dev/null)
     fi
     if [ -n "$RESULT" ]; then
         warn "Applying chgrp on all ungrouped files in the system"
-        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nogroup -print 2>/dev/null | xargs chgrp "$GROUP"
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nogroup -print 2>/dev/null | xargs chgrp "$GROUP"
     else
         ok "No ungrouped files found, nothing to apply"
     fi

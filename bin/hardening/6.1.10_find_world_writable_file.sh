@@ -26,10 +26,10 @@ audit() {
 
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -0002 -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -0002 -print 2>/dev/null)
     fi
 
     if [ -n "$RESULT" ]; then
@@ -46,14 +46,14 @@ audit() {
 apply() {
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type f -perm -0002 -print 2>/dev/null)
     fi
 
     if [ -n "$RESULT" ]; then
         warn "chmoding o-w all files in the system"
-        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 -print 2>/dev/null | xargs chmod o-w
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type f -perm -0002 -print 2>/dev/null | xargs chmod o-w
     else
         ok "No world writable files found, nothing to apply"
     fi

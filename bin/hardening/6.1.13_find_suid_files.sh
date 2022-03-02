@@ -24,9 +24,9 @@ audit() {
     FS_NAMES=$(df --local -P | awk '{ if (NR!=1) print $6 }')
     # shellcheck disable=2086
     if [ -n "$IGNORED_PATH" ]; then
-        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -4000 -regextype 'egrep' ! -regex $IGNORED_PATH -print)
+        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -4000 -regextype 'egrep' ! -regex $IGNORED_PATH -print)
     else
-        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -type f -perm -4000 -print)
+        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -4000 -print)
     fi
     BAD_BINARIES=""
     for BINARY in $FOUND_BINARIES; do

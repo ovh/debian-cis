@@ -26,10 +26,10 @@ audit() {
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -nouser -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -nouser -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -nouser -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -nouser -print 2>/dev/null)
     fi
     if [ -n "$RESULT" ]; then
         crit "Some unowned files are present"
@@ -45,13 +45,13 @@ audit() {
 apply() {
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -regextype 'egrep' ! -regex $EXCLUDED -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nouser -regextype 'egrep' ! -regex $EXCLUDED -ls 2>/dev/null)
     else
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nouser -ls 2>/dev/null)
     fi
     if [ -n "$RESULT" ]; then
         warn "Applying chown on all unowned files in the system"
-        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -nouser -print 2>/dev/null | xargs chown "$USER"
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nouser -print 2>/dev/null | xargs chown "$USER"
     else
         ok "No unowned files found, nothing to apply"
     fi

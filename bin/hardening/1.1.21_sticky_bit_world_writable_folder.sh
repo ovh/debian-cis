@@ -25,10 +25,10 @@ audit() {
     FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCEPTIONS" ]; then
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
     else
         # shellcheck disable=SC2086
-        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
+        RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     fi
 
     if [ -n "$RESULT" ]; then
@@ -45,14 +45,14 @@ audit() {
 apply() {
     if [ -n "$EXCEPTIONS" ]; then
         # shellcheck disable=SC2086
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
     else
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     fi
 
     if [ -n "$RESULT" ]; then
         warn "Setting sticky bit on world writable directories"
-        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d -perm -0002 2>/dev/null | xargs chmod a+t
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type d -perm -0002 2>/dev/null | xargs chmod a+t
     else
         ok "All world writable directories have a sticky bit, nothing to apply"
     fi

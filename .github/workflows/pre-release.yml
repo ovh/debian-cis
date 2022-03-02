@@ -11,7 +11,7 @@ jobs:
     steps:
       # CHECKOUT CODE
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       # BUILD THE .DEB PACKAGE
       - name: Build
         run: |
@@ -29,12 +29,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # GET LATEST VERSION TAG
       - name: Get latest version tag
-        uses: actions-ecosystem/action-get-latest-tag@v1.4.1
+        uses: actions-ecosystem/action-get-latest-tag@v1.5.0
         id: get-latest-tag
       # GENERATE CHANGELOG CORRESPONDING TO COMMIT BETWEEN HEAD AND COMPUTED LAST TAG
       - name: Generate changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v1.0.0
+        uses: metcalfc/changelog-generator@v3.0.0
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
           head-ref: ${{ github.sha }}

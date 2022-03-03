@@ -1,3 +1,12 @@
+cis-hardening (3.3-1) unstable; urgency=medium
+
+  * fix: missing shadowtools backup files is ok (#132)
+  * feat: Dissociate iptables pkg name from command (#137)
+  * fix: Catch unexpected failures (#140)
+  * fix: Avoid find failures on too many files (#144)
+
+ -- Tarik Megzari <tarik.megzari@corp.ovh.com>  Wed, 02 Mar 2022 13:25:33 +0100
+
 cis-hardening (3.2-2) unstable; urgency=medium
 
   * Fix empty fstab test 

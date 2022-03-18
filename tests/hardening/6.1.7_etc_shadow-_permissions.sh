@@ -10,6 +10,13 @@ test_audit() {
     local test_user="testetcshadow-user"
     local test_file="/etc/shadow-"
 
+    describe Debian default right shall be accepted
+    chmod 640 "$test_file"
+    chown root:shadow "$test_file"
+    register_test retvalshouldbe 0
+    register_test contain "has correct permissions"
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
     describe Tests purposely failing
     chmod 777 "$test_file"
     register_test retvalshouldbe 1

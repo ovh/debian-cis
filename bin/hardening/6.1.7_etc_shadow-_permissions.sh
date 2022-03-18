@@ -19,6 +19,7 @@ DESCRIPTION="Check 600 permissions and root:shadow ownership on /etc/shadow-"
 
 FILE='/etc/shadow-'
 PERMISSIONS='600'
+PERMISSIONSOK='640 600'
 USER='root'
 GROUP='shadow'
 
@@ -28,7 +29,7 @@ audit() {
     if [ "$FNRET" != 0 ]; then
         ok "$FILE does not exist"
     else
-        has_file_correct_permissions "$FILE" "$PERMISSIONS"
+        has_file_one_of_permissions "$FILE" "$PERMISSIONSOK"
         if [ "$FNRET" = 0 ]; then
             ok "$FILE has correct permissions"
         else

@@ -21,6 +21,7 @@ PACKAGE="iptables"
 FW_CHAINS="INPUT FORWARD"
 FW_POLICY="DROP"
 FW_CMD="iptables"
+FW_TIMEOUT="10"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -28,7 +29,7 @@ audit() {
     if [ "$FNRET" != 0 ]; then
         crit "$PACKAGE is not installed!"
     else
-        ipt=$($SUDO_CMD "$FW_CMD" -nL 2>/dev/null || true)
+        ipt=$($SUDO_CMD "$FW_CMD" -w "$FW_TIMEOUT" -nL 2>/dev/null || true)
         if [[ -z "$ipt" ]]; then
             crit "Empty return from $FW_CMD command. Aborting..."
             return

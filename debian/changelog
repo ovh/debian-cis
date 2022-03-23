@@ -1,3 +1,9 @@
+cis-hardening (3.5-1) unstable; urgency=medium
+
+  * fix: add 10s wait timeout on iptables command (#151)
+
+ -- Tarik Megzari <tarik.megzari@corp.ovh.com>  Wed, 23 Mar 2022 17:28:08 +0100
+
 cis-hardening (3.4-1) unstable; urgency=medium
 
   * fix: allow passwd-, group- and shadow- debian default permissions (#149)

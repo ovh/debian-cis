@@ -22,12 +22,15 @@ EXCLUDED=''
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are world writable files"
-    FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
-
     if [ -n "$EXCLUDED" ]; then
+        # maybe EXCLUDED allow us to filter out some FS
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$EXCLUDED")
+
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
+
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -0002 -print 2>/dev/null)
     fi
@@ -46,7 +49,7 @@ audit() {
 apply() {
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type f -perm -0002 -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$EXCLUDED" | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type f -perm -0002 -regextype 'egrep' ! -regex "$EXCLUDED" -print 2>/dev/null)
     else
         RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type f -perm -0002 -print 2>/dev/null)
     fi

@@ -23,14 +23,19 @@ EXCLUDED=''
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are unowned files"
-    FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCLUDED" ]; then
+        # maybe EXCLUDED allow us to filter out some FS
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$EXCLUDED")
+
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -nouser -regextype 'egrep' ! -regex $EXCLUDED -print 2>/dev/null)
     else
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
+
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -nouser -print 2>/dev/null)
     fi
+
     if [ -n "$RESULT" ]; then
         crit "Some unowned files are present"
         # shellcheck disable=SC2001
@@ -45,7 +50,7 @@ audit() {
 apply() {
     if [ -n "$EXCLUDED" ]; then
         # shellcheck disable=SC2086
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nouser -regextype 'egrep' ! -regex $EXCLUDED -ls 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$EXCLUDED" | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nouser -regextype 'egrep' ! -regex "$EXCLUDED" -ls 2>/dev/null)
     else
         RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -nouser -ls 2>/dev/null)
     fi

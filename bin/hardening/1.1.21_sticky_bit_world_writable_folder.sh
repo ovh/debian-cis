@@ -22,11 +22,15 @@ EXCEPTIONS=''
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if setuid is set on world writable Directories"
-    FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
     if [ -n "$EXCEPTIONS" ]; then
+        # maybe EXCEPTIONS allow us to filter out some FS
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$EXCEPTIONS")
+
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
     else
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
+
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     fi
@@ -45,7 +49,7 @@ audit() {
 apply() {
     if [ -n "$EXCEPTIONS" ]; then
         # shellcheck disable=SC2086
-        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
+        RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$EXCEPTIONS" | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex "$EXCEPTIONS" -print 2>/dev/null)
     else
         RESULT=$(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
     fi

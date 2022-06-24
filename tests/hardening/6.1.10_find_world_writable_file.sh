@@ -5,7 +5,9 @@ test_audit() {
     # shellcheck disable=2154
     /opt/debian-cis/bin/hardening/"${script}".sh || true
     # shellcheck disable=2016
-    echo 'EXCLUDED="$EXCLUDED ^/dev/.*"' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
+    echo 'EXCLUDED="$EXCLUDED ^/home/secaudit/thisfileisignored.*|^/dev/.*"' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
+    touch /home/secaudit/thisfileisignored
+    chmod 777 /home/secaudit/thisfileisignored
 
     describe Running on blank host
     register_test retvalshouldbe 0

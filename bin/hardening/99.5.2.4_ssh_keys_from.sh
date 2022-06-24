@@ -109,7 +109,7 @@ audit() {
         crit "/etc/ssh/sshd_config is not readable."
     else
         ret=$($SUDO_CMD grep -iP "^AuthorizedKeysFile" /etc/ssh/sshd_config || echo '#KO')
-        if [ "x$ret" = "x#KO" ]; then
+        if [ "$ret" = "#KO" ]; then
             debug "No AuthorizedKeysFile defined in sshd_config."
         else
             AUTHKEYFILE_PATTERN=$(echo "$ret" | sed 's/AuthorizedKeysFile//i' | sed 's#%h/##' | tr -s "[:space:]")
@@ -137,7 +137,7 @@ audit() {
             continue
         else
             info "User $user has a valid shell ($shell)."
-            if [ "x$user" = "xroot" ] && [ "$user" != "$EXCEPTION_USER" ]; then
+            if [ "$user" = "root" ] && [ "$user" != "$EXCEPTION_USER" ]; then
                 check_dir /root
                 continue
             elif $SUDO_CMD [ ! -d /home/"$user" ]; then

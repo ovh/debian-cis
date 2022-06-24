@@ -349,10 +349,10 @@ is_kernel_option_enabled() {
         fi
 
         ANSWER=$(cut -d = -f 2 <<<"$RESULT")
-        if [ "x$ANSWER" = "xy" ]; then
+        if [ "$ANSWER" = "y" ]; then
             debug "Kernel option $KERNEL_OPTION enabled"
             FNRET=0
-        elif [ "x$ANSWER" = "xn" ]; then
+        elif [ "$ANSWER" = "n" ]; then
             debug "Kernel option $KERNEL_OPTION disabled"
             FNRET=1
         else

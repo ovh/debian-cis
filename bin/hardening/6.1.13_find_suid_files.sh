@@ -21,13 +21,19 @@ IGNORED_PATH=''
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are suid files"
-    FS_NAMES=$(df --local -P | awk '{ if (NR!=1) print $6 }')
-    # shellcheck disable=2086
     if [ -n "$IGNORED_PATH" ]; then
+        # maybe IGNORED_PATH allow us to filter out some FS
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$IGNORED_PATH")
+
+        # shellcheck disable=2086
         FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -4000 -regextype 'egrep' ! -regex $IGNORED_PATH -print)
     else
+        FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
+
+        # shellcheck disable=2086
         FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -4000 -print)
     fi
+
     BAD_BINARIES=""
     for BINARY in $FOUND_BINARIES; do
         if grep -qw "$BINARY" <<<"$EXCEPTIONS"; then

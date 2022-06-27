@@ -1,3 +1,9 @@
+cis-hardening (3.6-1) unstable; urgency=medium
+
+  * feat: Filter the filesystem to check when the list is built. (#156)
+
+ -- Tarik Megzari <tarik.megzari@corp.ovh.com>  Fri, 24 Jun 2022 15:49:00 +0000
+
 cis-hardening (3.5-1) unstable; urgency=medium
 
   * fix: add 10s wait timeout on iptables command (#151)

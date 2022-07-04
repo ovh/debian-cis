@@ -24,6 +24,12 @@ test_audit() {
     register_test contain "Some unowned files are present"
     run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
+    describe Tests failing with find ignore flag
+    echo 'FIND_IGNORE_NOSUCHFILE_ERR=true' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
+    register_test retvalshouldbe 1
+    register_test contain "Some unowned files are present"
+    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
     describe correcting situation
     sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
     /opt/debian-cis/bin/hardening/"${script}".sh || true

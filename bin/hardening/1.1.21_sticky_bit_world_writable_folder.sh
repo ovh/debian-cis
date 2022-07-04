@@ -19,6 +19,10 @@ DESCRIPTION="Set sticky bit on world writable directories to prevent users from 
 
 EXCEPTIONS=''
 
+# find emits following error if directory or file disappear during
+# tree traversal: find: ‘/tmp/xxx’: No such file or directory
+FIND_IGNORE_NOSUCHFILE_ERR=false
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if setuid is set on world writable Directories"
@@ -26,13 +30,17 @@ audit() {
         # maybe EXCEPTIONS allow us to filter out some FS
         FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$EXCEPTIONS")
 
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set +e
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -regextype 'egrep' ! -regex $EXCEPTIONS -print 2>/dev/null)
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set -e
     else
         FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
 
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set +e
         # shellcheck disable=SC2086
         RESULT=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null)
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set -e
     fi
 
     if [ -n "$RESULT" ]; then

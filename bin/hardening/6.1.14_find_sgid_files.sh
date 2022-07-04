@@ -18,6 +18,10 @@ HARDENING_LEVEL=2
 DESCRIPTION="Find SGID system executables."
 IGNORED_PATH=''
 
+# find emits following error if directory or file disappear during
+# tree traversal: find: ‘/tmp/xxx’: No such file or directory
+FIND_IGNORE_NOSUCHFILE_ERR=false
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are sgid files"
@@ -25,13 +29,18 @@ audit() {
         # maybe IGNORED_PATH allow us to filter out some FS
         FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$IGNORED_PATH")
 
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set +e
         # shellcheck disable=2086
         FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -2000 -regextype 'egrep' ! -regex $IGNORED_PATH -print)
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set -e
+
     else
         FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
 
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set +e
         # shellcheck disable=2086
         FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f -perm -2000 -print)
+        [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set -e
     fi
 
     BAD_BINARIES=""

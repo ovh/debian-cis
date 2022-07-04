@@ -1,3 +1,9 @@
+cis-hardening (3.7-1) unstable; urgency=medium
+
+  * feat: add FIND_IGNORE_NOSUCHFILE_ERR flag (#159)
+
+ -- Yannick Martin <yannick.martin@ovhcloud.com>  Mon, 04 Jul 2022 14:34:03 +0200
+
 cis-hardening (3.6-1) unstable; urgency=medium
 
   * feat: Filter the filesystem to check when the list is built. (#156)

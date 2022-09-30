@@ -23,30 +23,13 @@ ERRORS=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    debug "Checking homedir exists"
-    RESULT=$(get_db passwd | awk -F: '{ print $1 ":" $3 ":" $6 }')
-    for LINE in $RESULT; do
-        debug "Working on $LINE"
-        USER=$(awk -F: '{print $1}' <<<"$LINE")
-        USERID=$(awk -F: '{print $2}' <<<"$LINE")
-        DIR=$(awk -F: '{print $3}' <<<"$LINE")
-        if [ "$USERID" -ge 1000 ] && [ ! -d "$DIR" ] && [ "$USER" != "nfsnobody" ] && [ "$USER" != "nobody" ] && [ "$DIR" != "/nonexistent" ]; then
-            crit "The home directory ($DIR) of user $USER does not exist."
-            ERRORS=$((ERRORS + 1))
-        fi
-    done
-
-    if [ "$ERRORS" = 0 ]; then
-        ok "All home directories exists"
-    fi
-    debug "Checking homedir ownership"
     RESULT=$(awk -F: '{ print $1 ":" $3 ":" $6 }' /etc/passwd)
     for LINE in $RESULT; do
         debug "Working on $LINE"
         USER=$(awk -F: '{print $1}' <<<"$LINE")
         USERID=$(awk -F: '{print $2}' <<<"$LINE")
         DIR=$(awk -F: '{print $3}' <<<"$LINE")
-        if [ "$USERID" -ge 500 ] && [ -d "$DIR" ] && [ "$USER" != "nfsnobody" ]; then
+        if [ "$USERID" -ge 1000 ] && [ -d "$DIR" ] && [ "$USER" != "nfsnobody" ]; then
             OWNER=$(stat -L -c "%U" "$DIR")
             if [ "$OWNER" != "$USER" ]; then
                 EXCEP_FOUND=0

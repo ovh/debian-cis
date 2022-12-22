@@ -28,6 +28,19 @@ test_audit() {
     register_test contain "[ OK ] jeantestuser ALL = (ALL) NOPASSWD:ALL is present in /etc/sudoers.d/jeantestuser but was EXCUSED because jeantestuser is part of exceptions"
     run userexcept /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
+    # testing the MAX_FILES_TO_LOG config option
+    echo 'MAX_FILES_TO_LOG=1' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
+    describe Testing with MAX_FILES_TO_LOG=1
+    register_test retvalshouldbe 0
+    register_test contain "won't log every file we check"
+    run maxlogfiles_1 /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
+    echo 'MAX_FILES_TO_LOG=9999' >>/opt/debian-cis/etc/conf.d/"${script}".cfg
+    describe Testing with MAX_FILES_TO_LOG=9999
+    register_test retvalshouldbe 0
+    register_test contain "There is no carte-blanche sudo permission in"
+    run maxlogfiles_9999 /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
     rm -f /etc/sudoers.d/jeantestuser
     userdel jeantestuser
 }

@@ -19,13 +19,32 @@ DESCRIPTION="Checks there are no carte-blanche authorization in sudoers file(s).
 
 FILE="/etc/sudoers"
 DIRECTORY="/etc/sudoers.d"
-# spaces will be expanded to [:space:]* when using the regex
+# spaces will be expanded to [[:space:]]* when using the regex
 # improves readability in audit report
 REGEX="ALL = \( ALL( : ALL)? \)( NOPASSWD:)? ALL"
 EXCEPT=""
+MAX_FILES_TO_LOG=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    # expand spaces to [[:space:]]*
+    # shellcheck disable=2001
+    REGEX="$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')"
+
+    local skiplog
+    skiplog=0
+    if [ $MAX_FILES_TO_LOG != 0 ]; then
+        # if we have more than $MAX_FILES_TO_LOG files in $DIRECTORY, we'll reduce
+        # logging in the loop, to avoid flooding the logs and getting timed out
+        local nbfiles
+        # shellcheck disable=2012 # (find is too slow and calls fstatat() for each file)
+        nbfiles=$(ls -f "$DIRECTORY" | wc -l)
+        if [ "$nbfiles" -gt "$MAX_FILES_TO_LOG" ]; then
+            skiplog=1
+            info "Found $nbfiles files in $DIRECTORY (> $MAX_FILES_TO_LOG), we won't log every file we check"
+        fi
+    fi
+
     FILES=""
     if $SUDO_CMD [ ! -r "$FILE" ]; then
         crit "$FILE is not readable"
@@ -43,12 +62,12 @@ audit() {
         if $SUDO_CMD [ ! -r "$file" ]; then
             crit "$file is not readable"
         else
-            # shellcheck disable=2001
-            if ! $SUDO_CMD grep -E "$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')" "$file" &>/dev/null; then
-                ok "There is no carte-blanche sudo permission in $file"
+            if ! $SUDO_CMD grep -E "$REGEX" "$file" &>/dev/null; then
+                if [ $skiplog = 0 ]; then
+                    ok "There is no carte-blanche sudo permission in $file"
+                fi
             else
-                # shellcheck disable=2001
-                RET=$($SUDO_CMD grep -E "$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')" "$file" | sed 's/\t/#/g;s/ /#/g')
+                RET=$($SUDO_CMD grep -E "$REGEX" "$file" | sed 's/\t/#/g;s/ /#/g')
                 for line in $RET; do
                     if grep -q "$(echo "$line" | cut -d '#' -f 1)" <<<"$EXCEPT"; then
                         # shellcheck disable=2001
@@ -73,8 +92,16 @@ apply() {
 create_config() {
     cat <<EOF
 status=audit
+
 # Put EXCEPTION account names here, space separated
 EXCEPT="root %root %sudo %wheel"
+
+# If we find more than this amount of files in sudoers.d/,
+# we'll reduce the logging in the loop to avoid getting
+# timed out because we spend too much time logging.
+# Using 0 disables this feature and will never reduce the
+# logging, regardless of the number of files.
+MAX_FILES_TO_LOG=0
 EOF
 }
 # This function will check config parameters required

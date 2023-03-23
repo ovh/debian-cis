@@ -21,7 +21,7 @@ jobs:
           find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
       # DELETE THE TAG NAMED LATEST AND THE CORRESPONDING RELEASE
       - name: Delete the tag latest and the release latest
-        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           delete_release: true
           tag_name: latest
@@ -34,7 +34,7 @@ jobs:
       # GENERATE CHANGELOG CORRESPONDING TO COMMIT BETWEEN HEAD AND COMPUTED LAST TAG
       - name: Generate changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v3.0.0
+        uses: metcalfc/changelog-generator@v4.1.0
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
           head-ref: ${{ github.sha }}

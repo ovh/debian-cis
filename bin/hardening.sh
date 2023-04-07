@@ -119,6 +119,15 @@ OPTIONS:
         version or distribution. If you want to mute the warning change the LOGLEVEL
         in /etc/hardening.cfg
 
+    --rules-details
+        Return the result of all tested rules.
+        This option is only available with json report.
+        The result is returned on a key named `rules` as a dictionnary "<rule>: <result>"
+        Result is an interger with one of the following value:
+          0: the rule is ok
+          1: the rule is fail
+          2: the rule is ignored
+
 EOF
     exit 0
 }
@@ -177,6 +186,10 @@ while [[ $# -gt 0 ]]; do
     --batch)
         BATCH_MODE='--batch'
         ASK_LOGLEVEL=ok
+        ;;
+    --rules-details)
+        RULES=1
+        declare -A RULES_RESULTS
         ;;
     --allow-unsupported-distribution)
         ALLOW_UNSUPPORTED_DISTRIBUTION=1
@@ -324,6 +337,7 @@ for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
     fi
 
     SCRIPT_EXITCODE=$?
+    [[ ${RULES:-0} -eq 1 ]] && RULES_RESULTS[$(basename ${SCRIPT%.sh})]=${SCRIPT_EXITCODE}
 
     debug "Script $SCRIPT finished with exit code $SCRIPT_EXITCODE"
     case $SCRIPT_EXITCODE in
@@ -371,6 +385,16 @@ elif [ "$SUMMARY_JSON" ]; then
         CONFORMITY_PERCENTAGE=0 # No check runned, avoid division by 0
     fi
     printf '{'
+    if [[ ${RULES:-0} -eq 1 ]]; then
+        printf '"rules": {'
+        loop=1
+        for rule in ${!RULES_RESULTS[@]}; do
+            printf '"%s": %s' "${rule}" "${RULES_RESULTS[${rule}]}"
+            [[ ! ${loop} -eq ${#RULES_RESULTS[@]} ]] && printf ", "
+            loop=$((loop + 1))
+        done
+        printf '},'
+    fi
     printf '"available_checks": %s, ' "$TOTAL_CHECKS"
     printf '"run_checks": %s, ' "$TOTAL_TREATED_CHECKS"
     printf '"passed_checks": %s, ' "$PASSED_CHECKS"

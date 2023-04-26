@@ -424,6 +424,9 @@ is_a_partition() {
         if grep "[[:space:]]$1[[:space:]]" /etc/fstab | grep -vqE "^#"; then
             debug "$PARTITION found in fstab"
             FNRET=0
+        elif mountpoint -q "$PARTITION"; then
+            debug "$PARTITION found in /proc fs"
+            FNRET=0
         else
             debug "Unable to find $PARTITION in fstab"
             FNRET=1
@@ -461,6 +464,9 @@ has_mount_option() {
         if grep "[[:space:]]${PARTITION}[[:space:]]" /etc/fstab | grep -vE "^#" | awk '{print $4}' | grep -q "$OPTION"; then
             debug "$OPTION has been detected in fstab for partition $PARTITION"
             FNRET=0
+        elif mountpoint -q "$PARTITION"; then
+            debug "$OPTION not detected in fstab, but $PARTITION is a mount point searching in /proc fs"
+            has_mounted_option "$PARTITION" "$OPTION"
         else
             debug "Unable to find $OPTION in fstab for partition $PARTITION"
             FNRET=1

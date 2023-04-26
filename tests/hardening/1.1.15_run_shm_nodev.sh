@@ -12,8 +12,15 @@ test_audit() {
     register_test retvalshouldbe 0
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 
+    echo "dummy entry" >>/etc/fstab
+
+    describe Fstab with a real entry to match runtime partitions
+    register_test retvalshouldbe 0
+    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+
     # Cleanup
     rm /run/shm
+    sed "/dummy entry/d" /etc/fstab
 
     ##################################################################
     # For this test, we only check that it runs properly on a blank  #

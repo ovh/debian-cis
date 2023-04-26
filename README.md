@@ -1,4 +1,4 @@
-# :lock: CIS Debian 9/10 Hardening
+# :lock: CIS Debian 10 Hardening
 
 :tada: **News**: this project is back in the game and is from now on maintained. Be free to use and to
 report issues if you find any!

@@ -13,8 +13,8 @@ test_audit() {
 
     describe Checking resolved state
     register_test retvalshouldbe 0
-    register_test contain "[ OK ] -w /var/log/faillog -p wa -k logins is present in /etc/audit/audit.rules"
-    register_test contain "[ OK ] -w /var/log/lastlog -p wa -k logins is present in /etc/audit/audit.rules"
-    register_test contain "[ OK ] -w /var/log/tallylog -p wa -k logins is present in /etc/audit/audit.rules"
+    register_test contain "[ OK ] -w /var/log/faillog -p wa -k logins is present in /etc/audit/rules.d/audit.rules"
+    register_test contain "[ OK ] -w /var/log/lastlog -p wa -k logins is present in /etc/audit/rules.d/audit.rules"
+    register_test contain "[ OK ] -w /var/log/tallylog -p wa -k logins is present in /etc/audit/rules.d/audit.rules"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

@@ -22,7 +22,8 @@ AUDIT_PARAMS='-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-cha
 -a always,exit -F arch=b64 -S clock_settime -k time-change
 -a always,exit -F arch=b32 -S clock_settime -k time-change
 -w /etc/localtime -p wa -k time-change'
-FILE='/etc/audit/audit.rules'
+FILES_TO_SEARCH='/etc/audit/audit.rules /etc/audit/rules.d/audit.rules'
+FILE='/etc/audit/rules.d/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -31,14 +32,21 @@ audit() {
     c_IFS=$'\n'
     IFS=$c_IFS
     for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILE"
+        debug "$AUDIT_VALUE should be in file $FILES_TO_SEARCH"
         IFS=$d_IFS
-        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
-        IFS=$c_IFS
-        if [ "$FNRET" != 0 ]; then
-            crit "$AUDIT_VALUE is not in file $FILE"
-        else
-            ok "$AUDIT_VALUE is present in $FILE"
+        SEARCH_RES=0
+        for FILE_SEARCHED in $FILES_TO_SEARCH; do
+            does_pattern_exist_in_file "$FILE_SEARCHED" "$AUDIT_VALUE"
+            IFS=$c_IFS
+            if [ "$FNRET" != 0 ]; then
+                debug "$AUDIT_VALUE is not in file $FILE_SEARCHED"
+            else
+                ok "$AUDIT_VALUE is present in $FILE_SEARCHED"
+                SEARCH_RES=1
+            fi
+        done
+        if [ "$SEARCH_RES" = 0 ]; then
+            crit "$AUDIT_VALUE is not present in $FILES_TO_SEARCH"
         fi
     done
     IFS=$d_IFS
@@ -46,18 +54,31 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    IFS=$'\n'
+    # define custom IFS and save default one
+    d_IFS=$IFS
+    c_IFS=$'\n'
+    IFS=$c_IFS
     for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILE"
-        does_pattern_exist_in_file "$FILE" "$AUDIT_VALUE"
-        if [ "$FNRET" != 0 ]; then
-            warn "$AUDIT_VALUE is not in file $FILE, adding it"
+        debug "$AUDIT_VALUE should be in file $FILES_TO_SEARCH"
+        IFS=$d_IFS
+        SEARCH_RES=0
+        for FILE_SEARCHED in $FILES_TO_SEARCH; do
+            does_pattern_exist_in_file "$FILE_SEARCHED" "$AUDIT_VALUE"
+            IFS=$c_IFS
+            if [ "$FNRET" != 0 ]; then
+                debug "$AUDIT_VALUE is not in file $FILE_SEARCHED"
+            else
+                ok "$AUDIT_VALUE is present in $FILE_SEARCHED"
+                SEARCH_RES=1
+            fi
+        done
+        if [ "$SEARCH_RES" = 0 ]; then
+            warn "$AUDIT_VALUE is not present in $FILES_TO_SEARCH, adding it to $FILE"
             add_end_of_file "$FILE" "$AUDIT_VALUE"
             eval "$(pkill -HUP -P 1 auditd)"
-        else
-            ok "$AUDIT_VALUE is present in $FILE"
         fi
     done
+    IFS=$d_IFS
 }
 
 # This function will check config parameters required

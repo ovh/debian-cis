@@ -33,9 +33,9 @@ audit() {
             for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
                 does_pattern_exist_in_file "$file_in_dir" "$PATTERN"
                 if [ "$FNRET" != 0 ]; then
-                    debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
+                    debug "$PATTERN is not present in $file_in_dir"
                 else
-                    ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
+                    ok "$PATTERN is present in $file_in_dir"
                     SEARCH_RES=1
                     break
                 fi
@@ -45,7 +45,7 @@ audit() {
             if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
-                ok "$PATTERN is present in $FILES_TO_SEARCH"
+                ok "$PATTERN is present in $FILE_SEARCHED"
                 SEARCH_RES=1
             fi
         fi
@@ -64,11 +64,11 @@ apply() {
             debug "$FILE_SEARCHED is a directory"
             # shellcheck disable=2044
             for file_in_dir in $(find "$FILE_SEARCHED" -type f); do
-                does_pattern_exist_in_file "$FILE_SEARCHED/$file_in_dir" "$PATTERN"
+                does_pattern_exist_in_file "$file_in_dir" "$PATTERN"
                 if [ "$FNRET" != 0 ]; then
-                    debug "$PATTERN is not present in $FILE_SEARCHED/$file_in_dir"
+                    debug "$PATTERN is not present in $file_in_dir"
                 else
-                    ok "$PATTERN is present in $FILE_SEARCHED/$file_in_dir"
+                    ok "$PATTERN is present in $file_in_dir"
                     SEARCH_RES=1
                     break
                 fi
@@ -78,7 +78,7 @@ apply() {
             if [ "$FNRET" != 0 ]; then
                 debug "$PATTERN is not present in $FILE_SEARCHED"
             else
-                ok "$PATTERN is present in $FILES_TO_SEARCH"
+                ok "$PATTERN is present in $FILE_SEARCHED"
                 SEARCH_RES=1
             fi
         fi

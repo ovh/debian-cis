@@ -1,7 +1,4 @@
-# :lock: CIS Debian 9/10 Hardening
-
-:tada: **News**: this project is back in the game and is from now on maintained. Be free to use and to
-report issues if you find any!
+# :lock: CIS Debian 10/11 Hardening
 
 
 <p align="center">
@@ -16,7 +13,7 @@ report issues if you find any!
 ![License](https://img.shields.io/github/license/ovh/debian-cis)
 ---
 
-Modular Debian 9/10 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
+Modular Debian 10/11 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
 recommendations. We use it at [OVHcloud](https://www.ovhcloud.com) to harden our PCI-DSS infrastructure.
 
 ```console
@@ -172,7 +169,7 @@ Functional tests are available. They are to be run in a Docker environment.
 $ ./tests/docker_build_and_run_tests.sh <target> [name of test script...]
 ```
 
-With `target` being like `debian9` or `debian10`.
+With `target` being like `debian10` or `debian11`.
 
 Running without script arguments will run all tests in `./tests/hardening/` directory.
 Or you can specify one or several test script to be run.

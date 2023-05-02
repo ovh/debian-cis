@@ -15,7 +15,7 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Check that any password that may exist in /etc/shadow is SHA512 hashed and salted"
+DESCRIPTION="Check that any password that may exist in /etc/shadow is yescrypt (or SHA512 for debian 10) hashed and salted"
 
 CONF_FILE="/etc/pam.d/common-password"
 CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*sha512"
@@ -26,6 +26,9 @@ audit() {
     if $SUDO_CMD [ ! -r "$CONF_FILE" ]; then
         crit "$CONF_FILE is not readable"
     else
+        if [ "$DEB_MAJ_VER" -ge "11" ]; then
+            CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*yescrypt" # https://github.com/ovh/debian-cis/issues/158
+        fi
         # shellcheck disable=SC2001
         does_pattern_exist_in_file "$CONF_FILE" "$(sed 's/ /[[:space:]]+/g' <<<"$CONF_LINE")"
         if [ "$FNRET" = 0 ]; then
@@ -47,7 +50,11 @@ apply() {
             ok "$CONF_LINE is present in $CONF_FILE"
         else
             warn "$CONF_LINE is not present in $CONF_FILE"
-            add_line_file_before_pattern "$CONF_FILE" "password [success=1 default=ignore] pam_unix.so sha512" "# pam-auth-update(8) for details."
+            if [ "$DEB_MAJ_VER" -ge "11" ]; then
+                add_line_file_before_pattern "$CONF_FILE" "password [success=1 default=ignore] pam_unix.so yescrypt" "# pam-auth-update(8) for details."
+            else
+                add_line_file_before_pattern "$CONF_FILE" "password [success=1 default=ignore] pam_unix.so sha512" "# pam-auth-update(8) for details."
+            fi
         fi
     fi
 }

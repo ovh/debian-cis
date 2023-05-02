@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential devscripts debhelper
-          sudo debuild --buildinfo-option=-O -us -uc -b -j8
+          sudo debuild --buildinfo-option=-O -us -uc -b -j8 --compression=xz
           find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
       # DELETE THE TAG NAMED LATEST AND THE CORRESPONDING RELEASE
       - name: Delete the tag latest and the release latest

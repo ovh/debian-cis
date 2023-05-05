@@ -16,6 +16,9 @@ PACKAGE = $(shell dh_listpackages)
 %:
 	dh $@
 
+override_dh_builddeb:
+	dh_builddeb -- -Zxz
+
 override_dh_install:
 	dh_install
 	mkdir -p $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/

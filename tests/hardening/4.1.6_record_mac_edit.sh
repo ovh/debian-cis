@@ -13,6 +13,6 @@ test_audit() {
 
     describe Checking resolved state
     register_test retvalshouldbe 0
-    register_test contain "[ OK ] -w /etc/selinux/ -p wa -k MAC-policy is present in /etc/audit/audit.rules"
+    register_test contain "[ OK ] -w /etc/selinux/ -p wa -k MAC-policy is present in /etc/audit/rules.d/audit.rules"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

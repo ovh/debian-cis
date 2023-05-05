@@ -13,7 +13,7 @@ test_audit() {
 
     describe Checking resolved state
     register_test retvalshouldbe 0
-    register_test contain "[ OK ] -a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts is present in /etc/audit/audit.rules"
-    register_test contain "[ OK ] -a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts is present in /etc/audit/audit.rules"
+    register_test contain "[ OK ] -a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts is present in /etc/audit/rules.d/audit.rules"
+    register_test contain "[ OK ] -a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts is present in /etc/audit/rules.d/audit.rules"
     run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
 }

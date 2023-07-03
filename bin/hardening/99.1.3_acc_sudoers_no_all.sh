@@ -60,7 +60,13 @@ audit() {
     fi
     for file in $FILES; do
         if $SUDO_CMD [ ! -r "$file" ]; then
-            crit "$file is not readable"
+            debug "$file is not readable, but it might just have disappeared since we've listed the folder contents, re-check that it exists"
+            if $SUDO_CMD [ -e "$file" ]; then
+                crit "$file is not readable"
+            else
+                debug "$file has disappeared, ignore it"
+                continue
+            fi
         else
             if ! $SUDO_CMD grep -E "$REGEX" "$file" &>/dev/null; then
                 if [ $skiplog = 0 ]; then

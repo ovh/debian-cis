@@ -1,3 +1,16 @@
+cis-hardening (4.0-1) unstable; urgency=medium
+
+  * fix: 99.1.3_acc_sudoers_no_all: fix a race condition (#186)
+  * fix: change auditd file rule remediation (#179)
+  * fix: correct debian package compression override (#181)
+  * fix: ensure mountpoints are properly detected (#177)
+  * fix: correct search in 5.4.5_default_timeout in apply mode (#178)
+  * fix: force xz compression during .deb build (#180)
+  * feat: official Debian 11 compatibility (#176)
+  * Bump luizm/action-sh-checker from 0.5.0 to 0.7.0 (#171)
+
+ -- Thibault Dewailly <thibault.dewailly@ovhcloud.com>  Mon, 10 Jul 2023 07:18:55 +0000
+
 cis-hardening (3.8-1) unstable; urgency=medium
 
   * fix: timeout of 99.1.3 (#168)

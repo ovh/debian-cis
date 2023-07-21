@@ -23,7 +23,7 @@ HARDENING_EXCEPTION=mail
 audit() {
     is_pkg_installed net-tools
     if [ "$FNRET" != 0 ]; then
-        warn "netsat not installed, cannot execute check"
+        warn "netstat not installed, cannot execute check"
         exit 2
     else
         info "Checking netport ports opened"
@@ -47,7 +47,7 @@ audit() {
 apply() {
     is_pkg_installed net-tools
     if [ "$FNRET" != 0 ]; then
-        warn "netsat not installed, cannot execute check"
+        warn "netstat not installed, cannot execute check"
         exit 2
     else
         info "Checking netport ports opened"

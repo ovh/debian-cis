@@ -53,7 +53,14 @@ apply() {
     if [ "$FNRET" = 0 ]; then
         ok "$PARTITION is correctly set"
     elif [ "$FNRET" = 2 ]; then
-        crit "$PARTITION is not a partition, correct this by yourself, I cannot help you here"
+        info "Adding bind to fstab"
+        add_bind_option_to_fstab "$PARTITION"
+        info "Mounting $PARTITION"
+        mount_bind_partition "$PARTITION"
+        info "Adding $OPTION to fstab"
+        add_option_to_fstab "$PARTITION" "$OPTION"
+        info "Remounting $PARTITION from fstab"
+        remount_partition "$PARTITION"
     elif [ "$FNRET" = 1 ]; then
         info "Adding $OPTION to fstab"
         add_option_to_fstab "$PARTITION" "$OPTION"

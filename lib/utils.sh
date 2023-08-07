@@ -500,6 +500,28 @@ add_option_to_fstab() {
     sed -ie "s;\(.*\)\(\s*\)\s\($PARTITION\)\s\(\s*\)\(\w*\)\(\s*\)\(\w*\)*;\1\2 \3 \4\5\6\7,$OPTION;" /etc/fstab
 }
 
+add_bind_option_to_fstab() {
+    local PARTITION=$1
+    FNRET=0
+    is_a_partition "$PARTITION"
+    if [ $FNRET -gt 0 ]; then
+        if ! [ -d "$PARTITION" ]; then
+            debug "Creating directory $PARTITION"
+            mkdir -p "$PARTITION"
+        fi
+        debug "Adding bind option for $PARTITION in fstab"
+        backup_file "/etc/fstab"
+        debug "Adding this line to fstab: $PARTITION $PARTITION none bind 0 0"
+        echo "$PARTITION $PARTITION none bind 0 0" >> /etc/fstab
+    fi
+}
+
+mount_bind_partition() {
+    local PARTITION=$1
+    debug "Mounting $PARTITION with bind option"
+    mount -o bind -t none "$PARTITION" "$PARTITION"
+}
+
 remount_partition() {
     local PARTITION=$1
     debug "Remounting $PARTITION"

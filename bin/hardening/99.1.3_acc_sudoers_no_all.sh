@@ -23,64 +23,50 @@ DIRECTORY="/etc/sudoers.d"
 # improves readability in audit report
 REGEX="ALL = \( ALL( : ALL)? \)( NOPASSWD:)? ALL"
 EXCEPT=""
-MAX_FILES_TO_LOG=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     # expand spaces to [[:space:]]*
     # shellcheck disable=2001
     REGEX="$(echo "$REGEX" | sed 's/ /[[:space:]]*/g')"
+    matched_files=""
 
-    local skiplog
-    skiplog=0
-    if [ $MAX_FILES_TO_LOG != 0 ]; then
-        # if we have more than $MAX_FILES_TO_LOG files in $DIRECTORY, we'll reduce
-        # logging in the loop, to avoid flooding the logs and getting timed out
-        local nbfiles
-        # shellcheck disable=2012 # (find is too slow and calls fstatat() for each file)
-        nbfiles=$(ls -f "$DIRECTORY" | wc -l)
-        if [ "$nbfiles" -gt "$MAX_FILES_TO_LOG" ]; then
-            skiplog=1
-            info "Found $nbfiles files in $DIRECTORY (> $MAX_FILES_TO_LOG), we won't log every file we check"
-        fi
+    # check for pattern in $FILE
+    if $SUDO_CMD grep -Eq "$REGEX" "$FILE"; then
+        # Will log/warn below, once we've scanned everything,
+        # because we must also check for patterns that are excused
+        matched_files="$FILE"
+    elif [ $? -gt 1 ]; then
+        # ret > 1 means other grep error we must report
+        crit "Couldn't grep for pattern in $FILE"
+    else
+        # no match, it's ok
+        :
     fi
 
-    FILES=""
-    if $SUDO_CMD [ ! -r "$FILE" ]; then
-        crit "$FILE is not readable"
-        return
-    fi
-    FILES="$FILE"
+    # check for pattern in whole $DIRECTORY
     if $SUDO_CMD [ ! -d "$DIRECTORY" ]; then
         debug "$DIRECTORY does not exist"
     elif $SUDO_CMD [ ! -x "$DIRECTORY" ]; then
         crit "Cannot browse $DIRECTORY"
     else
-        FILES="$FILES $($SUDO_CMD ls -1 $DIRECTORY | sed s=^=$DIRECTORY/=)"
+        info "Will check for $($SUDO_CMD ls -f "$DIRECTORY" | wc -l) files within $DIRECTORY"
+        matched_files="$matched_files $($SUDO_CMD grep -REl "$REGEX" "$DIRECTORY" || true)"
     fi
-    for file in $FILES; do
-        if $SUDO_CMD [ ! -r "$file" ]; then
-            crit "$file is not readable"
-        else
-            if ! $SUDO_CMD grep -E "$REGEX" "$file" &>/dev/null; then
-                if [ $skiplog = 0 ]; then
-                    ok "There is no carte-blanche sudo permission in $file"
-                fi
-            else
-                RET=$($SUDO_CMD grep -E "$REGEX" "$file" | sed 's/\t/#/g;s/ /#/g')
-                for line in $RET; do
-                    if grep -q "$(echo "$line" | cut -d '#' -f 1)" <<<"$EXCEPT"; then
-                        # shellcheck disable=2001
-                        ok "$(echo "$line" | sed 's/#/ /g') is present in $file but was EXCUSED because $(echo "$line" | cut -d '#' -f 1) is part of exceptions."
-                        continue
-                    fi
-                    # shellcheck disable=2001
-                    crit "$(echo "$line" | sed 's/#/ /g') is present in $file"
-                done
-            fi
-        fi
-    done
 
+    # now check for pattern exceptions, and crit for each file otherwise
+    for file in $matched_files; do
+        RET=$($SUDO_CMD grep -E "$REGEX" "$file" | sed 's/\t/#/g;s/ /#/g')
+        for line in $RET; do
+            if grep -q "$(echo "$line" | cut -d '#' -f 1)" <<<"$EXCEPT"; then
+                # shellcheck disable=2001
+                ok "$(echo "$line" | sed 's/#/ /g') is present in $file but was EXCUSED because $(echo "$line" | cut -d '#' -f 1) is part of exceptions."
+                continue
+            fi
+            # shellcheck disable=2001
+            crit "$(echo "$line" | sed 's/#/ /g') is present in $file"
+        done
+    done
 }
 
 # This function will be called if the script status is on enabled mode
@@ -95,13 +81,6 @@ status=audit
 
 # Put EXCEPTION account names here, space separated
 EXCEPT="root %root %sudo %wheel"
-
-# If we find more than this amount of files in sudoers.d/,
-# we'll reduce the logging in the loop to avoid getting
-# timed out because we spend too much time logging.
-# Using 0 disables this feature and will never reduce the
-# logging, regardless of the number of files.
-MAX_FILES_TO_LOG=0
 EOF
 }
 # This function will check config parameters required

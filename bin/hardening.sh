@@ -307,19 +307,19 @@ for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
 
     info "Treating $SCRIPT"
     if [ "$CREATE_CONFIG" = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --create-config-files-only"
+        debug "$SCRIPT --create-config-files-only"
         LOGLEVEL=$LOGLEVEL "$SCRIPT" --create-config-files-only "$BATCH_MODE"
     elif [ "$AUDIT" = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit $SUDO_MODE $BATCH_MODE"
+        debug "$SCRIPT --audit $SUDO_MODE $BATCH_MODE"
         LOGLEVEL=$LOGLEVEL "$SCRIPT" --audit "$SUDO_MODE" "$BATCH_MODE"
     elif [ "$AUDIT_ALL" = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
+        debug "$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
         LOGLEVEL=$LOGLEVEL "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
     elif [ "$AUDIT_ALL_ENABLE_PASSED" = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
+        debug "$SCRIPT --audit-all $SUDO_MODE $BATCH_MODE"
         LOGLEVEL=$LOGLEVEL "$SCRIPT" --audit-all "$SUDO_MODE" "$BATCH_MODE"
     elif [ "$APPLY" = 1 ]; then
-        debug "$CIS_ROOT_DIR/bin/hardening/$SCRIPT"
+        debug "$SCRIPT"
         LOGLEVEL=$LOGLEVEL "$SCRIPT"
     fi
 

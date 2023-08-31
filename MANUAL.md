@@ -4,7 +4,7 @@
 
 # NAME
 
-cis-hardening - CIS Debian 9/10 Hardening
+cis-hardening - CIS Debian 10/11 Hardening
 
 # SYNOPSIS
 
@@ -12,7 +12,7 @@ cis-hardening - CIS Debian 9/10 Hardening
 
 # DESCRIPTION
 
-Modular Debian 9/10 security hardening scripts based on the CIS (https://www.cisecurity.org) recommendations.
+Modular Debian 10/11 security hardening scripts based on the CIS (https://www.cisecurity.org) recommendations.
 
 We use it at OVHcloud (https://www.ovhcloud.com) to harden our PCI-DSS infrastructure.
 
@@ -139,7 +139,7 @@ will create a timestamped backup in this directory.
 
 # COPYRIGHT
 
-Copyright 2020 OVHcloud
+Copyright 2023 OVHcloud
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

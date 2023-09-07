@@ -15,32 +15,42 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Ensure firewall is active (iptables is installed, does not check for its configuration)."
+DESCRIPTION="Ensure firewall is active (either nftables or iptables is installed, does not check for its configuration)."
 
 # Note: CIS recommends your iptables rules to be persistent.
 # Do as you want, but this script does not handle this
-# At OVH, we use iptables
 
-PACKAGE='iptables'
+PACKAGES='iptables nftables'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$PACKAGE is not installed!"
-    else
-        ok "$PACKAGE is installed"
+    FOUND=false
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
+            ok "$PACKAGE provides firewalling feature"
+            FOUND=true
+        fi
+    done
+    if [ "$FOUND" = false ]; then
+        crit "None of the following firewall packages are installed: $PACKAGES"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        ok "$PACKAGE is installed"
-    else
-        crit "$PACKAGE is absent, installing it"
-        apt_install "$PACKAGE"
+    for PACKAGE in $PACKAGES; do
+        is_pkg_installed "$PACKAGE"
+        if [ "$FNRET" = 0 ]; then
+            ok "$PACKAGE provides firewalling feature"
+            FOUND=true
+        fi
+    done
+    if [ "$FOUND" = false ]; then
+        crit "None of the following firewall packages are installed: $PACKAGES, installing them"
+        # FIXME : iptables is hardcoded, we will have to change this in the future
+        # This will install nftables and iptables
+        apt_install "iptables"
     fi
 }
 

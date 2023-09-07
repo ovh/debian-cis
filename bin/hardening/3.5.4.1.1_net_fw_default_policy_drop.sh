@@ -45,7 +45,7 @@ audit() {
                     crit "Policy set to $actual_policy for chain $chain, should be ${FW_POLICY}."
                 fi
             else
-                echo "cant find chain $chain"
+                crit "Unable to find chain $chain"
             fi
         done
     fi

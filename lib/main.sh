@@ -17,16 +17,16 @@ if [ -n "${LOGLEVEL:-}" ]; then
     SAVED_LOGLEVEL=$LOGLEVEL
 fi
 # shellcheck source=../etc/hardening.cfg
-[ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
+[ -r "${CIS_CONF_DIR}"/hardening.cfg ] && . "${CIS_CONF_DIR}"/hardening.cfg
 if [ -n "$SAVED_LOGLEVEL" ]; then
     LOGLEVEL=$SAVED_LOGLEVEL
 fi
 # shellcheck source=../lib/common.sh
-[ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
+[ -r "${CIS_LIB_DIR}"/common.sh ] && . "${CIS_LIB_DIR}"/common.sh
 # shellcheck source=../lib/utils.sh
-[ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
+[ -r "${CIS_LIB_DIR}"/utils.sh ] && . "${CIS_LIB_DIR}"/utils.sh
 # shellcheck source=constants.sh
-[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
+[ -r "${CIS_LIB_DIR}"/constants.sh ] && . "${CIS_LIB_DIR}"/constants.sh
 
 # Environment Sanitizing
 export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
@@ -59,7 +59,7 @@ while [[ $# -gt 0 ]]; do
         BATCH_MODE=1
         LOGLEVEL=ok
         # shellcheck source=../lib/common.sh
-        [ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
+        [ -r "${CIS_LIB_DIR}"/common.sh ] && . "${CIS_LIB_DIR}"/common.sh
         ;;
     *)
         debug "Unknown option passed"
@@ -72,25 +72,25 @@ info "Working on $SCRIPT_NAME"
 info "[DESCRIPTION] $DESCRIPTION"
 
 # Source specific configuration file
-if ! [ -r "$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg ]; then
+if ! [ -r "${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg ]; then
     # If it doesn't exist, create it with default values
-    echo "# Configuration for $SCRIPT_NAME, created from default values on $(date)" >"$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
+    echo "# Configuration for $SCRIPT_NAME, created from default values on $(date)" >"${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
     # If create_config is a defined function, execute it.
     # Otherwise, just disable the test by default.
     if type -t create_config | grep -qw function; then
-        create_config >>"$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
+        create_config >>"${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
     else
-        echo "status=audit" >>"$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
+        echo "status=audit" >>"${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
     fi
 
 fi
 
 if [ "$forcedstatus" = "createconfig" ]; then
-    debug "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_NAME.cfg has been created"
+    debug "${CIS_CONF_DIR}/conf.d/$SCRIPT_NAME.cfg has been created"
     exit 0
 fi
 # shellcheck source=/dev/null
-[ -r "$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg ] && . "$CIS_ROOT_DIR"/etc/conf.d/"$SCRIPT_NAME".cfg
+[ -r "${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg ] && . "${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
 
 # Now check configured value for status, and potential cmdline parameter
 if [ "$forcedstatus" = "auditall" ]; then

@@ -49,17 +49,17 @@ if [ -r /etc/default/cis-hardening ]; then
     # shellcheck source=../../debian/default
     . /etc/default/cis-hardening
 fi
-if [ -z "$CIS_ROOT_DIR" ]; then
+if [ -z "$CIS_LIB_DIR" ]; then
     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-    echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "Cannot source CIS_LIB_DIR variable, aborting."
     exit 128
 fi
 
 # Main function, will call the proper functions given the configuration (audit, enabled, disabled)
-if [ -r "$CIS_ROOT_DIR"/lib/main.sh ]; then
+if [ -r "${CIS_LIB_DIR}"/main.sh ]; then
     # shellcheck source=../../lib/main.sh
-    . "$CIS_ROOT_DIR"/lib/main.sh
+    . "${CIS_LIB_DIR}"/main.sh
 else
-    echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_ROOT_DIR in /etc/default/cis-hardening"
+    echo "Cannot find main.sh, have you correctly defined your root directory? Current value is $CIS_LIB_DIR in /etc/default/cis-hardening"
     exit 128
 fi

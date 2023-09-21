@@ -1,5 +1,7 @@
-# Default file for CIS Debian hardening scripts
+# # Default file for CIS Debian hardening scripts
 
 # Define here root directory for CIS debian hardening scripts
-CIS_ROOT_DIR='/opt/cis-hardening'
-
+CIS_LIB_DIR='/opt/debian-cis/lib'
+CIS_CHECKS_DIR="/opt/debian-cis/bin/hardening"
+CIS_CONF_DIR='/opt/debian-cis/etc'
+CIS_TMP_DIR='/opt/debian-cis/tmp'

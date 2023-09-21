@@ -201,21 +201,21 @@ if [ -r /etc/default/cis-hardening ]; then
     # shellcheck source=../debian/default
     . /etc/default/cis-hardening
 fi
-if [ -z "$CIS_ROOT_DIR" ]; then
+if [ -z "$CIS_LIB_DIR" ] || [ -z "${CIS_CONF_DIR}" ] || [ -z "${CIS_CHECKS_DIR}" ]; then
     echo "There is no /etc/default/cis-hardening file nor cis-hardening directory in current environment."
-    echo "Cannot source CIS_ROOT_DIR variable, aborting."
+    echo "Cannot source CIS_LIB_DIR, CIS_CONF_DIR, CIS_CHECKS_DIR variables, aborting."
     exit 128
 fi
 
 # shellcheck source=../etc/hardening.cfg
-[ -r "$CIS_ROOT_DIR"/etc/hardening.cfg ] && . "$CIS_ROOT_DIR"/etc/hardening.cfg
+[ -r "${CIS_CONF_DIR}"/hardening.cfg ] && . "${CIS_CONF_DIR}"/hardening.cfg
 if [ "$ASK_LOGLEVEL" ]; then LOGLEVEL=$ASK_LOGLEVEL; fi
 # shellcheck source=../lib/common.sh
-[ -r "$CIS_ROOT_DIR"/lib/common.sh ] && . "$CIS_ROOT_DIR"/lib/common.sh
+[ -r "${CIS_LIB_DIR}"/common.sh ] && . "${CIS_LIB_DIR}"/common.sh
 # shellcheck source=../lib/utils.sh
-[ -r "$CIS_ROOT_DIR"/lib/utils.sh ] && . "$CIS_ROOT_DIR"/lib/utils.sh
+[ -r "${CIS_LIB_DIR}"/utils.sh ] && . "${CIS_LIB_DIR}"/utils.sh
 # shellcheck source=../lib/constants.sh
-[ -r "$CIS_ROOT_DIR"/lib/constants.sh ] && . "$CIS_ROOT_DIR"/lib/constants.sh
+[ -r "${CIS_LIB_DIR}"/constants.sh ] && . "${CIS_LIB_DIR}"/constants.sh
 
 # If we're on a unsupported platform and there is no flag --allow-unsupported-distribution
 # print warning, otherwise quit
@@ -257,7 +257,7 @@ fi
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ]; then
     declare -a HARDENING_EXCEPTIONS_LIST
-    for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
+    for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
         template=$(grep "^HARDENING_EXCEPTION=" "$SCRIPT" | cut -d= -f2)
         [ -n "$template" ] && HARDENING_EXCEPTIONS_LIST[${#HARDENING_EXCEPTIONS_LIST[@]}]="$template"
     done
@@ -272,7 +272,7 @@ if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
         exit 1
     fi
 
-    for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
+    for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
         SCRIPT_BASENAME=$(basename "$SCRIPT" .sh)
         script_level=$(grep "^HARDENING_LEVEL=" "$SCRIPT" | cut -d= -f2)
         if [ -z "$script_level" ]; then
@@ -281,7 +281,7 @@ if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
         fi
         wantedstatus=disabled
         [ "$script_level" -le "$SET_HARDENING_LEVEL" ] && wantedstatus=enabled
-        sed -i -re "s/^status=.+/status=$wantedstatus/" "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
+        sed -i -re "s/^status=.+/status=$wantedstatus/" "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
     done
     echo "Configuration modified to enable scripts for hardening level at or below $SET_HARDENING_LEVEL"
     exit 0
@@ -293,7 +293,7 @@ if [ "$CREATE_CONFIG" = 1 ] && [ "$EUID" -ne 0 ]; then
 fi
 
 # Parse every scripts and execute them in the required mode
-for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
+for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
     if [ "${#TEST_LIST[@]}" -gt 0 ]; then
         # --only X has been specified at least once, is this script in my list ?
         SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<<"$(basename "$SCRIPT")")
@@ -332,8 +332,8 @@ for SCRIPT in $(find "$CIS_ROOT_DIR"/bin/hardening/ -name "*.sh" | sort -V); do
         PASSED_CHECKS=$((PASSED_CHECKS + 1))
         if [ "$AUDIT_ALL_ENABLE_PASSED" = 1 ]; then
             SCRIPT_BASENAME=$(basename "$SCRIPT" .sh)
-            sed -i -re 's/^status=.+/status=enabled/' "$CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
-            info "Status set to enabled in $CIS_ROOT_DIR/etc/conf.d/$SCRIPT_BASENAME.cfg"
+            sed -i -re 's/^status=.+/status=enabled/' "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
+            info "Status set to enabled in ${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
         fi
         ;;
     1)

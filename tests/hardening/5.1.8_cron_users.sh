@@ -5,7 +5,7 @@ test_audit() {
     register_test retvalshouldbe 0
     dismiss_count_for_test
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     local test_user="testcrontabduser"
 
@@ -14,11 +14,11 @@ test_audit() {
     register_test retvalshouldbe 1
     register_test contain "/etc/cron.deny exists"
     register_test contain "/etc/at.deny exists"
-    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe correcting situation
-    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
 
     touch /etc/cron.allow /etc/at.allow
     describe Tests purposely failing
@@ -28,12 +28,12 @@ test_audit() {
     register_test retvalshouldbe 1
     register_test contain "/etc/cron.allow ownership was not set to"
     register_test contain "/etc/at.allow ownership was not set to"
-    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
     userdel "$test_user"
 
     describe correcting situation
-    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
 
     describe Tests purposely failing
     useradd "$test_user"
@@ -42,12 +42,12 @@ test_audit() {
     register_test retvalshouldbe 1
     register_test contain "/etc/cron.allow permissions were not set to"
     register_test contain "/etc/at.allow permissions were not set to"
-    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
     userdel "$test_user"
 
     describe correcting situation
-    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
 
     describe Checking resolved state
     register_test retvalshouldbe 0
@@ -55,6 +55,6 @@ test_audit() {
     register_test contain "/etc/cron.allow has correct ownership"
     register_test contain "/etc/at.allow has correct permissions"
     register_test contain "/etc/at.allow has correct ownership"
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
 }

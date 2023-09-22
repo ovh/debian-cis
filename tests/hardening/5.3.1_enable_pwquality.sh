@@ -9,11 +9,11 @@ test_audit() {
     register_test retvalshouldbe 1
     register_test contain "libpam-pwquality is installed"
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe Correcting situation
-    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    /opt/debian-cis/bin/hardening/"${script}".sh || true
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" || true
 
     describe Checking resolved state
     register_test retvalshouldbe 0
@@ -23,5 +23,5 @@ test_audit() {
     register_test contain "[ OK ] ^ucredit[[:space:]]+=[[:space:]]+-1 is present in /etc/security/pwquality.conf"
     register_test contain "[ OK ] ^ocredit[[:space:]]+=[[:space:]]+-1 is present in /etc/security/pwquality.conf"
     register_test contain "[ OK ] ^lcredit[[:space:]]+=[[:space:]]+-1 is present in /etc/security/pwquality.con"
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 }

@@ -5,7 +5,7 @@ test_audit() {
     register_test retvalshouldbe 0
     dismiss_count_for_test
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     local test_user="testpasswdgroupuser"
     local dir="/etc/passwd"
@@ -14,7 +14,7 @@ test_audit() {
     echo "$test_user:x:1100:1100::/home/$test_user:" >>"$dir"
     register_test retvalshouldbe 1
     register_test contain "is referenced by /etc/passwd but does not exist in /etc/group"
-    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # cleanup
     userdel "$test_user"

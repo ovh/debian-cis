@@ -6,15 +6,15 @@ test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 1
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe correcting situation
-    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
 
     describe Checking resolved state
     register_test retvalshouldbe 0
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     mv /tmp/passwd.bak /etc/passwd
 }

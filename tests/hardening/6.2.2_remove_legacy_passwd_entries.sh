@@ -5,7 +5,7 @@ test_audit() {
     register_test retvalshouldbe 0
     dismiss_count_for_test
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     local test_user="testetcpasswduser"
 
@@ -14,16 +14,16 @@ test_audit() {
     sed -i "s/$test_user:x/+:$test_user:x/" /etc/passwd
     register_test retvalshouldbe 1
     register_test contain "Some accounts have a legacy password entry"
-    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe correcting situation
-    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    /opt/debian-cis/bin/hardening/"${script}".sh --apply || true
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
 
     describe Checking resolved state
     register_test retvalshouldbe 0
     register_test contain "All accounts have a valid password entry format"
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # cleanup
     groupdel $test_user

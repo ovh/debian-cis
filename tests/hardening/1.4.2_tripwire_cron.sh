@@ -4,12 +4,12 @@ test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 1
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    sed -i 's/audit/enabled/' /opt/debian-cis/etc/conf.d/"${script}".cfg
-    /opt/debian-cis/bin/hardening/"${script}".sh || true
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" || true
 
     describe Checking auto resolved state
     register_test retvalshouldbe 0
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 }

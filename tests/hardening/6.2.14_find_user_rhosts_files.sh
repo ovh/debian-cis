@@ -5,7 +5,7 @@ test_audit() {
     register_test retvalshouldbe 0
     dismiss_count_for_test
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     local test_user="testrhostsuser"
     local test_file=".rhosts"
@@ -15,7 +15,7 @@ test_audit() {
     touch "/home/$test_user/$test_file"
     register_test retvalshouldbe 1
     register_test contain "$test_file present"
-    run noncompliant /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # cleanup
     userdel -r "$test_user"

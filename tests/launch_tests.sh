@@ -154,6 +154,8 @@ fi
 ###################
 printf "\033[1;36m###\n### %s\n### \033[0m\n" "Starting debian-cis functional testing"
 
+. /etc/default/cis-hardening
+
 # if no scripts were passed as arguments, list all available test scenarii to be played
 if [ $# -eq 0 ]; then
     tests_list=$(ls -v "$(dirname "$0")"/hardening/)

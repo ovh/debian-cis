@@ -4,19 +4,19 @@ test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 0
     # shellcheck disable=2154
-    run blank /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     ln -s /dev/shm /run/shm
 
     describe Partition symlink
     register_test retvalshouldbe 0
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     echo "dummy entry" >>/etc/fstab
 
     describe Fstab with a real entry to match runtime partitions
     register_test retvalshouldbe 0
-    run resolved /opt/debian-cis/bin/hardening/"${script}".sh --audit-all
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # Cleanup
     rm /run/shm

@@ -13,7 +13,7 @@
 ![License](https://img.shields.io/github/license/ovh/debian-cis)
 ---
 
-Modular Debian 10/11 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
+Modular Debian 10/11/12 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
 recommendations. We use it at [OVHcloud](https://www.ovhcloud.com) to harden our PCI-DSS infrastructure.
 
 ```console

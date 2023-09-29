@@ -4,7 +4,7 @@
 
 # NAME
 
-cis-hardening - CIS Debian 10/11 Hardening
+cis-hardening - CIS Debian 10/11/12 Hardening
 
 # SYNOPSIS
 
@@ -12,7 +12,7 @@ cis-hardening - CIS Debian 10/11 Hardening
 
 # DESCRIPTION
 
-Modular Debian 10/11 security hardening scripts based on the CIS (https://www.cisecurity.org) recommendations.
+Modular Debian 10/11/12 security hardening scripts based on the CIS (https://www.cisecurity.org) recommendations.
 
 We use it at OVHcloud (https://www.ovhcloud.com) to harden our PCI-DSS infrastructure.
 

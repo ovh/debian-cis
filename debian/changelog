@@ -1,3 +1,23 @@
+cis-hardening (4.1-1) unstable; urgency=medium
+
+  * fix: debian12 functional test pass is now mandatory (#207)
+  * feat: Officialize Debian 12 support (#206)
+  * Update the README to reflect on changes made in PR#204 (#205)
+  * Replace CIS_ROOT_DIR by a more flexible system (#204)
+  * feat: add nftables to firewall software allow list (#203)
+  * build(deps): bump actions/checkout from 3 to 4 (#202)
+  * fix: correct debian version check on 5.2.15 configuration generation (#199)
+  * fix: chore, debug logs print correctly now (#197)
+  * fix: chore debian manual update (#198)
+  * build(deps): bump dev-drprasad/delete-tag-and-release (#184)
+  * fix: added `systemd-timesyncd` to use_time_sync script (#189) (#190)
+  * Update warn messages on 2.2.15_mta_localhost.sh (#193)
+  * fix: enhance test 99.1.3 speed for large /etc/sudoers.d folders (#188)
+  * feat: Add experimental debian12 functionnal tests (#187)
+
+
+ -- Thibault Dewailly <thibault.dewailly@ovhcloud.com>  Fri, 29 Sep 2023 14:36:40 +0000
+
 cis-hardening (4.0-1) unstable; urgency=medium
 
   * fix: 99.1.3_acc_sudoers_no_all: fix a race condition (#186)

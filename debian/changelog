@@ -1,3 +1,9 @@
+cis-hardening (4.1-2) unstable; urgency=medium
+
+  * fix: root_dir is still /opt/cis-hardening for the moment (#208)
+
+ -- Thibault Dewailly <thibault.dewailly@ovhcloud.com>  Mon, 02 Oct 2023 13:14:58 +0000
+
 cis-hardening (4.1-1) unstable; urgency=medium
 
   * fix: debian12 functional test pass is now mandatory (#207)

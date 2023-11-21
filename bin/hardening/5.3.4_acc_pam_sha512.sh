@@ -15,20 +15,18 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Check that any password that may exist in /etc/shadow is yescrypt (or SHA512 for debian 10) hashed and salted"
+DESCRIPTION="Check that the algorithm declared in PAM for password changes is sha512 (or yescrypt for Debian 11+)"
 
 CONF_FILE="/etc/pam.d/common-password"
-CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*sha512"
+# CONF_LINE is defined in _set_vars_jit below
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    _set_vars_jit
     # Check conf file for default SHA512 hash
     if $SUDO_CMD [ ! -r "$CONF_FILE" ]; then
         crit "$CONF_FILE is not readable"
     else
-        if [ "$DEB_MAJ_VER" -ge "11" ]; then
-            CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*yescrypt" # https://github.com/ovh/debian-cis/issues/158
-        fi
         # shellcheck disable=SC2001
         does_pattern_exist_in_file "$CONF_FILE" "$(sed 's/ /[[:space:]]+/g' <<<"$CONF_LINE")"
         if [ "$FNRET" = 0 ]; then
@@ -41,6 +39,7 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
+    _set_vars_jit
     if $SUDO_CMD [ ! -r "$CONF_FILE" ]; then
         crit "$CONF_FILE is not readable"
     else
@@ -62,6 +61,18 @@ apply() {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+# As we use DEB_MAJ_VER, which is set by constants.sh, itself sourced by main.sh below,
+# We need to call this in the subs called by main.sh when it is sourced, otherwise it would
+# either be too soon (DEB_MAJ_VER not defined) or too late (test has already been run)
+_set_vars_jit() {
+    if [ "$DEB_MAJ_VER" -ge "11" ]; then
+        CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*(sha512|yescrypt)" # https://github.com/ovh/debian-cis/issues/158
+    else
+        CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*sha512"
+    fi
+    unset -f _set_vars_jit
 }
 
 # Source Root Dir Parameter

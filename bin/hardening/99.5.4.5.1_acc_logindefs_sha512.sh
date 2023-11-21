@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.4.5.1 Check that any password that will be created will be SHA512 hashed and salted
+# 99.5.4.5.1 Check that any password that will be created will use sha512crypt (or yescrypt for Debian 11+)
 #
 
 set -e # One error, it's over
@@ -15,31 +15,33 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Check that any password that will be created will be SHA512 hashed and salted"
+DESCRIPTION="Check that any password that will be created will use sha512crypt (or yescrypt for Debian 11+)"
 
 CONF_FILE="/etc/login.defs"
-CONF_LINE="ENCRYPT_METHOD SHA512"
+# CONF_LINE and CONF_LINE_REGEX are defined in _set_vars_jit below
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    _set_vars_jit
     # Check conf file for default SHA512 hash
     if $SUDO_CMD [ ! -r "$CONF_FILE" ]; then
         crit "$CONF_FILE is not readable"
     else
-        does_pattern_exist_in_file "$CONF_FILE" "^ *${CONF_LINE/ /[[:space:]]+}"
+        does_pattern_exist_in_file "$CONF_FILE" "^ *${CONF_LINE_REGEX/ /[[:space:]]+}"
         if [ "$FNRET" = 0 ]; then
-            ok "$CONF_LINE is present in $CONF_FILE"
+            ok "$CONF_LINE_REGEX is present in $CONF_FILE"
         else
-            crit "$CONF_LINE is not present in $CONF_FILE"
+            crit "$CONF_LINE_REGEX is not present in $CONF_FILE"
         fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_pattern_exist_in_file "$CONF_FILE" "^ *${CONF_LINE/ /[[:space:]]+}"
+    _set_vars_jit
+    does_pattern_exist_in_file "$CONF_FILE" "^ *${CONF_LINE_REGEX/ /[[:space:]]+}"
     if [ "$FNRET" = 0 ]; then
-        ok "$CONF_LINE is present in $CONF_FILE"
+        ok "$CONF_LINE_REGEX is present in $CONF_FILE"
     else
         warn "$CONF_LINE is not present in $CONF_FILE, adding it"
         does_pattern_exist_in_file "$CONF_FILE" "^$(echo "$CONF_LINE" | cut -d ' ' -f1)"
@@ -55,6 +57,20 @@ apply() {
 # This function will check config parameters required
 check_config() {
     :
+}
+
+# As we use DEB_MAJ_VER, which is set by constants.sh, itself sourced by main.sh below,
+# We need to call this in the subs called by main.sh when it is sourced, otherwise it would
+# either be too soon (DEB_MAJ_VER not defined) or too late (test has already been run)
+_set_vars_jit() {
+    if [ "$DEB_MAJ_VER" -ge "11" ]; then
+        CONF_LINE_REGEX="ENCRYPT_METHOD (SHA512|yescrypt|YESCRYPT)"
+        CONF_LINE="ENCRYPT_METHOD YESCRYPT"
+    else
+        CONF_LINE_REGEX="ENCRYPT_METHOD SHA512"
+        CONF_LINE="ENCRYPT_METHOD SHA512"
+    fi
+    unset -f _set_vars_jit
 }
 
 # Source Root Dir Parameter

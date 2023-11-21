@@ -140,6 +140,11 @@ _run() {
     echo $? >"$outdir/$usecase_name.retval"
     ret=$(<"$outdir"/"$usecase_name".retval)
     get_stdout
+    if [ -s "$outdir/${usecase_name}_err.log" ]; then
+        echo ">>> stderr follows"
+        cat "$outdir/${usecase_name}_err.log"
+        echo "<<< end of stderr"
+    fi
 }
 
 # Load assertion functions for functionnal tests

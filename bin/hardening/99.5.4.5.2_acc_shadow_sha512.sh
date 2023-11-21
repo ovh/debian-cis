@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.4.5.2 Check that any password that may exist in /etc/shadow is SHA512 hashed and salted
+# 99.5.4.5.2 Check that passwords in /etc/shadow are sha512crypt (or yescrypt for Debian 11+) hashed and salted
 #
 
 set -e # One error, it's over
@@ -15,7 +15,7 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Check that any password that may exist in /etc/shadow is SHA512 hashed and salted"
+DESCRIPTION="Check that passwords in /etc/shadow are sha512crypt (or yescrypt for Debian 11+) hashed and salted"
 FILE="/etc/shadow"
 
 # This function will be called if the script status is on enabled / audit mode
@@ -36,13 +36,21 @@ audit() {
         elif [[ $passwd =~ ^!.*$ ]]; then
             pw_found+="$user "
             ok "User $user has a disabled password."
-        # Check password against $6$<salt>$<encrypted>, see `man 3 crypt`
+        # yescrypt: Check password against $y$<salt>$<base64>
+        elif [ "$DEB_MAJ_VER" -ge "11" ] && [[ $passwd =~ ^\$y\$[./A-Za-z0-9]+\$[./A-Za-z0-9]{,86}\$[./A-Za-z0-9]{43} ]]; then
+            pw_found+="$user "
+            ok "User $user has suitable yescrypt hashed password."
+        # sha512: Check password against $6$<salt>$<base64>, see `man 3 crypt`
         elif [[ $passwd =~ ^\$6(\$rounds=[0-9]+)?\$[a-zA-Z0-9./]{2,16}\$[a-zA-Z0-9./]{86}$ ]]; then
             pw_found+="$user "
-            ok "User $user has suitable SHA512 hashed password."
+            ok "User $user has suitable sha512crypt hashed password."
         else
             pw_found+="$user "
-            crit "User $user has a password that is not SHA512 hashed."
+            if [ "$DEB_MAJ_VER" -ge "11" ]; then
+                crit "User $user has a password that is not sha512crypt nor yescrypt hashed."
+            else
+                crit "User $user has a password that is not sha512crypt hashed."
+            fi
         fi
     done
     if [[ -z "$users_reviewed" ]]; then

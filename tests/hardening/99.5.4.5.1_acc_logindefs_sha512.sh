@@ -3,7 +3,7 @@
 test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 0
-    register_test contain "ENCRYPT_METHOD SHA512 is present in /etc/login.defs"
+    register_test contain "is present in /etc/login.defs"
     # shellcheck disable=2154
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
@@ -11,7 +11,7 @@ test_audit() {
     describe Line as comment
     sed -i 's/\(ENCRYPT_METHOD SHA512\)/# \1/' /etc/login.defs
     register_test retvalshouldbe 1
-    register_test contain "SHA512 is not present"
+    register_test contain "is not present in /etc/login.defs"
     run commented "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     rm /etc/login.defs
@@ -24,7 +24,7 @@ test_audit() {
     sed -ir 's/ENCRYPT_METHOD[[:space:]]\+SHA512/ENCRYPT_METHOD MD5/' /etc/login.defs
     describe Fail: wrong hash function configuration
     register_test retvalshouldbe 1
-    register_test contain "SHA512 is not present"
+    register_test contain "is not present in /etc/login.defs"
     run wrongconf "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe Correcting situation

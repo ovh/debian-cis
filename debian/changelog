@@ -1,3 +1,14 @@
+cis-hardening (4.1-3) unstable; urgency=medium
+
+  * Adapt all scripts to yescrypt (#216)
+  * build(deps): bump metcalfc/changelog-generator from 4.1.0 to 4.2.0 (#214)
+  * fix: clean obsolete check 99.5.4.5.1, now handled by 5.3.4 (#215)
+  * enh: remove ssh system sandbox check (#213)
+  * build(deps): bump luizm/action-sh-checker from 0.7.0 to 0.8.0 (#210)
+  * feat: advertise Debian 12 compatibility in readme
+
+ -- Thibault Dewailly <thibault.dewailly@ovhcloud.com>  Tue, 28 Nov 2023 10:33:04 +0000
+
 cis-hardening (4.1-2) unstable; urgency=medium
 
   * fix: root_dir is still /opt/cis-hardening for the moment (#208)

@@ -94,5 +94,6 @@ test_audit() {
     userdel exceptiontestuser
     userdel jeantestuser
     userdel -r jeantest2
-    rm -f /tmp/key1 /tmp/key1.pub /tmp/rootkey1.pub /root/.ssh
+    rm -f /tmp/key1 /tmp/key1.pub /tmp/rootkey1.pub
+    rm -rf /root/.ssh
 }

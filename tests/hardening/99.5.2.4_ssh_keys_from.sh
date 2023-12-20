@@ -2,7 +2,7 @@
 # run-shellcheck
 test_audit() {
     # shellcheck disable=2154
-    echo 'EXCEPTION_USER="root"' >>"${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    echo 'EXCEPTION_USERS=""' >>"${CIS_CONF_DIR}/conf.d/${script}.cfg"
 
     skip_tests
     # shellcheck disable=2154
@@ -12,11 +12,30 @@ test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 0
     dismiss_count_for_test
+    register_test contain "[INFO] User root has a valid shell"
     register_test contain "[WARN] secaudit has a valid shell but no authorized_keys file"
     register_test contain "[INFO] User jeantestuser has a valid shell"
     register_test contain "[INFO] User jeantestuser has no home directory"
     # shellcheck disable=2154
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
+    mkdir -p /root/.ssh
+    ssh-keygen -N "" -t ed25519 -f /tmp/rootkey1
+    cat /tmp/rootkey1.pub >>/root/.ssh/authorized_keys
+    describe Check /root is used for root user instead of home by placing key without from field
+    register_test retvalshouldbe 1
+    run rootcheck "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    # clean up so we dont break the upcoming tests
+    rm -rf /root/.ssh
+
+    echo 'EXCEPTION_USERS="root exceptiontestuser"' >>"${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    useradd -s /bin/bash exceptiontestuser
+    describe Check multiple exception users are skipped
+    register_test retvalshouldbe 0
+    register_test contain "[INFO] User root is named in EXEPTION_USERS and is thus skipped from check."
+    register_test contain "[INFO] User exceptiontestuser is named in EXEPTION_USERS and is thus skipped from check."
+    # shellcheck disable=2154
+    run exceptionusers "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     mkdir -p /home/secaudit/.ssh
     touch /home/secaudit/.ssh/authorized_keys2
@@ -74,7 +93,8 @@ test_audit() {
     run checkuser "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # Cleanup
+    userdel exceptiontestuser
     userdel jeantestuser
     userdel -r jeantest2
-    rm -f /tmp/key1 /tmp/key1.pub
+    rm -f /tmp/key1 /tmp/key1.pub /tmp/rootkey1.pub
 }

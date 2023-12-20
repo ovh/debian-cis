@@ -26,7 +26,7 @@ AUTHKEYFILE_PATTERN_DEFAULT=".ssh/authorized_keys .ssh/authorized_keys2"
 
 ALLOWED_IPS=""
 USERS_TO_CHECK=""
-EXCEPTION_USER=""
+EXCEPTION_USERS=""
 
 ALLOWED_NOLOGIN_SHELLS="/bin/false /usr/sbin/nologin"
 
@@ -137,7 +137,10 @@ audit() {
             continue
         else
             info "User $user has a valid shell ($shell)."
-            if [ "$user" = "root" ] && [ "$user" != "$EXCEPTION_USER" ]; then
+            if grep -qw "$user" <<<"$EXCEPTION_USERS"; then
+                info "User $user is named in EXEPTION_USERS and is thus skipped from check."
+                continue
+            elif [ "$user" = "root" ]; then
                 check_dir /root
                 continue
             elif $SUDO_CMD [ ! -d /home/"$user" ]; then
@@ -164,7 +167,7 @@ status=audit
 # Put authorized IPs you want to allow in "from" field of authorized_keys
 ALLOWED_IPS=""
 USERS_TO_CHECK=""
-EXCEPTION_USER=""
+EXCEPTION_USERS=""
 EOF
 }
 

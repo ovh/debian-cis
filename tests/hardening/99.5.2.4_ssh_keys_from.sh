@@ -25,8 +25,6 @@ test_audit() {
     describe Check /root is used for root user instead of home by placing key without from field
     register_test retvalshouldbe 1
     run rootcheck "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
-    # clean up so we dont break the upcoming tests
-    rm -rf /root/.ssh
 
     echo 'EXCEPTION_USERS="root exceptiontestuser"' >>"${CIS_CONF_DIR}/conf.d/${script}.cfg"
     useradd -s /bin/bash exceptiontestuser
@@ -96,5 +94,5 @@ test_audit() {
     userdel exceptiontestuser
     userdel jeantestuser
     userdel -r jeantest2
-    rm -f /tmp/key1 /tmp/key1.pub /tmp/rootkey1.pub
+    rm -f /tmp/key1 /tmp/key1.pub /tmp/rootkey1.pub /root/.ssh
 }

@@ -16,6 +16,9 @@
 Modular Debian 10/11/12 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
 recommendations. We use it at [OVHcloud](https://www.ovhcloud.com) to harden our PCI-DSS infrastructure.
 
+NB : Although Debian 12 CIS Hardening guide is still in development, we do use this set of scripts
+in production at OVHcloud on Debian 12 Operating Systems.
+
 ```console
 $ bin/hardening.sh --audit-all
 [...]
@@ -243,6 +246,20 @@ built a secure environment. While we use it at OVHcloud to harden our PCI-DSS co
 infrastructure, we can not guarantee that it will work for you. It will not
 magically secure any random host.
 
+A word about numbering, implementation and sustainability over time of this repository:
+This project is born with the Debian 7 distribution in 2016. Over time, CIS Benchmark PDF
+has evolved, changing it's numbering, deleting obsolete checks.
+In order to keep retro-compatiblity with the last maintained Debian, the numbering
+has not been changed along with the PDF, because the configuration scripts are named after it.
+Changing the numbering might break automation for admins using it for years, and handling
+this issue without breaking anything would require a huge refactoring.
+As a consequence, please do not worry about numbering, the checks are there,
+but the numbering accross PDFs might differ.
+Please also note that all the check inside CIS Benchmark PDF might not be implemented
+in this set of scripts.
+We did choose the most relevant to us at OVHcloud, do not hesitate to make a
+Pull Request in order to add the missing script you might find relevant for you.
+
 Additionally, quoting the License:
 
 > THIS SOFTWARE IS PROVIDED BY OVH SAS AND CONTRIBUTORS ``AS IS'' AND ANY
@@ -255,6 +272,7 @@ Additionally, quoting the License:
 > ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 > (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 > SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 
 ## :satellite: Reference
 

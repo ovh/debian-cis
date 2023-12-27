@@ -16,10 +16,9 @@ set -u # One variable unset, it's over
 HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Configure syslog-ng to send logs to a remote log host."
-
 PACKAGE='syslog-ng'
-
-PATTERN='destination[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
+SYSLOG_BASEDIR='/etc/syslog-ng'
+PATTERN='destination[[:alnum:][:space:]*_*{]+(tcp|network|udp)[[:space:]]*\([[:space:]]*\"?[[:alnum:]\-.]+\"?.'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

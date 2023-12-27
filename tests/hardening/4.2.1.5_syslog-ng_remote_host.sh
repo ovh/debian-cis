@@ -38,6 +38,6 @@ EOF
     run subfile "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # Cleanup
-    rm /etc/syslog-ng/conf.d/1_tcp_destination
+    rm -f /etc/syslog-ng/conf.d/1_tcp_destination
 
 }

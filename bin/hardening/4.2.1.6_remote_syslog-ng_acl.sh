@@ -18,9 +18,9 @@ HARDENING_LEVEL=3
 DESCRIPTION="Configure syslog to accept remote syslog messages only on designated log hosts."
 
 PACKAGE='syslog-ng'
-
+SYSLOG_BASEDIR='/etc/syslog-ng'
 REMOTE_HOST=""
-PATTERN='source[[:alnum:][:space:]*{]+(tcp|udp)[[:space:]]*\(\"[[:alnum:].]+\".'
+PATTERN='source[[:alnum:][:space:]*_*{]+(tcp|network|udp)[[:space:]]*\([[:space:]]*\"?[[:alnum:]\-.]+\"?.'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -37,7 +37,7 @@ audit() {
             fi
         done
 
-        if [[ "$REMOTE_HOST" ]]; then
+        if [[ "$REMOTE_HOST" ]] && [[ "$REMOTE_HOST" != 'false' ]]; then
             info "This is the remote host, checking that it only accepts logs from specified zone"
             if [ "$FOUND" = 1 ]; then
                 ok "$PATTERN is present in $FILES"
@@ -70,7 +70,7 @@ apply() {
             fi
         done
 
-        if [[ "$REMOTE_HOST" ]]; then
+        if [[ "$REMOTE_HOST" ]] && [[ "$REMOTE_HOST" != 'false' ]]; then
             info "This is the remote host, checking that it only accepts logs from specified zone"
             if [ "$FOUND" = 1 ]; then
                 ok "$PATTERN is present in $FILES"

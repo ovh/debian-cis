@@ -22,13 +22,13 @@ FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    OPTIONS="AllowUsers='$ALLOWED_USERS' AllowGroups='$ALLOWED_GROUPS' DenyUsers='$DENIED_USERS' DenyGroups='$DENIED_GROUPS'"
+    OPTIONS=( "AllowUsers='$ALLOWED_USERS'" "AllowGroups='$ALLOWED_GROUPS'" "DenyUsers='$DENIED_USERS'" "DenyGroups='$DENIED_GROUPS'" )
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         ok "$PACKAGE is not installed!"
     else
         ok "$PACKAGE is installed"
-        for SSH_OPTION in $OPTIONS; do
+        for SSH_OPTION in "${OPTIONS[@]}"; do
             SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
             SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
             # shellcheck disable=SC2001
@@ -53,7 +53,7 @@ apply() {
         crit "$PACKAGE is absent, installing it"
         apt_install "$PACKAGE"
     fi
-    for SSH_OPTION in $OPTIONS; do
+    for SSH_OPTION in "${OPTIONS[@]}"; do
         SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
         SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
         # shellcheck disable=SC2001

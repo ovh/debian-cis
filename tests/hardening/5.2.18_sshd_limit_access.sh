@@ -111,6 +111,17 @@ test_audit() {
     register_test contain "^DenyGroups[[:space:]]*nobody is present in /etc/ssh/sshd_config"
     run fix_multi_denied_user_mismatch "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
+    # reset to prevent other test from possibly failing in the future
+    sed -i "s/DENIED_USERS='peterdeny marrydeny'/DENIED_USERS=''/" "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" || true
+    describe Checking resolved state
+    register_test retvalshouldbe 0
+    register_test contain "^AllowUsers[[:space:]]** is present in /etc/ssh/sshd_config"
+    register_test contain "^AllowGroups[[:space:]]** is present in /etc/ssh/sshd_config"
+    register_test contain "^DenyUsers[[:space:]]*nobody is present in /etc/ssh/sshd_config"
+    register_test contain "^DenyGroups[[:space:]]*nobody is present in /etc/ssh/sshd_config"
+    run cleanup_resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
     # Cleanup
     userdel johnallow
     userdel janeallow

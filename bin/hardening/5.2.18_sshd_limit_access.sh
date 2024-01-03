@@ -22,7 +22,7 @@ FILE='/etc/ssh/sshd_config'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    OPTIONS=( "AllowUsers='$ALLOWED_USERS'" "AllowGroups='$ALLOWED_GROUPS'" "DenyUsers='$DENIED_USERS'" "DenyGroups='$DENIED_GROUPS'" )
+    OPTIONS=("AllowUsers='$ALLOWED_USERS'" "AllowGroups='$ALLOWED_GROUPS'" "DenyUsers='$DENIED_USERS'" "DenyGroups='$DENIED_GROUPS'")
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         ok "$PACKAGE is not installed!"

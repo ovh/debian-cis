@@ -192,7 +192,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # if no RUN_MODE was passed, usage and quit
-if [ "$AUDIT" -eq 0 ] && [ "$AUDIT_ALL" -eq 0 ] && [ "$AUDIT_ALL_ENABLE_PASSED" -eq 0 ] && [ "$APPLY" -eq 0 ] && [ "$CREATE_CONFIG" -eq 0 ]; then
+if [ "$AUDIT" -eq 0 ] && [ "$AUDIT_ALL" -eq 0 ] && [ "$AUDIT_ALL_ENABLE_PASSED" -eq 0 ] && [ "$APPLY" -eq 0 ] && [ "$CREATE_CONFIG" -eq 0 ] && [ "$SET_HARDENING_LEVEL" -eq 0 ]; then
     usage
 fi
 

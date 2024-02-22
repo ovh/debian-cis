@@ -72,11 +72,11 @@ test_audit() {
     run allwdfromip "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # shellcheck disable=2016
-    echo 'ALLOWED_IPS="$ALLOWED_IPS 127.0.0.1,10.2.3.1"' >>"${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    echo 'ALLOWED_IPS="$ALLOWED_IPS 127.0.0.1,10.2.3.1/8"' >>"${CIS_CONF_DIR}/conf.d/${script}.cfg"
     {
         echo -n 'from="10.0.1.2",command="echo bla" '
         cat /tmp/key1.pub
-        echo -n 'command="echo bla,from="10.0.1.2,10.2.3.1"" '
+        echo -n 'command="echo bla,from="10.0.1.2,10.2.3.1/8"" '
         cat /tmp/key1.pub
     } >>/home/secaudit/.ssh/authorized_keys2
     describe Key with from and command options

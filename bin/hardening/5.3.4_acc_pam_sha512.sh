@@ -67,7 +67,7 @@ check_config() {
 # We need to call this in the subs called by main.sh when it is sourced, otherwise it would
 # either be too soon (DEB_MAJ_VER not defined) or too late (test has already been run)
 _set_vars_jit() {
-    if [ "$DEB_MAJ_VER" -ge "11" ]; then
+    if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -ge "11" ]; then
         CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*(sha512|yescrypt)" # https://github.com/ovh/debian-cis/issues/158
     else
         CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*sha512"

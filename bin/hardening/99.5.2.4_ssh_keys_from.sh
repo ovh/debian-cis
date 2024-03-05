@@ -19,7 +19,7 @@ DESCRIPTION="Check <from> field in ssh authorized keys files for users with logi
 
 # Regex looking for empty, hash starting lines, or 'from="127.127.127,127.127.127" ssh'
 # shellcheck disable=2089
-REGEX_FROM_IP="from=(?:'|\")(,?(\d{1,3}(\.\d{1,3}){3}))+(?:'|\")"
+REGEX_FROM_IP="from=(?:'|\")(,?(\d{1,3}(\.\d{1,3}){3})(\/\d{1,2})?)+(?:'|\")"
 REGEX_OK_LINES="(^(#|$)|($REGEX_FROM_IP))"
 AUTHKEYFILE_PATTERN=""
 AUTHKEYFILE_PATTERN_DEFAULT=".ssh/authorized_keys .ssh/authorized_keys2"

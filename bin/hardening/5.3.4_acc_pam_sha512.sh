@@ -49,7 +49,7 @@ apply() {
             ok "$CONF_LINE is present in $CONF_FILE"
         else
             warn "$CONF_LINE is not present in $CONF_FILE"
-            if [ "$DEB_MAJ_VER" -ge "11" ]; then
+            if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -ge "11" ]; then
                 add_line_file_before_pattern "$CONF_FILE" "password [success=1 default=ignore] pam_unix.so yescrypt" "# pam-auth-update(8) for details."
             else
                 add_line_file_before_pattern "$CONF_FILE" "password [success=1 default=ignore] pam_unix.so sha512" "# pam-auth-update(8) for details."
@@ -67,12 +67,11 @@ check_config() {
 # We need to call this in the subs called by main.sh when it is sourced, otherwise it would
 # either be too soon (DEB_MAJ_VER not defined) or too late (test has already been run)
 _set_vars_jit() {
-    if [ "$DEB_MAJ_VER" -ge "11" ]; then
+    if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -ge "11" ]; then
         CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*(sha512|yescrypt)" # https://github.com/ovh/debian-cis/issues/158
     else
         CONF_LINE="^\s*password\s.+\s+pam_unix\.so\s+.*sha512"
     fi
-    unset -f _set_vars_jit
 }
 
 # Source Root Dir Parameter

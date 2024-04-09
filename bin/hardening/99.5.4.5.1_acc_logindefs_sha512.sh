@@ -48,7 +48,7 @@ apply() {
         if [ "$FNRET" != 0 ]; then
             add_end_of_file "$CONF_FILE" "$CONF_LINE"
         else
-            info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
+            info "Parameter $CONF_LINE is present but with the wrong value -- Fixing"
             replace_in_file "$CONF_FILE" "^$(echo "$CONF_LINE" | cut -d ' ' -f1)[[:space:]]*.*" "$CONF_LINE"
         fi
     fi
@@ -63,14 +63,13 @@ check_config() {
 # We need to call this in the subs called by main.sh when it is sourced, otherwise it would
 # either be too soon (DEB_MAJ_VER not defined) or too late (test has already been run)
 _set_vars_jit() {
-    if [ "$DEB_MAJ_VER" -ge "11" ]; then
+    if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -ge "11" ]; then
         CONF_LINE_REGEX="ENCRYPT_METHOD (SHA512|yescrypt|YESCRYPT)"
         CONF_LINE="ENCRYPT_METHOD YESCRYPT"
     else
         CONF_LINE_REGEX="ENCRYPT_METHOD SHA512"
         CONF_LINE="ENCRYPT_METHOD SHA512"
     fi
-    unset -f _set_vars_jit
 }
 
 # Source Root Dir Parameter

@@ -19,7 +19,7 @@ DESCRIPTION="Ensure HTTP-proxy is not enabled."
 # shellcheck disable=2034
 HARDENING_EXCEPTION=http
 
-PACKAGES='squid3 squid'
+PACKAGES='squid3 squid tinyproxy'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

@@ -19,7 +19,7 @@ DESCRIPTION="Ensure Domain Name System (dns) server is not enabled."
 # shellcheck disable=2034
 HARDENING_EXCEPTION=dns
 
-PACKAGES='bind9 unbound'
+PACKAGES='bind9 unbound dnsmasq'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

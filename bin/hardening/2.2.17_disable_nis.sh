@@ -17,7 +17,7 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Disable NIS Server."
 
-PACKAGES='nis'
+PACKAGES='nis ypserv'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

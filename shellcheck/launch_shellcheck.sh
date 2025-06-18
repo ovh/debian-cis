@@ -14,7 +14,8 @@ fi
 for f in $files; do
     if head "$f" | grep -qE "^# run-shellcheck$"; then
         printf "\e[1;36mRunning shellcheck on: %s  \e[0m\n" "$f"
-        if ! /usr/bin/shellcheck --color=always --shell=bash -x --source-path=SCRIPTDIR "$f"; then
+        # SC2317: command unreachable, sometimes has a hard time reaching the command in a function
+        if ! /usr/bin/shellcheck --exclude=SC2317 --color=always --shell=bash -x --source-path=SCRIPTDIR "$f"; then
             retval=$((retval + 1))
         fi
     fi

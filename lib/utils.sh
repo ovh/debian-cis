@@ -11,6 +11,7 @@ has_sysctl_param_expected_result() {
     local SYSCTL_PARAM=$1
     local EXP_RESULT=$2
 
+    # shellcheck disable=SC2319
     if [ "$($SUDO_CMD sysctl "$SYSCTL_PARAM" 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
         FNRET=0
     elif [ "$?" = 255 ]; then
@@ -35,6 +36,7 @@ set_sysctl_param() {
     local SYSCTL_PARAM=$1
     local VALUE=$2
     debug "Setting $SYSCTL_PARAM to $VALUE"
+    # shellcheck disable=SC2319
     if [ "$(sysctl -w "$SYSCTL_PARAM"="$VALUE" 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
         FNRET=0
     elif [ $? = 255 ]; then

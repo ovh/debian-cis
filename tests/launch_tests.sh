@@ -13,7 +13,7 @@ cleanup_and_exit() {
     if [ "$totalerrors" -eq 255 ]; then
         fatal "RUNTIME ERROR"
     fi
-    exit $totalerrors
+    exit "$totalerrors"
 }
 trap "cleanup_and_exit" EXIT HUP INT
 
@@ -125,7 +125,7 @@ play_consistency_tests() {
         ok "$name logs are identical"
     fi
 
-    if [ 1 -eq $consist_test ]; then
+    if [ 1 -eq "$consist_test" ]; then
         nbfailedconsist=$((nbfailedconsist + 1))
         listfailedconsist="$listfailedconsist $(make_usecase_name "$usecase" consist)"
     fi

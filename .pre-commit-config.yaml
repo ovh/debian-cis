@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check_has_test
+        name: check_has_test.sh
+        description: Ensure a check has a corresponding test
+        entry: hooks/check_has_test.sh
+        language: script
+        pass_filenames: true
+        files: "^bin/hardening/"

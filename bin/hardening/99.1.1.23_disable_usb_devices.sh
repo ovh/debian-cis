@@ -26,6 +26,8 @@ FILE='/etc/udev/rules.d/10-CIS_99.2_usb_devices.sh'
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     SEARCH_RES=0
+    # if SC2086 is fixed (double quotes) instead of skipped, then shellcheck will complain that double quotes will prevent the loop (SC2066)
+    # shellcheck disable=SC2086
     for FILE_SEARCHED in $FILES_TO_SEARCH; do
         if [ "$SEARCH_RES" = 1 ]; then break; fi
         if $SUDO_CMD test -d "$FILE_SEARCHED"; then

@@ -5,3 +5,4 @@ CIS_LIB_DIR='/opt/cis-hardening/lib'
 CIS_CHECKS_DIR="/opt/cis-hardening/bin/hardening"
 CIS_CONF_DIR='/opt/cis-hardening/etc'
 CIS_TMP_DIR='/opt/cis-hardening/tmp'
+CIS_VERSIONS_DIR='/opt/cis-hardening/versions'

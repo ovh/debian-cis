@@ -1,0 +1,1 @@
+../../bin/hardening/remove_os_info_issue_net.sh

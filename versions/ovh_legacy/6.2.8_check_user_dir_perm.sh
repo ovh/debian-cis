@@ -1,0 +1,1 @@
+../../bin/hardening/check_user_dir_perm.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/disable_talk_client.sh

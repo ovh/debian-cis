@@ -1,0 +1,1 @@
+../../bin/hardening/find_user_rhosts_files.sh

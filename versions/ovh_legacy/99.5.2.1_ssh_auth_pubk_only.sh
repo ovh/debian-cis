@@ -1,0 +1,1 @@
+../../bin/hardening/ssh_auth_pubk_only.sh

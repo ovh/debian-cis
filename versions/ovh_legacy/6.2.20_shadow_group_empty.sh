@@ -1,0 +1,1 @@
+../../bin/hardening/shadow_group_empty.sh

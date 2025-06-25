@@ -1,0 +1,1 @@
+../../bin/hardening/acc_shadow_sha512.sh

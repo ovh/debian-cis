@@ -1,0 +1,1 @@
+../../bin/hardening/hosts_deny_permissions.sh

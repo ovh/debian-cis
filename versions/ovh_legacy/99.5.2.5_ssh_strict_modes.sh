@@ -1,0 +1,1 @@
+../../bin/hardening/ssh_strict_modes.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/remove_empty_password_field.sh

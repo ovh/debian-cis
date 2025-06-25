@@ -1,0 +1,1 @@
+../../bin/hardening/remove_legacy_group_entries.sh

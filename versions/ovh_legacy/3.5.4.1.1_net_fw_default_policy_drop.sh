@@ -1,0 +1,1 @@
+../../bin/hardening/net_fw_default_policy_drop.sh

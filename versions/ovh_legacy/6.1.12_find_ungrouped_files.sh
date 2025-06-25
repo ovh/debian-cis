@@ -1,0 +1,1 @@
+../../bin/hardening/find_ungrouped_files.sh

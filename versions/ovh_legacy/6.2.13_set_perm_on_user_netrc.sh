@@ -1,0 +1,1 @@
+../../bin/hardening/set_perm_on_user_netrc.sh

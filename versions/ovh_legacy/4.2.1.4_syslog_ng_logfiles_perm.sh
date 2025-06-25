@@ -1,0 +1,1 @@
+../../bin/hardening/syslog_ng_logfiles_perm.sh

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.11 Ensure separate partition exists for /var/log (Scored)
+# Ensure separate partition exists for /var/log (Scored)
 #
 
 set -e # One error, it's over

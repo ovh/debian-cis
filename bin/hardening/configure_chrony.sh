@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.1.3 Ensure chrony is configured (Scored)
+# Ensure chrony is configured (Scored)
 #
 
 set -e # One error, it's over

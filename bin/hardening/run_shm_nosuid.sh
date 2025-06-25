@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.16 Ensure nosuid option set on /run/shm partition (Scored)
+# Ensure nosuid option set on /run/shm partition (Scored)
 #
 
 set -e # One error, it's over

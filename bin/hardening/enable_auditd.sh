@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.1.2 Ensure auditd service is enabled (Scored)
+# Ensure auditd service is enabled (Scored)
 #
 
 set -e # One error, it's over

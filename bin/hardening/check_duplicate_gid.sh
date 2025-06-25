@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.17 Ensure no duplicate GIDs exist (Scored)
+# Ensure no duplicate GIDs exist (Scored)
 #
 
 set -e # One error, it's over

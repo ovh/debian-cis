@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.6.1 Ensure nodev option set for /var Partition (Scored)
+# Ensure nodev option set for /var Partition (Scored)
 #
 
 set -e # One error, it's over

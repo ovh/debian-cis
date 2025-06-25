@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.14 Ensure changes to system administration scope (sudoers) is collected (Scored)
+# Ensure changes to system administration scope (sudoers) is collected (Scored)
 #
 
 set -e # One error, it's over

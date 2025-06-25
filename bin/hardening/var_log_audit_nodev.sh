@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.12.3 Ensure nodev option set on /var/log/audit partition (Scored)
+# Ensure nodev option set on /var/log/audit partition (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 5.4.1.5 Ensure all users last password change date is in the past (Scored)
+# Ensure all users last password change date is in the past (Scored)
 #
 
 set -e # One error, it's over

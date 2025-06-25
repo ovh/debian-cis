@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.11 Ensure IMAP and POP server is not installed (Scored)
+# Ensure IMAP and POP server is not installed (Scored)
 #
 
 set -e # One error, it's over

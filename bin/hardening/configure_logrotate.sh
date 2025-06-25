@@ -6,7 +6,7 @@
 #
 
 #
-# 4.3 Ensure logrotate is configured (Not Scored)
+# Ensure logrotate is configured (Not Scored)
 #
 
 set -e # One error, it's over

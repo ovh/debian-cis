@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.17 Ensure noexec option set on /run/shm partition (Scored)
+# Ensure noexec option set on /run/shm partition (Scored)
 #
 
 set -e # One error, it's over

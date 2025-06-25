@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.13 Ensure users' .netrc Files are not group or world accessible (Scored)
+# Ensure users' .netrc Files are not group or world accessible (Scored)
 #
 
 set -e # One error, it's over

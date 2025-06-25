@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.19 Ensure SSH warning banner is configured (Scored)
+# Ensure SSH warning banner is configured (Scored)
 #
 
 set -e # One error, it's over

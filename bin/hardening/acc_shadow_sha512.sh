@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.4.5.2 Check that passwords in /etc/shadow are sha512crypt (or yescrypt for Debian 11+) hashed and salted
+# Check that passwords in /etc/shadow are sha512crypt (or yescrypt for Debian 11+) hashed and salted
 #
 
 set -e # One error, it's over

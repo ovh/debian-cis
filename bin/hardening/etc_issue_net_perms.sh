@@ -6,7 +6,7 @@
 #
 
 #
-# 1.8.1.6 Ensure permissions on /etc/issue.net are configured (Scored)
+# Ensure permissions on /etc/issue.net are configured (Scored)
 #
 
 set -e # One error, it's over

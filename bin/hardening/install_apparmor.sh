@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.1 Ensure AppArmor is installed (Scored)
+# Ensure AppArmor is installed (Scored)
 #
 
 set -e # One error, it's over

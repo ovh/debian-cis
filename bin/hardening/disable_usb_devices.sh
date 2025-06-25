@@ -6,7 +6,7 @@
 #
 
 #
-# 99.1.1.23 Disable USB Devices
+# Disable USB Devices
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 99.4.0 Ensure CONFIG_AUDIT is enabled in your running kernel
+# Ensure CONFIG_AUDIT is enabled in your running kernel
 #
 
 set -e # One error, it's over

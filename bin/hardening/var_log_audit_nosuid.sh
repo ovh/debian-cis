@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.12.2 Ensure nosuid option set on /var/log/audit partition (Scored)
+# Ensure nosuid option set on /var/log/audit partition (Scored)
 #
 
 set -e # One error, it's over

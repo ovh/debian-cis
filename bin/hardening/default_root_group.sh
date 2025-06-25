@@ -6,7 +6,7 @@
 #
 
 #
-# 5.4.3 Ensure default group for the root account is GID 0 (Scored)
+# Ensure default group for the root account is GID 0 (Scored)
 #
 
 set -e # One error, it's over

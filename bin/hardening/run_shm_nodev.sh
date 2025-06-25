@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.15 Ensure nodev option set on /dev/shm partition (Scored)
+# Ensure nodev option set on /dev/shm partition (Scored)
 #
 
 set -e # One error, it's over

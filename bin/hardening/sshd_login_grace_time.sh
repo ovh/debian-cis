@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.17 Ensure SSH LoginGraceTime is set to one minute or less (Scored)
+# Ensure SSH LoginGraceTime is set to one minute or less (Scored)
 #
 
 set -e # One error, it's over

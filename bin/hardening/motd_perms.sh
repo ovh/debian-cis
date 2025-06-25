@@ -6,7 +6,7 @@
 #
 
 #
-# 1.8.1.4 Ensure permissions on /etc/motd are configured (Scored)
+# Ensure permissions on /etc/motd are configured (Scored)
 #
 
 set -e # One error, it's over

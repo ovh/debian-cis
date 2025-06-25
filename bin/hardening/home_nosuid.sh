@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.14.1 Ensure nosuid option set on /home partition (Scored)
+# Ensure nosuid option set on /home partition (Scored)
 #
 
 set -e # One error, it's over

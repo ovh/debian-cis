@@ -6,7 +6,7 @@
 #
 
 #
-# 99.3.3.1 Ensure TCP Wrappers is installed (Scored)
+# Ensure TCP Wrappers is installed (Scored)
 #
 
 set -e # One error, it's over

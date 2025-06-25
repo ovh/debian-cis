@@ -6,7 +6,7 @@
 #
 
 #
-# 1.4.2 Ensure filesysteme integrity is regularly checked (Scored)
+# Ensure filesysteme integrity is regularly checked (Scored)
 #
 
 set -e # One error, it's over

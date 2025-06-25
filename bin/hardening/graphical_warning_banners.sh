@@ -6,7 +6,7 @@
 #
 
 #
-# 1.8.2 Ensure GDM login banner is configured (Scored)
+# Ensure GDM login banner is configured (Scored)
 #
 
 set -e # One error, it's over

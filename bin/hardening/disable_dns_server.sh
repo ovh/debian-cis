@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.8 Ensure DNS Server is not enabled (Scored)
+# Ensure DNS Server is not enabled (Scored)
 #
 
 set -e # One error, it's over

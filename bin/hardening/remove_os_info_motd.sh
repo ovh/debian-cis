@@ -6,7 +6,7 @@
 #
 
 #
-# 1.8.1.1 Ensure message of the day is configured properly (Scored)
+# Ensure message of the day is configured properly (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.2 Ensure no legacy "+" entries exist in /etc/passwd (Scored)
+# Ensure no legacy "+" entries exist in /etc/passwd (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 2.3.1 Ensure NIS client is not installed (Scored)
+# Ensure NIS client is not installed (Scored)
 #
 
 set -e # One error, it's over

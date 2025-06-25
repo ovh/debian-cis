@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.17 Ensure NIS Server is not enabled (Scored)
+# Ensure NIS Server is not enabled (Scored)
 #
 
 set -e # One error, it's over

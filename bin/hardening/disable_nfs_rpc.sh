@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.7 Ensure NFS and RPC are not enabled (Scored)
+# Ensure NFS and RPC are not enabled (Scored)
 #
 
 set -e # One error, it's over

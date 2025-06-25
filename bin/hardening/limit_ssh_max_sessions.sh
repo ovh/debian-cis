@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.23 Ensure SSH MaxSessions is limited (Scored)
+# Ensure SSH MaxSessions is limited (Scored)
 #
 
 set -e # One error, it's over

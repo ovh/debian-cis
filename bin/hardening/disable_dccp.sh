@@ -6,7 +6,7 @@
 #
 
 #
-# 3.4.1 Ensure DCCP is disabled (Not Scored)
+# Ensure DCCP is disabled (Not Scored)
 #
 
 set -e # One error, it's over

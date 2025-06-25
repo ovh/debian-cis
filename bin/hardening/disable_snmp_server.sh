@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.14 Ensure SNMP Server is not enabled (Scored)
+# Ensure SNMP Server is not enabled (Scored)
 #
 
 set -e # One error, it's over

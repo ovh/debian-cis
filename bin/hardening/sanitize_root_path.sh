@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.7 Ensure root PATH Integrity (Scored)
+# Ensure root PATH Integrity (Scored)
 #
 
 # set path to the $PATH environnement variable if path is not defined

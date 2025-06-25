@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.11 Ensure use of privileged commands is collected (Scored)
+# Ensure use of privileged commands is collected (Scored)
 #
 
 set -e # One error, it's over

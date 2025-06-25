@@ -6,7 +6,7 @@
 #
 
 #
-# 1.5.3 Ensure authentication required for single user mode (Scored)
+# Ensure authentication required for single user mode (Scored)
 #
 
 set -e # One error, it's over

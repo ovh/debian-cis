@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.13 Ensure separate partition exists for /home (Scored)
+# Ensure separate partition exists for /home (Scored)
 #
 
 set -e # One error, it's over

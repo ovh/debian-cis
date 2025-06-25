@@ -6,7 +6,7 @@
 #
 
 #
-# 5.6 Ensure access to the su command is restricted (Scored)
+# Ensure access to the su command is restricted (Scored)
 #
 
 set -e # One error, it's over

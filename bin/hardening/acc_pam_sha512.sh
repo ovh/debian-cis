@@ -6,7 +6,7 @@
 #
 
 #
-# 5.3.4 Ensure password hashing algorithm is SHA-512 (Scored)
+# Ensure password hashing algorithm is SHA-512 (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.11.3 ensure nodev option set on /var/log partition (Scored)
+# ensure nodev option set on /var/log partition (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.3.3 Ensure sudo log file exists (Scored)
+# Ensure sudo log file exists (Scored)
 #
 
 set -e # One error, it's over

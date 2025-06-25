@@ -6,7 +6,7 @@
 #
 
 #
-# 99.99 Ensure that the distribution version is debian and that the version is 9 or 10
+# Ensure that the distribution version is debian and that the version is 9 or 10
 #
 
 set -e # One error, it's over

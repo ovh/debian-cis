@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.1.4 Ensure audit_backlog_limit is sufficient (Scored)
+# Ensure audit_backlog_limit is sufficient (Scored)
 #
 
 set -e # One error, it's over

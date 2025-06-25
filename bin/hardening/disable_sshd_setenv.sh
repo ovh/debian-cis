@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.12 Ensure SSH PermitUserEnvironment is disabled (Scored)
+# Ensure SSH PermitUserEnvironment is disabled (Scored)
 #
 
 set -e # One error, it's over

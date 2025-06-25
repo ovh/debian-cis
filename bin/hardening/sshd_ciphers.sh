@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.13 Ensure only strong ciphers are used (Scored)
+# Ensure only strong ciphers are used (Scored)
 #
 
 set -e # One error, it's over

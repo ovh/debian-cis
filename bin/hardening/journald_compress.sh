@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.2 Ensure journald is configured to compress large files (Scored)
+# Ensure journald is configured to compress large files (Scored)
 #
 
 set -e # One error, it's over

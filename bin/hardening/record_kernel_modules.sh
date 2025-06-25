@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.16 Ensure kernel module loading and unloading is collected (Scored)
+# Ensure kernel module loading and unloading is collected (Scored)
 #
 
 set -e # One error, it's over

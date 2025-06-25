@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.12 Ensure no users have .netrc files (Scored)
+# Ensure no users have .netrc files (Scored)
 #
 
 set -e # One error, it's over

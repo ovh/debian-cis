@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.4 Ensure suspicious packets are logged (Scored)
+# Ensure suspicious packets are logged (Scored)
 #
 
 set -e # One error, it's over

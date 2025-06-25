@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.1 Ensure Password Fields are Not Empty (Scored)
+# Ensure Password Fields are Not Empty (Scored)
 #
 
 set -e # One error, it's over

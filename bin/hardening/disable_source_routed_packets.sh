@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.1 Ensure source routed packets are not accepted (Scored)
+# Ensure source routed packets are not accepted (Scored)
 #
 
 set -e # One error, it's over

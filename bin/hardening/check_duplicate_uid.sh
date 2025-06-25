@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.16 Ensure no duplicate UIDs exist (Scored)
+# Ensure no duplicate UIDs exist (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 5.1.3 Ensure permissions on /etc/cron.hourly are configured (Scored)
+# Ensure permissions on /etc/cron.hourly are configured (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.20 Ensure SSH PAM is enabled (Scored)
+# Ensure SSH PAM is enabled (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.4.1 Ensure tripwire is installed (Scored)
+# Ensure tripwire is installed (Scored)
 #
 
 set -e # One error, it's over

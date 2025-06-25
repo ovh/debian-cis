@@ -6,7 +6,7 @@
 #
 
 #
-# 99.3.3.4 Ensure permissions on /etc/hosts.allow are configured (Scored)
+# Ensure permissions on /etc/hosts.allow are configured (Scored)
 #
 
 set -e # One error, it's over

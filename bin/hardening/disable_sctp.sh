@@ -6,7 +6,7 @@
 #
 
 #
-# 3.4.2 Ensure SCTP is disabled (Not Scored)
+# Ensure SCTP is disabled (Not Scored)
 #
 
 set -e # One error, it's over

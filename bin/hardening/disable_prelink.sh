@@ -6,7 +6,7 @@
 #
 
 #
-# 1.6.3 Ensure prelink is disabled (Scored)
+# Ensure prelink is disabled (Scored)
 #
 
 set -e # One error, it's over

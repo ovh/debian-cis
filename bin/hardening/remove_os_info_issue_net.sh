@@ -6,7 +6,7 @@
 #
 
 #
-# 1.8.1.3 Ensure remote login warning banner is configured properly (Scored)
+# Ensure remote login warning banner is configured properly (Scored)
 #
 
 set -e # One error, it's over

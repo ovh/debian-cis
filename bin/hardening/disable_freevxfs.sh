@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.1.1 Ensure Mounting of freevxfs filesystems is disabled (Scored)
+# Ensure Mounting of freevxfs filesystems is disabled (Scored)
 #
 
 set -e # One error, it's over

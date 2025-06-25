@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.13 Audit SUID executables (Not Scored)
+# Audit SUID executables (Not Scored)
 #
 
 set -e # One error, it's over

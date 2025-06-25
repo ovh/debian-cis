@@ -6,7 +6,7 @@
 #
 
 #
-# 1.3.2 Ensure sudo commands use pty (Scored)
+# Ensure sudo commands use pty (Scored)
 #
 
 set -e # One error, it's over

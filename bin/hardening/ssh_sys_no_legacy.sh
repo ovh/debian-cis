@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.2.7 Ensure that legacy services rlogin, rlogind and rcp are disabled and not installed
+# Ensure that legacy services rlogin, rlogind and rcp are disabled and not installed
 #
 
 set -e # One error, it's over

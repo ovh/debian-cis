@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.2 Ensure the X Window system is not installed (Scored)
+# Ensure the X Window system is not installed (Scored)
 #
 
 set -e # One error, it's over

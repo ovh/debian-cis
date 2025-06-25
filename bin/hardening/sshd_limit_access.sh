@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.18 Ensure SSH access is limited (Scored)
+# Ensure SSH access is limited (Scored)
 #
 
 set -e # One error, it's over

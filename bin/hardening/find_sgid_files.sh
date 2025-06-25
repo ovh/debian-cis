@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.14 Audit SGID executables (Not Scored)
+# Audit SGID executables (Not Scored)
 #
 
 set -e # One error, it's over

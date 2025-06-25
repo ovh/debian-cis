@@ -6,7 +6,7 @@
 #
 
 #
-# 99.3.3.5 Verify permissions on /etc/hosts.deny (Scored)
+# Verify permissions on /etc/hosts.deny (Scored)
 #
 
 set -e # One error, it's over

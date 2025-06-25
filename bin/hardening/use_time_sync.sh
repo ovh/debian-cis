@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.1.1 Ensure time synchronization is in use (Not Scored)
+# Ensure time synchronization is in use (Not Scored)
 #
 
 set -e # One error, it's over

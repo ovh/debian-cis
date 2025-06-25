@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.22 Disable Automounting (Scored)
+# Disable Automounting (Scored)
 #
 
 set -e # One error, it's over

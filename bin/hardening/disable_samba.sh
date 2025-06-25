@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.12 Ensure Samba is not enabled (Scored)
+# Ensure Samba is not enabled (Scored)
 #
 
 set -e # One error, it's over

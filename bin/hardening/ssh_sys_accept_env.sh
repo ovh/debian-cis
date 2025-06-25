@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.2.6 Restrict which user's variables are accepted by ssh daemon
+# Restrict which user's variables are accepted by ssh daemon
 #
 
 set -e # One error, it's over

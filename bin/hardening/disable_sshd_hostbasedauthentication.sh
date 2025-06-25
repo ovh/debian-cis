@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.9 Ensure SSH HostbasedAuthentication is disabled (Scored)
+# Ensure SSH HostbasedAuthentication is disabled (Scored)
 #
 
 set -e # One error, it's over

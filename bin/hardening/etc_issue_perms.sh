@@ -6,7 +6,7 @@
 #
 
 #
-# 1.8.1.5 Ensure permissions on /etc/issue are configured (Scored)
+# Ensure permissions on /etc/issue are configured (Scored)
 #
 
 set -e # One error, it's over

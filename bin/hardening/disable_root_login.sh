@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.10 Ensure SSH root login is disabled (Scored)
+# Ensure SSH root login is disabled (Scored)
 #
 
 set -e # One error, it's over

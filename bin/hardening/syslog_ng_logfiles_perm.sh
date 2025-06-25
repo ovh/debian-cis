@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.1.4 Create and Set Permissions on syslog-ng Log Files (Scored)
+# Create and Set Permissions on syslog-ng Log Files (Scored)
 #
 
 set -e # One error, it's over

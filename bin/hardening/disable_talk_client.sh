@@ -6,7 +6,7 @@
 #
 
 #
-# 2.3.3 Ensure talk client is not installed (Scored)
+# Ensure talk client is not installed (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.10 Ensure HTTP Server is not enabled (Scored)
+# Ensure HTTP Server is not enabled (Scored)
 #
 
 set -e # One error, it's over

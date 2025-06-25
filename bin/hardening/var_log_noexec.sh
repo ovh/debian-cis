@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.11.1 Ensure noexec option set on /var/log partition (Scored)
+# Ensure noexec option set on /var/log partition (Scored)
 #
 
 set -e # One error, it's over

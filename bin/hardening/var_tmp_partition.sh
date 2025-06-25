@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.7 Ensure separate partition exists for /var/tmp (Scored)
+# Ensure separate partition exists for /var/tmp (Scored)
 #
 
 set -e # One error, it's over

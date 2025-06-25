@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.3 Ensure permissions on SSH public host key files are configured (Scored)
+# Ensure permissions on SSH public host key files are configured (Scored)
 #
 
 set -e # One error, it's over

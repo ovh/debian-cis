@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.2 Ensure /tmp is configured (Scored)
+# Ensure /tmp is configured (Scored)
 #
 
 set -e # One error, it's over

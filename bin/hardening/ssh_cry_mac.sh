@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.14 Ensure only strong MAC algorithms are used (Scored)
+# Ensure only strong MAC algorithms are used (Scored)
 #
 
 set -e # One error, it's over

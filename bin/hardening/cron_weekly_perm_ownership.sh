@@ -6,7 +6,7 @@
 #
 
 #
-# 5.1.5 Ensure permissions on /etc/cron.weekly are configured (Scored)
+# Ensure permissions on /etc/cron.weekly are configured (Scored)
 #
 
 set -e # One error, it's over

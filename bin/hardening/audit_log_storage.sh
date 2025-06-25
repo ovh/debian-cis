@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.2.1 Ensure audit log storage size is configured (Scored)
+# Ensure audit log storage size is configured (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.7 Ensure SSH MaxAuthTries is set to 4 or less (Scored)
+# Ensure SSH MaxAuthTries is set to 4 or less (Scored)
 #
 
 set -e # One error, it's over

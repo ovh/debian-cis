@@ -6,7 +6,7 @@
 #
 
 #
-# 1.5.1 Ensure permissions on bootloader config are configured (Scored)
+# Ensure permissions on bootloader config are configured (Scored)
 #
 
 set -e # One error, it's over

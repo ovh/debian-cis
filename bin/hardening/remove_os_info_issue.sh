@@ -6,7 +6,7 @@
 #
 
 #
-# 1.8.1.2 Ensure local login warning banner is configured properly (Scored)
+# Ensure local login warning banner is configured properly (Scored)
 #
 
 set -e # One error, it's over

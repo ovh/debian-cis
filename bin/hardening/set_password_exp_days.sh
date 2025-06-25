@@ -6,7 +6,7 @@
 #
 
 #
-# 5.4.1.1 Ensure password expiration is 365 days or less (Scored)
+# Ensure password expiration is 365 days or less (Scored)
 #
 
 set -e # One error, it's over

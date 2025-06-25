@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.6 Ensure that events that modify the system's Mandatory Access Controls are collected (Scored)
+# Ensure that events that modify the system's Mandatory Access Controls are collected (Scored)
 #
 
 set -e # One error, it's over

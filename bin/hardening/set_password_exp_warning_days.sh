@@ -6,7 +6,7 @@
 #
 
 #
-# 5.4.1.3 Ensure password expiration warning days is 7 or more (Scored)
+# Ensure password expiration warning days is 7 or more (Scored)
 #
 
 set -e # One error, it's over

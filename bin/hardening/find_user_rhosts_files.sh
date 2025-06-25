@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.14 Ensure no users have .rhosts files (Scored)
+# Ensure no users have .rhosts files (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.2.3 Check all special features in sshd_config are disabled
+# Check all special features in sshd_config are disabled
 #
 
 set -e # One error, it's over

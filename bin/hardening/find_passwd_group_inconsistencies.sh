@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.15 Ensure all groups in /etc/passwd exist in /etc/group (Scored)
+# Ensure all groups in /etc/passwd exist in /etc/group (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.5 Ensure events that modify the system's network environment are collected (Scored)
+# Ensure events that modify the system's network environment are collected (Scored)
 #
 
 set -e # One error, it's over

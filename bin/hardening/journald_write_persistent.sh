@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.3 Ensure journald is configured to write logfiles to persistent disk (Scored)
+# Ensure journald is configured to write logfiles to persistent disk (Scored)
 #
 
 set -e # One error, it's over

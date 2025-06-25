@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.16 Ensure rsync service is not enabled (Scored)
+# Ensure rsync service is not enabled (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.1.2 Ensure syslog-ng service is enabled (Scored)
+# Ensure syslog-ng service is enabled (Scored)
 #
 
 set -e # One error, it's over

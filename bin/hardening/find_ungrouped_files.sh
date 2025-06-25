@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.12 Ensure no ungrouped files or directories exist (Scored)
+# Ensure no ungrouped files or directories exist (Scored)
 #
 
 set -e # One error, it's over

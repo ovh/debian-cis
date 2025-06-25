@@ -6,7 +6,7 @@
 #
 
 #
-# 5.4.4 Ensure default usershell timeout is 900 seconds or less
+# Ensure default usershell timeout is 900 seconds or less
 #
 
 set -e # One error, it's over

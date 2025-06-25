@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.4 Ensure nosuid option set for /tmp Partition (Scored)
+# Ensure nosuid option set for /tmp Partition (Scored)
 #
 
 set -e # One error, it's over

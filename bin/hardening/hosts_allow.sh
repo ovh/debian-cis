@@ -6,7 +6,7 @@
 #
 
 #
-# 99.3.3.2 Ensure /etc/hosts.allow is configured (Not Scored)
+# Ensure /etc/hosts.allow is configured (Not Scored)
 #
 
 set -e # One error, it's over

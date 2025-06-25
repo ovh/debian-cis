@@ -6,7 +6,7 @@
 #
 
 #
-# 1.3.1 Ensure sudo is installed (Scored)
+# Ensure sudo is installed (Scored)
 #
 
 set -e # One error, it's over

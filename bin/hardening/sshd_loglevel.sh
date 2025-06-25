@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.5 Ensure SSH LogLevel is appropriate (Scored)
+# Ensure SSH LogLevel is appropriate (Scored)
 #
 
 set -e # One error, it's over

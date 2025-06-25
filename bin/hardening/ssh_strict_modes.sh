@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.2.5 Ensure home directory and ssh sensitive files are verified (not publicly readable)  before connecting.
+# Ensure home directory and ssh sensitive files are verified (not publicly readable)  before connecting.
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 5.3.1 Ensure password creation requirements are configured (Scored)
+# Ensure password creation requirements are configured (Scored)
 #
 
 set -e # One error, it's over

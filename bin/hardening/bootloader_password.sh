@@ -6,7 +6,7 @@
 #
 
 #
-# 1.5.2 Ensure bootloader password is set (Scored)
+# Ensure bootloader password is set (Scored)
 #
 
 set -e # One error, it's over

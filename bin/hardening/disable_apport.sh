@@ -6,7 +6,7 @@
 #
 
 #
-# 1.6.3.1 Ensure apport is disabled (Scored)
+# Ensure apport is disabled (Scored)
 #
 
 set -e # One error, it's over

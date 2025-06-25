@@ -6,7 +6,7 @@
 #
 
 #
-# 5.4.2 Ensure system accounts are non-login (Scored)
+# Ensure system accounts are non-login (Scored)
 #
 
 set -e # One error, it's over

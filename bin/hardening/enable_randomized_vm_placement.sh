@@ -6,7 +6,7 @@
 #
 
 #
-# 1.6.2 Ensure address space layout randomization (ASLR) is enabled (Scored)
+# Ensure address space layout randomization (ASLR) is enabled (Scored)
 #
 
 set -e # One error, it's over

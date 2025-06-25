@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.9 Ensure discretionary access control permission modification events are collected (Scored)
+# Ensure discretionary access control permission modification events are collected (Scored)
 #
 
 set -e # One error, it's over

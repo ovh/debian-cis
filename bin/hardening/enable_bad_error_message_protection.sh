@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.6 Ensure bogus ICMP responses are ignored (Scored)
+# Ensure bogus ICMP responses are ignored (Scored)
 #
 
 set -e # One error, it's over

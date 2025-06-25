@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.6.2 Ensure nosuid option set for /var Partition (Scored)
+# Ensure nosuid option set for /var Partition (Scored)
 #
 
 set -e # One error, it's over

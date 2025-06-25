@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.11 Ensure no users have .forward files (Scored)
+# Ensure no users have .forward files (Scored)
 #
 
 set -e # One error, it's over

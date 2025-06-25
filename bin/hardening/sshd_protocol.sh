@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.4 Ensure SSH Protocol is set to 2 (Scored)
+# Ensure SSH Protocol is set to 2 (Scored)
 #
 
 set -e # One error, it's over

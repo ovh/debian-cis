@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.9 Ensure users own their home directories (Scored)
+# Ensure users own their home directories (Scored)
 #
 
 set -e # One error, it's over

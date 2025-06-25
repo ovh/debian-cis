@@ -6,7 +6,7 @@
 #
 
 #
-# 99.2.2 Ensure telnet server is not enabled (Scored)
+# Ensure telnet server is not enabled (Scored)
 #
 
 # Note: this check is not anymore in CIS hardening but we decided to keep it anyway

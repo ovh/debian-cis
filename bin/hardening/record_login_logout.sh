@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.7 Ensure login and logout events are collected (Scored)
+# Ensure login and logout events are collected (Scored)
 #
 
 set -e # One error, it's over

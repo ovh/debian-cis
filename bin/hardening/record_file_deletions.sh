@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.13 Ensure file deletion events by users are collected (Scored)
+# Ensure file deletion events by users are collected (Scored)
 #
 
 set -e # One error, it's over

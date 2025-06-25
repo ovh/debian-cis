@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.9 Ensure FTP Server is not enabled (Scored)
+# Ensure FTP Server is not enabled (Scored)
 #
 
 set -e # One error, it's over

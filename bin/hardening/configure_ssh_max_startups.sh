@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.22 Ensure SSH MaxStartups is configured (Scored)
+# Ensure SSH MaxStartups is configured (Scored)
 #
 
 set -e # One error, it's over

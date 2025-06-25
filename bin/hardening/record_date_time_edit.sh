@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.3 Ensure events that modify date and time information are collected (Scored)
+# Ensure events that modify date and time information are collected (Scored)
 #
 
 set -e # One error, it's over

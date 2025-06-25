@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.2 Ensure permissions on SSH private host key files are configured (Scored)
+# Ensure permissions on SSH private host key files are configured (Scored)
 #
 
 set -e # One error, it's over

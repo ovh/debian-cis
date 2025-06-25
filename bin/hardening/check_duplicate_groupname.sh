@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.19 Ensure no duplicate group names exist (Scored)
+# Ensure no duplicate group names exist (Scored)
 #
 
 set -e # One error, it's over

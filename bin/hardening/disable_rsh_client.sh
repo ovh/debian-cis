@@ -6,7 +6,7 @@
 #
 
 #
-# 2.3.2 Ensure rsh client is not installed (Scored)
+# Ensure rsh client is not installed (Scored)
 #
 
 set -e # One error, it's over

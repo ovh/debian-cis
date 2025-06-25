@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.5 Ensure noexec option set for /tmp Partition (Scored)
+# Ensure noexec option set for /tmp Partition (Scored)
 #
 
 set -e # One error, it's over

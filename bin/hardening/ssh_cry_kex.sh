@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.15 Ensure only strong Key Exchange algorithms are used (Scored)
+# Ensure only strong Key Exchange algorithms are used (Scored)
 #
 
 set -e # One error, it's over

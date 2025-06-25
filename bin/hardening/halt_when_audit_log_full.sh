@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.2.2 Ensure system is disabled when audit logs are full (Scored)
+# Ensure system is disabled when audit logs are full (Scored)
 #
 
 set -e # One error, it's over

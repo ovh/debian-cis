@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.14 Ensure nodev Option set on /home (Scored)
+# Ensure nodev Option set on /home (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.15 Ensure Mail Transfer Agent is configured for Local-Only Mode (Scored)
+# Ensure Mail Transfer Agent is configured for Local-Only Mode (Scored)
 #
 
 set -e # One error, it's over

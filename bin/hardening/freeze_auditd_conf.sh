@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.17 Ensure the audit configuration is immutable (Scored)
+# Ensure the audit configuration is immutable (Scored)
 #
 
 set -e # One error, it's over

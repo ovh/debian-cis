@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.5 Ensure broadcast ICMP requests are ignored (Scored)
+# Ensure broadcast ICMP requests are ignored (Scored)
 #
 
 set -e # One error, it's over

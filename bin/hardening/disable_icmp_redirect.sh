@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.2 Ensure ICMP redirects are not accepted (Scored)
+# Ensure ICMP redirects are not accepted (Scored)
 #
 
 set -e # One error, it's over

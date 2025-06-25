@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.6 Ensure SSH X11 forwarding is disabled (Scored)
+# Ensure SSH X11 forwarding is disabled (Scored)
 #
 
 set -e # One error, it's over

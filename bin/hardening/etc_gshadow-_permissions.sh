@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.3 Ensure permissions on /etc/gshadow- are configured (Scored)
+# Ensure permissions on /etc/gshadow- are configured (Scored)
 #
 
 set -e # One error, it's over

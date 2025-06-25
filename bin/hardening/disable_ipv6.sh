@@ -6,7 +6,7 @@
 #
 
 #
-# 3.1.1 Disable IPv6 (Not Scored)
+# Disable IPv6 (Not Scored)
 #
 
 set -e # One error, it's over

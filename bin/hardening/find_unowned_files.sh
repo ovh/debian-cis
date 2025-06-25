@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.11 Ensure no unowned files or directories exist (Scored)
+# Ensure no unowned files or directories exist (Scored)
 #
 
 set -e # One error, it's over

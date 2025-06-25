@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.2.3 Ensure audit logs are not automatically deleted (Scored)
+# Ensure audit logs are not automatically deleted (Scored)
 #
 
 set -e # One error, it's over

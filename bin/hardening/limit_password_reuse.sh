@@ -6,7 +6,7 @@
 #
 
 #
-# 5.3.3 Ensure password reuse is limited (Scored)
+# Ensure password reuse is limited (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.7 Ensure Reverse Path Filtering is enabled (Scored)
+# Ensure Reverse Path Filtering is enabled (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.4 Ensure all AppArmor profiles are enforcing (Scored)
+# Ensure all AppArmor profiles are enforcing (Scored)
 #
 
 set -e # One error, it's over

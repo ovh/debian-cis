@@ -6,7 +6,7 @@
 #
 
 #
-# 5.1.2 Ensure permissions on /etc/crontab are configured (Scored)
+# Ensure permissions on /etc/crontab are configured (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.8 Ensure session initiation information is collected (Scored)
+# Ensure session initiation information is collected (Scored)
 #
 
 set -e # One error, it's over

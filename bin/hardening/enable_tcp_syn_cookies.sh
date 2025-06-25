@@ -6,7 +6,7 @@
 #
 
 #
-# 3.3.8 Ensure TCP SYN Cookies is enabled (Scored)
+# Ensure TCP SYN Cookies is enabled (Scored)
 #
 
 set -e # One error, it's over

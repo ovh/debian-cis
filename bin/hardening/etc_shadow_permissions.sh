@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.4 Ensure permissions on /etc/shadow are configured (Scored)
+# Ensure permissions on /etc/shadow are configured (Scored)
 #
 
 set -e # One error, it's over

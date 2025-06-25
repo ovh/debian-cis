@@ -6,7 +6,7 @@
 #
 
 #
-# 2.3.4 Ensure telnet client is not installed (Scored)
+# Ensure telnet client is not installed (Scored)
 #
 
 set -e # One error, it's over

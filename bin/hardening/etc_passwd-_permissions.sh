@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.6 Ensure permissions on /etc/passwd- are configured (Scored)
+# Ensure permissions on /etc/passwd- are configured (Scored)
 #
 
 set -e # One error, it's over

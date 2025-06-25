@@ -6,7 +6,7 @@
 #
 
 #
-# 2.3.5 Ensure LDAP client is not installed (Scored)
+# Ensure LDAP client is not installed (Scored)
 #
 
 set -e # One error, it's over

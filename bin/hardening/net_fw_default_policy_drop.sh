@@ -6,7 +6,7 @@
 #
 
 #
-# 3.5.4.1.1 Ensure default deny firewall policy (Scored)
+# Ensure default deny firewall policy (Scored)
 #
 
 set -e # One error, it's over

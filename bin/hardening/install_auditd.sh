@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.1.1 Ensure auditing is installed (Scored)
+# Ensure auditing is installed (Scored)
 #
 
 set -e # One error, it's over

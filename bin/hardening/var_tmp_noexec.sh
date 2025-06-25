@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.10 Ensure noexec option set on /var/tmp partition (Scored)
+# Ensure noexec option set on /var/tmp partition (Scored)
 #
 
 set -e # One error, it's over

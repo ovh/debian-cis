@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.23 Disable USB storage (Scored)
+# Disable USB storage (Scored)
 #
 
 set -e # One error, it's over

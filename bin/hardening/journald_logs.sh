@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.2.1 Ensure journald is configured to send logs to syslog-ng (Scored)
+# Ensure journald is configured to send logs to syslog-ng (Scored)
 #
 
 set -e # One error, it's over

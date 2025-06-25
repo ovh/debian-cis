@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.10 Ensure unsuccessful unauthorized file access attempts are collected (Scored)
+# Ensure unsuccessful unauthorized file access attempts are collected (Scored)
 #
 
 set -e # One error, it's over

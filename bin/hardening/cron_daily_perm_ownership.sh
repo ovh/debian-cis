@@ -6,7 +6,7 @@
 #
 
 #
-# 5.1.4 Ensure permissions on /etc/cron.daily are configured (Scored)
+# Ensure permissions on /etc/cron.daily are configured (Scored)
 #
 
 set -e # One error, it's over

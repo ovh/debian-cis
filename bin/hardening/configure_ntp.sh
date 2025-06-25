@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.1.2 Ensure ntp is configured (Scored)
+# Ensure ntp is configured (Scored)
 #
 
 set -e # One error, it's over

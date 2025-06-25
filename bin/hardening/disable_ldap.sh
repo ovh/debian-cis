@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.6 Ensure LDAP server is not enabled (Scored)
+# Ensure LDAP server is not enabled (Scored)
 #
 
 set -e # One error, it's over

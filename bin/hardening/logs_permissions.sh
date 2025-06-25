@@ -6,7 +6,7 @@
 #
 
 #
-# 4.2.3 Ensure permissions on all logfiles are configured (Scored)
+# Ensure permissions on all logfiles are configured (Scored)
 #
 
 set -e # One error, it's over

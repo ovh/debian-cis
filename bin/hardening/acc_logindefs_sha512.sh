@@ -6,7 +6,7 @@
 #
 
 #
-# 99.5.4.5.1 Check that any password that will be created will use sha512crypt (or yescrypt for Debian 11+)
+# Check that any password that will be created will use sha512crypt (or yescrypt for Debian 11+)
 #
 
 set -e # One error, it's over

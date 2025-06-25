@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.12.1 Ensure noexec option set on /var/log/audit partition (Scored)
+# Ensure noexec option set on /var/log/audit partition (Scored)
 #
 
 set -e # One error, it's over

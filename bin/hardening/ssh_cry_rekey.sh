@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # run-shellcheck
-
 #
 # Legacy CIS Debian Hardening
 #
 
 #
-# 99.5.2.2 Checking rekey limit for time (6 hours) or volume (512Mio) whichever comes first.
+# Checking rekey limit for time (6 hours) or volume (512Mio) whichever comes first.
 #
 
 set -e # One error, it's over

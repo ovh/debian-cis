@@ -6,7 +6,7 @@
 #
 
 #
-# 3.1.2 Ensure wireless interfaces are disabled (Not Scored)
+# Ensure wireless interfaces are disabled (Not Scored)
 #
 
 set -e # One error, it's over

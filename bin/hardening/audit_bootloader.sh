@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.1.3 Ensure auditing for processes that start prior to auditd is enabled (Scored)
+# Ensure auditing for processes that start prior to auditd is enabled (Scored)
 #
 
 set -e # One error, it's over

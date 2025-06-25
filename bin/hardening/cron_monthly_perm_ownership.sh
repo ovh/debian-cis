@@ -6,7 +6,7 @@
 #
 
 #
-# 5.1.6 Ensure permissions on /etc/cron.monthly are configured (Scored)
+# Ensure permissions on /etc/cron.monthly are configured (Scored)
 #
 
 set -e # One error, it's over

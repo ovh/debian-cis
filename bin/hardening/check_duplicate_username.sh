@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.18 Ensure no duplicate user names exist (Scored)
+# Ensure no duplicate user names exist (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 5.3.2 Ensure lockout for failed password attempts is configured (Scored)
+# Ensure lockout for failed password attempts is configured (Scored)
 #
 
 set -e # One error, it's over

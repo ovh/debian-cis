@@ -6,7 +6,7 @@
 #
 
 #
-# 1.7.1.3 Ensure all AppArmor profiles are in enforce or complain mode (Scored)
+# Ensure all AppArmor profiles are in enforce or complain mode (Scored)
 #
 
 set -e # One error, it's over

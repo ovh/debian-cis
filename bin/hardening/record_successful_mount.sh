@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.12 Ensure successful file system mounts are collected (Scored)
+# Ensure successful file system mounts are collected (Scored)
 #
 
 set -e # One error, it's over

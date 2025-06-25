@@ -6,7 +6,7 @@
 #
 
 #
-# 6.2.3 Ensure all users' home directories exist (Scored)
+# Ensure all users' home directories exist (Scored)
 #
 
 set -e # One error, it's over

@@ -6,7 +6,7 @@
 #
 
 #
-# 1.1.3 Ensure nodev option set for /tmp Partition (Scored)
+# Ensure nodev option set for /tmp Partition (Scored)
 #
 
 set -e # One error, it's over

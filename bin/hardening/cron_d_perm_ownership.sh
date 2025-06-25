@@ -6,7 +6,7 @@
 #
 
 #
-# 5.1.7 Ensure permissions on /etc/cron.d are configured (Scored)
+# Ensure permissions on /etc/cron.d are configured (Scored)
 #
 
 set -e # One error, it's over

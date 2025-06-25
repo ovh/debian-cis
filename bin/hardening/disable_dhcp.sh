@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.5 Ensure DHCP Server is not enabled (Scored)
+# Ensure DHCP Server is not enabled (Scored)
 #
 
 set -e # One error, it's over

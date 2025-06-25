@@ -6,7 +6,7 @@
 #
 
 #
-# 3.2.2 Ensure IP forwarding is disabled (Scored)
+# Ensure IP forwarding is disabled (Scored)
 #
 
 set -e # One error, it's over

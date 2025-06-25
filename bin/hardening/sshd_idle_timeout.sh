@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.16 Ensure SSH Idle Timeout Interval is configured (Scored)
+# Ensure SSH Idle Timeout Interval is configured (Scored)
 #
 
 set -e # One error, it's over

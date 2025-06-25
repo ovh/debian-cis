@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.21 Ensure SSH AllowTCPForwarding is disabled (Scored)
+# Ensure SSH AllowTCPForwarding is disabled (Scored)
 #
 
 set -e # One error, it's over

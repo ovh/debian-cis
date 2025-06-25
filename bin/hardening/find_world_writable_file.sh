@@ -6,7 +6,7 @@
 #
 
 #
-# 6.1.10 Ensure no world writable files exist (Scored)
+# Ensure no world writable files exist (Scored)
 #
 
 set -e # One error, it's over

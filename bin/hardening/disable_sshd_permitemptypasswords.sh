@@ -6,7 +6,7 @@
 #
 
 #
-# 5.2.11 Ensure SSH PermitEmptyPasswords is disabled (Scored)
+# Ensure SSH PermitEmptyPasswords is disabled (Scored)
 #
 
 set -e # One error, it's over

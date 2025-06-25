@@ -6,7 +6,7 @@
 #
 
 #
-# 2.1.1 Ensure xinetd is not enabled (Scored)
+# Ensure xinetd is not enabled (Scored)
 #
 
 set -e # One error, it's over

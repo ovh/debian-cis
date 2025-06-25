@@ -6,7 +6,7 @@
 #
 
 #
-# 2.2.1.2 Ensure systemd-timesyncd is configured (Not Scored)
+# Ensure systemd-timesyncd is configured (Not Scored)
 #
 
 set -e # One error, it's over

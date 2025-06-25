@@ -6,7 +6,7 @@
 #
 
 #
-# 4.1.4 Ensure events that modify user/group information are collected (Scored)
+# Ensure events that modify user/group information are collected (Scored)
 #
 
 set -e # One error, it's over

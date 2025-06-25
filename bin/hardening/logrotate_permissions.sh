@@ -6,7 +6,7 @@
 #
 
 #
-# 4.4 Ensure logrotate assigns approriate permissions (Scored)
+# Ensure logrotate assigns approriate permissions (Scored)
 #
 
 set -e # One error, it's over

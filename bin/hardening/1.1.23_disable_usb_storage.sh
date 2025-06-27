@@ -20,7 +20,7 @@ DESCRIPTION="Disable USB storage."
 # Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
 
 KERNEL_OPTION="CONFIG_USB_STORAGE"
-MODULE_NAME="usb-storage"
+MODULE_NAME="usb_storage"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

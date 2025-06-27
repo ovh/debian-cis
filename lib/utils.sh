@@ -100,6 +100,15 @@ does_file_exist() {
     fi
 }
 
+is_file_empty() {
+    local FILE=$1
+    if $SUDO_CMD [ -s "$FILE" ]; then
+        FNRET=0
+    else
+        FNRET=1
+    fi
+}
+
 has_file_correct_ownership() {
     local FILE=$1
     local USER=$2

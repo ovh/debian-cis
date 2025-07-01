@@ -1,0 +1,1 @@
+../../bin/hardening/tmp_partition.sh

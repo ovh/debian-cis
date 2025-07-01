@@ -1,0 +1,1 @@
+../../bin/hardening/users_homedir_ownership.sh

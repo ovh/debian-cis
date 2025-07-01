@@ -1,0 +1,1 @@
+../../bin/hardening/record_sudoers_edit.sh

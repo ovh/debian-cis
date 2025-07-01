@@ -1,0 +1,1 @@
+../../bin/hardening/find_user_netrc_files.sh

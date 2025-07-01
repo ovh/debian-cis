@@ -1,0 +1,1 @@
+../../bin/hardening/record_kernel_modules.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/ssh_sys_no_legacy.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/run_shm_noexec.sh

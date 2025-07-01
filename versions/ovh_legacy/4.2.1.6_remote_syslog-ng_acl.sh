@@ -1,0 +1,1 @@
+../../bin/hardening/remote_syslog-ng_acl.sh

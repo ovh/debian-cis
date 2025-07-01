@@ -1,0 +1,1 @@
+../../bin/hardening/configure_systemd-timesyncd.sh

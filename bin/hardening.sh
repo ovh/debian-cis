@@ -29,6 +29,7 @@ BATCH_MODE=''
 SUMMARY_JSON=''
 ASK_LOGLEVEL=''
 ALLOW_UNSUPPORTED_DISTRIBUTION=0
+USED_VERSION="default"
 
 usage() {
     cat <<EOF
@@ -105,6 +106,13 @@ OPTIONS:
         This option sets LOGLEVEL, you can choose : info, warning, error, ok, debug or silent.
         Default value is : info
 
+    --set-version <version>
+        This option allows to run the scripts as defined for a specific CIS debian version.
+        Supported version are the folders listed in the "versions" folder.
+        examples:
+          --set-version debian_11
+          --set-version ovh_legacy
+
     --summary-json
         While performing system audit, this option sets LOGLEVEL to silent and
         only output a json summary at the end
@@ -163,6 +171,10 @@ while [[ $# -gt 0 ]]; do
         ASK_LOGLEVEL=$2
         shift
         ;;
+    --set-version)
+        USED_VERSION=$2
+        shift
+        ;;
     --only)
         TEST_LIST[${#TEST_LIST[@]}]="$2"
         shift
@@ -217,8 +229,19 @@ if [ "$ASK_LOGLEVEL" ]; then LOGLEVEL=$ASK_LOGLEVEL; fi
 # shellcheck source=../lib/constants.sh
 [ -r "${CIS_LIB_DIR}"/constants.sh ] && . "${CIS_LIB_DIR}"/constants.sh
 
+# ensure the CIS version exists
+does_file_exist "$CIS_VERSIONS_DIR/$USED_VERSION"
+if [ "$FNRET" -ne 0 ]; then
+    echo "$USED_VERSION is not a valid version"
+    echo "Please use '--set-version' with one of $(ls "$CIS_VERSIONS_DIR" --hide=default -m)"
+    exit 1
+fi
+
 # If we're on a unsupported platform and there is no flag --allow-unsupported-distribution
 # print warning, otherwise quit
+
+# update path for the remaining of the script
+CIS_CHECKS_DIR="$CIS_VERSIONS_DIR/$USED_VERSION"
 
 if [ "$DISTRIBUTION" != "debian" ]; then
     echo "Your distribution has been identified as $DISTRIBUTION which is not debian"

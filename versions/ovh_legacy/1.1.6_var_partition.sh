@@ -1,0 +1,1 @@
+../../bin/hardening/var_partition.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/removable_device_noexec.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/disable_usb_devices.sh

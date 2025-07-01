@@ -1,0 +1,1 @@
+../../bin/hardening/secure_tty.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/configure_syslog-ng.sh

@@ -28,6 +28,7 @@ override_dh_install:
 	# (ls | sort -V | xargs -i echo /opt/cis-hardening/etc/conf.d/{} -- without README -- with ../hardening.cfg)
 	cp -R etc $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
 	cp -R lib $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
+	cp -R versions $(CURDIR)/debian/$(PACKAGE)/opt/$(PACKAGE)/
 	# cleanup git stuff if any
 	find $(CURDIR)/debian/$(PACKAGE) -type f -name .gitignore -delete
 

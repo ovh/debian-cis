@@ -319,10 +319,7 @@ fi
 for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
     if [ "${#TEST_LIST[@]}" -gt 0 ]; then
         # --only X has been specified at least once, is this script in my list ?
-        SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<<"$(basename "$SCRIPT")")
-        # shellcheck disable=SC2001
-        SCRIPT_PREFIX_RE=$(sed -e 's/\./\\./g' <<<"$SCRIPT_PREFIX")
-        if ! grep -qE "(^|[[:space:]])$SCRIPT_PREFIX_RE([[:space:]]|$)" <<<"${TEST_LIST[@]}"; then
+        if ! grep -qE "$(basename "$SCRIPT")" <<<"${TEST_LIST[@]}"; then
             # not in the list
             continue
         fi

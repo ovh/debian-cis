@@ -17,64 +17,48 @@ HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Record events that modify the system's mandatory access controls (MAC)."
 
-AUDIT_PARAMS='-w /etc/selinux/ -p wa -k MAC-policy'
-FILES_TO_SEARCH='/etc/audit/audit.rules /etc/audit/rules.d/audit.rules'
-FILE='/etc/audit/rules.d/audit.rules'
+AUDIT_PARAMS=("-w /etc/apparmor/ -p wa -k MAC-policy" "-w /etc/apparmor.d/ -p wa -k MAC-policy")
+AUDIT_FILE='/etc/audit/audit.rules'
+ADDITIONAL_PATH="/etc/audit/rules.d"
+FILE_TO_WRITE='/etc/audit/rules.d/audit.rules'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    # define custom IFS and save default one
-    d_IFS=$IFS
-    c_IFS=$'\n'
-    IFS=$c_IFS
-    for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILES_TO_SEARCH"
-        IFS=$d_IFS
+    MISSING_PARAMS=()
+    index=0
+    # use find here in order to simplify test usage with sudo using secaudit user
+    FILES_TO_SEARCH="$(sudo_wrapper find $ADDITIONAL_PATH -name '*.rules' | paste -s) $AUDIT_FILE"
+    for i in "${!AUDIT_PARAMS[@]}"; do
+        debug "${AUDIT_PARAMS[i]} should be in file $FILES_TO_SEARCH"
         SEARCH_RES=0
         for FILE_SEARCHED in $FILES_TO_SEARCH; do
-            does_pattern_exist_in_file "$FILE_SEARCHED" "$AUDIT_VALUE"
-            IFS=$c_IFS
+            does_pattern_exist_in_file "$FILE_SEARCHED" "${AUDIT_PARAMS[i]}"
             if [ "$FNRET" != 0 ]; then
-                debug "$AUDIT_VALUE is not in file $FILE_SEARCHED"
+                debug "${AUDIT_PARAMS[i]} is not in file $FILE_SEARCHED"
             else
-                ok "$AUDIT_VALUE is present in $FILE_SEARCHED"
+                ok "${AUDIT_PARAMS[i]} is present in $FILE_SEARCHED"
                 SEARCH_RES=1
             fi
         done
         if [ "$SEARCH_RES" = 0 ]; then
-            crit "$AUDIT_VALUE is not present in $FILES_TO_SEARCH"
+            crit "${AUDIT_PARAMS[i]} is not present in $FILES_TO_SEARCH"
+            MISSING_PARAMS[i]="${AUDIT_PARAMS[i]}"
+            index=$((index + 1))
         fi
     done
-    IFS=$d_IFS
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    # define custom IFS and save default one
-    d_IFS=$IFS
-    c_IFS=$'\n'
-    IFS=$c_IFS
-    for AUDIT_VALUE in $AUDIT_PARAMS; do
-        debug "$AUDIT_VALUE should be in file $FILES_TO_SEARCH"
-        IFS=$d_IFS
-        SEARCH_RES=0
-        for FILE_SEARCHED in $FILES_TO_SEARCH; do
-            does_pattern_exist_in_file "$FILE_SEARCHED" "$AUDIT_VALUE"
-            IFS=$c_IFS
-            if [ "$FNRET" != 0 ]; then
-                debug "$AUDIT_VALUE is not in file $FILE_SEARCHED"
-            else
-                ok "$AUDIT_VALUE is present in $FILE_SEARCHED"
-                SEARCH_RES=1
-            fi
-        done
-        if [ "$SEARCH_RES" = 0 ]; then
-            warn "$AUDIT_VALUE is not present in $FILES_TO_SEARCH, adding it to $FILE"
-            add_end_of_file "$FILE" "$AUDIT_VALUE"
-            eval "$(pkill -HUP -P 1 auditd)"
-        fi
+    audit
+    changes=0
+    for i in "${!MISSING_PARAMS[@]}"; do
+        info "${MISSING_PARAMS[i]} is not present in $FILES_TO_SEARCH, adding it"
+        add_end_of_file "$FILE_TO_WRITE" "${MISSING_PARAMS[i]}"
+        changes=1
     done
-    IFS=$d_IFS
+
+    [ "$changes" -eq 0 ] || eval "$(pkill -HUP -P 1 auditd)"
 }
 
 # This function will check config parameters required

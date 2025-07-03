@@ -254,7 +254,7 @@ if [ "$DISTRIBUTION" != "debian" ]; then
         echo "You can deactivate this message by setting the LOGLEVEL variable in /etc/hardening.cfg"
     fi
 else
-    if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -gt "$HIGHEST_SUPPORTED_DEBIAN_VERSION" ]; then
+    if [ "$DEB_MAJ_VER" -gt "$HIGHEST_SUPPORTED_DEBIAN_VERSION" ]; then
         echo "Your debian version is too recent and is not supported yet because there is no official CIS PDF for this version yet."
         if [ "$ALLOW_UNSUPPORTED_DISTRIBUTION" -eq 0 ]; then
             echo "If you want to run it anyway, you can use the flag --allow-unsupported-distribution"

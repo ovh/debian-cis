@@ -57,6 +57,6 @@ get_distribution
 get_debian_major_version
 
 # shellcheck disable=SC2034
-SMALLEST_SUPPORTED_DEBIAN_VERSION=10
+SMALLEST_SUPPORTED_DEBIAN_VERSION=11
 # shellcheck disable=SC2034
 HIGHEST_SUPPORTED_DEBIAN_VERSION=12

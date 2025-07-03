@@ -59,23 +59,14 @@ apply() {
         ok "$PATTERN_AUTH is present in $FILE_AUTH"
     else
         warn "$PATTERN_AUTH is not present in $FILE_AUTH, adding it"
-        if [ 10 -ge "$DEB_MAJ_VER" ]; then
-            add_line_file_before_pattern "$FILE_AUTH" "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
-        else
-            add_line_file_before_pattern "$FILE_AUTH" "auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
-        fi
+        add_line_file_before_pattern "$FILE_AUTH" "auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900" "# pam-auth-update(8) for details."
     fi
     does_pattern_exist_in_file "$FILE_ACCOUNT" "$PATTERN_ACCOUNT"
     if [ "$FNRET" = 0 ]; then
         ok "$PATTERN_ACCOUNT is present in $FILE_ACCOUNT"
     else
         warn "$PATTERN_ACCOUNT is not present in $FILE_ACCOUNT, adding it"
-        if [ 10 -ge "$DEB_MAJ_VER" ]; then
-            add_line_file_before_pattern "$FILE_ACCOUNT" "account required pam_tally2.so" "# pam-auth-update(8) for details."
-        else
-            add_line_file_before_pattern "$FILE_ACCOUNT" "account required pam_faillock.so" "# pam-auth-update(8) for details."
-        fi
-
+        add_line_file_before_pattern "$FILE_ACCOUNT" "account required pam_faillock.so" "# pam-auth-update(8) for details."
     fi
 }
 

@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure that the distribution version is debian and that the version is 9 or 10
+# Ensure that the distribution version is debian and supported
 #
 
 set -e # One error, it's over
@@ -22,7 +22,7 @@ audit() {
     if [ "$DISTRIBUTION" != "debian" ]; then
         crit "Your distribution has been identified as $DISTRIBUTION which is not debian"
     else
-        if [ "$DEB_MAJ_VER" = "sid" ] || [ "$DEB_MAJ_VER" -gt "$HIGHEST_SUPPORTED_DEBIAN_VERSION" ]; then
+        if [ "$DEB_MAJ_VER" -gt "$HIGHEST_SUPPORTED_DEBIAN_VERSION" ]; then
             crit "Your distribution is too recent and is not yet supported."
         elif [ "$DEB_MAJ_VER" -lt "$SMALLEST_SUPPORTED_DEBIAN_VERSION" ]; then
             crit "Your distribution is debian but is deprecated. Consider upgrading to a supported version."

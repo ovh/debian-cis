@@ -30,11 +30,7 @@ audit() {
         crit "Cannot get Debian version. Aborting..."
         return
     fi
-    if [[ "${DEB_MAJ_VER}" != "sid" ]] && [[ "${DEB_MAJ_VER}" -lt "8" ]]; then
-        set -u
-        warn "Debian version too old (${DEB_MAJ_VER}), check does not apply, you should disable this check."
-        return
-    fi
+
     set -u
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then

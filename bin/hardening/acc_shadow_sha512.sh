@@ -37,7 +37,7 @@ audit() {
             pw_found+="$user "
             ok "User $user has a disabled password."
         # yescrypt: Check password against $y$<salt>$<base64>
-        elif [ "$DEB_MAJ_VER" -ge "11" ] && [[ $passwd =~ ^\$y\$[./A-Za-z0-9]+\$[./A-Za-z0-9]{,86}\$[./A-Za-z0-9]{43} ]]; then
+        elif [[ $passwd =~ ^\$y\$[./A-Za-z0-9]+\$[./A-Za-z0-9]{,86}\$[./A-Za-z0-9]{43} ]]; then
             pw_found+="$user "
             ok "User $user has suitable yescrypt hashed password."
         # sha512: Check password against $6$<salt>$<base64>, see `man 3 crypt`
@@ -46,11 +46,7 @@ audit() {
             ok "User $user has suitable sha512crypt hashed password."
         else
             pw_found+="$user "
-            if [ "$DEB_MAJ_VER" -ge "11" ]; then
-                crit "User $user has a password that is not sha512crypt nor yescrypt hashed."
-            else
-                crit "User $user has a password that is not sha512crypt hashed."
-            fi
+            crit "User $user has a password that is not sha512crypt nor yescrypt hashed."
         fi
     done
     if [[ -z "$users_reviewed" ]]; then

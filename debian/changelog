@@ -1,3 +1,12 @@
+cis-hardening (4.1-5) unstable; urgency=medium
+
+  * drop debian10 and below support
+  * fix: ipv6_is_enabled (#251)
+  * fix: record_mac_edit.sh (#195)
+  * add --set-version to manage multiple cis versions in the future
+
+ -- Damien Cavagnini <damien.cavagnini@ovhcloud.com>  Fri, 04 Jul 2025 10:27:18 +0200
+
 cis-hardening (4.1-4) unstable; urgency=medium
 
   * allow multiple users in 5.2.18 (#228)

@@ -53,7 +53,7 @@ set_sysctl_param() {
 #
 
 is_ipv6_enabled() {
-    SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
+    local SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
 
     does_sysctl_param_exists "net.ipv6"
     local ENABLE=1
@@ -64,7 +64,9 @@ is_ipv6_enabled() {
             debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
             has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
             if [ "$FNRET" != 0 ]; then
-                crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+                # we don't want to fail because ipv6 is enabled
+                # it's just an info that some scripts are going to use to decide what to do
+                info "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
                 ENABLE=0
             fi
         done

@@ -28,11 +28,25 @@ audit() {
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing or disable this check!"
     else
-        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
-        if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
-            crit "$MODULE_NAME is enabled!"
+        is_kernel_module_loaded "$KERNEL_OPTION" "$MODULE_NAME"
+        if [ "$FNRET" -eq 0 ]; then # 0 means true in bash, so it IS activated
+            crit "$MODULE_NAME is loaded!"
         else
-            ok "$MODULE_NAME is disabled"
+            ok "$MODULE_NAME is not loaded"
+        fi
+
+        if [ "$IS_MONOLITHIC_KERNEL" -eq 1 ]; then
+            is_kernel_module_disabled "$MODULE_NAME"
+            if [ "$FNRET" -eq 0 ]; then
+                ok "$MODULE_NAME is disabled in the modprobe configuration"
+            else
+                is_kernel_module_available "$KERNEL_OPTION"
+                if [ "$FNRET" -eq 0 ]; then
+                    crit "$MODULE_NAME is available in some kernel config, but not disabled"
+                else
+                    ok "$MODULE_NAME is not available in any kernel config"
+                fi
+            fi
         fi
     fi
 }
@@ -43,11 +57,18 @@ apply() {
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing!"
     else
-        is_kernel_option_enabled "$KERNEL_OPTION" "$MODULE_NAME"
-        if [ "$FNRET" = 0 ]; then # 0 means true in bash, so it IS activated
-            warn "I cannot fix $MODULE_NAME, recompile your kernel or blacklist module $MODULE_NAME (/etc/modprobe.d/blacklist.conf : +install $MODULE_NAME /bin/true)"
-        else
-            ok "$MODULE_NAME is disabled"
+        is_kernel_module_loaded "$KERNEL_OPTION" "$LOADED_MODULE_NAME"
+        if [ "$FNRET" -eq 0 ]; then # 0 means true in bash, so it IS activated
+            crit "$LOADED_MODULE_NAME is loaded!"
+            warn "I wont unload the module, unload it manually or recompile the kernel if needed"
+        fi
+
+        if [ "$IS_MONOLITHIC_KERNEL" -eq 1 ]; then
+            is_kernel_module_disabled "$MODULE_NAME"
+            if [ "$FNRET" -eq 1 ]; then
+                echo "install $MODULE_NAME /bin/true" >>/etc/modprobe.d/"$MODULE_NAME".conf
+                info "$MODULE_NAME has been disabled in the modprobe configuration"
+            fi
         fi
     fi
 }

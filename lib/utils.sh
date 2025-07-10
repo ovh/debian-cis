@@ -672,5 +672,4 @@ manage_service() {
     fi
 
     systemctl "$action" "$service" >/dev/null 2>&1
-
 }

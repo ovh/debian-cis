@@ -307,7 +307,17 @@ does_group_exist() {
 
 is_service_enabled() {
     local SERVICE=$1
-    if [ "$($SUDO_CMD find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l)" -gt 0 ]; then
+
+    # if running in a container, it does not make much sense to test for systemd / service
+    # the var "IS_CONTAINER" defined in lib/constant may not be enough, in case we are using systemd slices
+    # currently, did not find a unified way to manage all cases, so we check this only for systemctl usage
+    is_using_sbin_init
+    if [ "$FNRET" -eq 1 ]; then
+        debug "host was not started using '/sbin/init', systemd should not be available"
+        FNRET=1
+        return
+    fi
+    if $SUDO_CMD systemctl -t service is-enabled "$SERVICE" >/dev/null; then
         debug "Service $SERVICE is enabled"
         FNRET=0
     else
@@ -580,6 +590,20 @@ is_pkg_installed() {
     fi
 }
 
+is_pkg_a_dependency() {
+    # check if package is needed by another installed package
+    local PKG_NAME=$1
+    local dependencies=0
+    dependencies=$(grep -w "${PKG_NAME}$" /var/lib/dpkg/status | grep -cEi "depends|recommends")
+    if [ "$dependencies" -gt 0 ]; then
+        debug "$PKG_NAME is a dependency for another installed package"
+        FNRET=0
+    else
+        FNRET=1
+        debug "$PKG_NAME is not a dependency for another installed package"
+    fi
+}
+
 # Returns Debian major version
 
 get_debian_major_version() {
@@ -611,4 +635,27 @@ get_distribution() {
 
 is_running_in_container() {
     awk -F/ '$2 == "'"$1"'"' /proc/self/cgroup
+}
+
+is_using_sbin_init() {
+    FNRET=0
+    # remove '\0' to avoid 'command substitution: ignored null byte in input'
+    if [[ $($SUDO_CMD cat /proc/1/cmdline | tr -d '\0') != "/sbin/init" ]]; then
+        debug "init process is not '/sbin/init'"
+        FNRET=1
+    fi
+}
+
+manage_service() {
+    local action="$1"
+    local service="$2"
+
+    is_using_sbin_init
+    if [ "$FNRET" -ne 0 ]; then
+        debug "/sbin/init not used, systemctl wont manage service $service"
+        return
+    fi
+
+    systemctl "$action" "$service" >/dev/null 2>&1
+
 }

@@ -599,11 +599,12 @@ is_pkg_a_dependency() {
     local known_deps="$*"
 
     PKG_DEPENDENCIES=""
+
     # shellcheck disable=2162
     while read pkg_dep_name; do
         is_pkg_installed "$pkg_dep_name"
         if [ "$FNRET" -eq 0 ] && ! grep -w "$pkg_dep_name" <<<"$known_deps" >/dev/null; then
-            # need a 'if' even for a single sentence, due to 'set -u'
+            # need a 'if' even for a single sentence, due to 'set -e'
             PKG_DEPENDENCIES="$PKG_DEPENDENCIES $pkg_dep_name"
         fi
 

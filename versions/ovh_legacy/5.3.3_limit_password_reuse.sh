@@ -1,1 +1,1 @@
-../../bin/hardening/limit_password_reuse.sh
+../../bin/hardening/password_history_remember.sh

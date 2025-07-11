@@ -1,9 +1,11 @@
 # shellcheck shell=bash
 # run-shellcheck
 test_audit() {
+    describe Prepare failing test
+    apt remove -y auditd
+
     describe Running on blank host
-    register_test retvalshouldbe 0
-    dismiss_count_for_test
+    register_test retvalshouldbe 1
     # shellcheck disable=2154
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
@@ -12,7 +14,8 @@ test_audit() {
     "${CIS_CHECKS_DIR}/${script}.sh" || true
 
     describe Checking resolved state
-    register_test retvalshouldbe 0
-    register_test contain "[ OK ] auditd is enabled"
+    # service still wont be enabled due to tests running inside a docker container
+    register_test retvalshouldbe 1
+    register_test contain "[ OK ] auditd is installed"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 }

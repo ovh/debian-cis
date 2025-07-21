@@ -8,3 +8,17 @@ repos:
         language: script
         pass_filenames: true
         files: "^bin/hardening/"
+      - id: shfmt
+        name: shfmt.sh
+        description: Ensure correct formatting
+        entry: hooks/shfmt.sh
+        language: script
+        pass_filenames: true
+        files: "^(bin|tests)/hardening/"
+      - id: shellcheck
+        name: shellcheck.sh
+        description: Ensure correct syntax
+        entry: hooks/shellcheck.sh
+        language: script
+        pass_filenames: true
+        files: "^(bin|tests)/hardening/"

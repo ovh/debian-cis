@@ -404,6 +404,18 @@ is_timer_active() {
     fi
 }
 
+is_timer_enabled() {
+    local TIMER=$1
+
+    systemd_is_active_or_enabled "$TIMER" 'timer' 'is-enabled'
+
+    if [ "$FNRET" -eq 0 ]; then
+        debug "Timer $TIMER is enabled"
+    else
+        debug "Timer $TIMER is not enabled"
+    fi
+}
+
 #
 # Kernel Options checks
 #

@@ -2,23 +2,23 @@
 # run-shellcheck
 test_audit() {
     describe set up successful check
-    apt remove -y nftables
-    apt install -y iptables
+    apt install -y iptables nftables
 
-    describe Running success test
-    register_test retvalshouldbe 0
-    # shellcheck disable=2154
-    run success "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
-
-    describe set up failed check
-    DEBIAN_FRONTEND='noninteractive' apt -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install nftables apt-utils -y
-
-    describe running failed check
+    describe Running failed test
     register_test retvalshouldbe 1
     # shellcheck disable=2154
     run failed "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    apt remove -y nftables iptables
+    describe Fixing first situation
+    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" || true
+
+    describe running success check
+    register_test retvalshouldbe 0
+    # shellcheck disable=2154
+    run success "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
+    apt remove -y iptables
     apt autoremove -y
 
 }

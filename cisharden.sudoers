@@ -14,6 +14,7 @@ Cmnd_Alias SCL_CMD =    /bin/grep ,\
                         /usr/bin/cut,\
                         /sbin/iptables -nL,\
                         /sbin/iptables -nL *,\
+                        /sbin/iptables -S *,\
                         /sbin/sysctl net.*,\
                         /sbin/sysctl fs.*,\
                         /sbin/sysctl kernel.*,\
@@ -28,6 +29,7 @@ Cmnd_Alias SCL_CMD =    /bin/grep ,\
                         /usr/bin/ss *,\
                         /bin/ss *,\
                         /usr/bin/pgrep *,\
-                        /usr/sbin/nft list *
+                        /usr/sbin/nft list *,\
+                        /usr/sbin/ufw status *
 
 cisharden ALL = (root) NOPASSWD: SCL_CMD

@@ -20,4 +20,6 @@ test_audit() {
     register_test contain "[ OK ] ^Protocol[[:space:]]*2 is present in /etc/ssh/sshd_config"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
+    describe clean test
+    pkill -9 sshd
 }

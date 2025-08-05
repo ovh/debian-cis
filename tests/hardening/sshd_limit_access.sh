@@ -127,4 +127,6 @@ test_audit() {
     userdel janeallow
     userdel peterdeny
     userdel marrydeny
+    describe Clean test
+    pkill -9 sshd
 }

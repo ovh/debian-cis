@@ -153,6 +153,7 @@ if [ ! -f "$(dirname "$0")"/lib.sh ]; then
 fi
 # shellcheck source=../tests/lib.sh
 . "$(dirname "$0")"/lib.sh
+. "$(dirname "$0")"/utils.sh
 
 ###################
 # Execution start #

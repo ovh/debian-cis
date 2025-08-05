@@ -20,4 +20,6 @@ test_audit() {
     register_test contain "[ OK ] ^ClientAliveInterval[[:space:]]*300 is present in /etc/ssh/sshd_config"
     register_test contain "[ OK ] ^ClientAliveCountMax[[:space:]]*0 is present in /etc/ssh/sshd_config"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    describe Clean test
+    pkill -9 sshd
 }

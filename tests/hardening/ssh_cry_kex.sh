@@ -26,4 +26,6 @@ test_audit() {
     describe Checking resolved state
     register_test retvalshouldbe 0
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    describe Clean test
+    pkill -9 sshd
 }

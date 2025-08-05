@@ -19,4 +19,6 @@ test_audit() {
     register_test retvalshouldbe 0
     register_test contain "[ OK ] ^Ciphers[[:space:]]*chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr is present in /etc/ssh/sshd_config"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    describe Clean test
+    pkill -9 sshd
 }

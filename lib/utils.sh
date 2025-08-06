@@ -316,7 +316,17 @@ does_group_exist() {
 
 is_service_enabled() {
     local SERVICE=$1
-    if [ "$($SUDO_CMD find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l)" -gt 0 ]; then
+
+    # if running in a container, it does not make much sense to test for systemd / service
+    # the var "IS_CONTAINER" defined in lib/constant may not be enough, in case we are using systemd slices
+    # currently, did not find a unified way to manage all cases, so we check this only for systemctl usage
+    is_using_sbin_init
+    if [ "$FNRET" -eq 1 ]; then
+        debug "host was not started using '/sbin/init', systemd should not be available"
+        FNRET=1
+        return
+    fi
+    if $SUDO_CMD systemctl -t service is-enabled "$SERVICE" >/dev/null; then
         debug "Service $SERVICE is enabled"
         FNRET=0
     else
@@ -589,6 +599,36 @@ is_pkg_installed() {
     fi
 }
 
+is_pkg_a_dependency() {
+    # check if a package is needed by another installed package
+    # This is used to avoid removing a legit package while trying to remove an unwanted one
+    local PKG_NAME=$1
+    # ex: 'dnsmasq' is going to install 'dnsmasq-base'
+    # We don't care about 'dnsmasq-base' here, we want to know about the others packages needing 'dnsmasq'
+    # so we put 'dnsmasq-base' as a 'known_deps'
+    shift
+    local known_deps="$*"
+
+    PKG_DEPENDENCIES=""
+    # shellcheck disable=2162
+    while read pkg_dep_name; do
+        is_pkg_installed "$pkg_dep_name"
+        if [ "$FNRET" -eq 0 ] && ! grep -w "$pkg_dep_name" <<<"$known_deps" >/dev/null; then
+            PKG_DEPENDENCIES="$PKG_DEPENDENCIES $pkg_dep_name"
+        fi
+
+    done <<<"$(apt-cache rdepends "$PKG_NAME" | sed -e '1,2d' -e 's/^\ *//g' -e 's/^|//g' | sort -u)"
+
+    if [ -n "$PKG_DEPENDENCIES" ]; then
+        debug "$PKG_NAME is a dependency for some packages: $PKG_DEPENDENCIES"
+        FNRET=0
+    else
+        debug "$PKG_NAME is not a dependency for another installed package"
+        FNRET=1
+    fi
+
+}
+
 # Returns Debian major version
 
 get_debian_major_version() {
@@ -620,4 +660,27 @@ get_distribution() {
 
 is_running_in_container() {
     awk -F/ '$2 == "'"$1"'"' /proc/self/cgroup
+}
+
+is_using_sbin_init() {
+    FNRET=0
+    # remove '\0' to avoid 'command substitution: ignored null byte in input'
+    if [[ $($SUDO_CMD cat /proc/1/cmdline | tr -d '\0') != "/sbin/init" ]]; then
+        debug "init process is not '/sbin/init'"
+        FNRET=1
+    fi
+}
+
+manage_service() {
+    local action="$1"
+    local service="$2"
+
+    is_using_sbin_init
+    if [ "$FNRET" -ne 0 ]; then
+        debug "/sbin/init not used, systemctl wont manage service $service"
+        return
+    fi
+
+    systemctl "$action" "$service" >/dev/null 2>&1
+
 }

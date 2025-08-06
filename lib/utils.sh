@@ -584,6 +584,12 @@ apt_install() {
     FNRET=0
 }
 
+apt_remove() {
+    local PACKAGE=$1
+    DEBIAN_FRONTEND='noninteractive' apt-get remove -y "$PACKAGE"
+    FNRET=0
+}
+
 #
 #   Returns if a package is installed
 #

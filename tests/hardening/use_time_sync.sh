@@ -3,7 +3,6 @@
 test_audit() {
     describe Running on blank host
     register_test retvalshouldbe 1
-    dismiss_count_for_test
     # shellcheck disable=2154
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
@@ -14,6 +13,11 @@ test_audit() {
     # Finally assess that your corrective actions end up with a compliant system
     describe Checking resolved state
     register_test retvalshouldbe 0
-    register_test contain "Time synchronization is available through"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
+    # we can not check the presence of multiple time synchronization from debian packages, as they are mutually exclusive
+    describe clean installation
+    apt remove -y ntp
+    apt autoremove -y
+
 }

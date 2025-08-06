@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure a single time synchronization daemon is in use (Automated)
+# Ensure chrony is enabled and running (Automated)
 #
 
 set -e # One error, it's over
@@ -15,31 +15,54 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure a single time synchronization is in use"
-
-PACKAGES="systemd-timesyncd ntp chrony"
+DESCRIPTION="Ensure chrony is enabled and running."
+PACKAGE="chrony"
+SERVICE="chrony"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    local count=0
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" -eq 0 ]; then
-            count=$(("$count" + 1))
-        fi
-    done
-    if [ "$count" -eq 0 ]; then
-        crit "None of the following time sync packages are installed: $PACKAGES"
-    elif [ "$count" -gt 1 ]; then
-        crit "Multiple time sync packages are installed, from $PACKAGES. Pick one and remove the others"
-    else
-        info "A single time sync package from $PACKAGES is installed"
+    CHRONY_INSTALLED=0
+    CHRONY_ENABLED=0
+    CHRONY_RUNNING=0
+
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" -ne 0 ]; then
+        CHRONY_INSTALLED=1
+        crit "$PACKAGE is not installed"
+    fi
+    # no package, no need to check further
+    return
+
+    is_service_enabled "$SERVICE"
+    if [ "$FNRET" -ne 0 ]; then
+        CHRONY_ENABLED=1
+        crit "$SERVICE is not enabled"
+    fi
+
+    is_service_active "$SERVICE"
+    if [ "$FNRET" -ne 0 ]; then
+        CHRONY_RUNNING=1
+        crit "$SERVICE is not running"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    info "This recommendation has to be reviewed and applied manually"
+    if [ "$CHRONY_INSTALLED" -eq 1 ]; then
+        # this may be chrony, as it may be ntp or systemd-timesyncd
+        warn "Please install $PACKAGE manually to ensure only one time synchronization system is installed"
+    fi
+
+    if [ "$CHRONY_ENABLED" -eq 1 ]; then
+        info "Enabling $SERVICE service"
+        manage_service "enable" "$SERVICE"
+    fi
+
+    if [ "$CHRONY_RUNNING" -eq 1 ]; then
+        info "Starting $SERVICE service"
+        manage_service "start" "$SERVICE"
+    fi
+
 }
 
 # This function will check config parameters required

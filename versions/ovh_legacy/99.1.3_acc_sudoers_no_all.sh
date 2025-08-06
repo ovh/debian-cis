@@ -1,0 +1,1 @@
+../../bin/hardening/acc_sudoers_no_all.sh

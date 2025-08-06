@@ -1,0 +1,1 @@
+../../bin/hardening/syslog-ng_remote_host.sh

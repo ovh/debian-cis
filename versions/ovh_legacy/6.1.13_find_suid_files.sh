@@ -1,0 +1,1 @@
+../../bin/hardening/find_suid_files.sh

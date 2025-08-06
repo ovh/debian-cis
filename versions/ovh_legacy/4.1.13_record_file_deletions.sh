@@ -1,0 +1,1 @@
+../../bin/hardening/record_file_deletions.sh

@@ -11,6 +11,7 @@ has_sysctl_param_expected_result() {
     local SYSCTL_PARAM=$1
     local EXP_RESULT=$2
 
+    # shellcheck disable=SC2319
     if [ "$($SUDO_CMD sysctl "$SYSCTL_PARAM" 2>/dev/null)" = "$SYSCTL_PARAM = $EXP_RESULT" ]; then
         FNRET=0
     elif [ "$?" = 255 ]; then
@@ -35,6 +36,7 @@ set_sysctl_param() {
     local SYSCTL_PARAM=$1
     local VALUE=$2
     debug "Setting $SYSCTL_PARAM to $VALUE"
+    # shellcheck disable=SC2319
     if [ "$(sysctl -w "$SYSCTL_PARAM"="$VALUE" 2>/dev/null)" = "$SYSCTL_PARAM = $VALUE" ]; then
         FNRET=0
     elif [ $? = 255 ]; then
@@ -51,7 +53,7 @@ set_sysctl_param() {
 #
 
 is_ipv6_enabled() {
-    SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
+    local SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
 
     does_sysctl_param_exists "net.ipv6"
     local ENABLE=1
@@ -62,7 +64,9 @@ is_ipv6_enabled() {
             debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
             has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
             if [ "$FNRET" != 0 ]; then
-                crit "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
+                # we don't want to fail because ipv6 is enabled
+                # it's just an info that some scripts are going to use to decide what to do
+                info "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
                 ENABLE=0
             fi
         done
@@ -93,6 +97,15 @@ does_file_exist() {
         FNRET=0
     else
         FNRET=1
+    fi
+}
+
+is_file_empty() {
+    local FILE=$1
+    if $SUDO_CMD [ -s "$FILE" ]; then
+        FNRET=1
+    else
+        FNRET=0
     fi
 }
 
@@ -303,7 +316,17 @@ does_group_exist() {
 
 is_service_enabled() {
     local SERVICE=$1
-    if [ "$($SUDO_CMD find /etc/rc?.d/ -name "S*$SERVICE" -print | wc -l)" -gt 0 ]; then
+
+    # if running in a container, it does not make much sense to test for systemd / service
+    # the var "IS_CONTAINER" defined in lib/constant may not be enough, in case we are using systemd slices
+    # currently, did not find a unified way to manage all cases, so we check this only for systemctl usage
+    is_using_sbin_init
+    if [ "$FNRET" -eq 1 ]; then
+        debug "host was not started using '/sbin/init', systemd should not be available"
+        FNRET=1
+        return
+    fi
+    if $SUDO_CMD systemctl -t service is-enabled "$SERVICE" >/dev/null; then
         debug "Service $SERVICE is enabled"
         FNRET=0
     else
@@ -315,95 +338,109 @@ is_service_enabled() {
 #
 # Kernel Options checks
 #
-
-is_kernel_option_enabled() {
-    local KERNEL_OPTION="$1"
-    local MODULE_NAME=""
-    local MODPROBE_FILTER=""
-    local RESULT=""
-    local IS_MONOLITHIC_KERNEL=1
-    local DEF_MODULE=""
-
-    if [ $# -ge 2 ]; then
-        MODULE_NAME="$2"
-    fi
-
-    if [ $# -ge 3 ]; then
-        MODPROBE_FILTER="$3"
-    fi
-
-    debug "Detect if lsmod is available and does not return an error code (otherwise consider as a monolithic kernel"
-    if $SUDO_CMD lsmod >/dev/null 2>&1; then
+is_kernel_monolithic() {
+    debug "Detect if /proc/modules is available, otherwise consider as a monolithic kernel"
+    if $SUDO_CMD ls /proc/modules >/dev/null 2>&1; then
+        IS_MONOLITHIC_KERNEL=1
+    else
         IS_MONOLITHIC_KERNEL=0
     fi
+}
 
-    if [ $IS_MONOLITHIC_KERNEL -eq 1 ]; then
-        if $SUDO_CMD [ -r "/proc/config.gz" ]; then
-            RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
-        elif $SUDO_CMD [ -r "/boot/config-$(uname -r)" ]; then
+is_kernel_option_enabled() {
+    # check if kernel option is configured for the running kernel
+    local KERNEL_OPTION="$1"
+    local RESULT=""
+
+    is_kernel_monolithic
+
+    if [ "$IS_MONOLITHIC_KERNEL" -eq 0 ] && $SUDO_CMD [ -r "/proc/config.gz" ]; then
+        RESULT=$($SUDO_CMD zgrep "^$KERNEL_OPTION=" /proc/config.gz) || :
+    fi
+
+    # modular kernel, or no configuration found in /proc
+    if [[ "$RESULT" == "" ]]; then
+        if $SUDO_CMD [ -r "/boot/config-$(uname -r)" ]; then
             RESULT=$($SUDO_CMD grep "^$KERNEL_OPTION=" "/boot/config-$(uname -r)") || :
         else
-            debug "No information about kernel found, you're probably in a container"
+            info "No information about kernel configuration found"
             FNRET=127
             return
         fi
+    fi
 
-        ANSWER=$(cut -d = -f 2 <<<"$RESULT")
-        if [ "$ANSWER" = "y" ]; then
-            debug "Kernel option $KERNEL_OPTION enabled"
-            FNRET=0
-        elif [ "$ANSWER" = "n" ]; then
-            debug "Kernel option $KERNEL_OPTION disabled"
-            FNRET=1
-        else
-            debug "Kernel option $KERNEL_OPTION not found"
-            FNRET=2 # Not found
-        fi
-
-        if $SUDO_CMD [ "$FNRET" -ne 0 ] && [ -n "$MODULE_NAME" ] && [ -d "/lib/modules/$(uname -r)" ]; then
-            # also check in modules, because even if not =y, maybe
-            # the admin compiled it separately later (or out-of-tree)
-            # as a module (regardless of the fact that we have =m or not)
-            debug "Checking if we have $MODULE_NAME.ko"
-            local modulefile
-            modulefile=$($SUDO_CMD find "/lib/modules/$(uname -r)/" -type f -name "$MODULE_NAME.ko")
-            if $SUDO_CMD [ -n "$modulefile" ]; then
-                debug "We do have $modulefile!"
-                # ... but wait, maybe it's blacklisted? check files in /etc/modprobe.d/ for "blacklist xyz"
-                if grep -qRE "^\s*blacklist\s+$MODULE_NAME\s*$" /etc/modprobe.d/*.conf; then
-                    debug "... but it's blacklisted!"
-                    FNRET=1 # Not found (found but blacklisted)
-                fi
-                # ... but wait, maybe it's override ? check files in /etc/modprobe.d/ for "install xyz /bin/(true|false)"
-                if grep -aRE "^\s*install\s+$MODULE_NAME\s+/bin/(true|false)\s*$" /etc/modprobe.d/*.conf; then
-                    debug "... but it's override!"
-                    FNRET=1 # Not found (found but override)
-                fi
-                FNRET=0 # Found!
-            fi
-        fi
+    local ANSWER=""
+    ANSWER=$(cut -d = -f 2 <<<"$RESULT")
+    if [ "$ANSWER" = "y" ]; then
+        debug "Kernel option $KERNEL_OPTION enabled"
+        FNRET=0
+    elif [ "$ANSWER" = "n" ]; then
+        debug "Kernel option $KERNEL_OPTION disabled"
+        FNRET=1
     else
-        if [ "$MODPROBE_FILTER" != "" ]; then
-            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | grep -E "$MODPROBE_FILTER" | tail -1 | xargs)"
-        else
-            DEF_MODULE="$($SUDO_CMD modprobe -n -v "$MODULE_NAME" 2>/dev/null | tail -1 | xargs)"
-        fi
+        debug "Kernel option $KERNEL_OPTION not found"
+        FNRET=2 # Not found
+    fi
+}
+is_kernel_module_disabled() {
+    # check if a kernel module is disabled in the modprobe configuration
+    local MODULE_NAME="$1"
+    FNRET=1
 
-        if [ "$DEF_MODULE" == "install /bin/true" ] || [ "$DEF_MODULE" == "install /bin/false" ]; then
-            debug "$MODULE_NAME is disabled (blacklist with override)"
-            FNRET=1
-        elif [ "$DEF_MODULE" == "" ]; then
-            debug "$MODULE_NAME is disabled"
-            FNRET=1
-        else
-            debug "$MODULE_NAME is enabled"
+    local module_is_disabled=0
+    # is it blacklisted ?
+    if grep -qE "\s?+[^#]?blacklist\s+$MODULE_NAME\s?$" /etc/modprobe.d/*.conf; then
+        debug "$MODULE_NAME is blacklisted"
+        module_is_disabled=1
+    # maybe it is overriden ? check files in /etc/modprobe.d/ for "install xyz /bin/(true|false)"
+    elif grep -qE "\s?+[^#]?install\s+$MODULE_NAME\s+/bin/(true|false)\s?$" /etc/modprobe.d/*.conf; then
+        debug "$MODULE_NAME is disabled"
+        module_is_disabled=1
+    fi
+
+    if [ "$module_is_disabled" -eq 1 ]; then
+        debug "$MODULE_NAME is disabled in modprobe config"
+        FNRET=0
+    fi
+}
+
+is_kernel_module_available() {
+    # check if a kernel module is loadable, in a non monolithic kernel
+
+    local KERNEL_OPTION="$1"
+    FNRET=1
+
+    is_kernel_monolithic
+    if [ "$IS_MONOLITHIC_KERNEL" -eq 0 ]; then
+        info "your kernel is monolithic, no need to check for module availability"
+        return
+    fi
+
+    # look if a module is present as a loadable module in ANY available kernel, per CIS recommendation
+    # shellcheck disable=2013
+    for config_file in $($SUDO_CMD grep -l "^$KERNEL_OPTION=" /boot/config-*); do
+        module_config=$($SUDO_CMD grep "^$KERNEL_OPTION=" "$config_file" | cut -d= -f 2)
+        if [ "$module_config" == 'm' ]; then
+            debug "\"${KERNEL_OPTION}=m\" found in $config_file as module"
             FNRET=0
         fi
+    done
+}
 
-        if [ "$($SUDO_CMD lsmod | grep -E "$MODULE_NAME" 2>/dev/null)" != "" ]; then
-            debug "$MODULE_NAME is enabled"
-            FNRET=0
-        fi
+is_kernel_module_loaded() {
+    # check if a kernel module is actually loaded
+    local KERNEL_OPTION="$1"
+    local LOADED_MODULE_NAME="$2"
+    FNRET=1
+
+    is_kernel_monolithic
+    if [ "$IS_MONOLITHIC_KERNEL" -eq 0 ]; then
+        # check if module is compiled
+        # if yes, then it is loaded
+        is_kernel_option_enabled "$KERNEL_OPTION"
+    elif $SUDO_CMD grep -w "$LOADED_MODULE_NAME" /proc/modules >/dev/null 2>&1; then
+        debug "$LOADED_MODULE_NAME is loaded in the running kernel in /proc/modules"
+        FNRET=0 # Found!
     fi
 }
 
@@ -562,17 +599,43 @@ is_pkg_installed() {
     fi
 }
 
+is_pkg_a_dependency() {
+    # check if a package is needed by another installed package
+    # This is used to avoid removing a legit package while trying to remove an unwanted one
+    local PKG_NAME=$1
+    # ex: 'dnsmasq' is going to install 'dnsmasq-base'
+    # We don't care about 'dnsmasq-base' here, we want to know about the others packages needing 'dnsmasq'
+    # so we put 'dnsmasq-base' as a 'known_deps'
+    shift
+    local known_deps="$*"
+
+    PKG_DEPENDENCIES=""
+    # shellcheck disable=2162
+    while read pkg_dep_name; do
+        is_pkg_installed "$pkg_dep_name"
+        if [ "$FNRET" -eq 0 ] && ! grep -w "$pkg_dep_name" <<<"$known_deps" >/dev/null; then
+            PKG_DEPENDENCIES="$PKG_DEPENDENCIES $pkg_dep_name"
+        fi
+
+    done <<<"$(apt-cache rdepends "$PKG_NAME" | sed -e '1,2d' -e 's/^\ *//g' -e 's/^|//g' | sort -u)"
+
+    if [ -n "$PKG_DEPENDENCIES" ]; then
+        debug "$PKG_NAME is a dependency for some packages: $PKG_DEPENDENCIES"
+        FNRET=0
+    else
+        debug "$PKG_NAME is not a dependency for another installed package"
+        FNRET=1
+    fi
+
+}
+
 # Returns Debian major version
 
 get_debian_major_version() {
     DEB_MAJ_VER=""
     does_file_exist /etc/debian_version
     if [ "$FNRET" = 0 ]; then
-        if grep -q "sid" /etc/debian_version; then
-            DEB_MAJ_VER="sid"
-        else
-            DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
-        fi
+        DEB_MAJ_VER=$(cut -d '.' -f1 /etc/debian_version)
     else
         # shellcheck disable=2034
         DEB_MAJ_VER=$(lsb_release -r | cut -f2 | cut -d '.' -f 1)
@@ -597,4 +660,27 @@ get_distribution() {
 
 is_running_in_container() {
     awk -F/ '$2 == "'"$1"'"' /proc/self/cgroup
+}
+
+is_using_sbin_init() {
+    FNRET=0
+    # remove '\0' to avoid 'command substitution: ignored null byte in input'
+    if [[ $($SUDO_CMD cat /proc/1/cmdline | tr -d '\0') != "/sbin/init" ]]; then
+        debug "init process is not '/sbin/init'"
+        FNRET=1
+    fi
+}
+
+manage_service() {
+    local action="$1"
+    local service="$2"
+
+    is_using_sbin_init
+    if [ "$FNRET" -ne 0 ]; then
+        debug "/sbin/init not used, systemctl wont manage service $service"
+        return
+    fi
+
+    systemctl "$action" "$service" >/dev/null 2>&1
+
 }

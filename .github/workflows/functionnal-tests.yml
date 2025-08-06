@@ -4,13 +4,6 @@ on:
   - pull_request
   - push
 jobs:
-  functionnal-tests-docker-debian10:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Run the tests debian10
-        run: ./tests/docker_build_and_run_tests.sh debian10
   functionnal-tests-docker-debian11:
     runs-on: ubuntu-latest
     steps:

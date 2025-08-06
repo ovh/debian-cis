@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 # run-shellcheck
 
+SCRIPT_FULL_PATH=$(realpath -s "$0")
 LONG_SCRIPT_NAME=$(basename "$0")
 SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 # Variable initialization, to avoid crash
@@ -71,18 +72,40 @@ done
 info "Working on $SCRIPT_NAME"
 info "[DESCRIPTION] $DESCRIPTION"
 
+# check if the script is a link
+# if a file, script is executed from "bin/hardening", create a cfg file (if not already exists)
+# if a link, script is executed from "version"/X", create a link, or update it if already exits
+if [ -L "${SCRIPT_FULL_PATH}" ]; then
+    # script is a link
+    script_real_path=$(readlink -f "${SCRIPT_FULL_PATH}")
+    script_real_name=$(basename "$script_real_path")
+    cfg_file=$(basename -s .sh "$script_real_path").cfg
+    cfg_link="$SCRIPT_NAME".cfg
+else
+    # script is a file
+    script_real_name=$LONG_SCRIPT_NAME
+    cfg_file="$SCRIPT_NAME".cfg
+    cfg_link=""
+fi
+
 # Source specific configuration file
-if ! [ -r "${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg ]; then
+if ! [ -r "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]; then
     # If it doesn't exist, create it with default values
-    echo "# Configuration for $SCRIPT_NAME, created from default values on $(date)" >"${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
+    echo "# Configuration for $script_real_name, created from default values on $(date)" >"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
     # If create_config is a defined function, execute it.
     # Otherwise, just disable the test by default.
     if type -t create_config | grep -qw function; then
-        create_config >>"${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
+        create_config >>"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
     else
-        echo "status=audit" >>"${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
+        echo "status=audit" >>"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
     fi
+fi
 
+if [ -n "$cfg_link" ]; then
+    if [ -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ]; then
+        rm -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+    fi
+    ln -fs "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
 fi
 
 if [ "$forcedstatus" = "createconfig" ]; then

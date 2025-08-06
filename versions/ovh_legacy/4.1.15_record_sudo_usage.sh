@@ -1,0 +1,1 @@
+../../bin/hardening/record_sudo_usage.sh

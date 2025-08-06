@@ -1,0 +1,1 @@
+../../bin/hardening/sticky_bit_world_writable_folder.sh

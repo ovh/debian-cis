@@ -320,9 +320,8 @@ is_service_enabled() {
     # if running in a container, it does not make much sense to test for systemd / service
     # the var "IS_CONTAINER" defined in lib/constant may not be enough, in case we are using systemd slices
     # currently, did not find a unified way to manage all cases, so we check this only for systemctl usage
-    is_using_sbin_init
+    is_systemctl_running
     if [ "$FNRET" -eq 1 ]; then
-        debug "host was not started using '/sbin/init', systemd should not be available"
         FNRET=1
         return
     fi
@@ -668,11 +667,10 @@ is_running_in_container() {
     awk -F/ '$2 == "'"$1"'"' /proc/self/cgroup
 }
 
-is_using_sbin_init() {
+is_systemctl_running() {
     FNRET=0
-    # remove '\0' to avoid 'command substitution: ignored null byte in input'
-    if [[ $($SUDO_CMD cat /proc/1/cmdline | tr -d '\0') != "/sbin/init" ]]; then
-        debug "init process is not '/sbin/init'"
+    if ! systemctl >/dev/null 2>&1; then
+        debug "systemctl is not running"
         FNRET=1
     fi
 }
@@ -681,9 +679,8 @@ manage_service() {
     local action="$1"
     local service="$2"
 
-    is_using_sbin_init
+    is_systemctl_running
     if [ "$FNRET" -ne 0 ]; then
-        debug "/sbin/init not used, systemctl wont manage service $service"
         return
     fi
 

@@ -15,7 +15,7 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Check that user last paswword change date is in the past."
+DESCRIPTION="Check that user last password change date is in the past."
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

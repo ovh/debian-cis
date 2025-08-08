@@ -1,1 +1,1 @@
-../../bin/hardening/enable_lockout_failed_password.sh
+../../bin/hardening/pam_faillock_enabled.sh

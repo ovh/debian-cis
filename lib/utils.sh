@@ -53,21 +53,28 @@ set_sysctl_param() {
 #
 
 is_ipv6_enabled() {
-    local SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
-
     does_sysctl_param_exists "net.ipv6"
     local ENABLE=1
     if [ "$FNRET" = 0 ]; then
-        for SYSCTL_VALUES in $SYSCTL_PARAMS; do
-            SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
-            SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
-            debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
-            has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
-            if [ "$FNRET" != 0 ]; then
-                # we don't want to fail because ipv6 is enabled
-                # it's just an info that some scripts are going to use to decide what to do
-                info "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-                ENABLE=0
+        # we can not rely only on sysctl net.ipv6.conf.all.disable_ipv6=1, as some interfaces may be enabled or disabled individually
+        # ex:
+        # net.ipv6.conf.all.disable_ipv6=0
+        # net.ipv6.conf.eth0.disable_ipv6=1
+        # or
+        # net.ipv6.conf.all.disable_ipv6=1
+        # net.ipv6.conf.eth0.disable_ipv6=0
+        #
+        # we don't want to use 'sysctl -a', as failure to read keys will create stderr output (even if redirected to /dev/null), that will mess with tests
+        # so we list interfaces instead...and while we are there, check their value as sysctl would do
+        for iface in /proc/sys/net/ipv6/conf/*; do
+            ifname=$(basename "$iface")
+            if [ "$ifname" != "default" ] && [ "$ifname" != "all" ]; then
+                value=$(cat "$iface"/disable_ipv6)
+                # if only one interface has ipv6, this is enough to consider it enabled
+                if [ "$value" -eq 0 ]; then
+                    ENABLE=0
+                    debug "$ifname has ipv6 enabled"
+                fi
             fi
         done
     fi
@@ -330,6 +337,27 @@ is_service_enabled() {
         FNRET=0
     else
         debug "Service $SERVICE is disabled"
+        FNRET=1
+    fi
+}
+
+is_socket_enabled() {
+    local SOCKET=$1
+
+    # if running in a container, it does not make much sense to test for systemd / service
+    # the var "IS_CONTAINER" defined in lib/constant may not be enough, in case we are using systemd slices
+    # currently, did not find a unified way to manage all cases, so we check this only for systemctl usage
+    is_systemctl_running
+    if [ "$FNRET" -eq 1 ]; then
+        debug "host was not started using '/sbin/init', systemd should not be available"
+        FNRET=1
+        return
+    fi
+    if $SUDO_CMD systemctl -t socket is-enabled "$SOCKET" >/dev/null; then
+        debug "Socket $SOCKET is enabled"
+        FNRET=0
+    else
+        debug "Socket $SOCKET is disabled"
         FNRET=1
     fi
 }

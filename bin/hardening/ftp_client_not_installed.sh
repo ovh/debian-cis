@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure NFS and RPC are not enabled (Scored)
+# Ensure ftp client is not installed (Automated)
 #
 
 set -e # One error, it's over
@@ -15,36 +15,32 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure Network File System (nfs) and RPC are not enabled."
-# shellcheck disable=2034
-HARDENING_EXCEPTION=nfs
-
-PACKAGES='nfs-kernel-server'
+DESCRIPTION="Ensure ftp client is not installed"
+PACKAGE='ftp'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed!"
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    # 0 means true in bash
+    PACKAGE_INSTALLED=1
+
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        # var will be reused in 'apply'
+        PACKAGE_INSTALLED=0
+        crit "$PACKAGE is installed"
+    else
+        ok "$PACKAGE is not installed"
+    fi
+
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed, purging it"
-            apt-get purge "$PACKAGE" -y
-            apt-get autoremove -y
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    if [ "$PACKAGE_INSTALLED" -eq 0 ]; then
+        info "Removing $PACKAGE"
+        apt remove -y "$PACKAGE"
+        apt purge -y "$PACKAGE"
+    fi
 }
 
 # This function will check config parameters required

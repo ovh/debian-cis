@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure NFS and RPC are not enabled (Scored)
+# Ensure chrony is running as user _chrony (Automated)
 #
 
 set -e # One error, it's over
@@ -15,36 +15,35 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure Network File System (nfs) and RPC are not enabled."
-# shellcheck disable=2034
-HARDENING_EXCEPTION=nfs
-
-PACKAGES='nfs-kernel-server'
+DESCRIPTION="Ensure chrony is running as user _chrony"
+FILE='/etc/chrony/chrony.conf'
+CHRONY_USER="_chrony"
+USER_PATTERN="^user"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed!"
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    CHRONY_USER_VALID=1
+
+    if ! $SUDO_CMD pgrep -u "$CHRONY_USER" chronyd; then
+        crit "chrony is not running as $CHRONY_USER"
+    else
+        ok "chrony is running as $CHRONY_USER"
+        CHRONY_USER_VALID=0
+    fi
+
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed, purging it"
-            apt-get purge "$PACKAGE" -y
-            apt-get autoremove -y
-        else
-            ok "$PACKAGE is absent"
+    if [ "$CHRONY_USER_VALID" -ne 0 ]; then
+        does_pattern_exist_in_file "$FILE" "$USER_PATTERN"
+        if [ "$FNRET" -eq 0 ]; then
+            sed -i '/'$USER_PATTERN'/d' "$FILE"
         fi
-    done
+
+        add_end_of_file "$FILE" "user $CHRONY_USER"
+        info "$FILE modified, please restart the service"
+    fi
 }
 
 # This function will check config parameters required

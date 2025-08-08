@@ -53,25 +53,23 @@ set_sysctl_param() {
 #
 
 is_ipv6_enabled() {
-    local SYSCTL_PARAMS='net.ipv6.conf.all.disable_ipv6=1 net.ipv6.conf.default.disable_ipv6=1 net.ipv6.conf.lo.disable_ipv6=1'
-
-    does_sysctl_param_exists "net.ipv6"
-    local ENABLE=1
-    if [ "$FNRET" = 0 ]; then
-        for SYSCTL_VALUES in $SYSCTL_PARAMS; do
-            SYSCTL_PARAM=$(echo "$SYSCTL_VALUES" | cut -d= -f 1)
-            SYSCTL_EXP_RESULT=$(echo "$SYSCTL_VALUES" | cut -d= -f 2)
-            debug "$SYSCTL_PARAM should be set to $SYSCTL_EXP_RESULT"
-            has_sysctl_param_expected_result "$SYSCTL_PARAM" "$SYSCTL_EXP_RESULT"
-            if [ "$FNRET" != 0 ]; then
-                # we don't want to fail because ipv6 is enabled
-                # it's just an info that some scripts are going to use to decide what to do
-                info "$SYSCTL_PARAM was not set to $SYSCTL_EXP_RESULT"
-                ENABLE=0
-            fi
-        done
+    FNRET=1
+    # ipv6 may be partially disabled
+    # ex:
+    # net.ipv6.conf.all.disable_ipv6 = 0
+    # net.ipv6.conf.default.disable_ipv6 = 0
+    # net.ipv6.conf.eth0.disable_ipv6 = 1
+    # net.ipv6.conf.lo.disable_ipv6 = 0
+    #
+    # in this case, we consider it disabled
+    if ! $SUDO_CMD sysctl net.ipv6 >/dev/null 2>&1; then
+        debug "net.ipv6 not available in sysctl"
+    elif $SUDO_CMD sysctl -a | grep "net.ipv6.*disable_ipv6 = 1" >/dev/null 2>&1; then
+        debug "ipv6 is at least partially disabled"
+    else
+        debug "ipv6 is enabled"
+        FNRET=0
     fi
-    FNRET=$ENABLE
 }
 
 #

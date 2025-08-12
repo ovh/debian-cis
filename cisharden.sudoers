@@ -26,6 +26,7 @@ Cmnd_Alias SCL_CMD =    /bin/grep ,\
                         /usr/sbin/modprobe -n -v*,\
                         /usr/sbin/apparmor_status,\
                         /usr/bin/ss *,\
-                        /bin/ss *
+                        /bin/ss *,\
+                        /usr/bin/pgrep *
 
 cisharden ALL = (root) NOPASSWD: SCL_CMD

@@ -321,9 +321,10 @@ does_group_exist() {
 # Service Boot Checks
 #
 
-is_service_enabled() {
-    local SERVICE=$1
-
+systemd_is_active_or_enabled() {
+    local SYSTEMD_OBJECT=$1
+    local SYSTEMD_OBJECT_TYPE=$2
+    local SYSTEMD_ACTION=$3
     # if running in a container, it does not make much sense to test for systemd / service
     # the var "IS_CONTAINER" defined in lib/constant may not be enough, in case we are using systemd slices
     # currently, did not find a unified way to manage all cases, so we check this only for systemctl usage
@@ -332,33 +333,74 @@ is_service_enabled() {
         FNRET=1
         return
     fi
-    if $SUDO_CMD systemctl -t service is-enabled "$SERVICE" >/dev/null; then
-        debug "Service $SERVICE is enabled"
+
+    if $SUDO_CMD systemctl -t "$SYSTEMD_OBJECT_TYPE" "$SYSTEMD_ACTION" "$SYSTEMD_OBJECT" >/dev/null; then
         FNRET=0
     else
-        debug "Service $SERVICE is disabled"
         FNRET=1
+    fi
+
+}
+
+is_service_enabled() {
+    local SERVICE=$1
+
+    systemd_is_active_or_enabled "$SERVICE" 'service' 'is-enabled'
+
+    if [ "$FNRET" -eq 0 ]; then
+        debug "Service $SERVICE is enabled"
+    else
+        debug "Service $SERVICE is not enabled"
+    fi
+
+}
+
+is_service_active() {
+    local SERVICE=$1
+
+    systemd_is_active_or_enabled "$SERVICE" 'service' 'is-active'
+
+    if [ "$FNRET" -eq 0 ]; then
+        debug "Service $SERVICE is active"
+    else
+        debug "Service $SERVICE is not active"
     fi
 }
 
 is_socket_enabled() {
     local SOCKET=$1
 
-    # if running in a container, it does not make much sense to test for systemd / service
-    # the var "IS_CONTAINER" defined in lib/constant may not be enough, in case we are using systemd slices
-    # currently, did not find a unified way to manage all cases, so we check this only for systemctl usage
-    is_systemctl_running
-    if [ "$FNRET" -eq 1 ]; then
-        debug "host was not started using '/sbin/init', systemd should not be available"
-        FNRET=1
-        return
-    fi
-    if $SUDO_CMD systemctl -t socket is-enabled "$SOCKET" >/dev/null; then
+    systemd_is_active_or_enabled "$SOCKET" 'socket' 'is-enabled'
+
+    if [ "$FNRET" -eq 0 ]; then
         debug "Socket $SOCKET is enabled"
-        FNRET=0
     else
-        debug "Socket $SOCKET is disabled"
-        FNRET=1
+        debug "Socket $SOCKET is not enabled"
+    fi
+
+}
+
+is_socket_active() {
+    local SOCKET=$1
+
+    systemd_is_active_or_enabled "$SOCKET" 'socket' 'is-active'
+
+    if [ "$FNRET" -eq 0 ]; then
+        debug "Socket $SOCKET is active"
+    else
+        debug "Socket $SOCKET is not active"
+    fi
+}
+
+is_timer_active() {
+    local TIMER=$1
+
+    systemd_is_active_or_enabled "$TIMER" 'timer' 'is-active'
+
+    if [ "$FNRET" -eq 0 ]; then
+        debug "Timer $TIMER is active"
+    else
+        debug "Timer $TIMER is not active"
     fi
 }
 

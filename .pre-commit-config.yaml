@@ -22,3 +22,10 @@ repos:
         language: script
         pass_filenames: true
         files: "^(bin|tests)/hardening/"
+      - id: check_is_executable
+        name: check_is_executable.sh
+        description: Ensure checks are executables
+        entry: hooks/check_is_executable.sh
+        language: script
+        pass_filenames: true
+        files: "^bin/hardening/"

@@ -27,6 +27,7 @@ Cmnd_Alias SCL_CMD =    /bin/grep ,\
                         /usr/sbin/apparmor_status,\
                         /usr/bin/ss *,\
                         /bin/ss *,\
-                        /usr/bin/pgrep *
+                        /usr/bin/pgrep *,\
+                        /usr/sbin/nft list *
 
 cisharden ALL = (root) NOPASSWD: SCL_CMD

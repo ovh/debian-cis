@@ -19,4 +19,6 @@ test_audit() {
     register_test retvalshouldbe 0
     register_test contain "[ OK ] ^maxstartups[[:space:]]*10:30:60 is present in /etc/ssh/sshd_config"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    describe Clean test
+    pkill -9 sshd
 }

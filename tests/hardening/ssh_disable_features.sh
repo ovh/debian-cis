@@ -25,4 +25,6 @@ test_audit() {
     register_test contain "[ OK ] ^PermitUserRC[[:space:]]*no is present in /etc/ssh/sshd_config"
     register_test contain "[ OK ] ^GatewayPorts[[:space:]]*no is present in /etc/ssh/sshd_config"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    describe Clean test
+    pkill -9 sshd
 }

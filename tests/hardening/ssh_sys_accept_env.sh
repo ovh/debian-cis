@@ -9,7 +9,8 @@ test_audit() {
 
     # Proceed to operation that will end up to a non compliant system
     describe Tests purposely failing
-    sed -ri 's/^\s*AcceptEnv\s+LANG LC_\*//' /etc/ssh/sshd_config
+    # remove the whole line, or sshd wont start (trixie)
+    sed -ri 's/^\s*AcceptEnv\s+LANG LC_\*.*$//' /etc/ssh/sshd_config
     register_test retvalshouldbe 1
     register_test contain "[ KO ] ^\s*AcceptEnv\s+LANG LC_\* is not present in /etc/ssh/sshd_config"
     run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all

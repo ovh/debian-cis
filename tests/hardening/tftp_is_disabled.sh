@@ -19,18 +19,11 @@ test_audit() {
     register_test retvalshouldbe 0
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    describe Prepare test package dependencies
-    # try to install a package that depends on 'tftpd-hpa'
-    apt install -y tftp-hpa-dbg
-    # running on a container, we can only test the package installation, not the service management
-
-    describe Running successfull test
-    register_test retvalshouldbe 0
-    # shellcheck disable=2154
-    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    # we can not test dependencies on trixie, because no package depends from tftpf-hpa
+    # we should use the "get_debian_major_version" from lib/utils.sh, but we can't source it in the actual state
 
     describe clean installation
-    apt remove -y tftp-hpa-dbg tftpd-hpa
+    apt remove -y tftpd-hpa
     apt autoremove -y
 
 }

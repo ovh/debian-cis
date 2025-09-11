@@ -12,6 +12,7 @@ test_audit() {
 
     describe Tests purposely failing
     useradd --create-home "$test_user"
+    chmod o+rx "/home/$test_user/"
     touch "/home/$test_user/$test_file"
     register_test retvalshouldbe 1
     register_test contain "$test_file present"

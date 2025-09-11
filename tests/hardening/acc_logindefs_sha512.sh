@@ -10,6 +10,7 @@ test_audit() {
     cp /etc/login.defs /tmp/login.defs.bak
     describe Line as comment
     sed -i 's/\(ENCRYPT_METHOD SHA512\)/# \1/' /etc/login.defs
+    sed -i 's/\(ENCRYPT_METHOD YESCRYPT\)/# \1/' /etc/login.defs
     register_test retvalshouldbe 1
     register_test contain "is not present in /etc/login.defs"
     run commented "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
@@ -22,6 +23,7 @@ test_audit() {
 
     cp /tmp/login.defs.bak /etc/login.defs
     sed -ir 's/ENCRYPT_METHOD[[:space:]]\+SHA512/ENCRYPT_METHOD MD5/' /etc/login.defs
+    sed -ir 's/ENCRYPT_METHOD[[:space:]]\+YESCRYPT/ENCRYPT_METHOD MD5/' /etc/login.defs
     describe Fail: wrong hash function configuration
     register_test retvalshouldbe 1
     register_test contain "is not present in /etc/login.defs"

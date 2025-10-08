@@ -1,0 +1,7 @@
+name: debian-cis
+on:
+- push
+from: stash_ovh_net/iaas/cicd-tools/debian
+semver:
+  from: debian
+  path: debian/changelog

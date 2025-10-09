@@ -102,10 +102,13 @@ if ! [ -r "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]; then
 fi
 
 if [ -n "$cfg_link" ]; then
-    if [ -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ]; then
+    if [ ! -L "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ]; then
         rm -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+        ln -s "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+    # make sure the existing link points to the correct file
+    elif [[ $(readlink -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link") != "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]]; then
+        ln -fs "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
     fi
-    ln -fs "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
 fi
 
 if [ "$forcedstatus" = "createconfig" ]; then

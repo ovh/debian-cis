@@ -1,0 +1,1 @@
+../../bin/hardening/sanitize_root_path.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/enable_cron.sh

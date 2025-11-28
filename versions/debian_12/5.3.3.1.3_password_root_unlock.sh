@@ -1,0 +1,1 @@
+../../bin/hardening/password_root_unlock.sh

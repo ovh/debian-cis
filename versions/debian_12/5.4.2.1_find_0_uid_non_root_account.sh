@@ -1,0 +1,1 @@
+../../bin/hardening/find_0_uid_non_root_account.sh

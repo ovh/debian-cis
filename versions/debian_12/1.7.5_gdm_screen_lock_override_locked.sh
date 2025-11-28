@@ -1,0 +1,1 @@
+../../bin/hardening/gdm_screen_lock_override_locked.sh

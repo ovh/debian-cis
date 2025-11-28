@@ -1,0 +1,1 @@
+../../bin/hardening/check_root_gid.sh

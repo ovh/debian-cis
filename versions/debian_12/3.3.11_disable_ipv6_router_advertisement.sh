@@ -1,0 +1,1 @@
+../../bin/hardening/disable_ipv6_router_advertisement.sh

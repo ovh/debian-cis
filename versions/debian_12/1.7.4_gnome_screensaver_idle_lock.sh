@@ -1,0 +1,1 @@
+../../bin/hardening/gnome_screensaver_idle_lock.sh

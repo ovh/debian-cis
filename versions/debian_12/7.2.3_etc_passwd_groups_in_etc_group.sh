@@ -1,0 +1,1 @@
+../../bin/hardening/etc_passwd_groups_in_etc_group.sh

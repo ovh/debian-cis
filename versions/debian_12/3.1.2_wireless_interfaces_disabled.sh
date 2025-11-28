@@ -1,0 +1,1 @@
+../../bin/hardening/wireless_interfaces_disabled.sh

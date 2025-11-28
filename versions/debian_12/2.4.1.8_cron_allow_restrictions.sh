@@ -1,0 +1,1 @@
+../../bin/hardening/cron_allow_restrictions.sh

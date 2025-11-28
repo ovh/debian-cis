@@ -1,0 +1,1 @@
+../../bin/hardening/pam_use_authtok_enabled.sh

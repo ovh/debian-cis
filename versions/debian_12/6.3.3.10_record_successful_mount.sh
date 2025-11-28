@@ -1,0 +1,1 @@
+../../bin/hardening/record_successful_mount.sh

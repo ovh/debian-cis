@@ -1,0 +1,1 @@
+../../bin/hardening/root_only_gid0_account.sh

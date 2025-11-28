@@ -1,0 +1,1 @@
+../../bin/hardening/bootloader_password.sh

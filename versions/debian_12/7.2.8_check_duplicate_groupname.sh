@@ -1,0 +1,1 @@
+../../bin/hardening/check_duplicate_groupname.sh

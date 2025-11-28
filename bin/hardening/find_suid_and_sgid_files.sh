@@ -17,6 +17,8 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Find SUID and SGID system executables."
 IGNORED_PATH=''
+# Regex of paths to exclude from findings.
+EXCLUDED=''
 EXCEPTIONS=''
 
 # find emits following error if directory or file disappear during
@@ -26,20 +28,25 @@ FIND_IGNORE_NOSUCHFILE_ERR=false
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if there are suid files"
+    EXCLUDED_FIND_FILTER=''
+    if [ -n "$EXCLUDED" ]; then
+        EXCLUDED_FIND_FILTER="-regextype egrep ! -regex $EXCLUDED"
+    fi
+
     if [ -n "$IGNORED_PATH" ]; then
         # maybe IGNORED_PATH allow us to filter out some FS
         FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}' | grep -vE "$IGNORED_PATH")
 
         [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set +e
         # shellcheck disable=2086
-        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f \( -perm -4000 -o -perm -2000 \) -regextype 'egrep' ! -regex $IGNORED_PATH -print)
+        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f \( -perm -4000 -o -perm -2000 \) $EXCLUDED_FIND_FILTER -regextype 'egrep' ! -regex $IGNORED_PATH -print)
         [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set -e
     else
         FS_NAMES=$(df --local -P | awk '{if (NR!=1) print $6}')
 
         [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set +e
         # shellcheck disable=2086
-        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f \( -perm -4000 -o -perm -2000 \) -print)
+        FOUND_BINARIES=$($SUDO_CMD find $FS_NAMES -xdev -ignore_readdir_race -type f \( -perm -4000 -o -perm -2000 \) $EXCLUDED_FIND_FILTER -print)
         [ "${FIND_IGNORE_NOSUCHFILE_ERR}" = true ] && set -e
     fi
 
@@ -70,8 +77,10 @@ apply() {
 create_config() {
     cat <<EOF
 status=audit
+# Regex of paths to exclude from search (example: ^/home/docker/overlay2/.*)
+EXCLUDED=''
 # Put Here your valid suid binaries so that they do not appear during the audit
-EXCEPTIONS="/bin/mount /bin/ping /bin/ping6 /bin/su /bin/umount /sbin/unix_chkpwd /usr/bin/at /usr/bin/bsd-write /usr/bin/chage /usr/bin/chfn /usr/bin/chsh /usr/bin/crontab /usr/bin/dotlockfile /usr/bin/expiry /usr/bin/fping /usr/bin/fping6 /usr/bin/gpasswd /usr/bin/mail-lock /usr/bin/mail-touchlock /usr/bin/mail-unlock /usr/bin/mount /usr/bin/mtr /usr/bin/mutt_dotlock /usr/bin/newgrp /usr/bin/passwd /usr/bin/ping /usr/bin/ping6 /usr/bin/screen /usr/bin/ssh-agent /usr/bin/su /usr/bin/sudo /usr/bin/sudoedit /usr/bin/umount /usr/bin/wall /usr/lib/openssh/ssh-keysign /usr/lib/pt_chown /usr/sbin/postdrop /usr/sbin/postqueue /usr/sbin/unix_chkpwd"
+EXCEPTIONS="/bin/mount /bin/ping /bin/ping6 /bin/su /bin/umount /sbin/unix_chkpwd /usr/bin/at /usr/bin/bsd-write /usr/bin/chage /usr/bin/chfn /usr/bin/chsh /usr/bin/crontab /usr/bin/dotlockfile /usr/bin/expiry /usr/bin/fping /usr/bin/fping6 /usr/bin/fusermount /usr/bin/gpasswd /usr/bin/mail-lock /usr/bin/mail-touchlock /usr/bin/mail-unlock /usr/bin/mount /usr/bin/mtr /usr/bin/mutt_dotlock /usr/bin/newgrp /usr/bin/passwd /usr/bin/ping /usr/bin/ping6 /usr/bin/plocate /usr/bin/screen /usr/bin/ssh-agent /usr/bin/su /usr/bin/sudo /usr/bin/sudoedit /usr/bin/umount /usr/bin/wall /usr/lib/dbus-1.0/dbus-daemon-launch-helper /usr/libexec/s-nail-dotlock /usr/lib/openssh/ssh-keysign /usr/lib/pt_chown /usr/lib/x86_64-linux-gnu/utempter/utempter /usr/sbin/postdrop /usr/sbin/postqueue /usr/sbin/unix_chkpwd"
 EOF
 }
 

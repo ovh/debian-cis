@@ -1,0 +1,1 @@
+../../bin/hardening/pam_faillock_enabled.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/rpcbind_is_disabled.sh

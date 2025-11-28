@@ -1,0 +1,1 @@
+../../bin/hardening/audit_file_deletion.sh

@@ -1,0 +1,1 @@
+../../../bin/hardening/record_login_logout.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/gdm_is_removed.sh

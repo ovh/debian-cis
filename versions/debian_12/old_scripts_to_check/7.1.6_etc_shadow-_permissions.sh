@@ -1,0 +1,1 @@
+../../../bin/hardening/etc_shadow-_permissions.sh

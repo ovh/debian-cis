@@ -1,0 +1,1 @@
+../../../bin/hardening/record_user_group_edit.sh

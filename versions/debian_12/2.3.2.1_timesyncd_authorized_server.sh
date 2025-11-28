@@ -1,0 +1,1 @@
+../../bin/hardening/timesyncd_authorized_server.sh

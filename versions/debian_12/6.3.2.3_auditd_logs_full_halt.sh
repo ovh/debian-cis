@@ -1,0 +1,1 @@
+../../bin/hardening/auditd_logs_full_halt.sh

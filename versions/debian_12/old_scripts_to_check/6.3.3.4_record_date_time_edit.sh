@@ -1,0 +1,1 @@
+../../../bin/hardening/record_date_time_edit.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/ufw_outbound_connection.sh

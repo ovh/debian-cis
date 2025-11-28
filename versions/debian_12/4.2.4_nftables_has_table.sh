@@ -1,0 +1,1 @@
+../../bin/hardening/nftables_has_table.sh

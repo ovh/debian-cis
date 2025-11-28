@@ -1,0 +1,1 @@
+../../../bin/hardening/default_umask.sh

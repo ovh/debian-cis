@@ -1,0 +1,1 @@
+../../../bin/hardening/enable_bad_error_message_protection.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/password_dictcheck_enabled.sh

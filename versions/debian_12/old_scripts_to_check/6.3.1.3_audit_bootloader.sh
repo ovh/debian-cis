@@ -1,0 +1,1 @@
+../../../bin/hardening/audit_bootloader.sh

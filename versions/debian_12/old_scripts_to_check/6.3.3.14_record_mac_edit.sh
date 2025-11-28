@@ -1,0 +1,1 @@
+../../../bin/hardening/record_mac_edit.sh

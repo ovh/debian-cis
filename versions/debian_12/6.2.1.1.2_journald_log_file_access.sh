@@ -1,0 +1,1 @@
+../../bin/hardening/journald_log_file_access.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/ip6tables_default_deny_policy.sh

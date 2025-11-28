@@ -1,0 +1,1 @@
+../../bin/hardening/package_manager_is_configured.sh

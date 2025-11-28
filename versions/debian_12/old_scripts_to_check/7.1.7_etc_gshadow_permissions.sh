@@ -1,0 +1,1 @@
+../../../bin/hardening/etc_gshadow_permissions.sh

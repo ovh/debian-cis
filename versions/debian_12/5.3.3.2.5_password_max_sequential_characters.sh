@@ -1,0 +1,1 @@
+../../bin/hardening/password_max_sequential_characters.sh

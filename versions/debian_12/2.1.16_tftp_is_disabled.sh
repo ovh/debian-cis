@@ -1,0 +1,1 @@
+../../bin/hardening/tftp_is_disabled.sh

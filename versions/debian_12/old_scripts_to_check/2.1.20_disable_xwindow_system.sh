@@ -1,0 +1,1 @@
+../../../bin/hardening/disable_xwindow_system.sh

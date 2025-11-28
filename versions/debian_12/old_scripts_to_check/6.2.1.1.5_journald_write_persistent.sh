@@ -1,0 +1,1 @@
+../../../bin/hardening/journald_write_persistent.sh

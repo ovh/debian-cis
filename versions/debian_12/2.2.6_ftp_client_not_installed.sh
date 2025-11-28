@@ -1,0 +1,1 @@
+../../bin/hardening/ftp_client_not_installed.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/audit_conf_group.sh

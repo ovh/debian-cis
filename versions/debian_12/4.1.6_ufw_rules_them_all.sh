@@ -1,0 +1,1 @@
+../../bin/hardening/ufw_rules_them_all.sh

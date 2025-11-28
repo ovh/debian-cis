@@ -1,0 +1,1 @@
+../../bin/hardening/nftables_is_enabled.sh

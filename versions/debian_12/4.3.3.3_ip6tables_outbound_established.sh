@@ -1,0 +1,1 @@
+../../bin/hardening/ip6tables_outbound_established.sh

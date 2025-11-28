@@ -1,0 +1,1 @@
+../../bin/hardening/find_suid_and_sgid_files.sh

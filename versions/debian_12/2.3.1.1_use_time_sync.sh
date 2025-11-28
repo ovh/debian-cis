@@ -1,0 +1,1 @@
+../../bin/hardening/use_time_sync.sh

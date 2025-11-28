@@ -1,0 +1,1 @@
+../../bin/hardening/install_libpam_pwquality.sh

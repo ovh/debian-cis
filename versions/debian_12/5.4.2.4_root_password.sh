@@ -1,0 +1,1 @@
+../../bin/hardening/root_password.sh

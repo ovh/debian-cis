@@ -1,0 +1,1 @@
+../../bin/hardening/password_quality_enforced.sh

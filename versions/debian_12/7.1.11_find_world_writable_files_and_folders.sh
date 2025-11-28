@@ -1,0 +1,1 @@
+../../bin/hardening/find_world_writable_files_and_folders.sh

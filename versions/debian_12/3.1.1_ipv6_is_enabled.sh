@@ -1,0 +1,1 @@
+../../bin/hardening/ipv6_is_enabled.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/nis_server_disabled.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/dev_shm_separate_partition.sh

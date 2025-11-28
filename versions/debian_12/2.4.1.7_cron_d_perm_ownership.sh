@@ -1,0 +1,1 @@
+../../bin/hardening/cron_d_perm_ownership.sh

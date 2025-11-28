@@ -1,0 +1,1 @@
+../../bin/hardening/etc_shells_permissions.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/acc_lock_inactive_shell.sh

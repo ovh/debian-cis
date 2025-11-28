@@ -1,0 +1,1 @@
+../../bin/hardening/nftables_loopback_is_configured.sh

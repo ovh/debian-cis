@@ -1,0 +1,1 @@
+../../bin/hardening/set_password_min_days_change.sh

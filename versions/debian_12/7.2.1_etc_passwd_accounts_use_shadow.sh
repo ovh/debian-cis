@@ -1,0 +1,1 @@
+../../bin/hardening/etc_passwd_accounts_use_shadow.sh

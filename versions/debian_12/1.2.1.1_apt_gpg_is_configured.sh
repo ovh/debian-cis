@@ -1,0 +1,1 @@
+../../bin/hardening/apt_gpg_is_configured.sh

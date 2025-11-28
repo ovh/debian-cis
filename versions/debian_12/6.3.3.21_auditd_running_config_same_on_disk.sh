@@ -1,0 +1,1 @@
+../../bin/hardening/auditd_running_config_same_on_disk.sh

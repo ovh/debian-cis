@@ -1,0 +1,1 @@
+../../bin/hardening/acc_pam_sha512.sh

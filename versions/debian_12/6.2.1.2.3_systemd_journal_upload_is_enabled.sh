@@ -1,0 +1,1 @@
+../../bin/hardening/systemd_journal_upload_is_enabled.sh

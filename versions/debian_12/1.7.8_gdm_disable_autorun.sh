@@ -1,0 +1,1 @@
+../../bin/hardening/gdm_disable_autorun.sh

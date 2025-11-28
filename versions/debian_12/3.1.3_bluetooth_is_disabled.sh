@@ -1,0 +1,1 @@
+../../bin/hardening/bluetooth_is_disabled.sh

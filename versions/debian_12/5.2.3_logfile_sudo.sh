@@ -1,0 +1,1 @@
+../../bin/hardening/logfile_sudo.sh

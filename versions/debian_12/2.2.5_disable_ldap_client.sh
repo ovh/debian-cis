@@ -1,0 +1,1 @@
+../../bin/hardening/disable_ldap_client.sh

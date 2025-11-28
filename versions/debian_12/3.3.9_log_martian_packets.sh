@@ -1,0 +1,1 @@
+../../bin/hardening/log_martian_packets.sh

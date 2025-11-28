@@ -1,0 +1,1 @@
+../../bin/hardening/home_partition.sh

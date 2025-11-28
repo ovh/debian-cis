@@ -1,0 +1,1 @@
+../../bin/hardening/mta_localhost.sh

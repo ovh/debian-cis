@@ -1,0 +1,1 @@
+../../bin/hardening/etc_issue_net_perms.sh

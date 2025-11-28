@@ -1,0 +1,1 @@
+../../bin/hardening/ptrace_scope_is_restricted.sh

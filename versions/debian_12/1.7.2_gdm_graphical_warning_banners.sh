@@ -1,0 +1,1 @@
+../../bin/hardening/gdm_graphical_warning_banners.sh

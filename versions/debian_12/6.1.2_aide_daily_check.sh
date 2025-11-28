@@ -1,0 +1,1 @@
+../../bin/hardening/aide_daily_check.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/motd_no_os_info.sh

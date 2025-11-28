@@ -1,0 +1,1 @@
+../../bin/hardening/iptables_default_deny_policy.sh

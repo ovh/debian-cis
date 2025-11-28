@@ -1,0 +1,1 @@
+../../bin/hardening/password_number_changed_chars.sh

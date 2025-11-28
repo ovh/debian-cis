@@ -1,0 +1,1 @@
+../../bin/hardening/iptables_flushed_with_nftables.sh

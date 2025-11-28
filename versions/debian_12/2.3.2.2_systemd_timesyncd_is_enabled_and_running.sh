@@ -1,0 +1,1 @@
+../../bin/hardening/systemd_timesyncd_is_enabled_and_running.sh

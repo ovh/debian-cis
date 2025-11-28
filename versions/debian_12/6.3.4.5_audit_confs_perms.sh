@@ -1,0 +1,1 @@
+../../bin/hardening/audit_confs_perms.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/libpam_runtime_is_version.sh

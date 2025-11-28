@@ -1,0 +1,1 @@
+../../bin/hardening/password_last_change_past.sh

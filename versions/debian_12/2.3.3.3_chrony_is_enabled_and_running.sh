@@ -1,0 +1,1 @@
+../../bin/hardening/chrony_is_enabled_and_running.sh

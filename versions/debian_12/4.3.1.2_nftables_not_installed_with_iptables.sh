@@ -1,0 +1,1 @@
+../../bin/hardening/nftables_not_installed_with_iptables.sh

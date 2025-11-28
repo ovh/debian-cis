@@ -1,0 +1,1 @@
+../../bin/hardening/message_access_server_services_not_in_use.sh

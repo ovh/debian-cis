@@ -1,0 +1,1 @@
+../../../bin/hardening/disable_udf.sh

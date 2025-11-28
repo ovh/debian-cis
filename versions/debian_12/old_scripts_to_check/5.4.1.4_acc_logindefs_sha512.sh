@@ -1,0 +1,1 @@
+../../../bin/hardening/acc_logindefs_sha512.sh

@@ -1,0 +1,1 @@
+../../../bin/hardening/enforcing_apparmor.sh

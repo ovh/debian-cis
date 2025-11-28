@@ -1,0 +1,1 @@
+../../../bin/hardening/enable_randomized_vm_placement.sh

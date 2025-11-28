@@ -1,0 +1,1 @@
+../../../bin/hardening/restrict_core_dumps.sh

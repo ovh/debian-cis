@@ -1,0 +1,1 @@
+../../bin/hardening/nftables_has_base_chains.sh

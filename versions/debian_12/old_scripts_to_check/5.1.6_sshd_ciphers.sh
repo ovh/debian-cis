@@ -1,0 +1,1 @@
+../../../bin/hardening/sshd_ciphers.sh

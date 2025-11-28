@@ -1,0 +1,1 @@
+../../../bin/hardening/keep_all_audit_logs.sh

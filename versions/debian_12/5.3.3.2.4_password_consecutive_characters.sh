@@ -1,0 +1,1 @@
+../../bin/hardening/password_consecutive_characters.sh

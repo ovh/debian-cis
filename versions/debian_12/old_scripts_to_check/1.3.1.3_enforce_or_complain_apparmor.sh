@@ -1,0 +1,1 @@
+../../../bin/hardening/enforce_or_complain_apparmor.sh

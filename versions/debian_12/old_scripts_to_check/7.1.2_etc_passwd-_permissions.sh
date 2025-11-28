@@ -1,0 +1,1 @@
+../../../bin/hardening/etc_passwd-_permissions.sh

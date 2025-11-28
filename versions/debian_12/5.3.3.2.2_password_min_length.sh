@@ -1,0 +1,1 @@
+../../bin/hardening/password_min_length.sh

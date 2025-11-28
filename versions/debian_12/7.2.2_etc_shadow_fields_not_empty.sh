@@ -1,0 +1,1 @@
+../../bin/hardening/etc_shadow_fields_not_empty.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/nologin_abent_from_etc_shells.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/ufw_not_installed_with_nftables.sh

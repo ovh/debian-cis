@@ -1,0 +1,1 @@
+../../../bin/hardening/lock_inactive_user_account.sh

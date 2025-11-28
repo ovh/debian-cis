@@ -1,0 +1,1 @@
+../../../bin/hardening/journald_compress.sh

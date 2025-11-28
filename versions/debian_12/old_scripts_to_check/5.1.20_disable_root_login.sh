@@ -1,0 +1,1 @@
+../../../bin/hardening/disable_root_login.sh

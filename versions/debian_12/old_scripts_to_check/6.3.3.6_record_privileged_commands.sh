@@ -1,0 +1,1 @@
+../../../bin/hardening/record_privileged_commands.sh

@@ -1,0 +1,1 @@
+../../../bin/hardening/disable_telnet_client.sh

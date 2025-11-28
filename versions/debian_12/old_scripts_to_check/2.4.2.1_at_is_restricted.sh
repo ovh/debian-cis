@@ -1,0 +1,1 @@
+../../../bin/hardening/at_is_restricted.sh

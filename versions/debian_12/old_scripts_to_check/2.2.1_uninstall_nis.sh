@@ -1,0 +1,1 @@
+../../../bin/hardening/uninstall_nis.sh

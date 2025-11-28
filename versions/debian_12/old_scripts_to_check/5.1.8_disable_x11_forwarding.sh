@@ -1,0 +1,1 @@
+../../../bin/hardening/disable_x11_forwarding.sh

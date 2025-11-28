@@ -1,0 +1,1 @@
+../../../bin/hardening/ssh_banner.sh

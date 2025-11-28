@@ -1,0 +1,1 @@
+../../bin/hardening/aide_is_installed.sh

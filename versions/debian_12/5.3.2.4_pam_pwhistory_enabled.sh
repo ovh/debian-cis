@@ -1,0 +1,1 @@
+../../bin/hardening/pam_pwhistory_enabled.sh

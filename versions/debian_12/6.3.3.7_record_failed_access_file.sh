@@ -1,0 +1,1 @@
+../../bin/hardening/record_failed_access_file.sh

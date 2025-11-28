@@ -1,0 +1,1 @@
+../../bin/hardening/enable_tcp_syn_cookies.sh

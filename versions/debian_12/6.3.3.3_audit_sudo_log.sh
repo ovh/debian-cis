@@ -1,0 +1,1 @@
+../../bin/hardening/audit_sudo_log.sh

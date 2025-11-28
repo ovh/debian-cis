@@ -1,0 +1,1 @@
+../../bin/hardening/logs_permissions.sh

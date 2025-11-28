@@ -1,0 +1,1 @@
+../../bin/hardening/systemd_journal_remote_is_installed.sh

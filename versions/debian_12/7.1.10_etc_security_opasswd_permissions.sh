@@ -1,0 +1,1 @@
+../../bin/hardening/etc_security_opasswd_permissions.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/nftables_default_deny_policy.sh

@@ -1,0 +1,1 @@
+../../bin/hardening/chrony_authorized_server.sh

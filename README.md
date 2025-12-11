@@ -164,7 +164,7 @@ Do not forget to specify in comment if it's a bonus check (suggested by CIS but 
 Code your check explaining what it does then if you want to test
 
 ```console
-$ sed -i "s/status=.+/status=enabled/" etc/conf.d/99.99_custom_script.cfg
+$ sed -i --follow-symlinks "s/status=.+/status=enabled/" etc/conf.d/99.99_custom_script.cfg
 $ ./bin/hardening/99.99_custom_script.sh
 ```
 ## :sparkles: Functional testing

@@ -30,6 +30,10 @@ Cmnd_Alias SCL_CMD =    /bin/grep ,\
                         /bin/ss *,\
                         /usr/bin/pgrep *,\
                         /usr/sbin/nft list *,\
-                        /usr/sbin/ufw status *
+                        /usr/sbin/ufw status *,\
+                        /usr/sbin/augenrules --check,\
+                        /sbin/augenrules --check,\
+                        /usr/sbin/auditctl -s,\
+                        /sbin/auditctl -s
 
 cisharden ALL = (root) NOPASSWD: SCL_CMD

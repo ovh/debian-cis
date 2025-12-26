@@ -8,20 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Run the tests debian11
         run: ./tests/docker_build_and_run_tests.sh debian11
   functionnal-tests-docker-debian12:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Run the tests debian12
         run: ./tests/docker_build_and_run_tests.sh debian12
   functionnal-tests-docker-debian13:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Run the tests debian13
         run: ./tests/docker_build_and_run_tests.sh debian13

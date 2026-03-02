@@ -38,6 +38,8 @@ check_config() { : }   # optional; define configurable vars here
 
 `audit()` is always called before `apply()`. Never duplicate logic — use global variables set in `audit()` instead of re-checking in `apply()`.
 
+For newly created scripts, omit CIS recommendation numbering from human-readable titles/comments. Example: use `Ensure accounts without a valid login shell are locked (Automated)`, not `5.4.2.8 Ensure accounts without a valid login shell are locked (Automated)`.
+
 ### ok / crit / info
 
 - `ok "..."` — recommendation is met
@@ -124,8 +126,7 @@ When checking config across multiple files, verify **ALL** files before deciding
 ### sudo rules
 
 Audit runs as non-root. Use `$SUDO_CMD` for read-only commands only:
-- Allowed: `cat`, `grep`, `sed`, `awk`, `systemctl`, `dpkg-query`
-- **Not allowed**: `apt`, `mount`, `chown`, `chmod`, `mv`, `cp`, `rm`
+- Allowed examples: `cat`, `grep`, `sed`, `awk`, `systemctl`, `dpkg-query`, `auditctl -s`, `augenrules --check`
 
 Sudo rules are in `cisharden.sudoers`.
 
@@ -165,6 +166,12 @@ check_config() {
 4. Restore/cleanup
 ```
 
+For checks that are intentionally **manual remediation only** (script `apply()` cannot auto-fix by design), tests may skip `--apply` and instead:
+1. Create non-compliant state and verify `retvalshouldbe 1`
+2. Perform documented manual remediation inside the test
+3. Re-audit and verify `retvalshouldbe 0`
+4. Restore/cleanup
+
 ### Key rules
 
 - `retvalshouldbe 0` = compliant, `retvalshouldbe 1` = non-compliant
@@ -172,11 +179,25 @@ check_config() {
 - If a package is installed in a test → remove it + `apt-get autoremove -y` at the end
 - If a script depends on a package, tests should cover both cases when feasible: package installed and package not installed (not-applicable path).
 - Restore modified config files at end of test
+- In tests, if `${script}` (or other harness vars) is used in local variable assignments, add `# shellcheck disable=2154` immediately above those lines.
 - If non-compliant state cannot be created (config absent), use `skip` + `register_test`/`run` inside the conditional block
 - Do not use `mount`/`remount` in containers; skip those tests with a container check
+- For scripts interacting with audit runtime (auditctl/augenrules), check `auditctl -s` availability and skip if not present.
 - For scripts interacting with systemd, use `is_systemctl_running` and skip when systemd is not running.
 - When output is unpredictable (blank system), use `dismiss_count_for_test`
 - When a test requires two packages (e.g. `gdm` vs `gdm3`), detect which is present and adapt config paths accordingly
+
+### Test comprehensiveness
+
+For all scripts, tests should cover the broadest realistic set of states:
+
+1. **Missing prerequisites** (dependency/package/service/file absent or unavailable) → `retvalshouldbe 1` or `skip` if state cannot be reliably created
+2. **Missing target configuration** (expected file/rule/value absent) → `retvalshouldbe 1`
+3. **Broken/incomplete configuration** (present but malformed, partial, wrong value, wrong owner/perms) → `retvalshouldbe 1`
+4. **Asymmetric/inconsistent state** (configured in one layer but not in effective runtime) → `retvalshouldbe 1`
+5. **Compliant state** (after apply/fix, all checks pass) → `retvalshouldbe 0`
+
+Backup/restore all modified system files at test boundaries. Isolate test scenarios by resetting runtime state when needed (for example `auditctl -D` for audit runtime tests).
 
 ### Package test pattern
 

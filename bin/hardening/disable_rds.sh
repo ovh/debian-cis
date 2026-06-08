@@ -21,6 +21,8 @@ DESCRIPTION="Disable Reliable Datagram Sockets (RDS)."
 
 KERNEL_OPTION="CONFIG_RDS"
 MODULE_NAME="rds"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="rds"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

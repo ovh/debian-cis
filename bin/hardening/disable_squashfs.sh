@@ -19,6 +19,8 @@ DESCRIPTION="Disable mounting of squashfs filesytems."
 
 KERNEL_OPTION="CONFIG_SQUASHFS"
 MODULE_NAME="squashfs"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="squashfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

@@ -21,6 +21,8 @@ DESCRIPTION="Disable Transperent Inter-Process Communication (TIPC)."
 
 KERNEL_OPTION="CONFIG_TIPC"
 MODULE_NAME="tipc"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="tipc"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

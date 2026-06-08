@@ -19,6 +19,8 @@ DESCRIPTION="Disable mounting of jffs2 filesystems."
 
 KERNEL_OPTION="CONFIG_JFFS2_FS"
 MODULE_NAME="jffs2"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="jffs2"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

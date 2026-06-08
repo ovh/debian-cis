@@ -21,6 +21,8 @@ DESCRIPTION="Disable Datagram Congestion Control Protocol (DCCP)."
 
 KERNEL_OPTION="CONFIG_NF_CT_PROTO_DCCP"
 MODULE_NAME="dccp"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="dccp"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

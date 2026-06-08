@@ -19,6 +19,8 @@ DESCRIPTION="Disable mounting of cramfs filesystems."
 
 KERNEL_OPTION="CONFIG_CRAMFS"
 MODULE_NAME="cramfs"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="cramfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

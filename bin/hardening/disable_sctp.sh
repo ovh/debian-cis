@@ -21,6 +21,8 @@ DESCRIPTION="Disable Stream Control Transmission Protocol (SCTP)."
 
 KERNEL_OPTION="CONFIG_NF_CT_PROTO_SCTP"
 MODULE_NAME="sctp"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="sctp"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

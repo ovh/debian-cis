@@ -19,6 +19,8 @@ DESCRIPTION="Disable mounting of freevxfs filesystems."
 
 KERNEL_OPTION="CONFIG_VXFS_FS"
 MODULE_NAME="freevxfs"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="freevxfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

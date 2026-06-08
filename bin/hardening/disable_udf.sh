@@ -19,6 +19,8 @@ DESCRIPTION="Disable mounting of udf filesystems."
 
 KERNEL_OPTION="CONFIG_UDF_FS"
 MODULE_NAME="udf"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="udf"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

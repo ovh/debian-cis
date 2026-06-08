@@ -19,6 +19,8 @@ DESCRIPTION="Disable mounting of hfsplus filesystems."
 
 KERNEL_OPTION="CONFIG_HFSPLUS_FS"
 MODULE_NAME="hfsplus"
+# name as returned by "modinfo -F name <module_name>"
+LOADED_MODULE_NAME="hfsplus"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

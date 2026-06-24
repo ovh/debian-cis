@@ -8,6 +8,7 @@ set -u
 mytmpdir=$(mktemp -d -t debian-cis-test.XXXXXX)
 totalerrors=255
 
+# shellcheck disable=2329
 cleanup_and_exit() {
     rm -rf "$mytmpdir"
     if [ "$totalerrors" -eq 255 ]; then
@@ -51,23 +52,28 @@ fatal() {
     exit 255
 }
 # prints that a test failed
+# shellcheck disable=2329
 fail() {
     printf "%b %b\n" "\033[1;30m\033[41m[FAIL]\033[0m" "$*" >&2
 }
 # prints that a test succeded
+# shellcheck disable=2329
 ok() {
     printf "%b %b\n" "\033[30m\033[42m[ OK ]\033[0m" "$*" >&2
 }
 
+# shellcheck disable=2329
 skip() {
     printf "%b %b\n" "\033[30m\e[43m[SKIP]\033[0m" "$*" >&2
 }
 # retrieves audit script logfile
+# shellcheck disable=2329
 get_stdout() {
     cat "$outdir"/"$usecase_name".log
 }
 
 # Reset the list of test assertions
+# shellcheck disable=2329
 clear_registered_tests() {
     unset REGISTERED_TESTS
     declare -a REGISTERED_TESTS
@@ -77,6 +83,7 @@ clear_registered_tests() {
 }
 
 # Generates a formated test name
+# shellcheck disable=2329
 make_usecase_name() {
     usecase=$1
     shift
@@ -86,6 +93,7 @@ make_usecase_name() {
 }
 
 # Plays the registered test suite
+# shellcheck disable=2329
 play_registered_tests() {
     if [ "$skip_tests" -eq 1 ]; then
         return
@@ -100,6 +108,7 @@ play_registered_tests() {
 }
 
 # Plays comparison tests to ensure that root and sudo exection have the same output
+# shellcheck disable=2329
 play_consistency_tests() {
     consist_test=0
     printf "\033[34m*** [%03d] %s::%s Root/Sudo Consistency Tests\033[0m\n" "$testno" "$test_file" "$usecase"
@@ -132,6 +141,7 @@ play_consistency_tests() {
 }
 
 # Actually runs one single audit script
+# shellcheck disable=2329
 _run() {
     usecase_name=$1
     shift

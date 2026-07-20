@@ -2,7 +2,7 @@
 # run-shellcheck
 test_audit() {
     local test_install_package=1
-    if ! dpkg -s auditd 2>/dev/null | grep -q '^Status: install '; then
+    if ! dpkg-query -W -f='${db:Status-Status}' auditd 2>/dev/null | grep -Eqx 'installed|triggers-awaited|triggers-pending'; then
         apt install -y auditd
         test_install_package=0
     fi

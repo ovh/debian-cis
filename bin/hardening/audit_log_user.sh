@@ -29,12 +29,13 @@ audit() {
         local log_file
         log_file=$($SUDO_CMD grep -E "^\s*log_file" "$AUDITD_CONF_FILE" | awk -F '=' '{print $2}' | xargs)
         # look for all files in the directory
-        AUDIT_INVALID_LOGS=$(find "$(dirname "$log_file")" -type f ! -user "$AUDIT_LOG_USER" -exec stat -Lc "%n %U" {} +)
+        AUDIT_INVALID_LOGS=$(find "$(dirname "$log_file")" -type f ! -user "$AUDIT_LOG_USER" -exec stat -Lc "%n" {} +)
 
         if [ -n "$AUDIT_INVALID_LOGS" ]; then
             crit "Some audit logs are not owned by $AUDIT_LOG_USER"
             for file in $AUDIT_INVALID_LOGS; do
-                info "$file"
+                file_user=$(stat -c "%U" "$file")
+                info "$file is owned by $file_user"
             done
         fi
     else
@@ -47,9 +48,8 @@ apply() {
     if [ -n "$AUDIT_INVALID_LOGS" ]; then
 
         for file in $AUDIT_INVALID_LOGS; do
-            file_path=$(awk '{print $1}' <<<"$file")
-            info "Change owner to '$AUDIT_LOG_USER' for '$file_path'"
-            chown "$AUDIT_LOG_USER" "$file_path"
+            info "Change owner to '$AUDIT_LOG_USER' for '$file'"
+            chown "$AUDIT_LOG_USER" "$file"
         done
 
     fi

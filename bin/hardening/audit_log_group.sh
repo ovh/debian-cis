@@ -30,12 +30,13 @@ audit() {
         log_file=$($SUDO_CMD grep -E "^\s*log_file" "$AUDITD_CONF_FILE" | awk -F '=' '{print $2}' | xargs)
         log_group=$($SUDO_CMD grep -E "^\s*log_group" "$AUDITD_CONF_FILE" | awk -F '=' '{print $2}' | xargs)
         # look for all files in the directory
-        AUDIT_INVALID_LOGS=$(find "$(dirname "$log_file")" -type f ! -group "$AUDIT_LOG_GROUP" -a ! -group root -exec stat -Lc "%n %G" {} +)
+        AUDIT_INVALID_LOGS=$(find "$(dirname "$log_file")" -type f ! -group "$AUDIT_LOG_GROUP" -a ! -group root -exec stat -Lc "%n" {} +)
 
         if [ -n "$AUDIT_INVALID_LOGS" ]; then
             crit "Some audit logs are not owned by group $AUDIT_LOG_GROUP nor root"
             for file in $AUDIT_INVALID_LOGS; do
-                info "$file"
+                file_group=$(stat -c "%G" "$file")
+                info "$file is owned by group $file_group"
             done
         fi
 
@@ -57,10 +58,10 @@ apply() {
     fi
 
     if [ -n "$AUDIT_INVALID_LOGS" ]; then
+        crit "Some audit logs are not owned by $AUDIT_LOG_GROUP"
         for file in $AUDIT_INVALID_LOGS; do
-            file_path=$(awk '{print $1}' <<<"$file")
-            info "Change group to '$AUDIT_LOG_GROUP' for '$file_path'"
-            chgrp "$AUDIT_LOG_GROUP" "$file_path"
+            info "Change group to '$AUDIT_LOG_GROUP' for '$file'"
+            chgrp "$AUDIT_LOG_GROUP" "$file"
         done
     fi
 }

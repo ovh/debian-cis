@@ -27,7 +27,7 @@ audit() {
     does_file_exist "$AUDITD_CONF_FILE"
     if [ "$FNRET" -eq 0 ]; then
 
-        AUDIT_LOG_DIRECTORY="$(dirname "$($SUDO_CMD grep -E "^\s*log_file" "$AUDITD_CONF_FILE" | awk -F"=" '{print $2}')")"
+        AUDIT_LOG_DIRECTORY="$(dirname "$($SUDO_CMD grep -E "^\s*log_file" "$AUDITD_CONF_FILE" | awk -F '=' '{print $2}' | xargs)")"
         local log_dir_perms
         log_dir_perms=$(stat -Lc %a "$AUDIT_LOG_DIRECTORY")
 

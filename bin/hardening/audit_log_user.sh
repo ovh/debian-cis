@@ -27,7 +27,7 @@ audit() {
     does_file_exist "$AUDITD_CONF_FILE"
     if [ "$FNRET" -eq 0 ]; then
         local log_file
-        log_file=$($SUDO_CMD grep -E "^\s*log_file" "$AUDITD_CONF_FILE" | awk -F "=" '{print $2}')
+        log_file=$($SUDO_CMD grep -E "^\s*log_file" "$AUDITD_CONF_FILE" | awk -F '=' '{print $2}' | xargs)
         # look for all files in the directory
         AUDIT_INVALID_LOGS=$(find "$(dirname "$log_file")" -type f ! -user "$AUDIT_LOG_USER" -exec stat -Lc "%n %U" {} +)
 

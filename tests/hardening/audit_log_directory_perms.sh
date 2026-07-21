@@ -27,6 +27,12 @@ test_audit() {
     register_test retvalshouldbe 0
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
+    describe check conf with spaces
+    sed -i '/log_file/d' /etc/audit/auditd.conf
+    echo 'log_file = /var/log/audit/audit.log' >>/etc/audit/auditd.conf
+    register_test retvalshouldbe 0
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
     describe clean test
     if [ -e /etc/audit/auditd.conf.save ]; then
         mv /etc/audit/auditd.conf.save /etc/audit/auditd.conf

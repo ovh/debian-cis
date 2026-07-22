@@ -88,27 +88,38 @@ else
     cfg_link=""
 fi
 
-# Source specific configuration file
-if ! [ -r "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]; then
-    # If it doesn't exist, create it with default values
-    echo "# Configuration for $script_real_name, created from default values on $(date)" >"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
-    # If create_config is a defined function, execute it.
-    # Otherwise, just disable the test by default.
-    if type -t create_config | grep -qw function; then
-        create_config >>"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
-    else
-        echo "status=audit" >>"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
-    fi
+conf_write_allowed=1
+if [ -w "${CIS_CONF_DIR}"/conf.d ] && [ -x "${CIS_CONF_DIR}"/conf.d ]; then
+    conf_write_allowed=0
 fi
 
-if [ -n "$cfg_link" ]; then
-    if [ ! -L "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ]; then
-        rm -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
-        ln -s "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
-    # make sure the existing link points to the correct file
-    elif [[ $(readlink -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link") != "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]]; then
-        ln -fs "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+if [ "$conf_write_allowed" -eq 0 ]; then
+    # Source specific configuration file
+    if ! [ -e "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]; then
+        # If it doesn't exist, create it with default values
+        echo "# Configuration for $script_real_name, created from default values on $(date)" >"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
+        # If create_config is a defined function, execute it.
+        # Otherwise, just disable the test by default.
+        if type -t create_config | grep -qw function; then
+            create_config >>"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
+        else
+            echo "status=audit" >>"${CIS_CONF_DIR}"/conf.d/"$cfg_file"
+        fi
     fi
+
+    if [ -n "$cfg_link" ]; then
+        if [ -e "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ] && [ ! -L "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ] && [ -w "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ]; then
+            rm -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+            ln -s "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+        elif [ -e "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ] && [ ! -L "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ]; then
+            warn "${CIS_CONF_DIR}/conf.d/$cfg_link is not a link, but is not writable : cannot manage it"
+        # make sure the existing link points to the correct file
+        elif [ -L "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ] && [[ $(readlink -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link") != "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]]; then
+            ln -fs "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+        fi
+    fi
+else
+    warn "Configuration directory ${CIS_CONF_DIR}/conf.d is not writable, cannot create configuration files"
 fi
 
 if [ "$forcedstatus" = "createconfig" ]; then

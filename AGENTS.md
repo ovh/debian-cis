@@ -17,6 +17,47 @@ src/skel.test    # skeleton for new tests
 
 ---
 
+## Script invocation and configuration files
+
+### Two invocation modes
+
+A script can be called in two ways, and `lib/main.sh` detects the mode automatically via `[ -L "$0" ]`:
+
+| Mode | Path example | `$0` is |
+|------|-------------|---------|
+| **Direct** (canonical) | `bin/hardening/the_script.sh` | a regular file |
+| **Versioned** | `versions/x/1.2.3_the_script.sh` | a symbolic link → `bin/hardening/the_script.sh` |
+
+### Configuration file naming
+
+| Mode | cfg file created | cfg link created |
+|------|-----------------|-----------------|
+| Direct | `etc/conf.d/the_script.cfg` | — |
+| Versioned | `etc/conf.d/the_script.cfg` (real file) | `etc/conf.d/1.2.3_the_script.cfg` → cfg file |
+
+The real config file is always named after the **target** script (`the_script.cfg`).  
+The versioned name (`1.2.3_the_script.cfg`) is a symlink, created or updated automatically.
+
+### Configuration file management rules (lib/main.sh)
+
+1. **conf.d not writable/executable** → warn, skip file creation entirely.
+2. **cfg file does not exist** → create it with a header + `status=audit` (or output of `check_config()` if defined).
+3. **cfg link does not exist** → create it as a symlink pointing to the cfg file.
+4. **cfg link already exists and is a symlink, correct target** → no-op (idempotent).
+5. **cfg link already exists and is a symlink, wrong target** → update it with `ln -fs`.
+6. **cfg link is a writable regular file** → replace it with a symlink.
+7. **cfg link is a non-writable regular file** → warn, leave it in place.
+
+### Tests covering these cases
+
+`tests/test_main_conf_links.sh` is a standalone test script (independent of the hardening test harness) that exercises all 7 cases above. Run it directly:
+
+```bash
+bash tests/test_main_conf_links.sh
+```
+
+---
+
 ## Script standards
 
 ### Required structure

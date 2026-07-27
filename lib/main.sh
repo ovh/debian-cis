@@ -116,6 +116,8 @@ if [ "$conf_write_allowed" -eq 0 ]; then
         # make sure the existing link points to the correct file
         elif [ -L "${CIS_CONF_DIR}"/conf.d/"$cfg_link" ] && [[ $(readlink -f "${CIS_CONF_DIR}"/conf.d/"$cfg_link") != "${CIS_CONF_DIR}"/conf.d/"$cfg_file" ]]; then
             ln -fs "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
+        else
+            ln -s "${CIS_CONF_DIR}"/conf.d/"$cfg_file" "${CIS_CONF_DIR}"/conf.d/"$cfg_link"
         fi
     fi
 else

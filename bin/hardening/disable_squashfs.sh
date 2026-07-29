@@ -22,11 +22,13 @@ MODULE_NAME="squashfs"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    CHECKED_MODULE="${LOADED_MODULE_NAME:-$MODULE_NAME}"
+
     if [ "$IS_CONTAINER" -eq 1 ]; then
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing or disable this check!"
     else
-        is_kernel_module_loaded "$KERNEL_OPTION" "$MODULE_NAME"
+        is_kernel_module_loaded "$KERNEL_OPTION" "$CHECKED_MODULE"
         if [ "$FNRET" -eq 0 ]; then # 0 means true in bash, so it IS activated
             crit "$MODULE_NAME is loaded!"
         else
@@ -34,11 +36,11 @@ audit() {
         fi
 
         if [ "$IS_MONOLITHIC_KERNEL" -eq 1 ]; then
-            is_kernel_module_disabled "$MODULE_NAME"
+            is_kernel_module_disabled "$CHECKED_MODULE"
             if [ "$FNRET" -eq 0 ]; then
                 ok "$MODULE_NAME is disabled in the modprobe configuration"
             else
-                is_kernel_module_available "$KERNEL_OPTION"
+                is_kernel_module_available "$CHECKED_MODULE"
                 if [ "$FNRET" -eq 0 ]; then
                     crit "$MODULE_NAME is available in some kernel config, but not disabled"
                 else
@@ -51,18 +53,20 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
+    CHECKED_MODULE="${LOADED_MODULE_NAME:-$MODULE_NAME}"
+
     if [ "$IS_CONTAINER" -eq 1 ]; then
         # In an unprivileged container, the kernel modules are host dependent, so you should consider enforcing it
         ok "Container detected, consider host enforcing!"
     else
-        is_kernel_module_loaded "$KERNEL_OPTION" "$LOADED_MODULE_NAME"
+        is_kernel_module_loaded "$KERNEL_OPTION" "$CHECKED_MODULE"
         if [ "$FNRET" -eq 0 ]; then # 0 means true in bash, so it IS activated
-            crit "$LOADED_MODULE_NAME is loaded!"
+            crit "$CHECKED_MODULE is loaded!"
             warn "I wont unload the module, unload it manually or recompile the kernel if needed"
         fi
 
         if [ "$IS_MONOLITHIC_KERNEL" -eq 1 ]; then
-            is_kernel_module_disabled "$MODULE_NAME"
+            is_kernel_module_disabled "$CHECKED_MODULE"
             if [ "$FNRET" -eq 1 ]; then
                 echo "install $MODULE_NAME /bin/true" >>/etc/modprobe.d/"$MODULE_NAME".conf
                 info "$MODULE_NAME has been disabled in the modprobe configuration"

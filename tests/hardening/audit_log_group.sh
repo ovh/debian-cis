@@ -2,7 +2,7 @@
 # run-shellcheck
 test_audit() {
     local test_install_package=1
-    if ! dpkg -s auditd 2>/dev/null | grep -q '^Status: install '; then
+    if ! dpkg-query -W -f='${db:Status-Status}' auditd 2>/dev/null | grep -Eqx 'installed|triggers-awaited|triggers-pending'; then
         apt install -y auditd
         test_install_package=0
     fi
@@ -30,7 +30,18 @@ test_audit() {
     register_test retvalshouldbe 0
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
+    describe check conf with spaces
+    sed -i '/log_file/d' /etc/audit/auditd.conf
+    sed -i '/log_group/d' /etc/audit/auditd.conf
+    echo 'log_file = /var/log/audit/audit.log' >>/etc/audit/auditd.conf
+    echo 'log_group = adm' >>/etc/audit/auditd.conf
+    # to be able to read /var/log/audit/ , because configuration is already correct
+    gpasswd -a secaudit adm
+    register_test retvalshouldbe 0
+    run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
     describe clean test
+    gpasswd -d secaudit adm
     if [ -e /etc/audit/auditd.conf.save ]; then
         mv /etc/audit/auditd.conf.save /etc/audit/auditd.conf
     fi

@@ -17,7 +17,7 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Ensure a single time synchronization is in use"
 
-PACKAGES="systemd-timesyncd ntp chrony"
+PACKAGES="systemd-timesyncd ntp ntpsec chrony"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {

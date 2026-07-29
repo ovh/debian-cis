@@ -1,4 +1,4 @@
-# :lock: CIS Debian 11/12 Hardening
+# :lock: CIS Debian 11/12/13 Hardening
 
 
 <p align="center">
@@ -13,11 +13,11 @@
 ![License](https://img.shields.io/github/license/ovh/debian-cis)
 ---
 
-Modular Debian 11/12 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
+Modular Debian 11/12/13 security hardening scripts based on [cisecurity.org](https://www.cisecurity.org)
 recommendations. We use it at [OVHcloud](https://www.ovhcloud.com) to harden our PCI-DSS infrastructure.
 
-NB : Although Debian 12 CIS Hardening guide is still in development, we do use this set of scripts
-in production at OVHcloud on Debian 12 Operating Systems.
+NB : Although Debian 13 CIS Hardening guide is still in development, we do use this set of scripts
+in production at OVHcloud on Debian 13 Operating Systems.
 
 ```console
 $ bin/hardening.sh --audit-all
@@ -164,7 +164,7 @@ Do not forget to specify in comment if it's a bonus check (suggested by CIS but 
 Code your check explaining what it does then if you want to test
 
 ```console
-$ sed -i "s/status=.+/status=enabled/" etc/conf.d/99.99_custom_script.cfg
+$ sed -i --follow-symlinks "s/status=.+/status=enabled/" etc/conf.d/99.99_custom_script.cfg
 $ ./bin/hardening/99.99_custom_script.sh
 ```
 ## :sparkles: Functional testing

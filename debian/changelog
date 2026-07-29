@@ -1,3 +1,10 @@
+cis-hardening (4.1-6) unstable; urgency=medium
+
+  * add debian13 support
+  * new scripts for debian12 cis
+
+ -- Damien Cavagnini <damien.cavagnini@ovhcloud.com>  Wed, 17 Dec 2025 11:49:10 +0100
+
 cis-hardening (4.1-5) unstable; urgency=medium
 
   * drop debian10 and below support

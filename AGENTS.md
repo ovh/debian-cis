@@ -79,6 +79,8 @@ check_config() { : }   # optional; define configurable vars here
 
 `audit()` is always called before `apply()`. Never duplicate logic — use global variables set in `audit()` instead of re-checking in `apply()`.
 
+For newly created scripts, omit CIS recommendation numbering from human-readable titles/comments. Example: use `Ensure accounts without a valid login shell are locked (Automated)`, not `5.4.2.8 Ensure accounts without a valid login shell are locked (Automated)`.
+
 ### ok / crit / info
 
 - `ok "..."` — recommendation is met
@@ -165,8 +167,7 @@ When checking config across multiple files, verify **ALL** files before deciding
 ### sudo rules
 
 Audit runs as non-root. Use `$SUDO_CMD` for read-only commands only:
-- Allowed: `cat`, `grep`, `sed`, `awk`, `systemctl`, `dpkg-query`
-- **Not allowed**: `apt`, `mount`, `chown`, `chmod`, `mv`, `cp`, `rm`
+- Allowed examples: `cat`, `grep`, `sed`, `awk`, `systemctl`, `dpkg-query`, `auditctl -s`, `augenrules --check`
 
 Sudo rules are in `cisharden.sudoers`.
 
@@ -205,6 +206,12 @@ check_config() {
 3. Verify compliant state        → run --audit-all → register_test retvalshouldbe 0 → run resolved
 4. Restore/cleanup
 ```
+
+For checks that are intentionally **manual remediation only** (script `apply()` cannot auto-fix by design), tests may skip `--apply` and instead:
+1. Create non-compliant state and verify `retvalshouldbe 1`
+2. Perform documented manual remediation inside the test
+3. Re-audit and verify `retvalshouldbe 0`
+4. Restore/cleanup
 
 ### Key rules
 

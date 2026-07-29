@@ -84,7 +84,9 @@ EOF
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$OPTIONS" ]; then
+        OPTIONS="KexAlgorithms=curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256"
+    fi
 }
 
 # Source Root Dir Parameter

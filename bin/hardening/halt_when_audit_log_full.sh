@@ -75,7 +75,9 @@ apply() {
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$OPTIONS" ]; then
+        OPTIONS='space_left_action=email action_mail_acct=root admin_space_left_action=halt'
+    fi
 }
 
 create_config() {

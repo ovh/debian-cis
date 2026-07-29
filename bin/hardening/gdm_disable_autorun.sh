@@ -32,6 +32,7 @@ GDM_AR_PROFILE_EXISTS=0
 GDM_AR_DB_EXISTS=0
 GDM_AR_DIR_EXISTS=0
 GDM_AR_SETTING_OK=0
+GDM_AR_LOCK_OK=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -101,10 +102,20 @@ audit() {
             crit "autorun-never is not set correctly"
             GDM_AR_SETTING_OK=0
         fi
+
+        # Check autorun-never lock to prevent override
+        if grep -Prqs -- '^\h*/org/gnome/desktop/media-handling/autorun-never\b' "$GDM_AR_GPDIR/locks" 2>/dev/null; then
+            ok "autorun-never override is locked"
+            GDM_AR_LOCK_OK=1
+        else
+            crit "autorun-never override is not locked"
+            GDM_AR_LOCK_OK=0
+        fi
     else
         # Settings don't exist. Nothing further to check
         crit "autorun-never is not set"
         GDM_AR_SETTING_OK=0
+        GDM_AR_LOCK_OK=0
     fi
 }
 
@@ -161,6 +172,17 @@ apply() {
             echo "[org/gnome/desktop/media-handling]" >>"$l_kfile"
         fi
         sed -i '/^\[org\/gnome\/desktop\/media-handling\]/a autorun-never=true' "$l_kfile"
+    fi
+
+    if [ "$GDM_AR_LOCK_OK" -eq 0 ]; then
+        local l_lockdir="$DCONF_DB_BASE_DIR/$l_gpname.d/locks"
+        local l_lockfile="$l_lockdir/00-media-autorun"
+        info "Locking autorun-never override in: $l_lockfile"
+        mkdir -p "$l_lockdir"
+        if [ -f "$l_lockfile" ]; then
+            sed -i '/^\s*\/org\/gnome\/desktop\/media-handling\/autorun-never\s*$/d' "$l_lockfile"
+        fi
+        echo '/org/gnome/desktop/media-handling/autorun-never' >>"$l_lockfile"
     fi
 
     # Update dconf database

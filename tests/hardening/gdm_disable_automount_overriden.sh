@@ -21,6 +21,8 @@ test_audit() {
     register_test retvalshouldbe 0
     register_test contain "automount setting found and set to false"
     register_test contain "automount-open setting found and set to false"
+    register_test contain "automount override is locked"
+    register_test contain "automount-open override is locked"
     # shellcheck disable=2154
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
@@ -30,6 +32,8 @@ test_audit() {
     register_test retvalshouldbe 0
     register_test contain "automount setting found and set to false"
     register_test contain "automount-open setting found and set to false"
+    register_test contain "automount override is locked"
+    register_test contain "automount-open override is locked"
     # shellcheck disable=2154
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 

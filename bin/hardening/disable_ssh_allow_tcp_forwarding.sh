@@ -74,16 +74,18 @@ apply() {
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$OPTIONS" ]; then
+        OPTIONS='DisableForwarding=yes'
+    fi
 }
 
 # This function will check config parameters required
 create_config() {
     cat <<EOF
 status=audit
-# Value of AllowTCPForwarding
-# Settles sshd allowtcpforwarding
-OPTIONS='AllowTCPForwarding=no'
+# Value of DisableForwarding
+# Settles sshd disableforwarding
+OPTIONS='DisableForwarding=yes'
 EOF
 }
 

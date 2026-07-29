@@ -84,7 +84,9 @@ EOF
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$OPTIONS" ]; then
+        OPTIONS="ClientAliveInterval=300 ClientAliveCountMax=0"
+    fi
 }
 
 # Source Root Dir Parameter

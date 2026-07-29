@@ -30,13 +30,13 @@ audit() {
         for JOURNALD_OPTION in $OPTIONS; do
             JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
             JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
-            PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
+            PATTERN="^\\s*$JOURNALD_PARAM\\s*=\\s*$JOURNALD_VALUE\\b"
             debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
             does_pattern_exist_in_file "$FILE" "$PATTERN"
-            if [ "$FNRET" != 0 ]; then
-                ok "$PATTERN is not present in $FILE"
+            if [ "$FNRET" = 0 ]; then
+                ok "$PATTERN is present in $FILE"
             else
-                crit "$PATTERN is present in $FILE"
+                crit "$PATTERN is not present in $FILE"
             fi
         done
     fi
@@ -55,20 +55,20 @@ apply() {
         JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
         JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
         debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
-        PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
+        PATTERN="^\\s*$JOURNALD_PARAM\\s*=\\s*$JOURNALD_VALUE\\b"
         does_pattern_exist_in_file "$FILE" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
-            warn "$PATTERN is present in $FILE, deleting it"
-            does_pattern_exist_in_file "$FILE" "^$JOURNALD_PARAM"
+            ok "$PATTERN is present in $FILE"
+        else
+            warn "$PATTERN is not present in $FILE, fixing it"
+            does_pattern_exist_in_file "$FILE" "^\\s*$JOURNALD_PARAM\\s*="
             if [ "$FNRET" != 0 ]; then
                 info "Parameter $JOURNALD_PARAM seems absent from $FILE, adding at the end"
-                add_end_of_file "$FILE" "$JOURNALD_PARAM=yes"
+                add_end_of_file "$FILE" "$JOURNALD_PARAM=$JOURNALD_VALUE"
             else
                 info "Parameter $JOURNALD_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^$JOURNALD_PARAM=.*" "$JOURNALD_PARAM=yes"
+                replace_in_file "$FILE" "^\\s*$JOURNALD_PARAM\\s*=.*" "$JOURNALD_PARAM=$JOURNALD_VALUE"
             fi
-        else
-            ok "$PATTERN is not present in $FILE"
         fi
     done
 }

@@ -22,6 +22,7 @@ test_audit() {
     describe Checking resolved state
     register_test retvalshouldbe 0
     register_test contain "autorun-never is set to true"
+    register_test contain "autorun-never override is locked"
     register_test contain "dconf database profile file"
     register_test contain "The dconf database local exists"
     register_test contain "The dconf directory"

@@ -24,6 +24,8 @@ DCONF_DB_DIR='/etc/dconf/db/local.d'
 GDM_DA_INSTALLED=0
 GDM_DA_AUTOMOUNT_OK=0
 GDM_DA_AUTOMOUNT_OPEN_OK=0
+GDM_DA_LOCK_AUTOMOUNT_OK=0
+GDM_DA_LOCK_AUTOMOUNT_OPEN_OK=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
@@ -66,6 +68,23 @@ audit() {
         crit "automount-open setting not found or not set to false in $DCONF_DB_DIR"
         GDM_DA_AUTOMOUNT_OPEN_OK=0
     fi
+
+    # Check locks to ensure settings cannot be overridden
+    if grep -Prqs -- '^\h*/org/gnome/desktop/media-handling/automount\b' "$DCONF_DB_DIR/locks" 2>/dev/null; then
+        ok "automount override is locked"
+        GDM_DA_LOCK_AUTOMOUNT_OK=1
+    else
+        crit "automount override is not locked"
+        GDM_DA_LOCK_AUTOMOUNT_OK=0
+    fi
+
+    if grep -Prqs -- '^\h*/org/gnome/desktop/media-handling/automount-open\b' "$DCONF_DB_DIR/locks" 2>/dev/null; then
+        ok "automount-open override is locked"
+        GDM_DA_LOCK_AUTOMOUNT_OPEN_OK=1
+    else
+        crit "automount-open override is not locked"
+        GDM_DA_LOCK_AUTOMOUNT_OPEN_OK=0
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
@@ -103,6 +122,19 @@ apply() {
         # Add the correct settings
         sed -i '/^\[org\/gnome\/desktop\/media-handling\]/a automount=false' "$l_kfile"
         sed -i '/^\[org\/gnome\/desktop\/media-handling\]/a automount-open=false' "$l_kfile"
+    fi
+
+    if [ "$GDM_DA_LOCK_AUTOMOUNT_OK" -eq 0 ] || [ "$GDM_DA_LOCK_AUTOMOUNT_OPEN_OK" -eq 0 ]; then
+        local l_lockdir="$DCONF_DB_DIR/locks"
+        local l_lockfile="$l_lockdir/00-media-automount"
+        info "Locking automount settings in $l_lockfile"
+        mkdir -p "$l_lockdir"
+        if [ -f "$l_lockfile" ]; then
+            sed -i '/^\s*\/org\/gnome\/desktop\/media-handling\/automount\s*$/d' "$l_lockfile"
+            sed -i '/^\s*\/org\/gnome\/desktop\/media-handling\/automount-open\s*$/d' "$l_lockfile"
+        fi
+        echo '/org/gnome/desktop/media-handling/automount' >>"$l_lockfile"
+        echo '/org/gnome/desktop/media-handling/automount-open' >>"$l_lockfile"
     fi
 
     # Update dconf database

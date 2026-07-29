@@ -676,8 +676,9 @@ apt_remove() {
 #
 
 is_pkg_installed() {
-    PKG_NAME=$1
-    if dpkg -s "$PKG_NAME" 2>/dev/null | grep -q '^Status: install '; then
+    local PKG_NAME=$1
+    # Match the real status field, not the desired-action field, so a residual "install" selection on an absent package is not counted as installed.
+    if dpkg-query -W -f='${db:Status-Status}' "$PKG_NAME" 2>/dev/null | grep -Eqx 'installed|triggers-awaited|triggers-pending'; then
         debug "$PKG_NAME is installed"
         FNRET=0
     else

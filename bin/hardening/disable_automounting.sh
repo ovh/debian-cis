@@ -6,7 +6,7 @@
 #
 
 #
-# Disable Automounting (Scored)
+# Ensure autofs services are not in use (Automated)
 #
 
 set -e # One error, it's over
@@ -15,30 +15,85 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Disable automounting of devices."
+DESCRIPTION="Ensure autofs services are not in use."
 
-SERVICE_NAME="autofs"
+PACKAGE='autofs'
+SERVICE='autofs.service'
+
+# Global state (0=true/success, 1=false/failure)
+AUTOMOUNT_PKG_INSTALLED=1
+AUTOMOUNT_PKG_IS_DEPENDENCY=1
+AUTOMOUNT_SERVICE_ENABLED=1
+AUTOMOUNT_SERVICE_ACTIVE=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled "$SERVICE_NAME"
-    if [ "$FNRET" = 0 ]; then
-        crit "$SERVICE_NAME is enabled"
+    AUTOMOUNT_PKG_INSTALLED=1
+    AUTOMOUNT_PKG_IS_DEPENDENCY=1
+    AUTOMOUNT_SERVICE_ENABLED=1
+    AUTOMOUNT_SERVICE_ACTIVE=1
+
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        AUTOMOUNT_PKG_INSTALLED=0
     else
-        ok "$SERVICE_NAME is disabled"
+        ok "$PACKAGE is not installed"
+        return
+    fi
+
+    is_pkg_a_dependency "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        AUTOMOUNT_PKG_IS_DEPENDENCY=0
+    fi
+
+    if [ "$AUTOMOUNT_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        crit "$PACKAGE is installed and not a dependency"
+        return
+    fi
+
+    is_service_enabled "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        AUTOMOUNT_SERVICE_ENABLED=0
+        crit "$SERVICE is enabled"
+    fi
+
+    is_service_active "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        AUTOMOUNT_SERVICE_ACTIVE=0
+        crit "$SERVICE is active"
+    fi
+
+    if [ "$AUTOMOUNT_SERVICE_ENABLED" -ne 0 ] && [ "$AUTOMOUNT_SERVICE_ACTIVE" -ne 0 ]; then
+        ok "$PACKAGE is used as a dependency and $SERVICE is not enabled/active"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    info "Checking if $SERVICE_NAME is enabled"
-    is_service_enabled "$SERVICE_NAME"
-    if [ "$FNRET" = 0 ]; then
-        info "Disabling $SERVICE_NAME"
-        manage_service disable "$SERVICE_NAME"
+    if [ "$AUTOMOUNT_PKG_INSTALLED" -ne 0 ]; then
+        ok "$PACKAGE is not installed"
+        return
+    fi
+
+    if [ "$AUTOMOUNT_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        info "$PACKAGE is installed and not a dependency, removing it"
+        apt-get purge "$PACKAGE" -y
+        apt-get autoremove -y
+        return
+    fi
+
+    is_systemctl_running
+    if [ "$FNRET" -ne 0 ]; then
+        warn "systemd not running, cannot stop/mask $SERVICE"
+        return
+    fi
+
+    if [ "$AUTOMOUNT_SERVICE_ENABLED" -eq 0 ] || [ "$AUTOMOUNT_SERVICE_ACTIVE" -eq 0 ]; then
+        info "Stopping and masking $SERVICE"
+        systemctl stop "$SERVICE" || true
+        systemctl mask "$SERVICE"
     else
-        ok "$SERVICE_NAME is disabled"
+        ok "$SERVICE already not enabled/active"
     fi
 }
 

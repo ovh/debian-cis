@@ -3,7 +3,7 @@
 test_audit() {
     describe Installing openssh-server for tests
     apt-get update >/dev/null 2>&1 || true
-    apt-get install -y openssh-server >/dev/null 2>&1 || {
+    DEBIAN_FRONTEND='noninteractive' apt-get install -y openssh-server >/dev/null 2>&1 || {
         skip "Cannot install openssh-server, skipping tests"
         return
     }
@@ -42,6 +42,9 @@ test_audit() {
     register_test retvalshouldbe 0
     register_test contain "[ OK ] ^MaxAuthTries[[:space:]]*4 is present in /etc/ssh/sshd_config"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
     describe Clean test
-    pkill -9 sshd
+    pkill -9 sshd || true
+    apt-get remove -y openssh-server >/dev/null 2>&1 || true
+    apt-get autoremove -y >/dev/null 2>&1 || true
 }

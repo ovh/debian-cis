@@ -1,0 +1,13 @@
+---
+name: Run unit tests on framework engine
+on:
+  - push
+  - pull_request
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+      - name: Run main.sh config/link management tests
+        run: bash tests/test_main_conf_links.sh

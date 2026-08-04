@@ -8,6 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Run main.sh config/link management tests
         run: bash tests/test_main_conf_links.sh

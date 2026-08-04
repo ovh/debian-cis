@@ -266,7 +266,11 @@ For checks that are intentionally **manual remediation only** (script `apply()` 
 - Restore modified config files at end of test
 - In tests, if `${script}` (or other harness vars) is used in local variable assignments, add `# shellcheck disable=2154` immediately above those lines.
 - If non-compliant state cannot be created (config absent), use `skip` + `register_test`/`run` inside the conditional block
+<<<<<<< HEAD
 - For dependency-aware package/service tests, if a non-compliant state cannot be reliably created in the current environment (for example package is required and units cannot be forced to enabled/active), skip the remediation path with `skip` + `register_test`/`run` instead of forcing `retvalshouldbe 1`
+=======
+- For dependency-aware package/service tests, first try to force a non-compliant state by installing the package and, when `systemctl` is available, unmasking/enabling/starting the related units. If the audit still returns compliant, skip the remediation path cleanly instead of forcing `retvalshouldbe 1`.
+>>>>>>> damcav35/update_scripts_3
 - Do not use `mount`/`remount` in containers; skip those tests with a container check
 - For scripts interacting with audit runtime (auditctl/augenrules), check `auditctl -s` availability and skip if not present.
 - For scripts interacting with systemd, use `is_systemctl_running` and skip when systemd is not running.

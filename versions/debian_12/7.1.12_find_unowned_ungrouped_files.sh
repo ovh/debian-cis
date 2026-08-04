@@ -1,1 +1,1 @@
-../../find_unowned_ungrouped_files.sh
+../../bin/hardening/find_unowned_ungrouped_files.sh

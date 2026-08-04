@@ -1,0 +1,1 @@
+../../bin/hardening/ssh_host_public_keys_perm_ownership.sh

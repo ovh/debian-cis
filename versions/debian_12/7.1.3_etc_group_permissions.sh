@@ -1,0 +1,1 @@
+../../bin/hardening/etc_group_permissions.sh

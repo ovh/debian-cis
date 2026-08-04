@@ -1,0 +1,1 @@
+../../bin/hardening/gdm_automatic_mounting_disabled.sh

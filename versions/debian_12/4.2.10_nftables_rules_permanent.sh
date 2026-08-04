@@ -1,0 +1,1 @@
+../../bin/hardening/nftables_rules_permanent.sh

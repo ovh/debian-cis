@@ -1,0 +1,1 @@
+../../bin/hardening/check_user_dot_file_perm.sh

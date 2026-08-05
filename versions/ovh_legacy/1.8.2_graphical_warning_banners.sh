@@ -1,1 +1,0 @@
-../../bin/hardening/graphical_warning_banners.sh

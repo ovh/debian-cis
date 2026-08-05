@@ -1,9 +1,18 @@
 # shellcheck shell=bash
 # run-shellcheck
 test_audit() {
+
+    describe Installing openssh-server for tests
+    apt-get update >/dev/null 2>&1 || true
+    DEBIAN_FRONTEND='noninteractive' apt-get install -y openssh-server >/dev/null 2>&1 || {
+        skip "Cannot install openssh-server, skipping tests"
+        return
+    }
+
     describe Running on blank host
     register_test retvalshouldbe 1
     register_test contain "openssh-server is installed"
+
     # shellcheck disable=2154
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
@@ -19,6 +28,9 @@ test_audit() {
     register_test retvalshouldbe 0
     register_test contain "[ OK ] ^Ciphers[[:space:]]*chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr is present in /etc/ssh/sshd_config"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
     describe Clean test
     pkill -9 sshd
+    apt-get remove -y openssh-server >/dev/null 2>&1 || true
+    apt-get autoremove -y >/dev/null 2>&1 || true
 }

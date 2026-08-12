@@ -13,3 +13,5 @@ jobs:
         run: bash tests/engine/test_main_conf_links.sh
       - name: Run bin/hardening.sh '--set-hardening-level' tests
         run: bash tests/engine/test_hardening_level.sh
+      - name: Run bin/hardening.sh '--sudo' tests
+        run: bash tests/engine/test_sudo.sh

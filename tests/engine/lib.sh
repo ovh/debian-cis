@@ -94,4 +94,3 @@ assert_status() {
     actual_status=$(grep -E '^status=' "$cfg_file" | cut -d= -f2)
     [ "$actual_status" = "$expected_status" ] || fail "expected status=$expected_status in $cfg_file, got: $actual_status"
 }
-

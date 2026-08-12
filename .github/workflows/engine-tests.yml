@@ -15,3 +15,5 @@ jobs:
         run: bash tests/engine/test_hardening_level.sh
       - name: Run bin/hardening.sh '--sudo' tests
         run: bash tests/engine/test_sudo.sh
+      - name: Run bin/hardening.sh '--batch' tests
+        run: bash tests/engine/test_batch_mode.sh

@@ -24,3 +24,6 @@ jobs:
 
       - name: Run bin/hardening.sh '--set-log-level' tests
         run: bash tests/engine/test_log_level.sh
+      
+      - name: Run bin/hardening.sh '--only' tests
+        run: bash tests/engine/test_only.sh

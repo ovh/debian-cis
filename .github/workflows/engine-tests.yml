@@ -9,11 +9,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
+
       - name: Run main.sh config/link management tests
         run: bash tests/engine/test_main_conf_links.sh
+
       - name: Run bin/hardening.sh '--set-hardening-level' tests
         run: bash tests/engine/test_hardening_level.sh
+
       - name: Run bin/hardening.sh '--sudo' tests
         run: bash tests/engine/test_sudo.sh
+
       - name: Run bin/hardening.sh '--batch' tests
         run: bash tests/engine/test_batch_mode.sh
+
+      - name: Run bin/hardening.sh '--set-log-level' tests
+        run: bash tests/engine/test_log_level.sh

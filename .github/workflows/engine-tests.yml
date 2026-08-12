@@ -27,3 +27,6 @@ jobs:
       
       - name: Run bin/hardening.sh '--only' tests
         run: bash tests/engine/test_only.sh
+      
+      - name: Run bin/hardening.sh '--set-version' tests
+        run: bash tests/engine/test_version.sh

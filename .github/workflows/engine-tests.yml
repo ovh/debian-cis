@@ -33,3 +33,6 @@ jobs:
       
       - name: Run bin/hardening.sh '--summary-json' tests
         run: bash tests/engine/test_summary_json.sh
+      
+      - name: Run bin/hardening.sh '--audit' tests
+        run: bash tests/engine/test_audit.sh

@@ -11,3 +11,5 @@ jobs:
         uses: actions/checkout@v7
       - name: Run main.sh config/link management tests
         run: bash tests/engine/test_main_conf_links.sh
+      - name: Run bin/hardening.sh '--set-hardening-level' tests
+        run: bash tests/engine/test_hardening_level.sh

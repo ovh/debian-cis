@@ -36,3 +36,6 @@ jobs:
       
       - name: Run bin/hardening.sh '--audit' tests
         run: bash tests/engine/test_audit.sh
+      
+      - name: Run bin/hardening.sh '--audit-all' tests
+        run: bash tests/engine/test_audit_all.sh

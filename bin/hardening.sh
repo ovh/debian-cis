@@ -304,7 +304,11 @@ if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
         fi
         wantedstatus=disabled
         [ "$script_level" -le "$SET_HARDENING_LEVEL" ] && wantedstatus=enabled
-        sed --follow-symlinks -i -re "s/^status=.+/status=$wantedstatus/" "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
+        if [ -e "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg" ]; then
+            sed --follow-symlinks -i -re "s/^status=.+/status=$wantedstatus/" "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
+        else
+            echo "status=$wantedstatus" >"${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
+        fi
     done
     echo "Configuration modified to enable scripts for hardening level at or below $SET_HARDENING_LEVEL"
     exit 0

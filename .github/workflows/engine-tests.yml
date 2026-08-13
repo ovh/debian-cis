@@ -39,3 +39,6 @@ jobs:
       
       - name: Run bin/hardening.sh '--audit-all' tests
         run: bash tests/engine/test_audit_all.sh
+      
+      - name: Run bin/hardening.sh '--audit-all-enable-passed' tests
+        run: bash tests/engine/test_audit_all_enable.sh

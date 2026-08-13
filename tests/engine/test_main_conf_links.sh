@@ -5,12 +5,11 @@ set -u
 
 source tests/engine/lib.sh
 
-write_test_script
+write_test_script "$@"
 SCRIPT_REAL="$WORK_DIR/bin/hardening/$DEFAULT_SCRIPT_NAME.sh"
 SCRIPT_LINK="$WORK_DIR/versions/$DEFAULT_CIS_VERSION/${DEFAULT_SCRIPT_NUMBER}_$DEFAULT_SCRIPT_NAME.sh"
 CFG_FILE="$CONF_D_DIR/$DEFAULT_SCRIPT_NAME.cfg"
 CFG_LINK="$CONF_D_DIR/${DEFAULT_SCRIPT_NUMBER}_${DEFAULT_SCRIPT_NAME}.cfg"
-
 
 assert_is_symlink() {
     [ -L "$1" ] || fail "expected symlink: $1"

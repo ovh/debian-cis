@@ -17,6 +17,7 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Find SUID and SGID system executables."
 IGNORED_PATH=''
+EXCEPTIONS=''
 
 # find emits following error if directory or file disappear during
 # tree traversal: find: ‘/tmp/xxx’: No such file or directory

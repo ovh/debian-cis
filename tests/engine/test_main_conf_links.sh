@@ -3,57 +3,13 @@
 set -e
 set -u
 
-REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
-LIB_DIR="$REPO_ROOT/lib"
+source tests/engine/lib.sh
 
-tmpdir=$(mktemp -d -p "$HOME" cis-main-conf-test.XXXXXX)
-
-cleanup() {
-    chmod -R u+rwX "$tmpdir" 2>/dev/null || true
-    rm -rf "$tmpdir"
-}
-trap cleanup EXIT HUP INT
-
-WORK_DIR="$tmpdir/work"
-CONF_DIR="$tmpdir/etc"
-CONF_D_DIR="$CONF_DIR/conf.d"
-
-SCRIPT_REAL="$WORK_DIR/bin/hardening/the_script.sh"
-SCRIPT_LINK="$WORK_DIR/versions/x/1.2.3_the_script.sh"
-CFG_FILE="$CONF_D_DIR/the_script.cfg"
-CFG_LINK="$CONF_D_DIR/1.2.3_the_script.cfg"
-
-mkdir -p "$WORK_DIR/bin/hardening" "$WORK_DIR/versions/x" "$CONF_D_DIR"
-
-cat >"$SCRIPT_REAL" <<EOF
-#!/bin/bash
-set -e
-set -u
-HARDENING_LEVEL=1
-DESCRIPTION="dummy script for main.sh config-link tests"
-LOGLEVEL=info
-check_config() { :; }
-audit() { :; }
-apply() { :; }
-CIS_LIB_DIR="$LIB_DIR"
-CIS_CONF_DIR="$CONF_DIR"
-. "\${CIS_LIB_DIR}/main.sh"
-EOF
-chmod +x "$SCRIPT_REAL"
-ln -s "$SCRIPT_REAL" "$SCRIPT_LINK"
-
-fail() {
-    echo "FAIL: $*" >&2
-    exit 1
-}
-
-assert_file_exists() {
-    [ -f "$1" ] || fail "expected file to exist: $1"
-}
-
-assert_not_exists() {
-    [ ! -e "$1" ] || fail "expected path to not exist: $1"
-}
+write_test_script "$@"
+SCRIPT_REAL="$WORK_DIR/bin/hardening/$DEFAULT_SCRIPT_NAME.sh"
+SCRIPT_LINK="$WORK_DIR/versions/$DEFAULT_CIS_VERSION/${DEFAULT_SCRIPT_NUMBER}_$DEFAULT_SCRIPT_NAME.sh"
+CFG_FILE="$CONF_D_DIR/$DEFAULT_SCRIPT_NAME.cfg"
+CFG_LINK="$CONF_D_DIR/${DEFAULT_SCRIPT_NUMBER}_${DEFAULT_SCRIPT_NAME}.cfg"
 
 assert_is_symlink() {
     [ -L "$1" ] || fail "expected symlink: $1"
@@ -73,12 +29,6 @@ assert_contains() {
     needle="$1"
     haystack="$2"
     echo "$haystack" | grep -Fq "$needle" || fail "expected output to contain: $needle"
-}
-
-run_createconfig() {
-    path="$1"
-    output=$("$path" --create-config-files-only 2>&1) || fail "command failed for $path: $output"
-    echo "$output"
 }
 
 reset_conf_d() {
@@ -151,3 +101,7 @@ assert_is_symlink "$CFG_LINK"
 assert_symlink_target "$CFG_LINK" "$CFG_FILE"
 
 echo "PASS: all main.sh config/link management cases succeeded"
+
+cleanup_tmpdir
+
+exit 0

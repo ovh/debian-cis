@@ -770,3 +770,120 @@ manage_service() {
     systemctl "$action" "$service" >/dev/null 2>&1
 
 }
+
+#
+# nftables
+#
+
+# Prints the body of every base chain of type filter registered on the given
+# netfilter hook, reading a ruleset on stdin. Both the block syntax printed by
+# `nft list ruleset` and the flat `add chain ...` syntax accepted by `nft -f`
+# are understood, since a persistent rules file may be written either way.
+#
+# Only the families that carry IP traffic are kept. nftables reuses the input,
+# output and forward hook names in the bridge and arp families for a packet
+# path that carries neither routed nor locally delivered IP traffic, so a
+# policy or a rule found there tells nothing about how the host filters IP.
+#
+# Blocks are delimited by counting braces rather than by stopping at the first
+# closing one, because a rule may hold a brace of its own, as in
+# `tcp dport { 22, 80 } accept`.
+nft_ip_base_chains() {
+    local hook=$1
+    awk -v hook="$hook" '
+        # nft only omits the family for the implicit "ip" one, in which case
+        # the word read here is already the table name.
+        function family(word) {
+            return (word ~ /^(ip|ip6|inet|arp|bridge|netdev)$/) ? word : "ip"
+        }
+        function carries_ip(fam) {
+            return (fam == "ip" || fam == "ip6" || fam == "inet")
+        }
+        {
+            tmp = $0
+            opened = gsub(/[{]/, "&", tmp)
+            closed = gsub(/[}]/, "&", tmp)
+            newdepth = depth + opened - closed
+
+            if (!in_chain) {
+                if (depth == 0 && $1 == "table") {
+                    table_is_ip = carries_ip(family($2))
+                } else if (depth == 0 && $2 == "chain" &&
+                    ($1 == "add" || $1 == "create")) {
+                    # add chain [family] <table> <name> { ... }
+                    in_chain = 1
+                    outer = 0
+                    chain_is_ip = carries_ip(family($3))
+                } else if (depth == 1 && $1 == "chain") {
+                    in_chain = 1
+                    outer = 1
+                    chain_is_ip = table_is_ip
+                }
+                if (in_chain) {
+                    buf = ""
+                    keep = 0
+                }
+            }
+
+            if (in_chain) {
+                if (chain_is_ip && $0 ~ /type[ \t]+filter[ \t]+hook[ \t]/) {
+                    for (i = 1; i < NF; i++) {
+                        if ($i == "hook" && $(i + 1) == hook) {
+                            keep = 1
+                        }
+                    }
+                }
+                buf = buf $0 "\n"
+                if (newdepth <= outer) {
+                    if (keep) {
+                        printf "%s", buf
+                    }
+                    in_chain = 0
+                    buf = ""
+                    keep = 0
+                }
+            }
+
+            depth = newdepth
+        }
+    '
+}
+
+# Prints, one per line and uppercased, the default policy of every base chain
+# retained by nft_ip_base_chains for the given hook, reading a ruleset on
+# stdin.
+#
+# An accept verdict does not end the traversal of a hook, so a packet still
+# meets the policy of the other base chains registered on it: a single chain
+# set to drop is enough to deny.
+nft_ip_hook_policies() {
+    local hook=$1
+    nft_ip_base_chains "$hook" | awk '
+        function flush() {
+            if (seen) {
+                print toupper(policy)
+            }
+        }
+        # A base chain declares its type before its policy, so this line opens
+        # the record of a new chain.
+        /type[ \t]+filter[ \t]+hook[ \t]/ {
+            flush()
+            seen = 1
+            # A base chain declared without a policy defaults to accept.
+            policy = "accept"
+        }
+        # The policy may sit on the declaration line or on one of its own.
+        seen {
+            for (i = 1; i < NF; i++) {
+                if ($i == "policy") {
+                    found = $(i + 1)
+                    gsub(/;/, "", found)
+                    policy = found
+                }
+            }
+        }
+        END {
+            flush()
+        }
+    ' | sort -u
+}

@@ -33,24 +33,27 @@ audit() {
         NFTABLES_INCLUDE=0
         ok "There is an included file in $NFTABLES_CONF"
 
+        # The included files are written in the same syntax as the output of
+        # `nft list ruleset`, so the same parser applies.
+        local persisted
         # shellcheck disable=2046
-        if [ $(awk '/hook input/,/}/' $(awk '$1 ~ /^\s*include/ { gsub("\"","",$2);print $2 }' $NFTABLES_CONF) | wc -l) -gt 0 ]; then
+        persisted=$(cat $(awk '$1 ~ /^\s*include/ { gsub("\"", "", $2); print $2 }' "$NFTABLES_CONF") 2>/dev/null || true)
+
+        if [ -n "$(nft_ip_base_chains input <<<"$persisted")" ]; then
             NFTABLES_INCLUDE_INPUT=0
             ok "nftables input is configured to be persistent"
         else
             crit "nftables input is not configured to be persistent"
         fi
 
-        # shellcheck disable=2046
-        if [ $(awk '/hook forward/,/}/' $(awk '$1 ~ /^\s*include/ { gsub("\"","",$2);print $2 }' $NFTABLES_CONF) | wc -l) -gt 0 ]; then
+        if [ -n "$(nft_ip_base_chains forward <<<"$persisted")" ]; then
             NFTABLES_INCLUDE_FORWARD=0
             ok "nftables forward is configured to be persistent"
         else
             crit "nftables forward is not configured to be persistent"
         fi
 
-        # shellcheck disable=2046
-        if [ $(awk '/hook output/,/}/' $(awk '$1 ~ /^\s*include/ { gsub("\"","",$2);print $2 }' $NFTABLES_CONF) | wc -l) -gt 0 ]; then
+        if [ -n "$(nft_ip_base_chains output <<<"$persisted")" ]; then
             NFTABLES_INCLUDE_OUTPUT=0
             ok "nftables output is configured to be persistent"
         else

@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure rsync service is not enabled (Scored)
+# Ensure rsync services are not in use (Automated)
 #
 
 set -e # One error, it's over
@@ -15,46 +15,87 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure rsync service is not enabled."
+DESCRIPTION="Ensure rsync services are not in use."
 # shellcheck disable=2034
 HARDENING_EXCEPTION=rsync
 
 PACKAGE='rsync'
-RSYNC_DEFAULT_PATTERN='RSYNC_ENABLE=false'
-RSYNC_DEFAULT_FILE='/etc/default/rsync'
-RSYNC_DEFAULT_PATTERN_TO_SEARCH='RSYNC_ENABLE=true'
+SERVICE='rsync.service'
+
+# Global state (0=true/success, 1=false/failure)
+DISABLE_RSYNC_PKG_INSTALLED=1
+DISABLE_RSYNC_PKG_IS_DEPENDENCY=1
+DISABLE_RSYNC_SERVICE_ENABLED=1
+DISABLE_RSYNC_SERVICE_ACTIVE=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    DISABLE_RSYNC_PKG_INSTALLED=1
+    DISABLE_RSYNC_PKG_IS_DEPENDENCY=1
+    DISABLE_RSYNC_SERVICE_ENABLED=1
+    DISABLE_RSYNC_SERVICE_ACTIVE=1
+
     is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
-        ok "$PACKAGE is not installed"
+    if [ "$FNRET" -eq 0 ]; then
+        DISABLE_RSYNC_PKG_INSTALLED=0
     else
-        ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exist_in_file "$RSYNC_DEFAULT_FILE" "^$RSYNC_DEFAULT_PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            crit "$RSYNC_DEFAULT_PATTERN not found in $RSYNC_DEFAULT_FILE"
-        else
-            ok "$RSYNC_DEFAULT_PATTERN found in $RSYNC_DEFAULT_FILE"
-        fi
+        ok "$PACKAGE is not installed"
+        return
+    fi
+
+    is_pkg_a_dependency "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        DISABLE_RSYNC_PKG_IS_DEPENDENCY=0
+    fi
+
+    if [ "$DISABLE_RSYNC_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        crit "$PACKAGE is installed and not a dependency"
+        return
+    fi
+
+    is_service_enabled "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        DISABLE_RSYNC_SERVICE_ENABLED=0
+        crit "$SERVICE is enabled"
+    fi
+
+    is_service_active "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        DISABLE_RSYNC_SERVICE_ACTIVE=0
+        crit "$SERVICE is active"
+    fi
+
+    if [ "$DISABLE_RSYNC_SERVICE_ENABLED" -ne 0 ] && [ "$DISABLE_RSYNC_SERVICE_ACTIVE" -ne 0 ]; then
+        ok "$PACKAGE is used as a dependency and $SERVICE is not enabled/active"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" != 0 ]; then
+    if [ "$DISABLE_RSYNC_PKG_INSTALLED" -ne 0 ]; then
         ok "$PACKAGE is not installed"
+        return
+    fi
+
+    if [ "$DISABLE_RSYNC_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        info "$PACKAGE is installed and not a dependency, removing it"
+        apt-get purge "$PACKAGE" -y
+        apt-get autoremove -y
+        return
+    fi
+
+    is_systemctl_running
+    if [ "$FNRET" -ne 0 ]; then
+        warn "systemd not running, cannot stop/mask $SERVICE"
+        return
+    fi
+
+    if [ "$DISABLE_RSYNC_SERVICE_ENABLED" -eq 0 ] || [ "$DISABLE_RSYNC_SERVICE_ACTIVE" -eq 0 ]; then
+        info "Stopping and masking $SERVICE"
+        systemctl stop "$SERVICE" || true
+        systemctl mask "$SERVICE"
     else
-        ok "$PACKAGE is installed, checking configuration"
-        does_pattern_exist_in_file "$RSYNC_DEFAULT_FILE" "^$RSYNC_DEFAULT_PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            warn "$RSYNC_DEFAULT_PATTERN not found in $RSYNC_DEFAULT_FILE, adding it"
-            backup_file "$RSYNC_DEFAULT_FILE"
-            replace_in_file "$RSYNC_DEFAULT_FILE" "$RSYNC_DEFAULT_PATTERN_TO_SEARCH" "$RSYNC_DEFAULT_PATTERN"
-        else
-            ok "$RSYNC_DEFAULT_PATTERN found in $RSYNC_DEFAULT_FILE"
-        fi
+        ok "$SERVICE already not enabled/active"
     fi
 }
 

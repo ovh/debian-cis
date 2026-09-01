@@ -19,18 +19,22 @@ DESCRIPTION="Ensure sudo log files exists."
 
 PATTERN="^\s*Defaults\s+logfile=\S+"
 LOGFILE="/var/log/sudo.log"
+SUDO_LOGFILE_DROPIN="/etc/sudoers.d/cis_sudo_logfile"
+
+# 0 = found / compliant, 1 = not found
+SUDO_LOGFILE_FOUND=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    FOUND=0
+    SUDO_LOGFILE_FOUND=1
     for f in /etc/{sudoers,sudoers.d/*}; do
         does_pattern_exist_in_file_nocase "$f" "$PATTERN"
         if [ "$FNRET" = 0 ]; then
-            FOUND=1
+            SUDO_LOGFILE_FOUND=0
         fi
     done
 
-    if [[ "$FOUND" = 1 ]]; then
+    if [ "$SUDO_LOGFILE_FOUND" = 0 ]; then
         ok "Defaults log file found in sudoers file"
     else
         crit "Defaults log file not found in sudoers files"
@@ -38,19 +42,20 @@ audit() {
 }
 # This function will be called if the script status is on enabled mode
 apply() {
-    FOUND=0
-    for f in /etc/{sudoers,sudoers.d/*}; do
-        does_pattern_exist_in_file_nocase "$f" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            FOUND=1
-        fi
-    done
-
-    if [[ "$FOUND" = 1 ]]; then
+    if [ "$SUDO_LOGFILE_FOUND" = 0 ]; then
         ok "Defaults log file found in sudoers file"
     else
         warn "Defaults log file not found in sudoers files, fixing"
-        add_line_file_before_pattern /etc/sudoers "Defaults        logfile=\"$LOGFILE\"" "# Host alias specification"
+        local l_tmpfile
+        l_tmpfile=$(mktemp)
+        echo "Defaults        logfile=\"$LOGFILE\"" >"$l_tmpfile"
+        if visudo -c -f "$l_tmpfile" >/dev/null 2>&1; then
+            install -m 0440 -o root -g root "$l_tmpfile" "$SUDO_LOGFILE_DROPIN"
+            ok "Created $SUDO_LOGFILE_DROPIN"
+        else
+            crit "Generated sudoers snippet failed validation, not installing"
+        fi
+        rm -f "$l_tmpfile"
     fi
 }
 

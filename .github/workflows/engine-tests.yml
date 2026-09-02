@@ -9,5 +9,36 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
+
       - name: Run main.sh config/link management tests
-        run: bash tests/test_main_conf_links.sh
+        run: bash tests/engine/test_main_conf_links.sh
+
+      - name: Run bin/hardening.sh '--set-hardening-level' tests
+        run: bash tests/engine/test_hardening_level.sh
+
+      - name: Run bin/hardening.sh '--sudo' tests
+        run: bash tests/engine/test_sudo.sh
+
+      - name: Run bin/hardening.sh '--batch' tests
+        run: bash tests/engine/test_batch_mode.sh
+
+      - name: Run bin/hardening.sh '--set-log-level' tests
+        run: bash tests/engine/test_log_level.sh
+      
+      - name: Run bin/hardening.sh '--only' tests
+        run: bash tests/engine/test_only.sh
+      
+      - name: Run bin/hardening.sh '--set-version' tests
+        run: bash tests/engine/test_version.sh
+      
+      - name: Run bin/hardening.sh '--summary-json' tests
+        run: bash tests/engine/test_summary_json.sh
+      
+      - name: Run bin/hardening.sh '--audit' tests
+        run: bash tests/engine/test_audit.sh
+      
+      - name: Run bin/hardening.sh '--audit-all' tests
+        run: bash tests/engine/test_audit_all.sh
+      
+      - name: Run bin/hardening.sh '--audit-all-enable-passed' tests
+        run: bash tests/engine/test_audit_all_enable.sh

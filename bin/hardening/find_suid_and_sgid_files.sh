@@ -71,7 +71,7 @@ create_config() {
     cat <<EOF
 status=audit
 # Put Here your valid suid binaries so that they do not appear during the audit
-EXCEPTIONS="/bin/mount /bin/ping /bin/ping6 /bin/su /bin/umount /sbin/unix_chkpwd /usr/bin/at /usr/bin/bsd-write /usr/bin/chage /usr/bin/chfn /usr/bin/chsh /usr/bin/crontab /usr/bin/dotlockfile /usr/bin/expiry /usr/bin/fping /usr/bin/fping6 /usr/bin/gpasswd /usr/bin/mail-lock /usr/bin/mail-touchlock /usr/bin/mail-unlock /usr/bin/mount /usr/bin/mtr /usr/bin/mutt_dotlock /usr/bin/newgrp /usr/bin/passwd /usr/bin/ping /usr/bin/ping6 /usr/bin/screen /usr/bin/ssh-agent /usr/bin/su /usr/bin/sudo /usr/bin/sudoedit /usr/bin/umount /usr/bin/wall /usr/lib/openssh/ssh-keysign /usr/lib/pt_chown /usr/sbin/postdrop /usr/sbin/postqueue /usr/sbin/unix_chkpwd"
+EXCEPTIONS="/bin/mount /bin/ping /bin/ping6 /bin/su /bin/umount /sbin/unix_chkpwd /usr/bin/at /usr/bin/bsd-write /usr/bin/chage /usr/bin/chfn /usr/bin/chsh /usr/bin/crontab /usr/bin/dotlockfile /usr/bin/expiry /usr/bin/fping /usr/bin/fping6 /usr/bin/fusermount /usr/bin/gpasswd /usr/bin/mail-lock /usr/bin/mail-touchlock /usr/bin/mail-unlock /usr/bin/mount /usr/bin/mtr /usr/bin/mutt_dotlock /usr/bin/newgrp /usr/bin/passwd /usr/bin/ping /usr/bin/ping6 /usr/bin/plocate /usr/bin/screen /usr/bin/ssh-agent /usr/bin/su /usr/bin/sudo /usr/bin/sudoedit /usr/bin/umount /usr/bin/wall /usr/lib/dbus-1.0/dbus-daemon-launch-helper /usr/libexec/s-nail-dotlock /usr/lib/openssh/ssh-keysign /usr/lib/pt_chown /usr/lib/x86_64-linux-gnu/utempter/utempter /usr/sbin/postdrop /usr/sbin/postqueue /usr/sbin/unix_chkpwd"
 EOF
 }
 

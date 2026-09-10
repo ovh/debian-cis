@@ -107,6 +107,14 @@ Never define `FNRET` in scripts. Use explicit `if/then` — never `command && { 
 
 Global variable names must be unique across all scripts. Use a script-specific prefix (e.g. `GDM_AR_`, `AUDIT_LOG_`).
 
+### State variable hygiene
+
+- Keep a single source of truth for a given state in a script. Do not duplicate the same status in both a local variable and a global variable.
+- Avoid redundant assignments to default values (for example, setting a variable to `0` in a branch when it is already initialized to `0`).
+- Use global state variables in `apply()` only when they are set by `audit()`.
+- Prefer declaring state globals once at file scope with their default value, instead of reinitializing them to the same value at the start of `audit()`.
+- Reinitialize a state variable in `audit()` only when its value must be explicitly cleared or rebuilt for that run (for example strings, lists, or accumulators).
+
 ### Package detection (multiple packages)
 
 ```bash

@@ -4,7 +4,7 @@
 
 # NAME
 
-cis-hardening - CIS Debian 11/12 Hardening
+cis-hardening - CIS Debian 12/13 Hardening
 
 # SYNOPSIS
 

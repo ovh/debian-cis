@@ -18,12 +18,84 @@ HARDENING_LEVEL=3
 DESCRIPTION="Ensure GPG keys are configured"
 APT_KEY_PATH="/etc/apt/trusted.gpg.d"
 APT_KEY_FILE="/etc/apt/trusted.gpg"
-# from "man apt-secure"
-SOURCES_UNSECURE_OPTION='allow-insecure=yes'
-APT_UNSECURE_OPTION='Acquire::AllowInsecureRepositories=true'
+# Inspect effective global booleans through APT, rather than grepping configuration
+# text: apt.conf uses quoted values and later files can override earlier ones.
+apt_gpg_audit_options() {
+    local option setting paths source_file findings
+    local APT_GPG_SOURCE_LIST=/etc/apt/sources.list
+    local APT_GPG_SOURCE_PARTS=/etc/apt/sources.list.d
+    for option in Acquire::AllowInsecureRepositories Acquire::AllowWeakRepositories \
+        Acquire::AllowDowngradeToInsecureRepositories APT::Get::AllowUnauthenticated; do
+        if ! setting=$(apt-config shell APT_GPG_VALUE "$option/b"); then
+            crit "Unable to read effective APT configuration"
+            return
+        fi
+        if [ "$setting" = "APT_GPG_VALUE='true'" ]; then
+            crit "$option disables part of APT authentication"
+        fi
+    done
+    if ! paths=$(apt-config shell APT_GPG_SOURCE_LIST Dir::Etc::sourcelist/f \
+        APT_GPG_SOURCE_PARTS Dir::Etc::sourceparts/d); then
+        crit "Unable to locate APT sources"
+        return
+    fi
+    # apt-config shell emits shell-escaped assignments (see apt-config(8)).
+    eval "$paths"
+    for source_file in "$APT_GPG_SOURCE_LIST" "$APT_GPG_SOURCE_PARTS"/*.list "$APT_GPG_SOURCE_PARTS"/*.sources; do
+        if [ ! -e "$source_file" ]; then
+            continue
+        fi
+        if [ "$source_file" != "$APT_GPG_SOURCE_LIST" ] && [[ ! "${source_file##*/}" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+            continue # APT ignores unsupported filenames in sourceparts.
+        fi
+        if [ ! -r "$source_file" ]; then
+            crit "Cannot read APT source $source_file"
+            continue
+        fi
+        if ! findings=$(awk '
+            function trim(s) { sub(/^[ \t\r]+/, "", s); sub(/[ \t\r]+$/, "", s); return s }
+            function yes(s) { return tolower(trim(s)) ~ /^(yes|true|1|on)$/ }
+            function unsafe(k) { return k ~ /^(trusted|allow-insecure|allow-weak|allow-downgrade-to-insecure)$/ }
+            function stanza( k) {
+                if (tolower(trim(fields["enabled"])) !~ /^(no|false|0|off)$/) {
+                    for (k in fields) if (unsafe(k) && yes(fields[k])) print k
+                }
+                for (k in fields) delete fields[k]
+                field=""
+            }
+            FILENAME !~ /\.sources$/ {
+                line=$0; sub(/#.*/, "", line)
+                if (line !~ /^[ \t]*deb(-src)?[ \t]+\[/) next
+                sub(/^[^[]*\[/, "", line); sub(/\].*$/, "", line)
+                count=split(line, opts, /[ \t]+/)
+                for (i=1; i<=count; i++) {
+                    pos=index(opts[i], "=")
+                    if (pos && unsafe(tolower(substr(opts[i], 1, pos-1))) && yes(substr(opts[i], pos+1))) print opts[i]
+                }
+                next
+            }
+            /^[ \t]*#/ { next }
+            /^[ \t\r]*$/ { stanza(); next }
+            /^[ \t]/ { if (field != "") fields[field]=fields[field] " " trim($0); next }
+            {
+                pos=index($0, ":")
+                if (pos) {
+                    field=tolower(substr($0, 1, pos-1))
+                    fields[field]=trim(substr($0, pos+1))
+                }
+            }
+            END { stanza() }
+        ' "$source_file"); then
+            crit "Unable to inspect APT source $source_file"
+        elif [ -n "$findings" ]; then
+            crit "Authentication bypass in $source_file: $findings"
+        fi
+    done
+}
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    apt_gpg_audit_options
 
     key_files=0
     info "Verifying that apt keys are present"
@@ -53,29 +125,13 @@ audit() {
     if [ "$key_files" -eq 0 ]; then
         crit "No GPG file found"
     else
-        # we do not test the GPG keys validity, but we ensure we don't bypass them
-        info "Ensure an unsecure option is not set in some sources list"
-        unsecure_sources=$(find /etc/apt/ -name '*.list' -exec grep -l "$SOURCES_UNSECURE_OPTION" {} \;)
-        if [ -n "$unsecure_sources" ]; then
-            crit "Some source files use $SOURCES_UNSECURE_OPTION : $unsecure_sources"
-        fi
-
-        info "Ensure an unsecure option is not set in some apt configuration"
-        unsecure_option=$(grep -R "$APT_UNSECURE_OPTION" /etc/apt | wc -l)
-        if [ "$unsecure_option" -gt 0 ]; then
-            crit "$APT_UNSECURE_OPTION is set in apt configuration"
-        fi
+        info "Key material is present; repository key validity and ownership require manual review"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    audit
-    if [ "$FNRET" -gt 0 ]; then
-        crit "Your configuraiton does not match the recommendation. Please fix it manually"
-    else
-        info "Nothing to apply"
-    fi
+    info "This recommendation requires manual review and remediation of repository trust"
 }
 
 # This function will check config parameters required

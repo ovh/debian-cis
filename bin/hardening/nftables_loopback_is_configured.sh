@@ -23,14 +23,17 @@ audit() {
     NFTABLES_LOOPBACK_DROP=1
     NFTABLES_IPV6_LOOPBACK_DROP=1
 
-    if nft list ruleset 2>/dev/null | awk '/hook input/,/}/' | grep 'iif "lo" accept'; then
+    local ruleset
+    ruleset=$($SUDO_CMD nft list ruleset 2>/dev/null || true)
+
+    if nft_ip_base_chains input <<<"$ruleset" | grep -q 'iif "lo" accept'; then
         NFTABLES_LOOPBACK=0
         ok "loopback is configured for nftables"
     else
         crit "loopback is not configured for nftables"
     fi
 
-    if nft list ruleset 2>/dev/null | awk '/hook input/,/}/' | grep "ip saddr 127.0.0.1.*drop"; then
+    if nft_ip_base_chains input <<<"$ruleset" | grep -q "ip saddr 127.0.0.1.*drop"; then
         NFTABLES_LOOPBACK_DROP=0
         ok "nftables input loopack traffic is dropped"
     else
@@ -39,7 +42,7 @@ audit() {
 
     is_ipv6_enabled
     if [ "$FNRET" -eq 0 ]; then
-        if nft list ruleset 2>/dev/null | awk '/hook input/,/}/' | grep "ip6 saddr ::1.*drop"; then
+        if nft_ip_base_chains input <<<"$ruleset" | grep -q "ip6 saddr ::1.*drop"; then
             NFTABLES_IPV6_LOOPBACK_DROP=0
             ok "nftables input loopack traffic is dropped"
         else

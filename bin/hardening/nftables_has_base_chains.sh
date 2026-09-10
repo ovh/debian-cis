@@ -23,21 +23,24 @@ audit() {
     OUTPUT_CHAIN=1
     FORWARD_CHAIN=1
 
-    if $SUDO_CMD nft list ruleset 2>/dev/null | grep 'hook input'; then
+    local ruleset
+    ruleset=$($SUDO_CMD nft list ruleset 2>/dev/null || true)
+
+    if [ -n "$(nft_ip_base_chains input <<<"$ruleset")" ]; then
         INPUT_CHAIN=0
         ok "nft base 'input' chain exist"
     else
         crit "nft base 'input' chain does not exist"
     fi
 
-    if $SUDO_CMD nft list ruleset 2>/dev/null | grep 'hook output'; then
+    if [ -n "$(nft_ip_base_chains output <<<"$ruleset")" ]; then
         OUTPUT_CHAIN=0
         ok "nft base 'output' chain exist"
     else
         crit "nft base 'output' chain does not exist"
     fi
 
-    if $SUDO_CMD nft list ruleset 2>/dev/null | grep 'hook forward'; then
+    if [ -n "$(nft_ip_base_chains forward <<<"$ruleset")" ]; then
         FORWARD_CHAIN=0
         ok "nft base 'forward' chain exist"
     else

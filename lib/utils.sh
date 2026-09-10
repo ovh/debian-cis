@@ -653,21 +653,20 @@ apt_update_if_needed() {
 }
 
 apt_check_updates() {
-    local NAME="$1"
-    local DETAILS="/dev/shm/${NAME}"
-    $SUDO_CMD apt-get upgrade -s 2>/dev/null | grep -E "^Inst" >"$DETAILS" || :
-    local COUNT
-    COUNT=$(wc -l <"$DETAILS")
-    FNRET=128 # Unknown function return result
-    RESULT="" # Result output for upgrade
-    if [ "$COUNT" -gt 0 ]; then
-        RESULT="There is $COUNT updates available :\n$(cat "$DETAILS")"
+    local upgrades count
+    FNRET=128 # Unknown until the package manager completes successfully.
+    RESULT="Unable to determine available updates: APT simulation failed"
+    if ! upgrades=$($SUDO_CMD apt-get upgrade -s 2>/dev/null); then
+        return
+    fi
+    count=$(grep -c '^Inst' <<<"$upgrades" || true)
+    if [ "$count" -gt 0 ]; then
+        RESULT="There is $count updates available :\n$(grep '^Inst' <<<"$upgrades")"
         FNRET=1
     else
         RESULT="OK, no updates available"
         FNRET=0
     fi
-    rm "$DETAILS"
 }
 
 apt_install() {

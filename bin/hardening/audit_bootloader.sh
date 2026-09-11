@@ -18,59 +18,71 @@ HARDENING_LEVEL=4
 DESCRIPTION="Enable auditing for processes that start prior to auditd."
 
 FILE='/etc/default/grub'
-OPTIONS='GRUB_CMDLINE_LINUX=audit=1'
+GRUB_PARAMS='GRUB_CMDLINE_LINUX GRUB_CMDLINE_LINUX_DEFAULT'
+GRUB_VALUE='audit=1'
+
+# 0 = true / success, 1 = false / failure
+AUDIT_BOOTLOADER_FILE_EXISTS=1
+
+# 0 = compliant, 1 = non-compliant
+AUDIT_BOOTLOADER_AUDIT_ENABLED=1
+AUDIT_BOOTLOADER_TARGET_PARAM='GRUB_CMDLINE_LINUX'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    AUDIT_BOOTLOADER_FILE_EXISTS=1
+    AUDIT_BOOTLOADER_AUDIT_ENABLED=1
+    AUDIT_BOOTLOADER_TARGET_PARAM='GRUB_CMDLINE_LINUX'
     does_file_exist "$FILE"
     if [ "$FNRET" != 0 ]; then
         crit "$FILE does not exist"
     else
+        AUDIT_BOOTLOADER_FILE_EXISTS=0
         ok "$FILE exists, checking configuration"
-        for GRUB_OPTION in $OPTIONS; do
-            GRUB_PARAM=$(echo "$GRUB_OPTION" | cut -d= -f 1)
-            GRUB_VALUE=$(echo "$GRUB_OPTION" | cut -d= -f 2,3)
+        for GRUB_PARAM in $GRUB_PARAMS; do
+            does_pattern_exist_in_file "$FILE" "^$GRUB_PARAM="
+            if [ "$FNRET" = 0 ]; then
+                AUDIT_BOOTLOADER_TARGET_PARAM="$GRUB_PARAM"
+            fi
+
             PATTERN="^$GRUB_PARAM=.*$GRUB_VALUE"
             debug "$GRUB_PARAM should be set to $GRUB_VALUE"
             does_pattern_exist_in_file "$FILE" "$PATTERN"
             if [ "$FNRET" != 0 ]; then
-                crit "$PATTERN is not present in $FILE"
+                info "$PATTERN is not present in $FILE"
             else
                 ok "$PATTERN is present in $FILE"
+                AUDIT_BOOTLOADER_AUDIT_ENABLED=0
             fi
         done
+
+        if [ "$AUDIT_BOOTLOADER_AUDIT_ENABLED" != 0 ]; then
+            crit "audit=1 is not present in GRUB_CMDLINE_LINUX or GRUB_CMDLINE_LINUX_DEFAULT in $FILE"
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        warn "$FILE does not exist, creating it"
-        touch "$FILE"
-    else
-        ok "$FILE exists"
+    if [ "$AUDIT_BOOTLOADER_AUDIT_ENABLED" = 0 ]; then
+        ok "audit=1 already configured in GRUB_CMDLINE_LINUX or GRUB_CMDLINE_LINUX_DEFAULT"
+        return
     fi
-    for GRUB_OPTION in $OPTIONS; do
-        GRUB_PARAM=$(echo "$GRUB_OPTION" | cut -d= -f 1)
-        GRUB_VALUE=$(echo "$GRUB_OPTION" | cut -d= -f 2,3)
-        debug "$GRUB_PARAM should be set to $GRUB_VALUE"
-        PATTERN="^$GRUB_PARAM=.*$GRUB_VALUE"
-        does_pattern_exist_in_file "$FILE" "$PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file "$FILE" "^$GRUB_PARAM"
-            if [ "$FNRET" != 0 ]; then
-                info "Parameter $GRUB_PARAM seems absent from $FILE, adding at the end"
-                add_end_of_file "$FILE" "$GRUB_PARAM = $GRUB_VALUE"
-            else
-                info "Parameter $GRUB_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^$GRUB_PARAM=.*" "$GRUB_PARAM=$GRUB_VALUE"
-            fi
-        else
-            ok "$PATTERN is present in $FILE"
-        fi
-    done
+
+    if [ "$AUDIT_BOOTLOADER_FILE_EXISTS" != 0 ]; then
+        warn "$FILE does not exist, cannot update bootloader parameters"
+        return
+    fi
+
+    debug "$AUDIT_BOOTLOADER_TARGET_PARAM should be set to $GRUB_VALUE"
+    does_pattern_exist_in_file "$FILE" "^$AUDIT_BOOTLOADER_TARGET_PARAM="
+    if [ "$FNRET" != 0 ]; then
+        info "Parameter $AUDIT_BOOTLOADER_TARGET_PARAM seems absent from $FILE, adding at the end"
+        add_end_of_file "$FILE" "$AUDIT_BOOTLOADER_TARGET_PARAM=$GRUB_VALUE"
+    else
+        info "Parameter $AUDIT_BOOTLOADER_TARGET_PARAM is present but with the wrong value -- Fixing"
+        replace_in_file "$FILE" "^$AUDIT_BOOTLOADER_TARGET_PARAM=.*" "$AUDIT_BOOTLOADER_TARGET_PARAM=$GRUB_VALUE"
+    fi
 }
 
 # This function will check config parameters required

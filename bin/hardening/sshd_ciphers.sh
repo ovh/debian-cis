@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure only strong ciphers are used (Scored)
+# Ensure sshd Ciphers are configured (Automated)
 #
 
 set -e # One error, it's over
@@ -15,75 +15,110 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Use only approved ciphers in counter mode (ctr) or Galois counter mode (gcm)."
+DESCRIPTION="Ensure sshd uses only strong approved ciphers."
 
 PACKAGE='openssh-server'
-OPTIONS=''
 FILE='/etc/ssh/sshd_config'
+
+# Configurable: may be overridden via check_config()
+OPTIONS="" # Ciphers line to write
+
+# Global state
+SSHD_CIPHERS_PKG_INSTALLED=1 # 1 = not installed, 0 = installed
+SSHD_CIPHERS_OK=1            # 1 = non-compliant, 0 = compliant
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
-        ok "$PACKAGE is not installed!"
+        ok "$PACKAGE is not installed - not applicable"
+        return
+    fi
+    SSHD_CIPHERS_PKG_INSTALLED=0
+    ok "$PACKAGE is installed"
+
+    # Derive the allow-list from configured OPTIONS (strip leading "Ciphers" + spaces)
+    local sshd_ciphers allowed_ciphers
+    allowed_ciphers=$(echo "$OPTIONS" | sed -E 's/^[[:space:]]*[Cc]iphers[[:space:]]+//')
+
+    # Read configured Ciphers directive from sshd_config directly.
+    # This keeps behavior deterministic across root/sudo and container environments.
+    sshd_ciphers=$(grep -Pi '^[[:space:]]*[Cc]iphers[[:space:]]+' "$FILE" |
+        head -1 |
+        sed -E 's/^[[:space:]]*[Cc]iphers[[:space:]]+//' || true)
+
+    # If no explicit Ciphers directive is present, treat defaults as compliant baseline.
+    if [ -z "$sshd_ciphers" ]; then
+        sshd_ciphers="$allowed_ciphers"
+    fi
+
+    # Check each active cipher against the allow-list
+    local bad_ciphers=""
+    local l_cipher
+    while IFS=',' read -r l_cipher; do
+        l_cipher=$(echo "$l_cipher" | tr -d '[:space:]')
+        [ -z "$l_cipher" ] && continue
+        if ! echo ",$allowed_ciphers," | grep -qF ",$l_cipher,"; then
+            bad_ciphers="${bad_ciphers:+$bad_ciphers,}$l_cipher"
+        fi
+    done <<EOF
+$sshd_ciphers
+EOF
+
+    if [ -n "$bad_ciphers" ]; then
+        crit "sshd is using non-approved ciphers: $bad_ciphers"
     else
-        ok "$PACKAGE is installed"
-        for SSH_OPTION in $OPTIONS; do
-            SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
-            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
-            PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-            does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
-            if [ "$FNRET" = 0 ]; then
-                ok "$PATTERN is present in $FILE"
-            else
-                crit "$PATTERN is not present in $FILE"
-            fi
-        done
+        ok "sshd is using only approved ciphers"
+        SSHD_CIPHERS_OK=0
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        ok "$PACKAGE is installed"
-    else
-        crit "$PACKAGE is absent, installing it"
-        apt_install "$PACKAGE"
+    if [ "$SSHD_CIPHERS_PKG_INSTALLED" -ne 0 ]; then
+        ok "$PACKAGE is not installed - not applicable"
+        return
     fi
-    for SSH_OPTION in $OPTIONS; do
-        SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
-        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
-        PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-        does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            ok "$PATTERN is present in $FILE"
-        else
-            warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
-            if [ "$FNRET" != 0 ]; then
-                add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
-            else
-                info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
-            fi
-            /etc/init.d/ssh reload
-        fi
-    done
+
+    if [ "$SSHD_CIPHERS_OK" -eq 0 ]; then
+        ok "sshd ciphers already compliant"
+        return
+    fi
+
+    # Remove any existing Ciphers line(s) and replace with the allow-list
+    info "Configuring $FILE with approved ciphers only"
+    backup_file "$FILE"
+    # Remove existing Ciphers lines
+    sed -i '/^[[:space:]]*[Cc]iphers[[:space:]]/d' "$FILE"
+    # Insert before the first Include if present, otherwise append
+    if grep -qi '^[[:space:]]*Include' "$FILE"; then
+        sed -i "0,/^[[:space:]]*[Ii]nclude/{s|^[[:space:]]*[Ii]nclude|${OPTIONS}\n&|}" "$FILE"
+    else
+        echo "$OPTIONS" >>"$FILE"
+    fi
+
+    if sshd -t 2>/dev/null; then
+        info "sshd configuration is valid"
+        systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
+    else
+        warn "sshd configuration test failed after modification - please review $FILE"
+    fi
 }
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$OPTIONS" ]; then
+        OPTIONS="Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr"
+    fi
 }
 
 # This function will create the config file for this check with default values
 create_config() {
     cat <<EOF
-# shellcheck disable=2034
 status=audit
-# Put here the ciphers
-OPTIONS='Ciphers=chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr'
+# Configurable: comma-separated list of approved ciphers
+# FIPS 140 compliant defaults: aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+OPTIONS='Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr'
 EOF
 }
 

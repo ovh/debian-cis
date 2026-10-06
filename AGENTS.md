@@ -115,6 +115,14 @@ Never define `FNRET` in scripts. Use explicit `if/then` — never `command && { 
 
 Global variable names must be unique across all scripts. Use a script-specific prefix (e.g. `GDM_AR_`, `AUDIT_LOG_`).
 
+### State variable hygiene
+
+- Keep a single source of truth for a given state in a script. Do not duplicate the same status in both a local variable and a global variable.
+- Avoid redundant assignments to default values (for example, setting a variable to `0` in a branch when it is already initialized to `0`).
+- Use global state variables in `apply()` only when they are set by `audit()`.
+- Prefer declaring state globals once at file scope with their default value, instead of reinitializing them to the same value at the start of `audit()`.
+- Reinitialize a state variable in `audit()` only when its value must be explicitly cleared or rebuilt for that run (for example strings, lists, or accumulators).
+
 ### Package detection (multiple packages)
 
 ```bash
@@ -189,18 +197,46 @@ if [ "$FNRET" != 0 ]; then
 fi
 ```
 
-### Optional configurable parameters
+### Configuration lifecycle: `create_config()` and `check_config()`
 
-```bash
-MY_OPTION=""   # declared empty at top
+Scripts can define two optional functions to manage user-configurable variables:
 
-check_config() {
-    MY_OPTION="default_value"
-    # output file must include: status=audit
-}
-```
+**`create_config()`** — Called **once**, when config file is first created by `lib/main.sh`:
+- Generates the initial template in `etc/conf.d/the_script.cfg`
+- Should document all user-overridable variables with comments
+- **Must include `status=audit`** as the first line
+- Example:
+  ```bash
+  create_config() {
+      cat <<EOF
+  status=audit
+  # User-configurable: approved ciphers (comma-separated)
+  SSHD_CIPHERS_LINE='Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr'
+  EOF
+  }
+  ```
 
-`create_config` may exist in older scripts/documentation and follows the same rule: generated config must include `status=audit`.
+**`check_config()`** — Called **every execution**, before `audit()` runs (in both audit and enabled modes):
+- Initializes global variables with defaults **only if they are empty**
+- Allows cfg file values to override defaults (user edits cfg → values take precedence)
+- Does NOT regenerate the cfg file
+- Example:
+  ```bash
+  check_config() {
+      if [ -z "$SSHD_CIPHERS_LINE" ]; then
+          SSHD_CIPHERS_LINE="Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr"
+      fi
+  }
+  ```
+
+**User workflow:**
+1. First run: cfg created with template from `create_config()` → user sees documentation + defaults
+2. User edits cfg to customize: `vim /opt/debian-cis/etc/conf.d/the_script.cfg`
+3. Next run: `check_config()` loads cfg values, uses them in `audit()` and `apply()`
+
+**Key principle:** `check_config()` provides **intelligent defaults** that don't override user customization.
+
+**Variable naming stability:** When modifying an existing script, **preserve the names of variables** originally defined in `create_config()`. If a script previously offered `OPTIONS` or another variable name for customization, keep using that name even if refactoring internally. Renaming variables breaks existing user configurations. Only add new variable names; do not remove or rename existing ones.
 
 ---
 
@@ -230,6 +266,7 @@ For checks that are intentionally **manual remediation only** (script `apply()` 
 - Restore modified config files at end of test
 - In tests, if `${script}` (or other harness vars) is used in local variable assignments, add `# shellcheck disable=2154` immediately above those lines.
 - If non-compliant state cannot be created (config absent), use `skip` + `register_test`/`run` inside the conditional block
+- For dependency-aware package/service tests, if a non-compliant state cannot be reliably created in the current environment (for example package is required and units cannot be forced to enabled/active), skip the remediation path with `skip` + `register_test`/`run` instead of forcing `retvalshouldbe 1`
 - Do not use `mount`/`remount` in containers; skip those tests with a container check
 - For scripts interacting with audit runtime (auditctl/augenrules), check `auditctl -s` availability and skip if not present.
 - For scripts interacting with systemd, use `is_systemctl_running` and skip when systemd is not running.
@@ -261,6 +298,53 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y "$gdm_pkg" ... || true
 # ... tests ...
 apt-get remove -y "$gdm_pkg" || true
 apt-get autoremove -y || true
+```
+
+---
+
+## State variable hygiene
+
+**Golden rules for global state management:**
+
+1. **Single source of truth**: Declare each global state variable **once** at file scope with its default value (usually `1`, meaning non-compliant/not-set). Never duplicate with local variables (e.g., `l_gdm_installed`).
+
+2. **No redundant reinitialization in `audit()`**: Do NOT reset state variables at the top of `audit()`. They already have correct defaults from file scope. Only SET them when logic determines a new value (e.g., when a check passes, set to `0`).
+
+3. **Configurable variables use empty defaults**: Variables that users may override via cfg are declared empty at scope level:
+   ```bash
+   SSHD_CIPHERS_LINE=""    # empty at top
+   ```
+   Then `check_config()` fills them if still empty (allowing user cfg values to take precedence).
+
+4. **`apply()` trusts `audit()`'s state**: Never re-check conditions in `apply()`. Use the global variables set by `audit()` to decide what to do. This avoids duplicating logic and ensures consistency.
+
+5. **Accumulators are the exception**: If a variable accumulates results across a loop (e.g., `bad_ciphers="${bad_ciphers:+$bad_ciphers,}$new_value"`), it's OK to initialize it locally in `audit()` since each run needs a fresh accumulator. But non-accumulator state booleans should live at scope.
+
+**Example pattern (sshd_ciphers.sh):**
+```bash
+# Global scope
+SSHD_CIPHERS_PKG_INSTALLED=1  # default: not installed
+SSHD_CIPHERS_OK=1             # default: non-compliant
+SSHD_CIPHERS_LINE=""          # default: empty, filled by check_config()
+
+check_config() {
+    if [ -z "$SSHD_CIPHERS_LINE" ]; then
+        SSHD_CIPHERS_LINE="Ciphers aes256-gcm..."  # only if not set
+    fi
+}
+
+audit() {
+    # Check package, set SSHD_CIPHERS_PKG_INSTALLED to 0 if found
+    # No redundant "=1" at top—already default
+    
+    # Check ciphers against allow-list
+    # Set SSHD_CIPHERS_OK=0 if compliant
+}
+
+apply() {
+    # Check SSHD_CIPHERS_PKG_INSTALLED and SSHD_CIPHERS_OK
+    # Never re-check—trust audit()
+}
 ```
 
 ---

@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure rsh client is not installed (Scored)
+# Ensure rsh client is not installed (Automated)
 #
 
 set -e # One error, it's over
@@ -15,35 +15,35 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=2
 # shellcheck disable=2034
-DESCRIPTION="Ensure rsh client is not installed, Recommended alternative : ssh."
+DESCRIPTION="Ensure rsh client is not installed."
 
-# Based on aptitude search '~Prsh-client', exluding ssh-client OFC
-PACKAGES='rsh-client rsh-redone-client heimdal-clients'
+PACKAGE='rsh-client'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed"
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    RSH_CLIENT_INSTALLED=1
+
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        RSH_CLIENT_INSTALLED=0
+    fi
+
+    if [ "$RSH_CLIENT_INSTALLED" -eq 0 ]; then
+        crit "$PACKAGE is installed"
+    else
+        ok "$PACKAGE is absent"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            warn "$PACKAGE is installed, purging"
-            apt-get purge "$PACKAGE" -y
-            apt-get autoremove -y
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    if [ "$RSH_CLIENT_INSTALLED" -eq 0 ]; then
+        warn "$PACKAGE is installed, purging"
+        apt_remove "$PACKAGE" -y
+        apt-get autoremove -y
+    else
+        ok "$PACKAGE is absent"
+    fi
 }
 
 # This function will check config parameters required

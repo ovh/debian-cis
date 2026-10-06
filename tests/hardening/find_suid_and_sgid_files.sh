@@ -12,6 +12,20 @@ test_audit() {
     dismiss_count_for_test
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
+    describe "Tests EXCLUDED regex"
+    local excluded_dir="/home/secaudit/excluded_path"
+    local excluded_file="${excluded_dir}/suid_excluded_file"
+    mkdir -p "$excluded_dir"
+    touch "$excluded_file"
+    chmod 4700 "$excluded_file"
+    echo "EXCLUDED='^${excluded_dir}/.*'" >>"${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    register_test retvalshouldbe 0
+    run excluded_path "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    sed -i '/^EXCLUDED=/d' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    chmod 700 "$excluded_file"
+    rm -f "$excluded_file"
+    rmdir "$excluded_dir"
+
     describe Tests purposely failing
     local targetfile_suid="/home/secaudit/suid_file"
     touch "$targetfile_suid"

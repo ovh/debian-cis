@@ -7,6 +7,13 @@ test_audit() {
     # shellcheck disable=2154
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
+    describe "Installing openssh-server for tests"
+    apt-get update >/dev/null 2>&1 || true
+    DEBIAN_FRONTEND='noninteractive' apt-get install -y openssh-server >/dev/null 2>&1 || {
+        skip "Cannot install openssh-server, skipping tests"
+        return
+    }
+
     local test_user="testsshduser"
     local test_file="/etc/ssh/sshd_config"
 
@@ -38,5 +45,8 @@ test_audit() {
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     # Cleanup
+    describe "Remove openssh-server"
+    apt-get remove -y openssh-server >/dev/null 2>&1 || true
+    apt-get autoremove -y >/dev/null 2>&1 || true
     userdel "$test_user"
 }

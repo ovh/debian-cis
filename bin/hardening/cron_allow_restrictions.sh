@@ -21,12 +21,12 @@ PACKAGE='cron'
 CRON_ALLOW='/etc/cron.allow'
 CRON_DENY='/etc/cron.deny'
 PERMISSIONS='640'
-USER='root'
-GROUP='root'
+CRON_ALLOW_USER=''
+CRON_ALLOW_GROUP=''
 
 # Global state
-CRON_ALLOW_RESTR_INSTALLED=1
-CRON_ALLOW_RESTR_FILE_OK=1
+CRON_ALLOW_INSTALLED=1
+CRON_ALLOW_FILE_OK=1
 CRON_DENY_FILE_OK=1
 
 # This function will be called if the script status is on enabled / audit mode
@@ -34,7 +34,7 @@ audit() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" -ne 0 ]; then
         ok "$PACKAGE is not installed, cron restrictions not applicable"
-        CRON_ALLOW_RESTR_INSTALLED=0
+        CRON_ALLOW_INSTALLED=0
         return
     fi
     ok "$PACKAGE is installed"
@@ -42,12 +42,12 @@ audit() {
     # Check /etc/cron.allow
     if [ ! -f "$CRON_ALLOW" ]; then
         crit "$CRON_ALLOW does not exist"
-        CRON_ALLOW_RESTR_FILE_OK=0
+        CRON_ALLOW_FILE_OK=0
     else
-        has_file_correct_ownership "$CRON_ALLOW" "$USER" "$GROUP"
+        has_file_correct_ownership "$CRON_ALLOW" "$CRON_ALLOW_USER" "$CRON_ALLOW_GROUP"
         if [ "$FNRET" -ne 0 ]; then
-            crit "$CRON_ALLOW ownership is not $USER:$GROUP"
-            CRON_ALLOW_RESTR_FILE_OK=0
+            crit "$CRON_ALLOW ownership is not $CRON_ALLOW_USER:$CRON_ALLOW_GROUP"
+            CRON_ALLOW_FILE_OK=0
         else
             ok "$CRON_ALLOW has correct ownership"
         fi
@@ -55,7 +55,7 @@ audit() {
         has_file_correct_permissions "$CRON_ALLOW" "$PERMISSIONS"
         if [ "$FNRET" -ne 0 ]; then
             crit "$CRON_ALLOW permissions are not $PERMISSIONS"
-            CRON_ALLOW_RESTR_FILE_OK=0
+            CRON_ALLOW_FILE_OK=0
         else
             ok "$CRON_ALLOW has correct permissions"
         fi
@@ -72,20 +72,20 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$CRON_ALLOW_RESTR_INSTALLED" -eq 0 ]; then
+    if [ "$CRON_ALLOW_INSTALLED" -eq 0 ]; then
         ok "$PACKAGE is not installed, nothing to apply"
         return
     fi
 
     # Create/fix cron.allow
-    if [ "$CRON_ALLOW_RESTR_FILE_OK" -eq 0 ]; then
+    if [ "$CRON_ALLOW_FILE_OK" -eq 0 ]; then
         if [ ! -f "$CRON_ALLOW" ]; then
             info "Creating $CRON_ALLOW"
             touch "$CRON_ALLOW"
         fi
 
         info "Setting ownership and permissions on $CRON_ALLOW"
-        chown "$USER":"$GROUP" "$CRON_ALLOW"
+        chown "$CRON_ALLOW_USER":"$CRON_ALLOW_GROUP" "$CRON_ALLOW"
         chmod "$PERMISSIONS" "$CRON_ALLOW"
     else
         ok "$CRON_ALLOW is correctly configured"
@@ -100,9 +100,24 @@ apply() {
     fi
 }
 
+# This function will create the config file for this check with default values
+create_config() {
+    cat <<EOF
+status=audit
+CRON_ALLOW_USER='root'
+CRON_ALLOW_GROUP='root'
+EOF
+}
+
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$CRON_ALLOW_USER" ]; then
+        CRON_ALLOW_USER='root'
+    fi
+
+    if [ -z "$CRON_ALLOW_GROUP" ]; then
+        CRON_ALLOW_GROUP='root'
+    fi
 }
 
 # Source Root Dir Parameter

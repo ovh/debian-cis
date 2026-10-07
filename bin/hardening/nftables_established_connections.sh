@@ -22,13 +22,14 @@ NFTABLES_OUTPUT_ALLOWED=""
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    local status
+    local ruleset
+    ruleset=$($SUDO_CMD nft list ruleset 2>/dev/null || true)
 
     for allowed in $NFTABLES_INPUT_ALLOWED; do
         protocol=$(awk -F ':' '{print $1}' <<<"$allowed")
         state=$(awk -F ':' '{print $2}' <<<"$allowed")
 
-        if $SUDO_CMD nft list ruleset 2>/dev/null | awk '/hook input/,/}/' | grep -E "ip protocol $protocol ct state $state accept"; then
+        if nft_ip_base_chains input <<<"$ruleset" | grep -qE "ip protocol $protocol ct state $state accept"; then
             ok "'$protocol' is accepted for state(s) '$state' in nftables 'input'"
         else
             crit "'$protocol' is not accepted for state(s) '$state' in nftables 'input'"
@@ -39,7 +40,7 @@ audit() {
         protocol=$(awk -F ':' '{print $1}' <<<"$allowed")
         state=$(awk -F ':' '{print $2}' <<<"$allowed")
 
-        if $SUDO_CMD nft list ruleset 2>/dev/null | awk '/hook output/,/}/' | grep -E "ip protocol $protocol ct state $state accept"; then
+        if nft_ip_base_chains output <<<"$ruleset" | grep -qE "ip protocol $protocol ct state $state accept"; then
             ok "'$protocol' is accepted for state(s) '$state' in nftables 'output'"
         else
             crit "'$protocol' is not accepted for state(s) '$state' in nftables 'output'"

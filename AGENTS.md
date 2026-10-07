@@ -66,7 +66,7 @@ bash tests/test_main_conf_links.sh
 set -e
 set -u
 
-HARDENING_LEVEL=<1-3>
+HARDENING_LEVEL=<1-5>
 DESCRIPTION="..."
 
 # Global state (prefix must be unique across all scripts)
@@ -78,6 +78,14 @@ check_config() { : }   # optional; define configurable vars here
 ```
 
 `audit()` is always called before `apply()`. Never duplicate logic — use global variables set in `audit()` instead of re-checking in `apply()`.
+
+### HARDENING_LEVEL policy
+
+- `1` — very basic policy; failure at this level indicates severe misconfiguration with potentially huge security impact.
+- `2` — basic policy; good-practice rules that should not break most systems once applied.
+- `3` — best-practices policy; passing all tests may require configuration changes (for example partitioning choices).
+- `4` — high-security policy; passing all tests may be time-consuming and require significant workflow adaptation.
+- `5` — placebo policy; rules that may be difficult to apply and maintain, with questionable security benefits.
 
 For newly created scripts, omit CIS recommendation numbering from human-readable titles/comments. Example: use `Ensure accounts without a valid login shell are locked (Automated)`, not `5.4.2.8 Ensure accounts without a valid login shell are locked (Automated)`.
 

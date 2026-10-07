@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure CUPS is not enabled (Scored)
+# Ensure print server services are not in use (Automated)
 #
 
 set -e # One error, it's over
@@ -15,36 +15,109 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure print server (Common Unix Print System) is not enabled."
+DESCRIPTION="Ensure print server services are not in use."
 # shellcheck disable=2034
 HARDENING_EXCEPTION=cups
 
-PACKAGES='libcups2 libcupscgi1 libcupsimage2 libcupsmime1 libcupsppdc1 cups-common cups-client cups-ppdc libcupsfilters1 cups-filters cups'
+PACKAGE='cups'
+SERVICE='cups.service'
+SOCKET='cups.socket'
+
+# Global state (0 = true/success, 1 = false/failure)
+PRINT_SERVER_PKG_INSTALLED=1
+PRINT_SERVER_PKG_IS_DEPENDENCY=1
+PRINT_SERVER_SERVICE_ENABLED=1
+PRINT_SERVER_SERVICE_ACTIVE=1
+PRINT_SERVER_SOCKET_ENABLED=1
+PRINT_SERVER_SOCKET_ACTIVE=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed!"
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    PRINT_SERVER_PKG_INSTALLED=1
+    PRINT_SERVER_PKG_IS_DEPENDENCY=1
+    PRINT_SERVER_SERVICE_ENABLED=1
+    PRINT_SERVER_SERVICE_ACTIVE=1
+    PRINT_SERVER_SOCKET_ENABLED=1
+    PRINT_SERVER_SOCKET_ACTIVE=1
+
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        PRINT_SERVER_PKG_INSTALLED=0
+    else
+        ok "$PACKAGE is not installed"
+        return
+    fi
+
+    is_pkg_a_dependency "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        PRINT_SERVER_PKG_IS_DEPENDENCY=0
+    fi
+
+    if [ "$PRINT_SERVER_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        crit "$PACKAGE is installed and not a dependency"
+        return
+    fi
+
+    is_service_enabled "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        PRINT_SERVER_SERVICE_ENABLED=0
+        crit "$SERVICE is enabled"
+    fi
+
+    is_service_active "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        PRINT_SERVER_SERVICE_ACTIVE=0
+        crit "$SERVICE is active"
+    fi
+
+    is_socket_enabled "$SOCKET"
+    if [ "$FNRET" -eq 0 ]; then
+        PRINT_SERVER_SOCKET_ENABLED=0
+        crit "$SOCKET is enabled"
+    fi
+
+    is_socket_active "$SOCKET"
+    if [ "$FNRET" -eq 0 ]; then
+        PRINT_SERVER_SOCKET_ACTIVE=0
+        crit "$SOCKET is active"
+    fi
+
+    if [ "$PRINT_SERVER_SERVICE_ENABLED" -ne 0 ] &&
+        [ "$PRINT_SERVER_SERVICE_ACTIVE" -ne 0 ] &&
+        [ "$PRINT_SERVER_SOCKET_ENABLED" -ne 0 ] &&
+        [ "$PRINT_SERVER_SOCKET_ACTIVE" -ne 0 ]; then
+        ok "$PACKAGE is used as a dependency and $SERVICE/$SOCKET are not enabled/active"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed, purging it"
-            apt-get purge "$PACKAGE" -y
-            apt-get autoremove -y
-        else
-            ok "$PACKAGE is absent"
-        fi
-    done
+    if [ "$PRINT_SERVER_PKG_INSTALLED" -ne 0 ]; then
+        ok "$PACKAGE is not installed"
+        return
+    fi
+
+    if [ "$PRINT_SERVER_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        info "$PACKAGE is installed and not a dependency, removing it"
+        apt-get purge "$PACKAGE" -y
+        apt-get autoremove -y
+        return
+    fi
+
+    is_systemctl_running
+    if [ "$FNRET" -ne 0 ]; then
+        warn "systemd not running, cannot stop/mask $SERVICE and $SOCKET"
+        return
+    fi
+
+    if [ "$PRINT_SERVER_SERVICE_ENABLED" -eq 0 ] || [ "$PRINT_SERVER_SERVICE_ACTIVE" -eq 0 ] ||
+        [ "$PRINT_SERVER_SOCKET_ENABLED" -eq 0 ] || [ "$PRINT_SERVER_SOCKET_ACTIVE" -eq 0 ]; then
+        info "Stopping and masking $SERVICE and $SOCKET"
+        systemctl stop "$SERVICE" "$SOCKET" || true
+        systemctl mask "$SERVICE" "$SOCKET"
+    else
+        ok "$SERVICE and $SOCKET already not enabled/active"
+    fi
 }
 
 # This function will check config parameters required

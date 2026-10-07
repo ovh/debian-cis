@@ -20,9 +20,12 @@ DESCRIPTION="Checking Message Authentication Code ciphers for preferred UMAC and
 PACKAGE='openssh-server'
 OPTIONS=''
 FILE='/etc/ssh/sshd_config'
+SSH_CRY_MACS_OK=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    SSH_CRY_MACS_OK=0
+
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         ok "$PACKAGE is not installed!"
@@ -30,20 +33,46 @@ audit() {
         ok "$PACKAGE is installed"
         for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
-            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
-            PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-            does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
-            if [ "$FNRET" = 0 ]; then
-                ok "$PATTERN is present in $FILE"
-            else
-                crit "$PATTERN is not present in $FILE"
+            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2-)
+
+            SSH_MACS_LINE=$($SUDO_CMD grep -i -- "^${SSH_PARAM}[[:space:]]" "$FILE" | tail -n 1)
+            if [ -z "$SSH_MACS_LINE" ]; then
+                crit "$SSH_PARAM is not present in $FILE"
+                SSH_CRY_MACS_OK=1
+                continue
             fi
+
+            SSH_MACS_VALUE=$(echo "$SSH_MACS_LINE" | sed -E "s/^[[:space:]]*${SSH_PARAM}[[:space:]]+//I")
+            SSH_MACS_NORMALIZED=$(echo "$SSH_MACS_VALUE" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+
+            local IFS=','
+            for SSH_MAC in $SSH_VALUE; do
+                SSH_MAC_NORMALIZED=$(echo "$SSH_MAC" | tr '[:upper:]' '[:lower:]')
+                case ",$SSH_MACS_NORMALIZED," in
+                *",$SSH_MAC_NORMALIZED,"*)
+                    ok "$SSH_MAC is present in $FILE"
+                    ;;
+                *)
+                    crit "$SSH_MAC is not present in $FILE"
+                    SSH_CRY_MACS_OK=1
+                    ;;
+                esac
+            done
         done
+
+        if [ "$SSH_CRY_MACS_OK" != 0 ]; then
+            crit "One or more required MAC algorithms are not present in $FILE"
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
+    if [ "$SSH_CRY_MACS_OK" = 0 ]; then
+        ok "Required MAC algorithms are already present in $FILE"
+        return
+    fi
+
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" = 0 ]; then
         ok "$PACKAGE is installed"
@@ -53,22 +82,17 @@ apply() {
     fi
     for SSH_OPTION in $OPTIONS; do
         SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
-        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
-        PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-        does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            ok "$PATTERN is present in $FILE"
+        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2-)
+
+        does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}[[:space:]]"
+        if [ "$FNRET" != 0 ]; then
+            add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
         else
-            warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
-            if [ "$FNRET" != 0 ]; then
-                add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
-            else
-                info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
-            fi
-            /etc/init.d/ssh reload >/dev/null 2>&1
+            info "Parameter $SSH_PARAM is present but not fully compliant -- Fixing"
+            replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
         fi
+
+        /etc/init.d/ssh reload >/dev/null 2>&1
     done
 
 }

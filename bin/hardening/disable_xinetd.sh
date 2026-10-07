@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure xinetd is not enabled (Scored)
+# Ensure xinetd services are not in use (Automated)
 #
 
 set -e # One error, it's over
@@ -15,29 +15,85 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure xinetd is not enabled."
+DESCRIPTION="Ensure xinetd services are not in use."
 
 PACKAGE='xinetd'
+SERVICE='xinetd.service'
+
+# Global state (0=true/success, 1=false/failure)
+XINETD_PKG_INSTALLED=1
+XINETD_PKG_IS_DEPENDENCY=1
+XINETD_SERVICE_ENABLED=1
+XINETD_SERVICE_ACTIVE=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    XINETD_PKG_INSTALLED=1
+    XINETD_PKG_IS_DEPENDENCY=1
+    XINETD_SERVICE_ENABLED=1
+    XINETD_SERVICE_ACTIVE=1
+
     is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        crit "$PACKAGE is installed"
+    if [ "$FNRET" -eq 0 ]; then
+        XINETD_PKG_INSTALLED=0
     else
-        ok "$PACKAGE is absent"
+        ok "$PACKAGE is not installed"
+        return
+    fi
+
+    is_pkg_a_dependency "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        XINETD_PKG_IS_DEPENDENCY=0
+    fi
+
+    if [ "$XINETD_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        crit "$PACKAGE is installed and not a dependency"
+        return
+    fi
+
+    is_service_enabled "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        XINETD_SERVICE_ENABLED=0
+        crit "$SERVICE is enabled"
+    fi
+
+    is_service_active "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        XINETD_SERVICE_ACTIVE=0
+        crit "$SERVICE is active"
+    fi
+
+    if [ "$XINETD_SERVICE_ENABLED" -ne 0 ] && [ "$XINETD_SERVICE_ACTIVE" -ne 0 ]; then
+        ok "$PACKAGE is used as a dependency and $SERVICE is not enabled/active"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        warn "$PACKAGE is installed, purging"
+    if [ "$XINETD_PKG_INSTALLED" -ne 0 ]; then
+        ok "$PACKAGE is not installed"
+        return
+    fi
+
+    if [ "$XINETD_PKG_IS_DEPENDENCY" -ne 0 ]; then
+        info "$PACKAGE is installed and not a dependency, removing it"
         apt-get purge "$PACKAGE" -y
-        apt-get autoremove
+        apt-get autoremove -y
+        return
+    fi
+
+    is_systemctl_running
+    if [ "$FNRET" -ne 0 ]; then
+        warn "systemd not running, cannot stop/mask $SERVICE"
+        return
+    fi
+
+    if [ "$XINETD_SERVICE_ENABLED" -eq 0 ] || [ "$XINETD_SERVICE_ACTIVE" -eq 0 ]; then
+        info "Stopping and masking $SERVICE"
+        systemctl stop "$SERVICE" || true
+        systemctl mask "$SERVICE"
     else
-        ok "$PACKAGE is absent"
+        ok "$SERVICE already not enabled/active"
     fi
 }
 

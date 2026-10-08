@@ -257,6 +257,10 @@ For checks that are intentionally **manual remediation only** (script `apply()` 
 3. Re-audit and verify `retvalshouldbe 0`
 4. Restore/cleanup
 
+**Packaging exception:** When multiple tests require installing "gdm" or "gdm3":
+- Remove the package and its dependencies only at the end of the last test (avoids redundant reinstalls)
+- Prefix both the check script (`bin/hardening/`) and test file (`tests/hardening/`) with `gdm_` for easy identification (e.g., `gdm_check_name.sh`)
+
 ### Key rules
 
 - `retvalshouldbe 0` = compliant, `retvalshouldbe 1` = non-compliant

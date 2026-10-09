@@ -42,3 +42,6 @@ jobs:
       
       - name: Run bin/hardening.sh '--audit-all-enable-passed' tests
         run: bash tests/engine/test_audit_all_enable.sh
+
+      - name: Check module availability against kernel configuration fixtures
+        run: bash tests/engine/test_module_availability.sh

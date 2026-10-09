@@ -42,3 +42,21 @@ jobs:
       
       - name: Run bin/hardening.sh '--audit-all-enable-passed' tests
         run: bash tests/engine/test_audit_all_enable.sh
+
+      - name: Regression audit integrity
+        run: bash tests/engine/test_audit_integrity.sh
+
+      - name: Regression cli validation
+        run: bash tests/engine/test_cli_validation.sh
+
+      - name: Regression common results
+        run: bash tests/engine/test_common_results.sh
+
+      - name: Regression config status
+        run: bash tests/engine/test_config_status.sh
+
+      - name: Regression package results
+        run: bash tests/engine/test_package_results.sh
+
+      - name: Regression paths with spaces
+        run: bash tests/engine/test_paths_with_spaces.sh

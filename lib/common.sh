@@ -123,10 +123,11 @@ exception() {
 # for the specified command
 #
 sudo_wrapper() {
-    if sudo -l "$@" >/dev/null 2>&1; then
+    if sudo -n -l "$@" >/dev/null 2>&1; then
         sudo -n "$@"
     else
-        crit "Not allowed to \"sudo -n $*\" "
+        crit "Not allowed to \"sudo -n $*\" " >&2
+        return 1
     fi
 }
 
@@ -136,8 +137,6 @@ sudo_wrapper() {
 
 div() {
     local _d=${3:-2}
-    local _n=0000000000
-    _n=${_n:0:$_d}
     if (($1 == 0)); then
         echo "0"
         return
@@ -146,7 +145,7 @@ div() {
         echo "N.A"
         return
     fi
-    local _r=$(($1$_n / $2))
-    _r=${_r:0:-$_d}.${_r: -$_d}
-    echo "$_r"
+    local _scale=$((10 ** _d))
+    local _r=$(($1 * _scale / $2))
+    printf '%d.%0*d\n' "$((_r / _scale))" "$_d" "$((_r % _scale))"
 }

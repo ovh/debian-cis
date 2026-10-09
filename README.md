@@ -283,3 +283,24 @@ Additionally, quoting the License:
 ## :page_facing_up: License
 
 Apache, Version 2.0
+
+## Audit result handling
+
+The launcher rejects missing option values, incompatible execution modes and unknown
+`--only` selectors with exit status 2. Use `--allow-service-list` to discover service
+exceptions, then combine `--allow-service NAME` with `--set-hardening-level LEVEL`.
+Service exceptions disable their associated checks. Status changes update the
+canonical configuration and preserve versioned configuration symlinks.
+
+A completed audit retains the historical launcher exit status 0, including when
+checks report non-compliance. Inspect the summary to determine compliance; exit 0
+alone is not a compliance verdict. Unexpected child exit statuses produce an
+`error_checks` count and launcher exit status 3, as do failures to enable passing
+checks. Individual check statuses remain 0 (pass), 1 (failure) and 2 (disabled).
+Invalid check configuration is reported as a failure.
+
+JSON summaries include `failed_checks` and `error_checks` alongside existing fields.
+Batch summaries include `ERROR_CHECKS`. Consumers should check these fields before
+interpreting the conformity percentage. A failed APT simulation is reported as
+unknown/failing and cannot trigger an upgrade. Package audits may still refresh
+APT metadata; audit mode is not a guarantee that every operation is read-only.

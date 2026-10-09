@@ -131,6 +131,12 @@ fi
 # shellcheck source=/dev/null
 [ -r "${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg ] && . "${CIS_CONF_DIR}"/conf.d/"$SCRIPT_NAME".cfg
 
+# Do not let --audit/--audit-all turn a misspelled configuration into a passing audit.
+if [ -n "$status" ] && [[ ! "$status" =~ ^(enabled|true|audit|disabled|false)$ ]]; then
+    crit "Wrong value for status : $status. Must be [ enabled | true | audit | disabled | false ]"
+    exit 1
+fi
+
 # Now check configured value for status, and potential cmdline parameter
 if [ "$forcedstatus" = "auditall" ]; then
     # We want to audit even disabled script, so override config value in any case
@@ -175,7 +181,7 @@ disabled | false)
     exit 2 # Means unknown status
     ;;
 *)
-    warn "Wrong value for status : $status. Must be [ enabled | true | audit | disabled | false ]"
+    crit "Wrong value for status : $status. Must be [ enabled | true | audit | disabled | false ]"
     ;;
 esac
 

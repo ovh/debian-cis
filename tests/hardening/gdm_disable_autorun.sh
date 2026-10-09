@@ -34,7 +34,4 @@ test_audit() {
     rm -rf /etc/dconf/db/local
     rm -f /etc/dconf/profile/user
 
-    describe Removing GDM package
-    DEBIAN_FRONTEND=noninteractive apt-get remove -y gdm3 || true
-    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y || true
 }

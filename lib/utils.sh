@@ -610,12 +610,23 @@ add_option_to_fstab() {
     local PARTITION=$1
     local OPTION=$2
     debug "Setting $OPTION for $PARTITION in fstab"
+    # A fstab entry is <device> <mount point> <type> <options> <dump> <pass>.
+    # Anchor on the first four fields so the option is only ever appended to
+    # the options field, and never to a filesystem type that happens to hold
+    # a comma. For example :
+    # /dev/sda9       /home           ext4         auto,acl,errors=remount-ro         0  2
+    # /dev/sda9       /home           ext4         auto,acl,errors=remount-ro,nodev   0  2
+    # /dev/cdrom      /media/cdrom0   udf,iso9660  user,noauto                        0  0
+    # /dev/cdrom      /media/cdrom0   udf,iso9660  user,noauto,noexec                 0  0
+    if grep -E "^[[:space:]]*[^#[:space:]]+[[:space:]]+${PARTITION}[[:space:]]" /etc/fstab |
+        awk '{ print "," $4 "," }' | grep -q ",${OPTION},"; then
+        debug "$OPTION is already set for $PARTITION in fstab"
+        return
+    fi
     backup_file "/etc/fstab"
-    # For example :
-    # /dev/sda9       /home           ext4  auto,acl,errors=remount-ro  0       2
-    # /dev/sda9       /home           ext4  auto,acl,errors=remount-ro,nodev  0       2
-    debug "Sed command :  sed -ie \"s;\(.*\)\(\s*\)\s\($PARTITION\)\s\(\s*\)\(\w*\)\(\s*\)\(\w*\)*;\1\2 \3 \4\5\6\7,$OPTION;\" /etc/fstab"
-    sed -ie "s;\(.*\)\(\s*\)\s\($PARTITION\)\s\(\s*\)\(\w*\)\(\s*\)\(\w*\)*;\1\2 \3 \4\5\6\7,$OPTION;" /etc/fstab
+    local FSTAB_ENTRY="^([[:space:]]*[^#[:space:]]+[[:space:]]+${PARTITION}[[:space:]]+[^[:space:]]+[[:space:]]+[^[:space:]]+)"
+    debug "Sed command :  sed -i -E \"s;${FSTAB_ENTRY};\\1,${OPTION};\" /etc/fstab"
+    sed -i -E "s;${FSTAB_ENTRY};\1,${OPTION};" /etc/fstab
 }
 
 remount_partition() {

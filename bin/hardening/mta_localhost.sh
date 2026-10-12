@@ -18,58 +18,48 @@ HARDENING_LEVEL=3
 DESCRIPTION="Configure Mail Transfert Agent for Local-Only Mode."
 # shellcheck disable=2034
 HARDENING_EXCEPTION=mail
+MTA_PORTS=""
+MTA_LISTENING_EXTERNAL=1 # false
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    is_pkg_installed net-tools
-    if [ "$FNRET" != 0 ]; then
-        warn "netstat not installed, cannot execute check"
-        exit 2
-    else
-        info "Checking netport ports opened"
-        RESULT=$($SUDO_CMD netstat -an | grep LIST | grep ":25[[:space:]]") || :
-        RESULT=${RESULT:-}
-        debug "Result is $RESULT"
+    info "Checking MTA ports opened"
+    for port in $MTA_PORTS; do
+        RESULT=$($SUDO_CMD ss -nltu | awk -v port="$port" '$5 ~ ":"port"$" {print $5}')
         if [ -z "$RESULT" ]; then
-            ok "Nothing listens on 25 port, probably unix socket configured"
+            ok "Nothing listens on port(s) $port"
+        elif grep -qE "^127.0.*:$port$" <<<"$RESULT"; then
+            ok "MTA is configured to localhost only on port $port"
         else
-            info "Checking $RESULT"
-            if grep -q "127.0.0.1" <<<"$RESULT"; then
-                ok "MTA is configured to localhost only"
-            else
-                crit "MTA listens worldwide"
-            fi
+            crit "MTA listens worldwide on port $port"
+            MTA_LISTENING_EXTERNAL=0
         fi
-    fi
+    done
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed net-tools
-    if [ "$FNRET" != 0 ]; then
-        warn "netstat not installed, cannot execute check"
-        exit 2
-    else
-        info "Checking netport ports opened"
-        RESULT=$(netstat -an | grep LIST | grep ":25[[:space:]]") || :
-        RESULT=${RESULT:-}
-        debug "Result is $RESULT"
-        if [ -z "$RESULT" ]; then
-            ok "Nothing listens on 25 port, probably unix socket configured"
-        else
-            info "Checking $RESULT"
-            if grep -q "127.0.0.1" <<<"$RESULT"; then
-                ok "MTA is configured to localhost only"
-            else
-                warn "MTA listens worldwide, correct this considering your MTA"
-            fi
-        fi
+
+    if [ "$MTA_LISTENING_EXTERNAL" -eq 0 ]; then
+        info "Please update your MTA configuration"
     fi
+}
+
+create_config() {
+    # we try to put as default all services that should be running according to the CIS recommendation
+    cat <<EOF
+status=audit
+# Put your mail transfert agent ports configuration here, space separated
+# ex: MTA_PORTS="25 465 587"
+MTA_PORTS="25"
+EOF
 }
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$MTA_PORTS" ]; then
+        MTA_PORTS="25"
+    fi
 }
 
 # Source Root Dir Parameter

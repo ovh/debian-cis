@@ -1,1 +1,0 @@
-../../bin/hardening/disable_wireless.sh

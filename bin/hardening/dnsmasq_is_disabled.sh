@@ -30,6 +30,7 @@ audit() {
     PACKAGE_INSTALLED=1
     PACKAGE_IS_DEPENDENCY=1
     SERVICE_ENABLED=1
+    SERVICE_ACTIVE=1
 
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" -eq 0 ]; then
@@ -46,10 +47,29 @@ audit() {
         SERVICE_ENABLED=0
     fi
 
+    is_service_active "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        SERVICE_ACTIVE=0
+    fi
+
     if [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 1 ]; then
         crit "$PACKAGE is installed and not a dependency"
-    elif [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 0 ] && [ "$SERVICE_ENABLED" -eq 0 ]; then
-        crit "$SERVICE is enabled"
+
+    elif [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 0 ]; then
+        active=1
+        if [ "$SERVICE_ENABLED" -eq 0 ]; then
+            active=0
+            crit "$SERVICE is enabled"
+        fi
+
+        if [ "$SERVICE_ACTIVE" -eq 0 ]; then
+            active=0
+            crit "$SERVICE is active"
+        fi
+
+        if [ "$active" -eq 1 ]; then
+            ok "$PACKAGE is not in use"
+        fi
     else
         ok "$PACKAGE is not in use"
     fi
@@ -59,12 +79,14 @@ audit() {
 apply() {
     if [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 1 ]; then
         crit "$PACKAGE is installed and not a dependency, removing it"
-        apt-get purge "$PACKAGE" -y
+        apt_remove "$PACKAGE" -y
         apt-get autoremove -y
-    elif [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 0 ] && [ "$SERVICE_ENABLED" -eq 0 ]; then
-        crit "$SERVICE is enabled, i'm going to stop and mask it"
-        systemctl stop "$SERVICE"
-        systemctl mask "$SERVICE"
+    elif [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 0 ]; then
+        if [ "$SERVICE_ENABLED" -eq 0 ] || [ "$SERVICE_ACTIVE" -eq 0 ]; then
+            info "Stopping and masking $SERVICE"
+            systemctl stop "$SERVICE"
+            systemctl mask "$SERVICE"
+        fi
     else
         ok "$PACKAGE is not in use"
     fi

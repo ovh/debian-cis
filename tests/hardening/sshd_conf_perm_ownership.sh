@@ -49,4 +49,6 @@ test_audit() {
     apt-get remove -y openssh-server >/dev/null 2>&1 || true
     apt-get autoremove -y >/dev/null 2>&1 || true
     userdel "$test_user"
+    chmod 0644 "$test_file"
+    chown root:root "$test_file"
 }

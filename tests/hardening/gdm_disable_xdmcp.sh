@@ -47,8 +47,4 @@ test_audit() {
         sed -i '/#Enable=true/d' "$gdm_conf_dir/daemon.conf"
     fi
 
-    # Remove package and dependencies
-    apt-get remove -y "$gdm_pkg" || true
-    apt-get autoremove -y || true
-
 }

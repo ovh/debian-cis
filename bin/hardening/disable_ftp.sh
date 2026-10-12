@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure FTP Server is not enabled (Scored)
+# Ensure ftp server services are not in use (Automated)
 #
 
 set -e # One error, it's over
@@ -15,37 +15,78 @@ set -u # One variable unset, it's over
 # shellcheck disable=2034
 HARDENING_LEVEL=3
 # shellcheck disable=2034
-DESCRIPTION="Ensure File Transfer Protocol (ftp) is not enabled."
+DESCRIPTION="Ensure ftp server services are not in use."
 # shellcheck disable=2034
 HARDENING_EXCEPTION=ftp
 
-# Based on aptitude search '~Pftp-server'
-PACKAGES='ftpd ftpd-ssl heimdal-servers inetutils-ftpd krb5-ftpd muddleftpd proftpd-basic pure-ftpd pure-ftpd-ldap pure-ftpd-mysql pure-ftpd-postgresql twoftpd-run vsftpd wzdftpd'
+PACKAGE='vsftpd'
+SERVICE='vsftpd.service'
+
+# 2 scenario here:
+# - vsftpd is a dependency for another package -> disable the service
+# - vsftpd is not a dependency for another package -> remove the package
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed!"
-        else
-            ok "$PACKAGE is absent"
+    PACKAGE_INSTALLED=1
+    PACKAGE_IS_DEPENDENCY=1
+    SERVICE_ENABLED=1
+    SERVICE_ACTIVE=1
+
+    is_pkg_installed "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        PACKAGE_INSTALLED=0
+    fi
+
+    is_pkg_a_dependency "$PACKAGE"
+    if [ "$FNRET" -eq 0 ]; then
+        PACKAGE_IS_DEPENDENCY=0
+    fi
+
+    is_service_enabled "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        SERVICE_ENABLED=0
+    fi
+
+    is_service_active "$SERVICE"
+    if [ "$FNRET" -eq 0 ]; then
+        SERVICE_ACTIVE=0
+    fi
+
+    if [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 1 ]; then
+        crit "$PACKAGE is installed and not a dependency"
+
+    elif [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 0 ]; then
+        active=1
+        if [ "$SERVICE_ENABLED" -eq 0 ]; then
+            active=0
+            crit "$SERVICE is enabled"
         fi
-    done
+
+        if [ "$SERVICE_ACTIVE" -eq 0 ]; then
+            active=0
+            crit "$SERVICE is active"
+        fi
+
+        if [ "$active" -eq 1 ]; then
+            ok "$PACKAGE is not used"
+        fi
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for PACKAGE in $PACKAGES; do
-        is_pkg_installed "$PACKAGE"
-        if [ "$FNRET" = 0 ]; then
-            crit "$PACKAGE is installed, purging it"
-            apt-get purge "$PACKAGE" -y
-            apt-get autoremove -y
-        else
-            ok "$PACKAGE is absent"
+    if [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 1 ]; then
+        crit "$PACKAGE is installed and not a dependency, removing it"
+        apt_remove "$PACKAGE" -y
+        apt-get autoremove -y
+    elif [ "$PACKAGE_INSTALLED" -eq 0 ] && [ "$PACKAGE_IS_DEPENDENCY" -eq 0 ]; then
+        if [ "$SERVICE_ENABLED" -eq 0 ] || [ "$SERVICE_ACTIVE" -eq 0 ]; then
+            info "Stopping and masking $SERVICE"
+            systemctl stop "$SERVICE"
+            systemctl mask "$SERVICE"
         fi
-    done
+    fi
 }
 
 # This function will check config parameters required

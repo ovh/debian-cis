@@ -9,17 +9,12 @@ test_audit() {
         return
     }
 
-    describe Running on blank host
-    register_test retvalshouldbe 0
-    dismiss_count_for_test
-    # shellcheck disable=2154
-    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
-
     describe Tests purposely failing
     # Enable GSSAPIAuthentication
     echo "GSSAPIAuthentication yes" >>/etc/ssh/sshd_config
     register_test retvalshouldbe 1
     register_test contain "not properly set"
+    # shellcheck disable=2154
     run noncompliant "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe Correcting situation

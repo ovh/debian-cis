@@ -97,8 +97,4 @@ EOF
         mv "$test_backup" "$test_file"
     fi
 
-    # Restore package state
-    if [ "$pkg_was_installed" -eq 0 ]; then
-        apt-get remove -y "$test_pkg" >/dev/null 2>&1 || true
-    fi
 }

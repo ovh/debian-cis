@@ -24,6 +24,4 @@ test_audit() {
     describe Restore/cleanup
     rm -f /etc/dconf/db/local.d/00-media-automount
 
-    DEBIAN_FRONTEND=noninteractive apt-get remove -y gdm3 || true
-    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y || true
 }

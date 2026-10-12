@@ -36,8 +36,4 @@ test_audit() {
     # Cleanup
     describe Removing test files
     rm -rf /etc/dconf/db/local.d/00-media-automount
-
-    describe Removing GDM package
-    DEBIAN_FRONTEND=noninteractive apt-get remove -y gdm3 || true
-    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y || true
 }

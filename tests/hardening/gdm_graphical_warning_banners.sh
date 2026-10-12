@@ -2,7 +2,6 @@
 # run-shellcheck
 test_audit() {
     gdm_pkg=""
-    gdm_installed_before=0
     profile_backup=""
     dbdir_backup=""
     dbfile_backup=""
@@ -17,10 +16,8 @@ test_audit() {
 
     if is_pkg_installed_for_test gdm3; then
         gdm_pkg="gdm3"
-        gdm_installed_before=1
     elif is_pkg_installed_for_test gdm; then
         gdm_pkg="gdm"
-        gdm_installed_before=1
     else
         for candidate_pkg in gdm3 gdm; do
             DEBIAN_FRONTEND=noninteractive apt-get install -y "$candidate_pkg" >/dev/null 2>&1 || true
@@ -89,8 +86,4 @@ test_audit() {
         rm -f "$dbfile_backup"
     fi
 
-    if [ "$gdm_installed_before" -eq 0 ]; then
-        apt-get purge -y "$gdm_pkg" >/dev/null 2>&1 || true
-        apt-get autoremove -y >/dev/null 2>&1 || true
-    fi
 }

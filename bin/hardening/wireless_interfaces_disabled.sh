@@ -17,39 +17,57 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Ensure wireless interfaces are disabled"
 
-# This function will be called if the script status is on enabled / audit mode
+WIRELESS_SYS_CLASS_NET="/sys/class/net"
+WIRELESS_MODPROBE_DIR="/etc/modprobe.d"
+WIRELESS_MODULES=()
+
+# A driver attached to an existing wireless interface is already active. A
+# modprobe blacklist does not disable that interface or unload its driver.
 audit() {
-    AVAILABLE_MODULES=""
-
-    wireless_drivers=$(find /sys/class/net/*/ -type d -name wireless)
-    if [ "$(wc -w <<<"$wireless_drivers")" -gt 0 ]; then
-        # not the most readable syntax, took as is from the CIS pdf (just changed the vars name)
-        for module in $(for wireless_driver in $(find /sys/class/net/*/ -type d -name wireless | xargs -0 dirname); do readlink -f "$wireless_driver"/device/driver/module; done); do
-
-            is_kernel_module_available "$module"
-            if [ "$FNRET" -eq 0 ]; then
-                # is available in kernel config, but may be disabled in modprobe
-                is_kernel_module_disabled "$module"
-                if [ "$FNRET" -eq 1 ]; then
-                    AVAILABLE_MODULES="$AVAILABLE_MODULES $module"
-                fi
-            fi
-        done
+    local interface module_path module
+    local -A seen=()
+    WIRELESS_MODULES=()
+    if [ ! -d "$WIRELESS_SYS_CLASS_NET" ]; then
+        crit "Cannot inspect network interfaces: $WIRELESS_SYS_CLASS_NET is missing"
+        return
     fi
-
-    if [ -n "$AVAILABLE_MODULES" ]; then
-        crit "There are some wireless modules available: $AVAILABLE_MODULES"
-    else
-        ok "There are no wireless modules available"
+    for interface in "$WIRELESS_SYS_CLASS_NET"/*; do
+        if [ ! -d "$interface/wireless" ]; then
+            continue
+        fi
+        if ! module_path=$(readlink -e -- "$interface/device/driver/module"); then
+            crit "Cannot identify a loadable driver for wireless interface ${interface##*/}; disable it manually"
+            continue
+        fi
+        module=${module_path##*/}
+        if [[ ! "$module" =~ ^[[:alnum:]_-]+$ ]]; then
+            crit "Invalid wireless module name for ${interface##*/}"
+            continue
+        fi
+        crit "Wireless interface ${interface##*/} has active driver $module"
+        if [ -z "${seen[$module]:-}" ]; then
+            WIRELESS_MODULES+=("$module")
+            seen[$module]=1
+        fi
+    done
+    if [ "${#WIRELESS_MODULES[@]}" -eq 0 ]; then
+        info "No loadable wireless drivers identified; unresolved interfaces require manual review"
     fi
-
 }
 
-# This function will be called if the script status is on enabled mode
+# Configure future loads only: unloading a live driver can interrupt connectivity.
+# The audit continues to fail while a wireless interface remains present.
 apply() {
-    for module in $AVAILABLE_MODULES ]; do
-        echo "install $module /bin/true" >>/etc/modprobe.d/"$module".conf
-        info "$module has been disabled in modprobe configuration"
+    local module config rule
+    for module in "${WIRELESS_MODULES[@]}"; do
+        mkdir -p -- "$WIRELESS_MODPROBE_DIR"
+        config="$WIRELESS_MODPROBE_DIR/cis-wireless-$module.conf"
+        for rule in "install $module /bin/false" "blacklist $module"; do
+            if [ ! -f "$config" ] || ! grep -qxF -- "$rule" "$config"; then
+                printf '%s\n' "$rule" >>"$config"
+            fi
+        done
+        info "$module is blocked for future loads; reboot or disable the active interface manually"
     done
 }
 

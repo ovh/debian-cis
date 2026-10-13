@@ -15,6 +15,7 @@ SCRIPT_NAME=${LONG_SCRIPT_NAME%.sh}
 DISABLED_CHECKS=0
 PASSED_CHECKS=0
 FAILED_CHECKS=0
+ERROR_CHECKS=0
 TOTAL_CHECKS=0
 TOTAL_TREATED_CHECKS=0
 AUDIT=0
@@ -24,6 +25,7 @@ AUDIT_ALL_ENABLE_PASSED=0
 CREATE_CONFIG=0
 ALLOW_SERVICE_LIST=0
 SET_HARDENING_LEVEL=0
+SET_HARDENING_LEVEL_REQUESTED=0
 SUDO_MODE=''
 BATCH_MODE=''
 SUMMARY_JSON=''
@@ -131,6 +133,17 @@ EOF
     exit 0
 }
 
+argument_error() {
+    printf 'Error: %s\n' "$*" >&2
+    exit 2
+}
+
+require_value() {
+    if [ "$#" -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        argument_error "$1 requires a value"
+    fi
+}
+
 if [ $# = 0 ]; then
     usage
 fi
@@ -160,22 +173,29 @@ while [[ $# -gt 0 ]]; do
         CREATE_CONFIG=1
         ;;
     --allow-service)
+        require_value "$@"
         ALLOWED_SERVICES_LIST[${#ALLOWED_SERVICES_LIST[@]}]="$2"
         shift
         ;;
     --set-hardening-level)
+        require_value "$@"
         SET_HARDENING_LEVEL="$2"
+        SET_HARDENING_LEVEL_REQUESTED=1
         shift
         ;;
     --set-log-level)
+        require_value "$@"
         ASK_LOGLEVEL=$2
         shift
         ;;
     --set-version)
+        require_value "$@"
         USED_VERSION=$2
         shift
         ;;
     --only)
+        require_value "$@"
+        [[ "$2" =~ ^[0-9]+(\.[0-9]+)*$ ]] || argument_error "--only expects a numbered check prefix"
         TEST_LIST[${#TEST_LIST[@]}]="$2"_
         shift
         ;;
@@ -197,15 +217,51 @@ while [[ $# -gt 0 ]]; do
         usage
         ;;
     *)
-        usage
+        argument_error "Unknown argument: $ARG"
         ;;
     esac
     shift
 done
 
-# if no RUN_MODE was passed, usage and quit
-if [ "$AUDIT" -eq 0 ] && [ "$AUDIT_ALL" -eq 0 ] && [ "$AUDIT_ALL_ENABLE_PASSED" -eq 0 ] && [ "$APPLY" -eq 0 ] && [ "$CREATE_CONFIG" -eq 0 ] && [ "$SET_HARDENING_LEVEL" -eq 0 ]; then
-    usage
+# Reject contradictory requests before reading or changing configuration.
+RUN_MODE_COUNT=$((AUDIT + AUDIT_ALL + AUDIT_ALL_ENABLE_PASSED + APPLY))
+if [ "$RUN_MODE_COUNT" -gt 1 ]; then
+    argument_error "Select exactly one audit or apply mode"
+fi
+if [ "$SET_HARDENING_LEVEL_REQUESTED" = 1 ]; then
+    [[ "$SET_HARDENING_LEVEL" =~ ^[1-5]$ ]] || argument_error "Hardening level must be between 1 and 5"
+fi
+if [ "$RUN_MODE_COUNT" -gt 0 ] && { [ "$CREATE_CONFIG" = 1 ] || [ "$SET_HARDENING_LEVEL_REQUESTED" = 1 ] || [ "$ALLOW_SERVICE_LIST" = 1 ]; }; then
+    argument_error "Audit/apply modes cannot be combined with configuration modes"
+fi
+# --create-config-files-only is intentionally compatible with --set-hardening-level;
+# the existing engine contract relies on this combination to initialize configs.
+if [ "$ALLOW_SERVICE_LIST" = 1 ] && { [ "$CREATE_CONFIG" = 1 ] || [ "$SET_HARDENING_LEVEL_REQUESTED" = 1 ]; }; then
+    argument_error "--allow-service-list cannot be combined with configuration changes"
+fi
+if [ "$RUN_MODE_COUNT" -eq 0 ] && [ "$CREATE_CONFIG" = 0 ] && [ "$SET_HARDENING_LEVEL_REQUESTED" = 0 ] && [ "$ALLOW_SERVICE_LIST" = 0 ]; then
+    argument_error "An audit, apply or configuration mode is required"
+fi
+
+# --sudo is only meaningful for read-only audit modes. In particular,
+# --audit-all-enable-passed writes configuration and must not be accepted here.
+if [ -n "$SUDO_MODE" ] && [ "$AUDIT" -eq 0 ] && [ "$AUDIT_ALL" -eq 0 ]; then
+    argument_error "--sudo only supports --audit and --audit-all"
+fi
+if [ -n "$BATCH_MODE" ] && [ -n "$SUMMARY_JSON" ]; then
+    argument_error "--batch and --summary-json cannot be combined"
+fi
+if { [ -n "$BATCH_MODE" ] || [ -n "$SUMMARY_JSON" ]; } && [ "$AUDIT" -eq 0 ] && [ "$AUDIT_ALL" -eq 0 ] && [ "$AUDIT_ALL_ENABLE_PASSED" -eq 0 ]; then
+    argument_error "--batch and --summary-json require an audit mode"
+fi
+if [ "${#ALLOWED_SERVICES_LIST[@]}" -gt 0 ] && [ "$SET_HARDENING_LEVEL_REQUESTED" = 0 ]; then
+    argument_error "--allow-service requires --set-hardening-level"
+fi
+if [ -n "$ASK_LOGLEVEL" ] && [[ ! "$ASK_LOGLEVEL" =~ ^(silent|error|warning|ok|info|debug)$ ]]; then
+    argument_error "Unknown log level: $ASK_LOGLEVEL"
+fi
+if [ "${#TEST_LIST[@]}" -gt 0 ] && { [ "$SET_HARDENING_LEVEL_REQUESTED" = 1 ] || [ "$ALLOW_SERVICE_LIST" = 1 ]; }; then
+    argument_error "--only cannot be combined with this configuration mode"
 fi
 
 # Source Root Dir Parameter
@@ -242,6 +298,19 @@ fi
 
 # update path for the remaining of the script
 CIS_CHECKS_DIR="$CIS_VERSIONS_DIR/$USED_VERSION"
+
+# A typo in --only must not silently produce an empty, successful audit.
+for selector in "${TEST_LIST[@]}"; do
+    found=0
+    while IFS= read -r -d '' SCRIPT; do
+        name=${SCRIPT##*/}
+        if [ "${name%%_*}_" = "$selector" ]; then
+            found=1
+            break
+        fi
+    done < <(find "${CIS_CHECKS_DIR}"/ -name "*.sh" -print0)
+    [ "$found" = 1 ] || argument_error "No check matches --only ${selector%_}"
+done
 
 if [ "$DISTRIBUTION" != "debian" ]; then
     echo "Your distribution has been identified as $DISTRIBUTION which is not debian"
@@ -280,37 +349,67 @@ fi
 # If --allow-service-list is specified, don't run anything, just list the supported services
 if [ "$ALLOW_SERVICE_LIST" = 1 ]; then
     declare -a HARDENING_EXCEPTIONS_LIST
-    for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
+    while IFS= read -r -d '' SCRIPT; do
         template=$(grep "^HARDENING_EXCEPTION=" "$SCRIPT" | cut -d= -f2)
         [ -n "$template" ] && HARDENING_EXCEPTIONS_LIST[${#HARDENING_EXCEPTIONS_LIST[@]}]="$template"
-    done
+    done < <(find "${CIS_CHECKS_DIR}"/ -name "*.sh" -print0 | sort -zV)
     echo "Supported services are:" "$(echo "${HARDENING_EXCEPTIONS_LIST[@]}" | tr " " "\n" | sort -u | tr "\n" " ")"
     exit 0
 fi
 
-# If --set-hardening-level is specified, don't run anything, just apply config for each script
-if [ -n "$SET_HARDENING_LEVEL" ] && [ "$SET_HARDENING_LEVEL" != 0 ]; then
-    if ! grep -q "^[12345]$" <<<"$SET_HARDENING_LEVEL"; then
-        echo "Bad --set-hardening-level specified ('$SET_HARDENING_LEVEL'), expected 1 to 5"
-        exit 1
-    fi
+# Keep one canonical status file and ensure the versioned alias exists whenever
+# the selected check is reached through a version symlink.
+set_script_status() {
+    local target name cfg
+    target=$(readlink -f -- "$1") || return 1
+    name=$(basename "$target" .sh)
+    cfg="${CIS_CONF_DIR}/conf.d/$name.cfg"
 
-    for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
-        SCRIPT_BASENAME=$(basename "$SCRIPT" .sh)
-        script_level=$(grep "^HARDENING_LEVEL=" "$SCRIPT" | cut -d= -f2)
-        if [ -z "$script_level" ]; then
-            echo "The script $SCRIPT_BASENAME doesn't have a hardening level, configuration untouched for it"
-            continue
+    # Let main.sh create/repair the canonical configuration and its versioned
+    # symlink before editing the canonical status. This also repairs the case
+    # where the canonical file exists but the version alias was removed.
+    LOGLEVEL=$LOGLEVEL "$1" --create-config-files-only || return 1
+    [ -f "$cfg" ] || return 1
+
+    if grep -q '^status=' "$cfg"; then
+        sed --follow-symlinks -i -re "s/^status=.*/status=$2/" "$cfg"
+    else
+        printf '\nstatus=%s\n' "$2" >>"$cfg"
+    fi
+}
+
+# Select exceptions before writing any configuration, catching misspelled names.
+if [ "$SET_HARDENING_LEVEL_REQUESTED" = 1 ]; then
+    declare -a KNOWN_SERVICES=()
+    while IFS= read -r -d '' SCRIPT; do
+        template=$(sed -n 's/^HARDENING_EXCEPTION=//p' "$SCRIPT")
+        [ -z "$template" ] || KNOWN_SERVICES+=("$template")
+    done < <(find "${CIS_CHECKS_DIR}"/ -name "*.sh" -print0 | sort -zV)
+    for service in "${ALLOWED_SERVICES_LIST[@]}"; do
+        found=0
+        for template in "${KNOWN_SERVICES[@]}"; do
+            [ "$service" != "$template" ] || found=1
+        done
+        [ "$found" = 1 ] || argument_error "Unknown service exception: $service"
+    done
+    while IFS= read -r -d '' SCRIPT; do
+        script_level=$(grep '^HARDENING_LEVEL=' "$SCRIPT" | cut -d= -f2)
+        if [[ ! "$script_level" =~ ^[1-5]$ ]]; then
+            printf 'Invalid or missing hardening level: %s\n' "$SCRIPT" >&2
+            exit 1
         fi
         wantedstatus=disabled
-        [ "$script_level" -le "$SET_HARDENING_LEVEL" ] && wantedstatus=enabled
-        if [ -e "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg" ]; then
-            sed --follow-symlinks -i -re "s/^status=.+/status=$wantedstatus/" "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
-        else
-            echo "status=$wantedstatus" >"${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
+        [ "$script_level" -gt "$SET_HARDENING_LEVEL" ] || wantedstatus=enabled
+        template=$(sed -n 's/^HARDENING_EXCEPTION=//p' "$SCRIPT")
+        for service in "${ALLOWED_SERVICES_LIST[@]}"; do
+            [ "$service" != "$template" ] || wantedstatus=disabled
+        done
+        if ! set_script_status "$SCRIPT" "$wantedstatus"; then
+            printf 'Cannot update configuration for %s\n' "$SCRIPT" >&2
+            exit 1
         fi
-    done
-    echo "Configuration modified to enable scripts for hardening level at or below $SET_HARDENING_LEVEL"
+    done < <(find "${CIS_CHECKS_DIR}"/ -name "*.sh" -print0 | sort -zV)
+    echo "Configuration modified to enable scripts at or below the selected level, except allowed services"
     exit 0
 fi
 
@@ -320,7 +419,7 @@ if [ "$CREATE_CONFIG" = 1 ] && [ "$EUID" -ne 0 ]; then
 fi
 
 # Parse every scripts and execute them in the required mode
-for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
+while IFS= read -r -d '' SCRIPT; do
     if [ "${#TEST_LIST[@]}" -gt 0 ]; then
         # --only X has been specified at least once, is this script in my list ?
         SCRIPT_PREFIX=$(grep -Eo '^[0-9.]+' <<<"$(basename "$SCRIPT")")
@@ -359,9 +458,12 @@ for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
         debug "$SCRIPT passed"
         PASSED_CHECKS=$((PASSED_CHECKS + 1))
         if [ "$AUDIT_ALL_ENABLE_PASSED" = 1 ]; then
-            SCRIPT_BASENAME=$(basename "$SCRIPT" .sh)
-            sed -i -re 's/^status=.+/status=enabled/' "${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
-            info "Status set to enabled in ${CIS_CONF_DIR}/conf.d/$SCRIPT_BASENAME.cfg"
+            if set_script_status "$SCRIPT" enabled; then
+                info "Status set to enabled for $SCRIPT"
+            else
+                printf 'Cannot enable configuration for %s\n' "$SCRIPT" >&2
+                ERROR_CHECKS=$((ERROR_CHECKS + 1))
+            fi
         fi
         ;;
     1)
@@ -372,11 +474,15 @@ for SCRIPT in $(find "${CIS_CHECKS_DIR}"/ -name "*.sh" | sort -V); do
         debug "$SCRIPT is disabled"
         DISABLED_CHECKS=$((DISABLED_CHECKS + 1))
         ;;
+    *)
+        printf 'Check %s exited unexpectedly with status %s\n' "$SCRIPT" "$SCRIPT_EXITCODE" >&2
+        ERROR_CHECKS=$((ERROR_CHECKS + 1))
+        ;;
     esac
 
     TOTAL_CHECKS=$((TOTAL_CHECKS + 1))
 
-done
+done < <(find "${CIS_CHECKS_DIR}"/ -name "*.sh" -print0 | sort -zV)
 
 TOTAL_TREATED_CHECKS=$((TOTAL_CHECKS - DISABLED_CHECKS))
 
@@ -384,7 +490,8 @@ if [ "$BATCH_MODE" ]; then
     BATCH_SUMMARY="AUDIT_SUMMARY "
     BATCH_SUMMARY+="PASSED_CHECKS:${PASSED_CHECKS:-0} "
     BATCH_SUMMARY+="RUN_CHECKS:${TOTAL_TREATED_CHECKS:-0} "
-    BATCH_SUMMARY+="TOTAL_CHECKS_AVAIL:${TOTAL_CHECKS:-0}"
+    BATCH_SUMMARY+="TOTAL_CHECKS_AVAIL:${TOTAL_CHECKS:-0} "
+    BATCH_SUMMARY+="ERROR_CHECKS:${ERROR_CHECKS:-0}"
     if [ "$TOTAL_TREATED_CHECKS" != 0 ]; then
         CONFORMITY_PERCENTAGE=$(div $((PASSED_CHECKS * 100)) $TOTAL_TREATED_CHECKS)
         BATCH_SUMMARY+=" CONFORMITY_PERCENTAGE:$(printf "%s" "$CONFORMITY_PERCENTAGE")"
@@ -402,6 +509,8 @@ elif [ "$SUMMARY_JSON" ]; then
     printf '"available_checks": %s, ' "$TOTAL_CHECKS"
     printf '"run_checks": %s, ' "$TOTAL_TREATED_CHECKS"
     printf '"passed_checks": %s, ' "$PASSED_CHECKS"
+    printf '"failed_checks": %s, ' "$FAILED_CHECKS"
+    printf '"error_checks": %s, ' "$ERROR_CHECKS"
     printf '"conformity_percentage": %s' "$CONFORMITY_PERCENTAGE"
     printf '}\n'
 else
@@ -411,6 +520,8 @@ else
     printf "%30s [ %7s ]\n" "Total Passed Checks :" "$PASSED_CHECKS/$TOTAL_TREATED_CHECKS"
     printf "%30s [ %7s ]\n" "Total Failed Checks :" "$FAILED_CHECKS/$TOTAL_TREATED_CHECKS"
 
+    printf "%30s %s\n" "Execution Errors :" "$ERROR_CHECKS"
+
     ENABLED_CHECKS_PERCENTAGE=$(div $((TOTAL_TREATED_CHECKS * 100)) $TOTAL_CHECKS)
     CONFORMITY_PERCENTAGE=$(div $((PASSED_CHECKS * 100)) $TOTAL_TREATED_CHECKS)
     printf "%30s %s %%\n" "Enabled Checks Percentage :" "$ENABLED_CHECKS_PERCENTAGE"
@@ -419,4 +530,9 @@ else
     else
         printf "%30s %s %%\n" "Conformity Percentage :" "N.A" # No check runned, avoid division by 0
     fi
+fi
+
+# Preserve the historical status for completed audits, but never hide execution errors.
+if [ "$ERROR_CHECKS" -gt 0 ]; then
+    exit 3
 fi

@@ -40,7 +40,7 @@ audit() {
             if [ "$FNRET" -eq 0 ]; then
                 ok "$MODULE_NAME is disabled in the modprobe configuration"
             else
-                is_kernel_module_available "$CHECKED_MODULE"
+                is_kernel_module_available "$KERNEL_OPTION"
                 if [ "$FNRET" -eq 0 ]; then
                     crit "$MODULE_NAME is available in some kernel config, but not disabled"
                 else

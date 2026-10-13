@@ -21,14 +21,44 @@ test_audit() {
     register_test retvalshouldbe 1
     run failed "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
+    # Base chains of the bridge family filter no IP traffic, so persisting
+    # them is not what the recommendation asks for.
+    describe Running failed 'only bridge chains persisted'
+    cat >/etc/nftables.rules <<'EOF'
+table bridge cis_test {
+	chain input {
+		type filter hook input priority 0;
+	}
+	chain output {
+		type filter hook output priority 0;
+	}
+	chain forward {
+		type filter hook forward priority 0;
+	}
+}
+EOF
+    register_test retvalshouldbe 1
+    run failed "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
     describe Fixing final situation
-    echo 'hook input' >/etc/nftables.rules
-    echo 'hook output' >>/etc/nftables.rules
-    echo 'hook forward' >>/etc/nftables.rules
+    cat >/etc/nftables.rules <<'EOF'
+table inet cis_test {
+	chain input {
+		type filter hook input priority 0;
+		tcp dport { 22, 80 } accept
+	}
+	chain output {
+		type filter hook output priority 0;
+	}
+	chain forward {
+		type filter hook forward priority 0;
+	}
+}
+EOF
 
     describe Running success
     register_test retvalshouldbe 0
-    run failed "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    run success "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe clean test
     rm -f /etc/nftables.conf /etc/nftables.rules

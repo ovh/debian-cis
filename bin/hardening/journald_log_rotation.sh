@@ -19,13 +19,17 @@ DESCRIPTION="Ensure journald log file rotation is configured (Manual)"
 
 # we wont check the values, that are specific to each user, only that the parameters are present
 PARAMS_TO_CHECK="SystemMaxUse SystemKeepFree RuntimeMaxUse RuntimeKeepFree MaxFileSec"
+CONF_DIR="/etc/systemd/journald.conf.d"
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     JOURNALD_LOG_ROTATION_VALID=0
     files_to_check="/etc/systemd/journald.conf"
-    if [ -d /etc/systemd/journald.conf.d ]; then
-        files_to_check="$files_to_check $(ls /etc/systemd/journald.conf.d/*)"
+    if [ -d "$CONF_DIR" ]; then
+        for config_file in "$CONF_DIR"/*; do
+            [ -e "$config_file" ] || continue
+            files_to_check="$files_to_check $config_file"
+        done
     fi
 
     for param in $PARAMS_TO_CHECK; do

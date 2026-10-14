@@ -219,6 +219,49 @@ get_db() {
     $SUDO_CMD getent --service files "$DB"
 }
 
+get_journald_setting() {
+    local file_path="$1"
+    local setting_name="$2"
+
+    # We intentionally parse the file with awk instead of a simple grep:
+    # - only the [Journal] section matters
+    # - commented lines must be ignored
+    # - multiple journald files can contribute, and the last effective value wins
+    # - we need the real effective value, not just the presence of a matching string
+    awk -v key="$setting_name" '
+        BEGIN { in_journal=0; value="" }
+        /^[[:space:]]*\[Journal\][[:space:]]*$/ { in_journal=1; next }
+        /^[[:space:]]*\[/ { in_journal=0; next }
+        in_journal {
+            line=$0
+            sub(/#.*/, "", line)
+            if (line ~ "^[[:space:]]*" key "[[:space:]]*=") {
+                sub("^[[:space:]]*" key "[[:space:]]*=[[:space:]]*", "", line)
+                sub(/[[:space:]]+$/, "", line)
+                value=line
+            }
+        }
+        END { print value }
+    ' "$file_path"
+}
+
+set_journald_setting() {
+    local file_path="$1"
+    local setting_name="$2"
+    local setting_value="$3"
+
+    if [ ! -f "$file_path" ]; then
+        printf '[Journal]\n%s=%s\n' "$setting_name" "$setting_value" >"$file_path"
+        return
+    fi
+
+    sed -i "/^[[:space:]]*${setting_name}[[:space:]]*=.*/d" "$file_path"
+    if ! grep -q '^\[Journal\]' "$file_path"; then
+        sed -i '1i [Journal]' "$file_path"
+    fi
+    sed -i "/^\[Journal\]/a $setting_name=$setting_value" "$file_path"
+}
+
 # Look for pattern in file that can spread over multiple lines
 # The func will remove commented lines (that begin with '#')
 # and consider the file as one long line.

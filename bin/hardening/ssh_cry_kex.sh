@@ -20,60 +20,83 @@ DESCRIPTION="Checking key exchange ciphers."
 PACKAGE='openssh-server'
 OPTIONS=''
 FILE='/etc/ssh/sshd_config'
+SSH_CRY_KEX_OK=0
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     is_pkg_installed "$PACKAGE"
     if [ "$FNRET" != 0 ]; then
         ok "$PACKAGE is not installed!"
+        return
     else
         ok "$PACKAGE is installed"
         for SSH_OPTION in $OPTIONS; do
             SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
-            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
-            PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-            does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
-            if [ "$FNRET" = 0 ]; then
-                ok "$PATTERN is present in $FILE"
-            else
-                crit "$PATTERN is not present in $FILE"
+            SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2-)
+
+            SSH_KEX_LINE=$($SUDO_CMD grep -i -- "^${SSH_PARAM}[[:space:]]" "$FILE" | tail -n 1)
+            if [ -z "$SSH_KEX_LINE" ]; then
+                crit "$SSH_PARAM is not present in $FILE"
+                SSH_CRY_KEX_OK=1
+                continue
             fi
+
+            SSH_KEX_VALUE=$(echo "$SSH_KEX_LINE" | sed -E "s/^[[:space:]]*${SSH_PARAM}[[:space:]]+//I")
+            SSH_KEX_NORMALIZED=$(echo "$SSH_KEX_VALUE" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+
+            local IFS=','
+            for SSH_KEX in $SSH_VALUE; do
+                SSH_KEX_REQUIRED=$(echo "$SSH_KEX" | tr '[:upper:]' '[:lower:]')
+                case ",$SSH_KEX_NORMALIZED," in
+                *",$SSH_KEX_REQUIRED,"*)
+                    ok "$SSH_KEX is present in $FILE"
+                    ;;
+                *)
+                    crit "$SSH_KEX is not present in $FILE"
+                    SSH_CRY_KEX_OK=1
+                    ;;
+                esac
+            done
         done
+
+        if [ "$SSH_CRY_KEX_OK" -ne 0 ]; then
+            crit "One or more required key exchange algorithms are not present in $FILE"
+        fi
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    is_pkg_installed "$PACKAGE"
-    if [ "$FNRET" = 0 ]; then
-        ok "$PACKAGE is installed"
-    else
-        crit "$PACKAGE is absent, installing it"
-        apt_install "$PACKAGE"
+    if [ "$SSH_CRY_KEX_OK" = 0 ]; then
+        ok "Required key exchange algorithms are already present in $FILE or package is not installed"
+        return
     fi
+
     for SSH_OPTION in $OPTIONS; do
         SSH_PARAM=$(echo "$SSH_OPTION" | cut -d= -f 1)
-        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2)
-        PATTERN="^${SSH_PARAM}[[:space:]]*$SSH_VALUE"
-        does_pattern_exist_in_file_nocase "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            ok "$PATTERN is present in $FILE"
+        SSH_VALUE=$(echo "$SSH_OPTION" | cut -d= -f 2-)
+
+        does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}[[:space:]]"
+        if [ "$FNRET" != 0 ]; then
+            add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
         else
-            warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file_nocase "$FILE" "^${SSH_PARAM}"
-            if [ "$FNRET" != 0 ]; then
-                add_end_of_file "$FILE" "$SSH_PARAM $SSH_VALUE"
-            else
-                info "Parameter $SSH_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
-            fi
-            /etc/init.d/ssh reload >/dev/null 2>&1
+            info "Parameter $SSH_PARAM is present but not fully compliant -- Fixing"
+            replace_in_file "$FILE" "^${SSH_PARAM}[[:space:]]*.*" "$SSH_PARAM $SSH_VALUE"
         fi
+
+        is_systemctl_running
+        if [ "$FNRET" != 0 ]; then
+            info "systemd is not running, skipping ssh reload"
+            continue
+        fi
+
+        systemctl reload ssh >/dev/null 2>&1
     done
 }
 
 create_config() {
-    KEX='curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256'
+    # FIPS 140 approved according to debian 12 CIS
+    KEX='ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256'
     cat <<EOF
 status=audit
 # Put your KexAlgorithms

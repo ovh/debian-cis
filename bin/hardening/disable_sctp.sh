@@ -19,7 +19,7 @@ DESCRIPTION="Disable Stream Control Transmission Protocol (SCTP)."
 
 # Note: we check /proc/config.gz to be compliant with both monolithic and modular kernels
 
-KERNEL_OPTION="CONFIG_NF_CT_PROTO_SCTP"
+KERNEL_OPTION="CONFIG_IP_SCTP"
 MODULE_NAME="sctp"
 
 # This function will be called if the script status is on enabled / audit mode
@@ -42,7 +42,7 @@ audit() {
             if [ "$FNRET" -eq 0 ]; then
                 ok "$MODULE_NAME is disabled in the modprobe configuration"
             else
-                is_kernel_module_available "$CHECKED_MODULE"
+                is_kernel_module_available "$KERNEL_OPTION"
                 if [ "$FNRET" -eq 0 ]; then
                     crit "$MODULE_NAME is available in some kernel config, but not disabled"
                 else

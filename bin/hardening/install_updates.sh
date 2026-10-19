@@ -17,15 +17,23 @@ HARDENING_LEVEL=3
 # shellcheck disable=2034
 DESCRIPTION="Ensure updates, patches, and additional security software are installed (Not Scored)"
 
+INSTALL_UPDATES_PENDING=1
+
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     info "Checking if apt needs an update"
-    apt_update_if_needed
+    INSTALL_UPDATES_PENDING=1
+    if ! apt_update_if_needed; then
+        crit "Unable to refresh package metadata; upgrade not attempted"
+        return
+    fi
     info "Fetching upgrades ..."
     apt_check_updates "CIS_APT"
-    if [ "$FNRET" -gt 0 ]; then
+    if [ "$FNRET" = 1 ]; then
         crit "$RESULT"
-        FNRET=1
+        INSTALL_UPDATES_PENDING=0
+    elif [ "$FNRET" != 0 ]; then
+        crit "$RESULT"
     else
         ok "No upgrades available"
         FNRET=0
@@ -34,11 +42,11 @@ audit() {
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$FNRET" -gt 0 ]; then
+    if [ "$INSTALL_UPDATES_PENDING" = 0 ]; then
         info "Applying Upgrades..."
         DEBIAN_FRONTEND='noninteractive' apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' upgrade -y
     else
-        ok "No Upgrades to apply"
+        info "No confirmed upgrades to apply"
     fi
 }
 

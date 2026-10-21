@@ -23,15 +23,24 @@ MAX_UNLOCK_TIME=""
 audit() {
     UNLOCK_TIME_VALID=1
     UNLOCK_IN_PAM=1
+    PAM_UNLOCK_TIME=""
 
-    # we want it to be set expliciteley, to avoid a default value changing from one version to another
-    if grep -E "^[[:space:]]?unlock_time" "$CONF_FILE"; then
+    # we want it to be set explicitly, to avoid a default value changing from one version to another
+    if grep -E "^[[:space:]]?unlock_time" "$CONF_FILE" >/dev/null 2>&1; then
         local current_unlock_time=""
-        current_unlock_time=$(awk -F '=' '/^[[:space:]]?unlock_time/ {print $2}' "$CONF_FILE" | sed 's/\ //g')
+        current_unlock_time=$(awk -F '=' '/^[[:space:]]?unlock_time/ {print $2}' "$CONF_FILE" | sed 's/[[:space:]]//g')
         if [ "$current_unlock_time" -le "$MAX_UNLOCK_TIME" ]; then
             UNLOCK_TIME_VALID=0
         fi
     fi
+
+    for file in /etc/pam.d/*; do
+        if grep -Pih -- '^[[:space:]]*auth[[:space:]]+[^#\n\r]+[[:space:]]+pam_faillock\.so[[:space:]]+.*\bunlock_time[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+            PAM_UNLOCK_TIME=$(grep -Pih -- '^[[:space:]]*auth[[:space:]]+[^#\n\r]+[[:space:]]+pam_faillock\.so[[:space:]]+.*\bunlock_time[[:space:]]*=[[:space:]]*[0-9]+' "$file" | sed -E 's/.*\bunlock_time[[:space:]]*=[[:space:]]*([0-9]+).*/\1/' | head -n 1)
+            UNLOCK_IN_PAM=0
+            break
+        fi
+    done
 
     if [ "$UNLOCK_TIME_VALID" -eq 0 ]; then
         ok "password 'unlock_time' is correctly configured"
@@ -39,16 +48,12 @@ audit() {
         crit "password 'unlock_time' is not correctly configured"
     fi
 
-    for file in /usr/share/pam-configs/*; do
-        if grep -Pi -- '\bpam_faillock\.so\h+([^#\n\r]+\h+)?unlock_time\b' "$file" >/dev/null 2>&1; then
-            UNLOCK_IN_PAM=0
-            break
-        fi
-    done
-
     if [ "$UNLOCK_IN_PAM" -eq 0 ]; then
-        # configuration in pam is going to override the one in /etc/security/faillock.conf
-        crit "password unlock_time is configured in /usr/share/pam-configs"
+        if [ "$PAM_UNLOCK_TIME" -le "$MAX_UNLOCK_TIME" ]; then
+            ok "unlock_time is correctly configured in /etc/pam.d"
+        else
+            crit "unlock_time is overridden in /etc/pam.d with value $PAM_UNLOCK_TIME"
+        fi
     fi
 }
 
@@ -60,12 +65,17 @@ apply() {
     fi
 
     if [ "$UNLOCK_IN_PAM" -eq 0 ]; then
-        for file in /usr/share/pam-configs/*; do
-            if grep -Pi -- '\bpam_faillock\.so\h+([^#\n\r]+\h+)?unlock_time\b' "$file" >/dev/null 2>&1; then
-                info "Remove 'unlock_time' configuration in $file"
-                sed -E -i 's/unlock_time[[:space:]]?=[[:space:]]?[0-9]+//g' "$file"
+        for file in /etc/pam.d/* /usr/share/pam-configs/*; do
+            [ -e "$file" ] || continue
+            if grep -Pih -- '^[[:space:]]*auth[[:space:]]+[^#\n\r]+[[:space:]]+pam_faillock\.so[[:space:]]+.*\bunlock_time[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+                sed -E -i 's/unlock_time[[:space:]]*=[[:space:]]*[0-9]+//g' "$file"
             fi
         done
+        if grep -ql 'pam_faillock.so' /usr/share/pam-configs/* 2>/dev/null; then
+            while IFS= read -r profile; do
+                DEBIAN_FRONTEND=noninteractive pam-auth-update --force --enable "$(basename "$profile")"
+            done < <(grep -l 'pam_faillock.so' /usr/share/pam-configs/* 2>/dev/null | sort -u)
+        fi
     fi
 }
 

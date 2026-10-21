@@ -23,39 +23,42 @@ EXPECTED_VALUE=1
 audit() {
     QUALITY_VALID=1
     DICTCHECK_IN_PAM=1
+    PAM_DICTCHECK_VALUE=""
 
     # order of override from strongest to latest:
     # - /etc/pam.d/*
     # - /etc/security/pwquality.conf
     # - /etc/security/pwquality.conf.d/*.conf
-    # "It is recommended that settings be configured in a .conf file in the /etc/security/pwquality.conf.d/ directory for clarity, convenience, and durability."
-
+    # A direct pam_pwquality line in /etc/pam.d/common-password overrides the generic pwquality defaults.
     local dictcheck_value=""
     DICTCHECK_FILE="/etc/security/pwquality.conf"
 
     if [ -d /etc/security/pwquality.conf.d ]; then
         if grep -E "^[[:space:]]?dictcheck" /etc/security/pwquality.conf.d/*.conf >/dev/null 2>&1; then
-            # if set in many places, the latest one is the one used
-            DICTCHECK_FILE=$(grep -lE "^[[:space:]]?dictcheck" | sort -n | tail -n 1)
+            DICTCHECK_FILE=$(grep -lE "^[[:space:]]?dictcheck" /etc/security/pwquality.conf.d/*.conf | sort -n | tail -n 1)
         fi
     fi
 
-    # maybe absent from /etc/security/pwquality.conf
     if grep -E "^[[:space:]]?dictcheck" "$DICTCHECK_FILE" >/dev/null 2>&1; then
-        dictcheck_value=$(grep -E "^[[:space:]]?dictcheck" "$DICTCHECK_FILE" | awk -F '=' '{print $2}' | sed 's/\ *//g')
+        dictcheck_value=$(grep -E "^[[:space:]]?dictcheck" "$DICTCHECK_FILE" | awk -F '=' '{print $2}' | sed 's/\ *//g' | tail -n 1)
         info "current 'pwquality dictcheck' value = $dictcheck_value"
-
-        if [ "$dictcheck_value" -eq "$EXPECTED_VALUE" ]; then
-            QUALITY_VALID=0
-        fi
     fi
 
-    for file in /usr/share/pam-configs/*; do
-        if grep -Pl -- '\bpam_pwquality\.so\h+([^#\n\r]+\h+)?dictcheck\b' "$file" >/dev/null 2>&1; then
+    for file in /etc/pam.d/*; do
+        if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bdictcheck[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+            PAM_DICTCHECK_VALUE=$(grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bdictcheck[[:space:]]*=[[:space:]]*[0-9]+' "$file" | sed -E 's/.*\bdictcheck[[:space:]]*=[[:space:]]*([0-9]+).*/\1/' | head -n 1)
             DICTCHECK_IN_PAM=0
             break
         fi
     done
+
+    if [ "$DICTCHECK_IN_PAM" -eq 0 ]; then
+        if [ "$PAM_DICTCHECK_VALUE" = "$EXPECTED_VALUE" ]; then
+            QUALITY_VALID=0
+        fi
+    elif [ -n "$dictcheck_value" ] && [ "$dictcheck_value" -eq "$EXPECTED_VALUE" ]; then
+        QUALITY_VALID=0
+    fi
 
     if [ "$QUALITY_VALID" -eq 0 ]; then
         ok "pwquality 'dictcheck' value is correctly configured"
@@ -63,8 +66,8 @@ audit() {
         crit "pwquality 'dictcheck' value is not correctly configured"
     fi
 
-    if [ "$DICTCHECK_IN_PAM" -eq 0 ]; then
-        crit "pwquality 'dictcheck' is overriden in pam configuration"
+    if [ "$DICTCHECK_IN_PAM" -eq 0 ] && [ "$PAM_DICTCHECK_VALUE" != "$EXPECTED_VALUE" ]; then
+        crit "pwquality 'dictcheck' is overridden in PAM configuration with value $PAM_DICTCHECK_VALUE"
     fi
 
 }
@@ -77,11 +80,17 @@ apply() {
     fi
 
     if [ "$DICTCHECK_IN_PAM" -eq 0 ]; then
-        for file in /usr/share/pam-configs/*; do
-            if grep -Pl -- '\bpam_pwquality\.so\h+([^#\n\r]+\h+)?dictcheck\b' "$file" >/dev/null 2>&1; then
-                sed -E -i 's/dictcheck[[:space:]]?=[[:space:]]?[0-9]+//g' "$file"
+        for file in /etc/pam.d/* /usr/share/pam-configs/*; do
+            [ -e "$file" ] || continue
+            if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bdictcheck[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+                sed -E -i 's/([[:space:]])dictcheck[[:space:]]*=[[:space:]]*[0-9]+//g; s/(pam_pwquality\.so)([[:space:]]+.*)[[:space:]]dictcheck[[:space:]]*=[[:space:]]*[0-9]+/\1\2/g' "$file"
             fi
         done
+        if grep -ql 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null; then
+            while IFS= read -r profile; do
+                DEBIAN_FRONTEND=noninteractive pam-auth-update --force --enable "$(basename "$profile")"
+            done < <(grep -l 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null | sort -u)
+        fi
     fi
 
 }

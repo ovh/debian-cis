@@ -20,12 +20,24 @@ DESCRIPTION="Ensure password quality is enforced for the root user"
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     QUALITY_VALID=1
+    PAM_ENFORCE_FOR_ROOT=""
 
     # order of override from strongest to weakest:
     # - /etc/pam.d/*
     # - /etc/security/pwquality.conf
     # - /etc/security/pwquality.conf.d/*.conf
-    # "It is recommended that settings be configured in a .conf file in the /etc/security/pwquality.conf.d/ directory for clarity, convenience, and durability."
+    # A direct pam_pwquality line in /etc/pam.d/common-password overrides the generic pwquality defaults.
+    for file in /etc/pam.d/*; do
+        if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\benforce_for_root\b' "$file" >/dev/null 2>&1; then
+            PAM_ENFORCE_FOR_ROOT=$(grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\benforce_for_root\b' "$file" | head -n 1)
+            break
+        fi
+    done
+
+    if [ -n "$PAM_ENFORCE_FOR_ROOT" ]; then
+        ok "'pwquality' is enforced for root in /etc/pam.d"
+        QUALITY_VALID=0
+    fi
 
     if [ -d /etc/security/pwquality.conf.d ]; then
         for file in /etc/security/pwquality.conf.d/*.conf; do
@@ -52,6 +64,19 @@ apply() {
     if [ "$QUALITY_VALID" -ne 0 ]; then
         echo "enforce_for_root" >>/etc/security/pwquality.conf
     fi
+
+    for file in /etc/pam.d/* /usr/share/pam-configs/*; do
+        [ -e "$file" ] || continue
+        if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\benforce_for_root\b' "$file" >/dev/null 2>&1; then
+            sed -E -i 's/enforce_for_root//g' "$file"
+        fi
+    done
+    if grep -ql 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null; then
+        while IFS= read -r profile; do
+            DEBIAN_FRONTEND=noninteractive pam-auth-update --force --enable "$(basename "$profile")"
+        done < <(grep -l 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null | sort -u)
+    fi
+
 }
 
 # This function will check config parameters required

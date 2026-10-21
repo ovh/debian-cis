@@ -22,41 +22,92 @@ FILE_QUALITY='/etc/security/pwquality.conf'
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    for PW_OPT in $OPTIONS; do
-        PW_PARAM=$(echo "$PW_OPT" | cut -d= -f1)
-        PW_VALUE=$(echo "$PW_OPT" | cut -d= -f2)
-        # note : dont backslash regex characters, as 'does_pattern_exist_in_file' use "grep -E" which don't need it
-        PATTERN="^${PW_PARAM}[[:space:]]?+=[[:space:]]?+$PW_VALUE"
-        does_pattern_exist_in_file "$FILE_QUALITY" "$PATTERN"
+    MINLEN_VALID=1
+    MINLEN_IN_PAM=1
+    PAM_MINLEN_VALUE=""
 
-        if [ "$FNRET" = 0 ]; then
-            ok "$PATTERN is present in $FILE_QUALITY"
-        else
-            crit "$PATTERN is not present in $FILE_QUALITY"
+    # order of override from strongest to latest:
+    # - /etc/pam.d/*
+    # - /etc/security/pwquality.conf
+    # - /etc/security/pwquality.conf.d/*.conf
+    # A direct pam_pwquality line in /etc/pam.d/common-password overrides the generic pwquality defaults.
+    expected_value=$(awk -F '=' '{print $2}' <<<"$OPTIONS")
+
+    local minlen_value=""
+    FILE_QUALITY='/etc/security/pwquality.conf'
+
+    if [ -d /etc/security/pwquality.conf.d ]; then
+        if grep -E "^[[:space:]]?minlen" /etc/security/pwquality.conf.d/*.conf >/dev/null 2>&1; then
+            FILE_QUALITY=$(grep -lE "^[[:space:]]?minlen" /etc/security/pwquality.conf.d/*.conf | sort -n | tail -n 1)
+        fi
+    fi
+
+    if grep -E "^[[:space:]]?minlen" "$FILE_QUALITY" >/dev/null 2>&1; then
+        minlen_value=$(grep -E "^[[:space:]]?minlen" "$FILE_QUALITY" | awk -F '=' '{print $2}' | sed 's/\ *//g' | tail -n 1)
+        info "current 'pwquality minlen' value = $minlen_value"
+    fi
+
+    for file in /etc/pam.d/*; do
+        if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bminlen[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+            PAM_MINLEN_VALUE=$(grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bminlen[[:space:]]*=[[:space:]]*[0-9]+' "$file" | sed -E 's/.*\bminlen[[:space:]]*=[[:space:]]*([0-9]+).*/\1/' | head -n 1)
+            MINLEN_IN_PAM=0
+            break
         fi
     done
+
+    if [ "$MINLEN_IN_PAM" -eq 0 ]; then
+        for file in /etc/pam.d/* /usr/share/pam-configs/*; do
+            [ -e "$file" ] || continue
+            if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bminlen[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+                sed -E -i 's/([[:space:]])minlen[[:space:]]*=[[:space:]]*[0-9]+//g; s/(pam_pwquality\.so)([[:space:]]+.*)[[:space:]]minlen[[:space:]]*=[[:space:]]*[0-9]+/\1\2/g' "$file"
+            fi
+        done
+        if grep -ql 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null; then
+            while IFS= read -r profile; do
+                DEBIAN_FRONTEND=noninteractive pam-auth-update --force --enable "$(basename "$profile")"
+            done < <(grep -l 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null | sort -u)
+        fi
+    fi
+
+    if [ "$MINLEN_IN_PAM" -eq 0 ]; then
+        if [ "$PAM_MINLEN_VALUE" = "$expected_value" ]; then
+            MINLEN_VALID=0
+        fi
+    elif [ -n "$minlen_value" ] && [ "$minlen_value" -eq "$expected_value" ]; then
+        MINLEN_VALID=0
+    fi
+
+    if [ "$MINLEN_VALID" -eq 0 ]; then
+        ok "pwquality 'minlen' value is correctly configured"
+    else
+        crit "pwquality 'minlen' value is not correctly configured"
+    fi
+
+    if [ "$MINLEN_IN_PAM" -eq 0 ] && [ "$PAM_MINLEN_VALUE" != "$expected_value" ]; then
+        crit "pwquality 'minlen' is overridden in PAM configuration with value $PAM_MINLEN_VALUE"
+    fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    for PW_OPT in $OPTIONS; do
-        PW_PARAM=$(echo "$PW_OPT" | cut -d= -f1)
-        PW_VALUE=$(echo "$PW_OPT" | cut -d= -f2)
-        PATTERN="^${PW_PARAM}[[:space:]]?+=[[:space:]]?+$PW_VALUE"
-        does_pattern_exist_in_file "$FILE_QUALITY" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            ok "$PATTERN is present in $FILE_QUALITY"
-        else
-            warn "$PATTERN is not present in $FILE_QUALITY, adding it"
-            does_pattern_exist_in_file "$FILE_QUALITY" "^${PW_PARAM}"
-            if [ "$FNRET" != 0 ]; then
-                add_end_of_file "$FILE_QUALITY" "$PW_PARAM = $PW_VALUE"
-            else
-                info "Parameter $PW_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE_QUALITY" "^${PW_PARAM}*.*" "$PW_PARAM = $PW_VALUE"
+    if [ "$MINLEN_VALID" -ne 0 ]; then
+        sed -E -i '/^[[:space:]]?minlen/d' "$FILE_QUALITY"
+        echo "$OPTIONS" >>"$FILE_QUALITY"
+    fi
+
+    if [ "$MINLEN_IN_PAM" -eq 0 ]; then
+        for file in /etc/pam.d/* /usr/share/pam-configs/*; do
+            [ -e "$file" ] || continue
+            if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bminlen[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+                sed -E -i 's/([[:space:]])minlen[[:space:]]*=[[:space:]]*[0-9]+//g; s/(pam_pwquality\.so)([[:space:]]+.*)[[:space:]]minlen[[:space:]]*=[[:space:]]*[0-9]+/\1\2/g' "$file"
             fi
+        done
+        if grep -ql 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null; then
+            while IFS= read -r profile; do
+                DEBIAN_FRONTEND=noninteractive pam-auth-update --force --enable "$(basename "$profile")"
+            done < <(grep -l 'pam_pwquality.so' /usr/share/pam-configs/* 2>/dev/null | sort -u)
         fi
-    done
+    fi
 }
 
 # This function will create the config file for this check with default values

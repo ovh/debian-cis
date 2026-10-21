@@ -11,7 +11,8 @@ test_audit() {
 
     # prepare to fail
     describe Prepare on purpose failed test
-    sed -i '/minclass/d' $FILE_QUALITY
+    sed -i '/minclass/d' "$FILE_QUALITY"
+    printf '%s\n' 'password requisite pam_pwquality.so minclass=2 dcredit=-1 ucredit=-2 ocredit=-1 lcredit=-1' >>/etc/pam.d/common-password
 
     describe Running on purpose failed test
     register_test retvalshouldbe 1
@@ -19,6 +20,7 @@ test_audit() {
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe Correcting situation
+    sed -E -i 's/minclass[[:space:]]*=[[:space:]]*[-0-9]+//g' /etc/pam.d/common-password
     echo "$OPTIONS" >>"$FILE_QUALITY"
 
     describe Checking resolved state

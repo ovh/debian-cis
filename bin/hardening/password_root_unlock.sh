@@ -23,37 +23,41 @@ MAX_UNLOCK_TIME=""
 audit() {
     ROOT_UNLOCK_VALID=1
     ROOT_UNLOCK_IN_PAM=1
+    PAM_ROOT_UNLOCK_TIME=""
 
-    # we want it to be set expliciteley, to avoid a default value changing from one version to another
+    # we want it to be set explicitly, to avoid a default value changing from one version to another
     # if 'even_deny_root' is configured, then unlock_time is the same as others users
     # this value is then checked by the 'password_unlock_time.sh' check
-    if grep "^[^#]*even_deny_root" "$CONF_FILE"; then
+    if grep -E "^[^#]*even_deny_root" "$CONF_FILE" >/dev/null 2>&1; then
         ROOT_UNLOCK_VALID=0
-    # if 'even_deny_root' is not set, check for 'root_unlock_time', which implies the former
-    elif grep "^[^#]*root_unlock_time" "$CONF_FILE"; then
+    elif grep -E "^[^#]*root_unlock_time" "$CONF_FILE" >/dev/null 2>&1; then
         local current_unlock_time=""
-        current_unlock_time=$(awk -F '=' '/^[^#]*root_unlock_time/ {print $2}' "$CONF_FILE")
+        current_unlock_time=$(awk -F '=' '/^[^#]*root_unlock_time/ {print $2}' "$CONF_FILE" | sed 's/[[:space:]]//g')
         if [ "$current_unlock_time" -le "$MAX_UNLOCK_TIME" ]; then
             ROOT_UNLOCK_VALID=0
         fi
     fi
 
-    if [ "$ROOT_UNLOCK_VALID" -eq 0 ]; then
-        ok "root password unlock is correctly configured"
-    else
-        crit "root password unlock  is not correctly configured"
-    fi
-
-    for file in /usr/share/pam-configs/*; do
-        if grep -Pi -- '^\h*auth\h+([^#\n\r]+\h+)pam_faillock\.so\h+([^#\n\r]+\h+)?root_unlock_time\b' "$file" >/dev/null 2>&1; then
+    for file in /etc/pam.d/*; do
+        if grep -Pih -- '^[[:space:]]*auth[[:space:]]+[^#\n\r]+[[:space:]]+pam_faillock\.so[[:space:]]+.*\broot_unlock_time[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+            PAM_ROOT_UNLOCK_TIME=$(grep -Pih -- '^[[:space:]]*auth[[:space:]]+[^#\n\r]+[[:space:]]+pam_faillock\.so[[:space:]]+.*\broot_unlock_time[[:space:]]*=[[:space:]]*[0-9]+' "$file" | sed -E 's/.*\broot_unlock_time[[:space:]]*=[[:space:]]*([0-9]+).*/\1/' | head -n 1)
             ROOT_UNLOCK_IN_PAM=0
             break
         fi
     done
 
+    if [ "$ROOT_UNLOCK_VALID" -eq 0 ]; then
+        ok "root password unlock is correctly configured"
+    else
+        crit "root password unlock is not correctly configured"
+    fi
+
     if [ "$ROOT_UNLOCK_IN_PAM" -eq 0 ]; then
-        # configuration in pam is going to override the one in /etc/security/faillock.conf
-        crit "password root_unlock_time is configured in /usr/share/pam-configs"
+        if [ "$PAM_ROOT_UNLOCK_TIME" -le "$MAX_UNLOCK_TIME" ]; then
+            ok "root_unlock_time is correctly configured in /etc/pam.d"
+        else
+            crit "root_unlock_time is overridden in /etc/pam.d with value $PAM_ROOT_UNLOCK_TIME"
+        fi
     fi
 }
 
@@ -65,12 +69,17 @@ apply() {
     fi
 
     if [ "$ROOT_UNLOCK_IN_PAM" -eq 0 ]; then
-        for file in /usr/share/pam-configs/*; do
-            if grep -Pi -- '^\h*auth\h+([^#\n\r]+\h+)pam_faillock\.so\h+([^#\n\r]+\h+)?root_unlock_time\b' "$file" >/dev/null 2>&1; then
-                info "Remove 'unlock_time' configuration in $file"
-                sed -E -i 's/root_unlock_time[[:space:]]?=[[:space:]]?[0-9]+//g' "$file"
+        for file in /etc/pam.d/* /usr/share/pam-configs/*; do
+            [ -e "$file" ] || continue
+            if grep -Pih -- '^[[:space:]]*auth[[:space:]]+[^#\n\r]+[[:space:]]+pam_faillock\.so[[:space:]]+.*\broot_unlock_time[[:space:]]*=[[:space:]]*[0-9]+' "$file" >/dev/null 2>&1; then
+                sed -E -i 's/root_unlock_time[[:space:]]*=[[:space:]]*[0-9]+//g' "$file"
             fi
         done
+        if grep -ql 'pam_faillock.so' /usr/share/pam-configs/* 2>/dev/null; then
+            while IFS= read -r profile; do
+                DEBIAN_FRONTEND=noninteractive pam-auth-update --force --enable "$(basename "$profile")"
+            done < <(grep -l 'pam_faillock.so' /usr/share/pam-configs/* 2>/dev/null | sort -u)
+        fi
     fi
 }
 

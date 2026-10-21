@@ -5,7 +5,7 @@ test_audit() {
     # prepare to fail
     describe Prepare on purpose failed test
     sed -i '/^[[:space:]]?root_unlock_time/d' /etc/security/faillock.conf
-    echo "auth pam_faillock.so root_unlock_time=0" >/usr/share/pam-configs/test_cis
+    printf '%s\n' 'auth required pam_faillock.so root_unlock_time=0' >>/etc/pam.d/common-password
 
     describe Running on purpose failed test
     register_test retvalshouldbe 1
@@ -13,6 +13,7 @@ test_audit() {
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe correcting situation
+    sed -E -i 's/root_unlock_time[[:space:]]*=[[:space:]]*[0-9]+//g' /etc/pam.d/common-password
     sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
     "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
 

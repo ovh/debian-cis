@@ -6,7 +6,7 @@ test_audit() {
     describe Prepare on purpose failed test
     apt-get install -y libpam-pwquality
     sed -E -i '/^[[:space:]]?difok/d' /etc/security/pwquality.conf
-    echo "pam_pwquality.so difok=1" >/usr/share/pam-configs/test_cis.conf
+    printf '%s\n' 'password requisite pam_pwquality.so difok=1' >>/etc/pam.d/common-password
 
     describe Running on purpose failed test
     register_test retvalshouldbe 1
@@ -22,7 +22,7 @@ test_audit() {
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe clean test
-    rm -f /usr/share/pam-configs/test_cis.conf
+    rm -f /etc/pam.d/common-password
     apt-get remove -y libpam-pwquality
 
 }

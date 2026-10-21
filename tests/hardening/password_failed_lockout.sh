@@ -5,7 +5,7 @@ test_audit() {
     # prepare to fail
     describe Prepare on purpose failed test
     sed -i '/^[^#]*deny/d' /etc/security/faillock.conf
-    echo "auth requisite pam_faillock.so deny=6" >/usr/share/pam-configs/test_cis
+    printf '%s\n' 'auth requisite pam_faillock.so deny=6' >>/etc/pam.d/common-password
 
     describe Running on purpose failed test
     register_test retvalshouldbe 1
@@ -13,6 +13,7 @@ test_audit() {
     run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe correcting situation
+    sed -E -i 's/deny[[:space:]]*=[[:space:]]*[0-9]+//g' /etc/pam.d/common-password
     sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
     "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
 

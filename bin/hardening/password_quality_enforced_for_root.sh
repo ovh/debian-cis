@@ -20,12 +20,21 @@ DESCRIPTION="Ensure password quality is enforced for the root user"
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     QUALITY_VALID=1
+    PAM_ENFORCE_FOR_ROOT=""
 
-    # order of override from strongest to weakest:
-    # - /etc/pam.d/*
-    # - /etc/security/pwquality.conf
-    # - /etc/security/pwquality.conf.d/*.conf
-    # "It is recommended that settings be configured in a .conf file in the /etc/security/pwquality.conf.d/ directory for clarity, convenience, and durability."
+    # enforce_for_root is a flag that can only enable the check:
+    # being set in /etc/pam.d, pwquality.conf or pwquality.conf.d is enough
+    for file in /etc/pam.d/*; do
+        if grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\benforce_for_root\b' "$file" >/dev/null 2>&1; then
+            PAM_ENFORCE_FOR_ROOT=$(grep -PHs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\benforce_for_root\b' "$file" | head -n 1)
+            break
+        fi
+    done
+
+    if [ -n "$PAM_ENFORCE_FOR_ROOT" ]; then
+        ok "'pwquality' is enforced for root in /etc/pam.d"
+        QUALITY_VALID=0
+    fi
 
     if [ -d /etc/security/pwquality.conf.d ]; then
         for file in /etc/security/pwquality.conf.d/*.conf; do

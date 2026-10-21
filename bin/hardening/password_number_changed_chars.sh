@@ -23,40 +23,49 @@ OPTIONS=''
 audit() {
     QUALITY_VALID=1
     DIFOK_IN_PAM=1
+    PAM_DIFOK_WRONG_VALUE=""
 
     # order of override from strongest to latest:
     # - /etc/pam.d/*
     # - /etc/security/pwquality.conf
     # - /etc/security/pwquality.conf.d/*.conf
+    # In Debian, a direct pam_pwquality line in /etc/pam.d/common-password overrides the generic pwquality defaults.
     # "It is recommended that settings be configured in a .conf file in the /etc/security/pwquality.conf.d/ directory for clarity, convenience, and durability."
     expected_value=$(awk -F '=' '{print $2}' <<<"$OPTIONS")
 
     local difok_value=""
+    local pam_value
     DIFOK_FILE="/etc/security/pwquality.conf"
 
     if [ -d /etc/security/pwquality.conf.d ]; then
         if grep -E "^[[:space:]]?difok" /etc/security/pwquality.conf.d/*.conf >/dev/null 2>&1; then
             # if set in many places, the latest one is the one used
-            DIFOK_FILE=$(grep -lE "^[[:space:]]?difok" | sort -n | tail -n 1)
+            DIFOK_FILE=$(grep -lE "^[[:space:]]?difok" /etc/security/pwquality.conf.d/*.conf | sort -n | tail -n 1)
         fi
     fi
 
     # maybe absent from /etc/security/pwquality.conf
     if grep -E "^[[:space:]]?difok" "$DIFOK_FILE" >/dev/null 2>&1; then
-        difok_value=$(grep -E "^[[:space:]]?difok" "$DIFOK_FILE" | awk -F '=' '{print $2}' | sed 's/\ *//g')
+        difok_value=$(grep -E "^[[:space:]]?difok" "$DIFOK_FILE" | awk -F '=' '{print $2}' | sed 's/\ *//g' | tail -n 1)
         info "current 'pwquality difok' value = $difok_value"
-
-        if [ "$difok_value" -eq "$expected_value" ]; then
-            QUALITY_VALID=0
-        fi
     fi
 
-    for file in /usr/share/pam-configs/*; do
-        if grep -Pl -- '\bpam_pwquality\.so\h+([^#\n\r]+\h+)?difok\b' "$file" >/dev/null 2>&1; then
-            DIFOK_IN_PAM=0
-            break
+    # the expected value is a minimum: a higher value is compliant
+    # check every PAM file: a single wrong value is enough to be non-compliant
+    while IFS= read -r pam_value; do
+        DIFOK_IN_PAM=0
+        if [ "$pam_value" -lt "$expected_value" ]; then
+            PAM_DIFOK_WRONG_VALUE="$pam_value"
         fi
-    done
+    done < <(grep -Phs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bdifok[[:space:]]*=[[:space:]]*[0-9]+' /etc/pam.d/* | sed -E 's/.*\bdifok[[:space:]]*=[[:space:]]*([0-9]+).*/\1/')
+
+    if [ "$DIFOK_IN_PAM" -eq 0 ]; then
+        if [ -z "$PAM_DIFOK_WRONG_VALUE" ]; then
+            QUALITY_VALID=0
+        fi
+    elif [ -n "$difok_value" ] && [ "$difok_value" -ge "$expected_value" ]; then
+        QUALITY_VALID=0
+    fi
 
     if [ "$QUALITY_VALID" -eq 0 ]; then
         ok "pwquality 'difok' value is correctly configured"
@@ -64,8 +73,8 @@ audit() {
         crit "pwquality 'difok' value is not correctly configured"
     fi
 
-    if [ "$DIFOK_IN_PAM" -eq 0 ]; then
-        crit "pwquality 'difok' is overriden in pam configuration"
+    if [ -n "$PAM_DIFOK_WRONG_VALUE" ]; then
+        crit "pwquality 'difok' is overridden in PAM configuration with value $PAM_DIFOK_WRONG_VALUE"
     fi
 
 }
@@ -77,14 +86,10 @@ apply() {
         echo "$OPTIONS" >>"$DIFOK_FILE"
     fi
 
-    if [ "$DIFOK_IN_PAM" -eq 0 ]; then
-        for file in /usr/share/pam-configs/*; do
-            if grep -Pl -- '\bpam_pwquality\.so\h+([^#\n\r]+\h+)?difok\b' "$file" >/dev/null 2>&1; then
-                sed -E -i 's/difok[[:space:]]?=[[:space:]]?[0-9]+//g' "$file"
-            fi
-        done
+    # only remove the PAM override when it holds a wrong value
+    if [ -n "$PAM_DIFOK_WRONG_VALUE" ]; then
+        remove_pam_module_arg "pam_pwquality.so" "difok"
     fi
-
 }
 
 # This function will create the config file for this check with default values
@@ -92,13 +97,16 @@ create_config() {
     cat <<EOF
 status=audit
 # Put your custom configuration here
-OPTIONS="difok=2"
+# minimum number of characters that must change from the old password
+OPTIONS="difok=3"
 EOF
 }
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$OPTIONS" ]; then
+        OPTIONS="difok=3"
+    fi
 }
 
 # Source Root Dir Parameter

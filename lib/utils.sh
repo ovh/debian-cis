@@ -339,6 +339,43 @@ delete_line_in_file() {
 }
 
 #
+# PAM
+#
+
+# Remove an argument (e.g. "difok", "enforce_for_root") from the active lines loading a PAM module,
+# both in /etc/pam.d and in the pam-auth-update profiles.
+# Profile lines in /usr/share/pam-configs do not carry the PAM type ("password", "auth"...),
+# so lines are matched on the module name only.
+# Modified profiles are re-applied with pam-auth-update, otherwise the argument would come back
+# the next time /etc/pam.d/common-* are regenerated.
+remove_pam_module_arg() {
+    local module="$1"
+    local arg="$2"
+    local module_regex="${module//./\\.}"
+    local arg_regex="[[:space:]]+${arg}(=[^[:space:]]*)?([[:space:]]|$)"
+    local file
+    local profiles=""
+
+    for file in /etc/pam.d/* /usr/share/pam-configs/*; do
+        [ -f "$file" ] || continue
+        if ! grep -Eq "^[^#]*${module_regex}.*${arg_regex}" "$file"; then
+            continue
+        fi
+        info "Removing '$arg' from $module in $file"
+        backup_file "$file"
+        # loop on the line, in case the argument is set several times
+        sed -E -i "/^[^#]*${module_regex}/ { :a; s/${arg_regex}/\\2/; ta; }" "$file"
+        case "$file" in
+        /usr/share/pam-configs/*) profiles="$profiles $(basename "$file")" ;;
+        esac
+    done
+
+    for file in $profiles; do
+        DEBIAN_FRONTEND=noninteractive pam-auth-update --force --enable "$file"
+    done
+}
+
+#
 # Users and groups
 #
 

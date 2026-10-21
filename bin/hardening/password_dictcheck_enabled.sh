@@ -23,39 +23,43 @@ EXPECTED_VALUE=1
 audit() {
     QUALITY_VALID=1
     DICTCHECK_IN_PAM=1
+    PAM_DICTCHECK_WRONG_VALUE=""
 
     # order of override from strongest to latest:
     # - /etc/pam.d/*
     # - /etc/security/pwquality.conf
     # - /etc/security/pwquality.conf.d/*.conf
-    # "It is recommended that settings be configured in a .conf file in the /etc/security/pwquality.conf.d/ directory for clarity, convenience, and durability."
-
+    # A direct pam_pwquality line in /etc/pam.d/common-password overrides the generic pwquality defaults.
     local dictcheck_value=""
+    local pam_value
     DICTCHECK_FILE="/etc/security/pwquality.conf"
 
     if [ -d /etc/security/pwquality.conf.d ]; then
         if grep -E "^[[:space:]]?dictcheck" /etc/security/pwquality.conf.d/*.conf >/dev/null 2>&1; then
-            # if set in many places, the latest one is the one used
-            DICTCHECK_FILE=$(grep -lE "^[[:space:]]?dictcheck" | sort -n | tail -n 1)
+            DICTCHECK_FILE=$(grep -lE "^[[:space:]]?dictcheck" /etc/security/pwquality.conf.d/*.conf | sort -n | tail -n 1)
         fi
     fi
 
-    # maybe absent from /etc/security/pwquality.conf
     if grep -E "^[[:space:]]?dictcheck" "$DICTCHECK_FILE" >/dev/null 2>&1; then
-        dictcheck_value=$(grep -E "^[[:space:]]?dictcheck" "$DICTCHECK_FILE" | awk -F '=' '{print $2}' | sed 's/\ *//g')
+        dictcheck_value=$(grep -E "^[[:space:]]?dictcheck" "$DICTCHECK_FILE" | awk -F '=' '{print $2}' | sed 's/\ *//g' | tail -n 1)
         info "current 'pwquality dictcheck' value = $dictcheck_value"
+    fi
 
-        if [ "$dictcheck_value" -eq "$EXPECTED_VALUE" ]; then
+    # check every PAM file: a single wrong value is enough to be non-compliant
+    while IFS= read -r pam_value; do
+        DICTCHECK_IN_PAM=0
+        if [ "$pam_value" != "$EXPECTED_VALUE" ]; then
+            PAM_DICTCHECK_WRONG_VALUE="$pam_value"
+        fi
+    done < <(grep -Phs -- '^[[:space:]]*password[[:space:]]+[^#\n\r]+[[:space:]]+pam_pwquality\.so[[:space:]]+.*\bdictcheck[[:space:]]*=[[:space:]]*[0-9]+' /etc/pam.d/* | sed -E 's/.*\bdictcheck[[:space:]]*=[[:space:]]*([0-9]+).*/\1/')
+
+    if [ "$DICTCHECK_IN_PAM" -eq 0 ]; then
+        if [ -z "$PAM_DICTCHECK_WRONG_VALUE" ]; then
             QUALITY_VALID=0
         fi
+    elif [ -n "$dictcheck_value" ] && [ "$dictcheck_value" -eq "$EXPECTED_VALUE" ]; then
+        QUALITY_VALID=0
     fi
-
-    for file in /usr/share/pam-configs/*; do
-        if grep -Pl -- '\bpam_pwquality\.so\h+([^#\n\r]+\h+)?dictcheck\b' "$file" >/dev/null 2>&1; then
-            DICTCHECK_IN_PAM=0
-            break
-        fi
-    done
 
     if [ "$QUALITY_VALID" -eq 0 ]; then
         ok "pwquality 'dictcheck' value is correctly configured"
@@ -63,8 +67,8 @@ audit() {
         crit "pwquality 'dictcheck' value is not correctly configured"
     fi
 
-    if [ "$DICTCHECK_IN_PAM" -eq 0 ]; then
-        crit "pwquality 'dictcheck' is overriden in pam configuration"
+    if [ -n "$PAM_DICTCHECK_WRONG_VALUE" ]; then
+        crit "pwquality 'dictcheck' is overridden in PAM configuration with value $PAM_DICTCHECK_WRONG_VALUE"
     fi
 
 }
@@ -76,14 +80,10 @@ apply() {
         echo "dictcheck=$EXPECTED_VALUE" >>"$DICTCHECK_FILE"
     fi
 
-    if [ "$DICTCHECK_IN_PAM" -eq 0 ]; then
-        for file in /usr/share/pam-configs/*; do
-            if grep -Pl -- '\bpam_pwquality\.so\h+([^#\n\r]+\h+)?dictcheck\b' "$file" >/dev/null 2>&1; then
-                sed -E -i 's/dictcheck[[:space:]]?=[[:space:]]?[0-9]+//g' "$file"
-            fi
-        done
+    # only remove the PAM override when it holds a wrong value
+    if [ -n "$PAM_DICTCHECK_WRONG_VALUE" ]; then
+        remove_pam_module_arg "pam_pwquality.so" "dictcheck"
     fi
-
 }
 
 # This function will check config parameters required

@@ -45,7 +45,8 @@ audit() {
 # This function will be called if the script status is on enabled mode
 apply() {
     if [ "$QUALITY_VALID" -ne 0 ]; then
-        for file in /usr/share/pam-configs/* /etc/security/pwquality.conf; do
+        # same files as in audit()
+        for file in /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf; do
             if grep -Psi -- '^\h*enforcing\h*=\h*0\b' "$file" >/dev/null 2>&1; then
                 info "Commenting 'enforcing=0' in $file"
                 sed -ri 's/^\s*enforcing\s*=\s*0/# &/' "$file"
@@ -53,9 +54,8 @@ apply() {
         done
     fi
 
-    if [ "$DISABLED_IN_PAM" -ne 1 ]; then
-        info "Removing 'enforcing=0' in /etc/pam.d/common-password"
-        sed -E -i 's/enforcing[[:space:]]?=[[:space:]]?0//g' /etc/pam.d/common-password
+    if [ "$DISABLED_IN_PAM" -eq 0 ]; then
+        remove_pam_module_arg "pam_pwquality.so" "enforcing"
     fi
 
 }

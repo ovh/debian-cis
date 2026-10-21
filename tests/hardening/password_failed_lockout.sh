@@ -2,15 +2,31 @@
 # run-shellcheck
 test_audit() {
 
-    # prepare to fail
-    describe Prepare on purpose failed test
-    sed -i '/^[^#]*deny/d' /etc/security/faillock.conf
-    echo "auth requisite pam_faillock.so deny=6" >/usr/share/pam-configs/test_cis
+    local faillock_conf='/etc/security/faillock.conf'
 
-    describe Running on purpose failed test
+    cp "$faillock_conf" /tmp/faillock.conf.bak
+
+    describe Prepare on purpose failed test: deny not set
+    sed -E -i '/^[[:space:]]*deny[[:space:]]*=/d' "$faillock_conf"
     register_test retvalshouldbe 1
     # shellcheck disable=2154
-    run blank "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    run noconf "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
+    describe Prepare on purpose failed test: deny disabled
+    echo "deny = 0" >>"$faillock_conf"
+    register_test retvalshouldbe 1
+    run disabled "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
+    describe Checking a value lower than the maximum is compliant
+    sed -E -i '/^[[:space:]]*deny[[:space:]]*=/d' "$faillock_conf"
+    echo "deny = 3" >>"$faillock_conf"
+    register_test retvalshouldbe 0
+    run lower "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
+    describe Prepare on purpose failed test: wrong value in /etc/pam.d
+    printf '%s\n' 'auth requisite pam_faillock.so deny=6' >>/etc/pam.d/common-password
+    register_test retvalshouldbe 1
+    run pamd "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe correcting situation
     sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
@@ -21,6 +37,7 @@ test_audit() {
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
     describe clean test
-    rm -f /usr/share/pam-configs/test_cis
+    mv /tmp/faillock.conf.bak "$faillock_conf"
+    DEBIAN_FRONTEND='noninteractive' pam-auth-update --force
 
 }

@@ -8,6 +8,7 @@ test_audit() {
     sed -E -i '/^[[:space:]]?enforcing/d' /etc/security/pwquality.conf
     echo "enforcing = 0" >>/etc/security/pwquality.conf
     echo "pam_pwquality.so enforcing=0" >/usr/share/pam-configs/test_cis.conf
+    DEBIAN_FRONTEND='noninteractive' pam-auth-update --force
 
     describe Running on purpose failed test
     register_test retvalshouldbe 1
@@ -24,6 +25,7 @@ test_audit() {
 
     describe clean test
     rm -f /usr/share/pam-configs/test_cis.conf
+    DEBIAN_FRONTEND='noninteractive' pam-auth-update --force
     apt-get remove -y libpam-pwquality
 
 }

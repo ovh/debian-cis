@@ -1,16 +1,29 @@
 ---
 name: Compile debian man
 on:
-  - push
+  push:
+    branches:
+      - master
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   compile-debian-man:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      # required to push the regenerated man page
+      contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Produce debian man
-        run: 'docker run --rm --volume "`pwd`:/data" --user `id -u`:`id -g` pandoc/latex:2.6 MANUAL.md -s -t man > debian/cis-hardening.8'
-      - uses: EndBug/add-and-commit@v11
+        run: 'docker run --rm --network none --volume "$(pwd):/data" --user "$(id -u):$(id -g)" pandoc/latex:2.6@sha256:e7c1223ad6542e1978daf55b797141639789172226b9b78873cc77494a8cc9e7 MANUAL.md -s -t man > debian/cis-hardening.8'
+      - uses: EndBug/add-and-commit@cc9c08ba6c8df3b93a8f2db63e89b98368ae2ae8 # v11.1.1
         with:
           add: 'debian/cis-hardening.8'
           message: 'Regenerate man pages (Github action)'

@@ -4,23 +4,38 @@ on:
   push:
     tags:
       - 'v*'
+permissions:
+  contents: read
+
+# pre-release and release both recreate the "latest" tag: never run them concurrently
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Create Release
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      # required to delete/create tags and releases, and upload assets
+      contents: write
     steps:
       # GET VERSION TAG
       - name: Get latest version number
         id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        run: echo "tag=${GITHUB_REF#refs/*/}" >>"$GITHUB_OUTPUT"
       # CHECKOUT CODE
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.vars.outputs.tag }}
+          persist-credentials: false
       # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
       - name: Generate changelog
-        run: sed -n -e "/cis-hardening ($(echo ${{ steps.vars.outputs.tag }} | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: sed -n -e "/cis-hardening ($(echo "$TAG" | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
       # IF THERE IS A NEW TAG BUT NO CORRESPONDING ENTRY IN DEBIAN/CHANGELOG, SET JOB TO FAIL
       - name: Abort if changelog is empty
         run: '[ -s changelog.md ] || (echo "No entry corresponding to the specified version found in debian/changelog"; exit 1)'
@@ -33,32 +48,25 @@ jobs:
           find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
       # DELETE THE TAG NAMED LATEST AND THE CORRESPONDING RELEASE
       - name: Delete the tag latest and the release latest
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          delete_release: true
-          tag_name: latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # CREATE RELEASE
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view latest >/dev/null 2>&1; then
+              gh release delete latest --cleanup-tag --yes
+          fi
+          if gh api "repos/$GH_REPO/git/ref/tags/latest" >/dev/null 2>&1; then
+              gh api -X DELETE "repos/$GH_REPO/git/refs/tags/latest"
+          fi
+      # CREATE RELEASE AND UPLOAD PACKAGE .DEB
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body_path: changelog.md
-          draft: false
-          prerelease: false
-      # UPLOAD PACKAGE .DEB
-      - name: Upload Release deb
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./cis-hardening.deb
-          asset_name: cis-hardening-${{ steps.vars.outputs.tag }}.deb
-          asset_content_type: application/vnd.debian.binary-package
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          mv cis-hardening.deb "cis-hardening-$TAG.deb"
+          gh release create "$TAG" "cis-hardening-$TAG.deb" \
+              --verify-tag \
+              --title "Release $TAG" \
+              --notes-file changelog.md

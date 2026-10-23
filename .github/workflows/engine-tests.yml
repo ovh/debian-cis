@@ -3,12 +3,18 @@ name: Run unit tests on framework engine
 on:
   - push
   - pull_request
+permissions:
+  contents: read
+
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Run main.sh config/link management tests
         run: bash tests/engine/test_main_conf_links.sh

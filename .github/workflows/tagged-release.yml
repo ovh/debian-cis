@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.vars.outputs.tag }}
+          persist-credentials: false
       # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
       - name: Generate changelog
         run: sed -n -e "/cis-hardening ($(echo ${{ steps.vars.outputs.tag }} | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md

@@ -16,6 +16,7 @@ jobs:
   build:
     name: Create Pre-Release
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       # required to delete/create tags and releases, and upload assets
       contents: write

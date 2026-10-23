@@ -35,12 +35,16 @@ jobs:
           find ../ -name "*.deb" -exec mv {} cis-hardening.deb \;
       # DELETE THE TAG NAMED LATEST AND THE CORRESPONDING RELEASE
       - name: Delete the tag latest and the release latest
-        uses: dev-drprasad/delete-tag-and-release@82600feb9527126eca69833f07bafe53279bd9b4 # v1.1
-        with:
-          delete_release: true
-          tag_name: latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view latest >/dev/null 2>&1; then
+              gh release delete latest --cleanup-tag --yes
+          fi
+          if gh api "repos/$GH_REPO/git/ref/tags/latest" >/dev/null 2>&1; then
+              gh api -X DELETE "repos/$GH_REPO/git/refs/tags/latest"
+          fi
       # GET LATEST VERSION TAG
       - name: Get latest version tag
         uses: actions-ecosystem/action-get-latest-tag@b7c32daec3395a9616f88548363a42652b22d435 # v1.6.0
@@ -53,26 +57,16 @@ jobs:
           myToken: ${{ secrets.GITHUB_TOKEN }}
           head-ref: ${{ github.sha }}
           base-ref: ${{ steps.get-latest-tag.outputs.tag }}
-      # CREATE RELEASE NAMED LATEST
+      # CREATE RELEASE NAMED LATEST AND UPLOAD PACKAGE .DEB
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: latest
-          release_name: Pre-release
-          body: ${{ steps.changelog.outputs.changelog }}
-          draft: false
-          prerelease: true
-      # UPLOAD PACKAGE .DEB
-      - name: Upload Release deb
-        id: upload-release-asset
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./cis-hardening.deb
-          asset_name: cis-hardening.deb
-          asset_content_type: application/vnd.debian.binary-package
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
+        run: |
+          printf '%s\n' "$CHANGELOG" >changelog.md
+          gh release create latest cis-hardening.deb \
+              --target "$GITHUB_SHA" \
+              --title Pre-release \
+              --notes-file changelog.md \
+              --prerelease

@@ -7,6 +7,11 @@ on:
 permissions:
   contents: read
 
+# pre-release and release both recreate the "latest" tag: never run them concurrently
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Create Pre-Release

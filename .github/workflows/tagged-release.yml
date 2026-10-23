@@ -27,7 +27,9 @@ jobs:
           persist-credentials: false
       # GENERATE CHANGELOG CORRESPONDING TO ENTRY IN DEBIAN/CHANGELOG
       - name: Generate changelog
-        run: sed -n -e "/cis-hardening ($(echo ${{ steps.vars.outputs.tag }} | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: sed -n -e "/cis-hardening ($(echo "$TAG" | tr -d 'v'))/,/ -- / p" debian/changelog | tail -n +3 | head -n -2 > changelog.md
       # IF THERE IS A NEW TAG BUT NO CORRESPONDING ENTRY IN DEBIAN/CHANGELOG, SET JOB TO FAIL
       - name: Abort if changelog is empty
         run: '[ -s changelog.md ] || (echo "No entry corresponding to the specified version found in debian/changelog"; exit 1)'

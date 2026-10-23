@@ -4,10 +4,16 @@ on:
   push:
     tags:
       - 'v*'
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      # required to delete/create tags and releases, and upload assets
+      contents: write
     steps:
       # GET VERSION TAG
       - name: Get latest version number

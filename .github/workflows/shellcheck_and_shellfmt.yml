@@ -3,9 +3,16 @@ name: Run shell-linter
 on:
   - push
   - pull_request
+permissions:
+  contents: read
+
 jobs:
   shellfmt:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # required by sh_checker_comment to comment on pull requests
+      pull-requests: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7

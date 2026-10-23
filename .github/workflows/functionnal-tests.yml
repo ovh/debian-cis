@@ -3,6 +3,9 @@ name: Run functionnal tests
 on:
   - pull_request
   - push
+permissions:
+  contents: read
+
 jobs:
   functionnal-tests-docker-debian12:
     runs-on: ubuntu-latest

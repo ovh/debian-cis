@@ -4,10 +4,16 @@ on:
   push:
     branches:
       - master
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Create Pre-Release
     runs-on: ubuntu-latest
+    permissions:
+      # required to delete/create tags and releases, and upload assets
+      contents: write
     steps:
       # CHECKOUT CODE
       - name: Checkout code

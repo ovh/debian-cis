@@ -2,9 +2,15 @@
 name: Compile debian man
 on:
   - push
+permissions:
+  contents: read
+
 jobs:
   compile-debian-man:
     runs-on: ubuntu-latest
+    permissions:
+      # required to push the regenerated man page
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7

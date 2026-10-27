@@ -23,21 +23,24 @@ audit() {
     OUTPUT_CHAIN_DROP=1
     FORWARD_CHAIN_DROP=1
 
-    if $SUDO_CMD nft list ruleset 2>/dev/null | grep "hook input.*policy drop"; then
+    local ruleset
+    ruleset=$($SUDO_CMD nft list ruleset 2>/dev/null || true)
+
+    if nft_ip_hook_policies input <<<"$ruleset" | grep -qx 'DROP'; then
         INPUT_CHAIN_DROP=0
         ok "nft base 'input' chain has 'drop' has default policy"
     else
         crit "nft base 'input' chain does not have 'drop' has default policy"
     fi
 
-    if $SUDO_CMD nft list ruleset 2>/dev/null | grep 'hook output.*policy drop'; then
+    if nft_ip_hook_policies output <<<"$ruleset" | grep -qx 'DROP'; then
         OUTPUT_CHAIN_DROP=0
         ok "nft base 'output' chain has 'drop' has default policy"
     else
         crit "nft base 'output' chain does not have 'drop' has default policy"
     fi
 
-    if $SUDO_CMD nft list ruleset 2>/dev/null | grep 'hook forward.*policy drop'; then
+    if nft_ip_hook_policies forward <<<"$ruleset" | grep -qx 'DROP'; then
         FORWARD_CHAIN_DROP=0
         ok "nft base 'forward' chain has 'drop' has default policy"
     else

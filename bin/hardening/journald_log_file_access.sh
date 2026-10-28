@@ -19,61 +19,95 @@ DESCRIPTION="Ensure journald log file access is configured"
 
 JOURNALD_FOLDER_PERMS=""
 JOURNALD_FILE_PERMS=""
+JOURNALD_ACCESS_VALID=1
+JOURNALD_TMPFILES_CONF=""
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    # honestly this check is not very useful and will probably always lead to a "crit" state, unless
-    # setting a long list of perms acceptable for file, which is not very useful either
-    JOURNALD_ACCESS_VALID=0
+    local l_errors=0
+    local l_type l_path l_mode l_masked l_file_mode
+
     # /etc/tmpfiles.d/systemd.conf will override all default settings as defined in /usr/lib/tmpfiles.d/systemd.conf
-    local file_to_check="/usr/lib/tmpfiles.d/systemd.conf"
+    JOURNALD_TMPFILES_CONF="/usr/lib/tmpfiles.d/systemd.conf"
     does_file_exist /etc/tmpfiles.d/systemd.conf
     if [ "$FNRET" -eq 0 ]; then
-        file_to_check="/etc/tmpfiles.d/systemd.conf"
+        JOURNALD_TMPFILES_CONF="/etc/tmpfiles.d/systemd.conf"
     fi
 
-    while read -r line; do
-        file_type=$(echo "$line" | awk '{print $1}')
-        file_mode=$(echo "$line" | awk '{print $3}')
+    # tmpfiles.d line format: <type> <path> <mode> <user> <group> <age> <argument>
+    while read -r l_type l_path l_mode _; do
+        # only the journal paths are in the scope of this check
+        case "$l_path" in
+        */log/journal | */log/journal/*) ;;
+        *) continue ;;
+        esac
 
-        if [ "$file_type" == "d" ]; then
-            if [ "$file_mode" -ne "$JOURNALD_FOLDER_PERMS" ]; then
-                JOURNALD_ACCESS_VALID=1
-                break
+        # ':' prefix only means "apply on creation"
+        # '~' prefix masks the mode with the existing bits
+        l_masked=1
+        while [[ "$l_mode" =~ ^[:~] ]]; do
+            if [ "${l_mode:0:1}" = "~" ]; then
+                l_masked=0
             fi
-        elif [ "$file_mode" -ne "$JOURNALD_FILE_PERMS" ]; then
-            JOURNALD_ACCESS_VALID=1
-            break
+            l_mode=${l_mode:1}
+        done
+        # '-' (ACL lines, ...) means the mode is not modified
+        if ! [[ "$l_mode" =~ ^[0-7]{1,4}$ ]]; then
+            continue
         fi
-    done < <($SUDO_CMD grep -v ^# "$file_to_check" | sed '/^$/d')
 
-    if [ "$JOURNALD_ACCESS_VALID" -eq 0 ]; then
-        ok "All files in $file_to_check are correctly configured"
-    else
-        crit "Some files in $file_to_check are not correctly configured"
+        # journal directories: /{run,var}/log/journal and /{run,var}/log/journal/%m
+        if [[ "$l_type" =~ ^[dDevqQ] ]] || [[ "$l_path" =~ ^/(run|var)/log/journal(/%m)?/?$ ]]; then
+            # optional site policy, setgid/sticky bits are ignored as they do not grant access
+            if [ -n "$JOURNALD_FOLDER_PERMS" ] && ((8#$l_mode & 8#0777 & ~8#$JOURNALD_FOLDER_PERMS)); then
+                crit "journal directory $l_path mode $l_mode is more permissive than $JOURNALD_FOLDER_PERMS in $JOURNALD_TMPFILES_CONF"
+                l_errors=1
+            fi
+            # 'Z' is recursive: the mode is also applied to the journal files in the directory
+            if ! [[ "$l_type" =~ ^Z ]]; then
+                continue
+            fi
+        fi
+
+        l_file_mode=$((8#$l_mode))
+        if [ "$l_masked" -eq 0 ]; then
+            # journal files have no executable bit, so '~' removes them, and special bits are only kept on directories
+            l_file_mode=$((l_file_mode & 8#0666))
+        fi
+        if ((l_file_mode & ~8#$JOURNALD_FILE_PERMS)); then
+            crit "journal files under $l_path mode $(printf '%04o' "$l_file_mode") is more permissive than $JOURNALD_FILE_PERMS in $JOURNALD_TMPFILES_CONF"
+            l_errors=1
+        fi
+    done < <($SUDO_CMD grep -Ev '^[[:space:]]*(#|$)' "$JOURNALD_TMPFILES_CONF")
+
+    if [ "$l_errors" -eq 0 ]; then
+        JOURNALD_ACCESS_VALID=0
+        ok "journal files permissions are $JOURNALD_FILE_PERMS or more restrictive in $JOURNALD_TMPFILES_CONF"
     fi
-
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
     if [ "$JOURNALD_ACCESS_VALID" -ne 0 ]; then
-        info "Please review manually the file according to your site policy"
+        info "Copy /usr/lib/tmpfiles.d/systemd.conf to /etc/tmpfiles.d/systemd.conf if needed, and set the journal permissions according to your site policy"
     fi
 }
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$JOURNALD_FILE_PERMS" ]; then
+        JOURNALD_FILE_PERMS=0640
+    fi
 }
 
 create_config() {
     cat <<EOF
-# shellcheck disable=2034
 status=audit
-# Put here the root login boolean for ssh
-JOURNALD_FOLDER_PERMS=0750
+# maximum permissions for the journal files (CIS: 0640 or more restrictive)
 JOURNALD_FILE_PERMS=0640
+# optional site policy: maximum permissions for the journal directories (setgid/sticky bits are ignored)
+# empty means directories are not checked, as the CIS recommendation only covers the journal files
+JOURNALD_FOLDER_PERMS=""
 EOF
 }
 

@@ -3,12 +3,18 @@ name: Run unit tests on helper libraries
 on:
   - push
   - pull_request
+permissions:
+  contents: read
+
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Check kernel module availability helpers
         run: bash tests/libs/test_kernel_module_availability.sh

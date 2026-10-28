@@ -3,18 +3,27 @@ name: Run functionnal tests
 on:
   - pull_request
   - push
+permissions:
+  contents: read
+
 jobs:
   functionnal-tests-docker-debian12:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Run the tests debian12
         run: ./tests/docker_build_and_run_tests.sh debian12
   functionnal-tests-docker-debian13:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Run the tests debian13
         run: ./tests/docker_build_and_run_tests.sh debian13

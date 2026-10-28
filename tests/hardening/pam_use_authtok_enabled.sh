@@ -25,5 +25,6 @@ test_audit() {
 
     describe clean test
     cp /tmp/pam_config_unix.save /usr/share/pam-configs/unix
+    DEBIAN_FRONTEND='noninteractive' pam-auth-update --force
 
 }

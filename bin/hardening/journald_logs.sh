@@ -18,59 +18,64 @@ HARDENING_LEVEL=3
 DESCRIPTION="Configure journald to send logs to syslog-ng."
 
 FILE='/etc/systemd/journald.conf'
-OPTIONS='ForwardToSyslog=no'
+CONF_DIR='/etc/systemd/journald.conf.d'
+
+JOURNALD_FORWARD_TO_SYSLOG_EFFECTIVE_VALUE=""
+JOURNALD_FORWARD_TO_SYSLOG_TARGET_FILE=""
+JOURNALD_FORWARD_TO_SYSLOG_NEEDS_FIX=1
+
+build_journald_files_to_check() {
+    JOURNALD_FILES_TO_CHECK="$FILE"
+    if [ -d "$CONF_DIR" ]; then
+        # journald only reads *.conf drop-ins
+        for config_file in "$CONF_DIR"/*.conf; do
+            [ -e "$config_file" ] || continue
+            JOURNALD_FILES_TO_CHECK="$JOURNALD_FILES_TO_CHECK $config_file"
+        done
+    fi
+}
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$FILE does not exist"
+    build_journald_files_to_check
+
+    # as for journald, the last file defining the setting wins
+    for JOURNALD_FILE in $JOURNALD_FILES_TO_CHECK; do
+        if [ ! -r "$JOURNALD_FILE" ]; then
+            continue
+        fi
+        JOURNALD_FILE_VALUE=$(get_journald_setting "$JOURNALD_FILE" "ForwardToSyslog")
+        if [ -n "$JOURNALD_FILE_VALUE" ]; then
+            JOURNALD_FORWARD_TO_SYSLOG_EFFECTIVE_VALUE="$JOURNALD_FILE_VALUE"
+            JOURNALD_FORWARD_TO_SYSLOG_TARGET_FILE="$JOURNALD_FILE"
+        fi
+    done
+
+    if [ "$JOURNALD_FORWARD_TO_SYSLOG_EFFECTIVE_VALUE" = "no" ]; then
+        JOURNALD_FORWARD_TO_SYSLOG_NEEDS_FIX=0
+        ok "ForwardToSyslog is effectively set to no in journald configuration"
     else
-        ok "$FILE exists, checking configuration"
-        for JOURNALD_OPTION in $OPTIONS; do
-            JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
-            JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
-            PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
-            debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
-            does_pattern_exist_in_file "$FILE" "$PATTERN"
-            if [ "$FNRET" != 0 ]; then
-                ok "$PATTERN is not present in $FILE"
-            else
-                crit "$PATTERN is present in $FILE"
-            fi
-        done
+        crit "ForwardToSyslog is not effectively set to no in journald configuration"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        warn "$FILE does not exist, creating it"
-        touch "$FILE"
-    else
-        ok "$FILE exists"
-    fi
-    for JOURNALD_OPTION in $OPTIONS; do
-        JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
-        JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
-        debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
-        PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
-        does_pattern_exist_in_file "$FILE" "$PATTERN"
-        if [ "$FNRET" = 0 ]; then
-            warn "$PATTERN is present in $FILE, deleting it"
-            does_pattern_exist_in_file "$FILE" "^$JOURNALD_PARAM"
-            if [ "$FNRET" != 0 ]; then
-                info "Parameter $JOURNALD_PARAM seems absent from $FILE, adding at the end"
-                add_end_of_file "$FILE" "$JOURNALD_PARAM=yes"
-            else
-                info "Parameter $JOURNALD_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^$JOURNALD_PARAM=.*" "$JOURNALD_PARAM=yes"
-            fi
+    if [ "$JOURNALD_FORWARD_TO_SYSLOG_NEEDS_FIX" -ne 0 ]; then
+        warn "ForwardToSyslog is not effectively set to no in journald configuration, fixing it"
+        if [ -n "$JOURNALD_FORWARD_TO_SYSLOG_EFFECTIVE_VALUE" ]; then
+            info "Effective value is $JOURNALD_FORWARD_TO_SYSLOG_EFFECTIVE_VALUE; updating the active journald entry"
         else
-            ok "$PATTERN is not present in $FILE"
+            info "Effective value is unset; adding the journald setting"
         fi
-    done
+        if [ -n "$JOURNALD_FORWARD_TO_SYSLOG_TARGET_FILE" ]; then
+            info "Parameter ForwardToSyslog is present but with the wrong value in $JOURNALD_FORWARD_TO_SYSLOG_TARGET_FILE -- Fixing"
+            set_journald_setting "$JOURNALD_FORWARD_TO_SYSLOG_TARGET_FILE" "ForwardToSyslog" "no"
+        else
+            info "Parameter ForwardToSyslog seems absent from journald configuration, adding it to $FILE"
+            set_journald_setting "$FILE" "ForwardToSyslog" "no"
+        fi
+    fi
 }
 
 # This function will check config parameters required

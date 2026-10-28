@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure journald is configured to write logfiles to persistent disk (Scored)
+# Ensure journald is configured to write logfiles to persistent disk (Automated)
 #
 
 set -e # One error, it's over
@@ -18,59 +18,64 @@ HARDENING_LEVEL=3
 DESCRIPTION="Configure journald to write to a persistent location."
 
 FILE='/etc/systemd/journald.conf'
-OPTIONS='Storage=persistent'
+CONF_DIR='/etc/systemd/journald.conf.d'
+
+JOURNALD_STORAGE_EFFECTIVE_VALUE=""
+JOURNALD_STORAGE_TARGET_FILE=""
+JOURNALD_STORAGE_NEEDS_FIX=1
+
+build_journald_files_to_check() {
+    JOURNALD_FILES_TO_CHECK="$FILE"
+    if [ -d "$CONF_DIR" ]; then
+        # journald only reads *.conf drop-ins
+        for config_file in "$CONF_DIR"/*.conf; do
+            [ -e "$config_file" ] || continue
+            JOURNALD_FILES_TO_CHECK="$JOURNALD_FILES_TO_CHECK $config_file"
+        done
+    fi
+}
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        crit "$FILE does not exist"
+    build_journald_files_to_check
+
+    # as for journald, the last file defining the setting wins
+    for JOURNALD_FILE in $JOURNALD_FILES_TO_CHECK; do
+        if [ ! -r "$JOURNALD_FILE" ]; then
+            continue
+        fi
+        JOURNALD_FILE_VALUE=$(get_journald_setting "$JOURNALD_FILE" "Storage")
+        if [ -n "$JOURNALD_FILE_VALUE" ]; then
+            JOURNALD_STORAGE_EFFECTIVE_VALUE="$JOURNALD_FILE_VALUE"
+            JOURNALD_STORAGE_TARGET_FILE="$JOURNALD_FILE"
+        fi
+    done
+
+    if [ "$JOURNALD_STORAGE_EFFECTIVE_VALUE" = "persistent" ]; then
+        JOURNALD_STORAGE_NEEDS_FIX=0
+        ok "Storage is effectively set to persistent in journald configuration"
     else
-        ok "$FILE exists, checking configuration"
-        for JOURNALD_OPTION in $OPTIONS; do
-            JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
-            JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
-            PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
-            debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
-            does_pattern_exist_in_file "$FILE" "$PATTERN"
-            if [ "$FNRET" != 0 ]; then
-                crit "$PATTERN is not present in $FILE"
-            else
-                ok "$PATTERN is present in $FILE"
-            fi
-        done
+        crit "Storage is not effectively set to persistent in journald configuration"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    does_file_exist "$FILE"
-    if [ "$FNRET" != 0 ]; then
-        warn "$FILE does not exist, creating it"
-        touch "$FILE"
-    else
-        ok "$FILE exists"
-    fi
-    for JOURNALD_OPTION in $OPTIONS; do
-        JOURNALD_PARAM=$(echo "$JOURNALD_OPTION" | cut -d= -f 1)
-        JOURNALD_VALUE=$(echo "$JOURNALD_OPTION" | cut -d= -f 2)
-        debug "$JOURNALD_PARAM should be set to $JOURNALD_VALUE"
-        PATTERN="^$JOURNALD_PARAM=$JOURNALD_VALUE"
-        does_pattern_exist_in_file "$FILE" "$PATTERN"
-        if [ "$FNRET" != 0 ]; then
-            warn "$PATTERN is not present in $FILE, adding it"
-            does_pattern_exist_in_file "$FILE" "^$JOURNALD_PARAM"
-            if [ "$FNRET" != 0 ]; then
-                info "Parameter $JOURNALD_PARAM seems absent from $FILE, adding at the end"
-                add_end_of_file "$FILE" "$JOURNALD_PARAM=$JOURNALD_VALUE"
-            else
-                info "Parameter $JOURNALD_PARAM is present but with the wrong value -- Fixing"
-                replace_in_file "$FILE" "^$JOURNALD_PARAM=.*" "$JOURNALD_PARAM=$JOURNALD_VALUE"
-            fi
+    if [ "$JOURNALD_STORAGE_NEEDS_FIX" -ne 0 ]; then
+        warn "Storage is not effectively set to persistent in journald configuration, fixing it"
+        if [ -n "$JOURNALD_STORAGE_EFFECTIVE_VALUE" ]; then
+            info "Effective value is $JOURNALD_STORAGE_EFFECTIVE_VALUE; updating the active journald entry"
         else
-            ok "$PATTERN is present in $FILE"
+            info "Effective value is unset; adding the journald setting"
         fi
-    done
+        if [ -n "$JOURNALD_STORAGE_TARGET_FILE" ]; then
+            info "Parameter Storage is present but with the wrong value in $JOURNALD_STORAGE_TARGET_FILE -- Fixing"
+            set_journald_setting "$JOURNALD_STORAGE_TARGET_FILE" "Storage" "persistent"
+        else
+            info "Parameter Storage seems absent from journald configuration, adding it to $FILE"
+            set_journald_setting "$FILE" "Storage" "persistent"
+        fi
+    fi
 }
 
 # This function will check config parameters required

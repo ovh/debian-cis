@@ -17,18 +17,22 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Ensure password unlock time is configured"
 CONF_FILE="/etc/security/faillock.conf"
+MIN_UNLOCK_TIME=""
+# former name of MIN_UNLOCK_TIME, still honored for existing configurations
 MAX_UNLOCK_TIME=""
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
     UNLOCK_TIME_VALID=1
-    UNLOCK_IN_PAM=1
+    UNLOCK_PAM_INVALID=1
+    local l_pam_value
+    local l_conf_value
 
-    # we want it to be set expliciteley, to avoid a default value changing from one version to another
-    if grep -E "^[[:space:]]?unlock_time" "$CONF_FILE"; then
-        local current_unlock_time=""
-        current_unlock_time=$(awk -F '=' '/^[[:space:]]?unlock_time/ {print $2}' "$CONF_FILE" | sed 's/\ //g')
-        if [ "$current_unlock_time" -le "$MAX_UNLOCK_TIME" ]; then
+    # compliant values are 0 (never unlock) or at least MIN_UNLOCK_TIME
+    # we want it to be set explicitly, to avoid a default value changing from one version to another
+    l_conf_value=$(grep -Po '^[[:space:]]*unlock_time[[:space:]]*=[[:space:]]*\K[0-9]+' "$CONF_FILE" 2>/dev/null | tail -n 1)
+    if [ -n "$l_conf_value" ]; then
+        if [ "$l_conf_value" -eq 0 ] || [ "$l_conf_value" -ge "$MIN_UNLOCK_TIME" ]; then
             UNLOCK_TIME_VALID=0
         fi
     fi
@@ -39,33 +43,27 @@ audit() {
         crit "password 'unlock_time' is not correctly configured"
     fi
 
-    for file in /usr/share/pam-configs/*; do
-        if grep -Pi -- '\bpam_faillock\.so\h+([^#\n\r]+\h+)?unlock_time\b' "$file" >/dev/null 2>&1; then
-            UNLOCK_IN_PAM=0
-            break
+    # a value set on the pam_faillock line overrides faillock.conf, check every PAM file
+    # (\b excludes root_unlock_time, handled by password_root_unlock.sh)
+    while IFS= read -r l_pam_value; do
+        if [ "$l_pam_value" -eq 0 ] || [ "$l_pam_value" -ge "$MIN_UNLOCK_TIME" ]; then
+            ok "unlock_time is correctly configured in /etc/pam.d"
+        else
+            crit "unlock_time is overridden in /etc/pam.d with value $l_pam_value"
+            UNLOCK_PAM_INVALID=0
         fi
-    done
-
-    if [ "$UNLOCK_IN_PAM" -eq 0 ]; then
-        # configuration in pam is going to override the one in /etc/security/faillock.conf
-        crit "password unlock_time is configured in /usr/share/pam-configs"
-    fi
+    done < <(grep -Pih -- '^[[:space:]]*auth[[:space:]]+[^#\n\r]+[[:space:]]+pam_faillock\.so[[:space:]]+.*\bunlock_time[[:space:]]*=[[:space:]]*[0-9]+' /etc/pam.d/* | sed -E 's/.*\bunlock_time[[:space:]]*=[[:space:]]*([0-9]+).*/\1/')
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
     if [ "$UNLOCK_TIME_VALID" -ne 0 ]; then
-        sed -E -i '/^[[:space:]]?unlock_time/d' "$CONF_FILE"
-        echo "unlock_time = $MAX_UNLOCK_TIME" >>"$CONF_FILE"
+        sed -E -i '/^[[:space:]]*unlock_time/d' "$CONF_FILE"
+        echo "unlock_time = $MIN_UNLOCK_TIME" >>"$CONF_FILE"
     fi
 
-    if [ "$UNLOCK_IN_PAM" -eq 0 ]; then
-        for file in /usr/share/pam-configs/*; do
-            if grep -Pi -- '\bpam_faillock\.so\h+([^#\n\r]+\h+)?unlock_time\b' "$file" >/dev/null 2>&1; then
-                info "Remove 'unlock_time' configuration in $file"
-                sed -E -i 's/unlock_time[[:space:]]?=[[:space:]]?[0-9]+//g' "$file"
-            fi
-        done
+    if [ "$UNLOCK_PAM_INVALID" -eq 0 ]; then
+        remove_pam_module_arg "pam_faillock.so" "unlock_time"
     fi
 }
 
@@ -73,15 +71,17 @@ apply() {
 create_config() {
     cat <<EOF
 status=audit
-# time in seconds before unlocking account
-# 0 = never, which can lead to some kind of denial of service
-MAX_UNLOCK_TIME=900
+# minimum time in seconds before a locked account is unlocked
+# 0 (never unlock) is also accepted, but can lead to some kind of denial of service
+MIN_UNLOCK_TIME=900
 EOF
 }
 
 # This function will check config parameters required
 check_config() {
-    :
+    if [ -z "$MIN_UNLOCK_TIME" ]; then
+        MIN_UNLOCK_TIME="${MAX_UNLOCK_TIME:-900}"
+    fi
 }
 
 # Source Root Dir Parameter

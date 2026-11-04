@@ -53,9 +53,13 @@ audit() {
         return
     fi
 
-    l_rules_files=$($SUDO_CMD find "$ASL_RULES_DIR" -maxdepth 1 -type f -name '*.rules' 2>/dev/null || true)
+    # follow symlinks (-L) as augenrules does
+    l_rules_files=$($SUDO_CMD find -L "$ASL_RULES_DIR" -maxdepth 1 -type f -name '*.rules' 2>/dev/null || true)
     l_ondisk_result=""
-    if [ -n "$l_rules_files" ]; then
+    if [ -z "$l_rules_files" ]; then
+        crit "No readable *.rules file found in $ASL_RULES_DIR"
+    else
+        debug "Reading audit rules from: $(xargs <<<"$l_rules_files")"
         # shellcheck disable=2086
         l_ondisk_result=$($SUDO_CMD cat $l_rules_files 2>/dev/null | awk -v path="$ASL_SUDO_LOG_FILE" "$ASL_AWK_FILTER" || true)
     fi

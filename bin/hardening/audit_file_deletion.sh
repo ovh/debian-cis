@@ -18,7 +18,6 @@ HARDENING_LEVEL=4
 DESCRIPTION="Ensure file deletion events are audited"
 
 AFD_RULES_FILE='/etc/audit/rules.d/50-delete.rules'
-AFD_RULES_DIR='/etc/audit/rules.d'
 AFD_RULES_KEY='delete'
 # print each architecture (b32/b64) for which unlink, unlinkat, rename and renameat are all audited
 # by "-a always,exit" rules filtering on auid>=UID_MIN and auid!=unset, with a key
@@ -59,10 +58,8 @@ AFD_UID_MIN=""
 AFD_RULES_OK=1
 
 # This function will be called if the script status is on enabled / audit mode
-# only the running configuration is checked, consistency between rules.d and the
-# running configuration is covered by auditd_running_config_same_on_disk
 audit() {
-    local l_running_archs l_running_rules
+    local l_archs
 
     AFD_UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
     if [ -z "$AFD_UID_MIN" ]; then
@@ -70,16 +67,18 @@ audit() {
         return
     fi
 
-    if l_running_rules=$($SUDO_CMD auditctl -l 2>/dev/null); then
-        l_running_archs=$(awk -v uid_min="$AFD_UID_MIN" "$AFD_AWK_FILTER" <<<"$l_running_rules" | xargs)
-        if [ "$l_running_archs" = "b32 b64" ]; then
-            ok "File deletion audit rules found in running configuration"
-            AFD_RULES_OK=0
-        else
-            crit "File deletion audit rules not found or incomplete in running configuration (complete arch: ${l_running_archs:-none})"
-        fi
+    get_effective_audit_rules
+    if [ "$FNRET" != 0 ]; then
+        crit "Unable to read $AUDIT_RULES_EFFECTIVE_FILE"
+        return
+    fi
+
+    l_archs=$(awk -v uid_min="$AFD_UID_MIN" "$AFD_AWK_FILTER" <<<"$AUDIT_RULES_CONTENT" | xargs)
+    if [ "$l_archs" = "b32 b64" ]; then
+        ok "File deletion audit rules found in $AUDIT_RULES_EFFECTIVE_FILE"
+        AFD_RULES_OK=0
     else
-        crit "Unable to read running audit rules (auditctl -l failed)"
+        crit "File deletion audit rules not found or incomplete in $AUDIT_RULES_EFFECTIVE_FILE (complete arch: ${l_archs:-none})"
     fi
 }
 
@@ -95,8 +94,8 @@ apply() {
         return
     fi
 
-    info "Configuring file deletion audit rules in $AFD_RULES_FILE"
-    mkdir -p "$AFD_RULES_DIR"
+    info "Adding file deletion audit rules to $AFD_RULES_FILE"
+    mkdir -p "$(dirname "$AFD_RULES_FILE")"
     if [ -f "$AFD_RULES_FILE" ]; then
         backup_file "$AFD_RULES_FILE"
         # remove previous rules with the same key to avoid duplicates
@@ -110,16 +109,8 @@ apply() {
         echo "-a always,exit -F arch=b32 -S rename,unlink,unlinkat,renameat -F auid>=${AFD_UID_MIN} -F auid!=unset -k ${AFD_RULES_KEY}"
     } >>"$AFD_RULES_FILE"
 
-    if ! command -v augenrules >/dev/null 2>&1; then
-        warn "augenrules not found, audit rules cannot be loaded"
-        return
-    fi
-    info "Loading audit rules"
-    if augenrules --load; then
-        ok "File deletion audit rules configured and loaded"
-    else
-        warn "augenrules --load failed (audit configuration may be immutable), a reboot may be required"
-    fi
+    load_audit_rules
+
 }
 
 # This function will check config parameters required

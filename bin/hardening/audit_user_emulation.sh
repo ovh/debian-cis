@@ -17,77 +17,80 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Ensure actions as another user are always logged."
 
-AUDIT_RULES_FILE='/etc/audit/rules.d/50-user_emulation.rules'
+AUE_RULES_FILE='/etc/audit/rules.d/50-user_emulation.rules'
+AUE_RULES_KEY='user_emulation'
 
 # Global state
 AUE_RULES_OK=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    # Check on-disk audit rules
-    local on_disk_rules
-    on_disk_rules=$(awk '/^ *-a *always,exit/ &&/ -F *arch=b(32|64)/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&(/ -C *euid!=uid/||/ -C *uid!=euid/) &&/ -S *execve/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)' /etc/audit/rules.d/*.rules 2>/dev/null || true)
+    local l_archs
 
-    # Check running audit rules
-    local running_rules
-    running_rules=$($SUDO_CMD auditctl -l 2>/dev/null | awk '/^ *-a *always,exit/ &&/ -F *arch=b(32|64)/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&(/ -C *euid!=uid/||/ -C *uid!=euid/) &&/ -S *execve/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)' || true)
+    get_effective_audit_rules
+    if [ "$FNRET" != 0 ]; then
+        crit "Unable to read $AUDIT_RULES_EFFECTIVE_FILE"
+        return
+    fi
 
-    # Count rules for b64 and b32 architectures
-    local on_disk_b64
-    local on_disk_b32
-    local running_b64
-    local running_b32
-    on_disk_b64=$(echo "$on_disk_rules" | grep -c "arch=b64" || true)
-    on_disk_b32=$(echo "$on_disk_rules" | grep -c "arch=b32" || true)
-    running_b64=$(echo "$running_rules" | grep -c "arch=b64" || true)
-    running_b32=$(echo "$running_rules" | grep -c "arch=b32" || true)
+    # print each architecture (b32/b64) audited by an "-a always,exit" rule on execve,
+    # with euid!=uid, auid!=unset and a key
+    l_archs=$(awk '
+        $1 == "-a" && ($2 == "always,exit" || $2 == "exit,always") {
+            arch = ""; auid_set = 0; euid = 0; execve = 0; key = 0
+            for (i = 3; i < NF; i++) {
+                if ($i == "-F") {
+                    f = $(i + 1)
+                    if (f ~ /^arch=b(32|64)$/) arch = substr(f, 6)
+                    else if (f ~ /^auid!=(unset|-1|4294967295)$/) auid_set = 1
+                    else if (f ~ /^key=[!-~]+$/) key = 1
+                } else if ($i == "-C") {
+                    if ($(i + 1) == "euid!=uid" || $(i + 1) == "uid!=euid") euid = 1
+                } else if ($i == "-k") {
+                    key = 1
+                } else if ($i == "-S") {
+                    n = split($(i + 1), s, ",")
+                    for (j = 1; j <= n; j++) if (s[j] == "execve") execve = 1
+                }
+            }
+            if (arch != "" && auid_set && euid && execve && key) found[arch] = 1
+        }
+        END {
+            if ("b32" in found) print "b32"
+            if ("b64" in found) print "b64"
+        }' <<<"$AUDIT_RULES_CONTENT" | xargs)
 
-    # Validate that we have at least one rule for each architecture in both configurations
-    if [ "$on_disk_b64" -ge 1 ] && [ "$on_disk_b32" -ge 1 ] && [ "$running_b64" -ge 1 ] && [ "$running_b32" -ge 1 ]; then
-        ok "User emulation auditing is properly configured for both architectures"
+    if [ "$l_archs" = "b32 b64" ]; then
+        ok "User emulation auditing is properly configured for both architectures in $AUDIT_RULES_EFFECTIVE_FILE"
         AUE_RULES_OK=0
     else
-        if [ "$on_disk_b64" -lt 1 ] || [ "$on_disk_b32" -lt 1 ]; then
-            crit "User emulation auditing is not properly configured in /etc/audit/rules.d/ (b64: $on_disk_b64, b32: $on_disk_b32)"
-        fi
-        if [ "$running_b64" -lt 1 ] || [ "$running_b32" -lt 1 ]; then
-            crit "User emulation auditing is not properly loaded in running configuration (b64: $running_b64, b32: $running_b32)"
-        fi
-        AUE_RULES_OK=1
+        crit "User emulation auditing is not properly configured in $AUDIT_RULES_EFFECTIVE_FILE (configured arch: ${l_archs:-none})"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$AUE_RULES_OK" -eq 0 ]; then
+    if [ "$AUE_RULES_OK" = 0 ]; then
         ok "User emulation auditing is already configured"
         return
     fi
 
-    # Create audit rules directory if needed
-    if [ ! -d /etc/audit/rules.d ]; then
-        info "Creating /etc/audit/rules.d directory"
-        mkdir -p /etc/audit/rules.d
+    info "Adding user emulation audit rules to $AUE_RULES_FILE"
+    mkdir -p "$(dirname "$AUE_RULES_FILE")"
+    if [ -f "$AUE_RULES_FILE" ]; then
+        backup_file "$AUE_RULES_FILE"
+        # remove previous rules with the same key to avoid duplicates
+        sed -i -E "/(-k[[:space:]]+|key=)${AUE_RULES_KEY}([[:space:]]|$)/d" "$AUE_RULES_FILE"
+    else
+        echo "# Audit rules for user emulation - CIS Benchmark" >"$AUE_RULES_FILE"
+        chmod 0640 "$AUE_RULES_FILE"
     fi
+    {
+        echo "-a always,exit -F arch=b64 -C euid!=uid -F auid!=unset -S execve -k ${AUE_RULES_KEY}"
+        echo "-a always,exit -F arch=b32 -C euid!=uid -F auid!=unset -S execve -k ${AUE_RULES_KEY}"
+    } >>"$AUE_RULES_FILE"
 
-    # Remove existing user_emulation rules to avoid duplicates
-    if [ -f "$AUDIT_RULES_FILE" ]; then
-        sed -i '/user_emulation/d' "$AUDIT_RULES_FILE"
-    fi
-
-    # Create file with header if it doesn't exist
-    if [ ! -f "$AUDIT_RULES_FILE" ]; then
-        echo "# Audit rules for user emulation - CIS Benchmark" >"$AUDIT_RULES_FILE"
-    fi
-
-    # Add the audit rules for both architectures
-    info "Adding user emulation audit rules to $AUDIT_RULES_FILE"
-    echo "-a always,exit -F arch=b64 -C euid!=uid -F auid!=unset -S execve -k user_emulation" >>"$AUDIT_RULES_FILE"
-    echo "-a always,exit -F arch=b32 -C euid!=uid -F auid!=unset -S execve -k user_emulation" >>"$AUDIT_RULES_FILE"
-
-    # Load the rules
-    info "Loading audit rules"
-    augenrules --load
+    load_audit_rules
 }
 
 # This function will check config parameters required

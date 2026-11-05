@@ -17,7 +17,8 @@ HARDENING_LEVEL=2
 # shellcheck disable=2034
 DESCRIPTION="Ensure successful and unsuccessful attempts to use the usermod command are recorded."
 
-AUDIT_RULES_FILE='/etc/audit/rules.d/50-usermod.rules'
+AUM_RULES_FILE='/etc/audit/rules.d/50-usermod.rules'
+AUM_CMD_PATH='/usr/sbin/usermod'
 
 # Global state
 AUM_RULES_OK=1
@@ -25,39 +26,50 @@ AUM_UID_MIN=""
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
-    # Get UID_MIN from login.defs
+    local l_result
+
     AUM_UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
     if [ -z "$AUM_UID_MIN" ]; then
         crit "UID_MIN is not set in /etc/login.defs"
         return
     fi
 
-    # Check on-disk audit rules
-    local on_disk_rules
-    on_disk_rules=$(awk "/^ *-a *always,exit/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&/ -F *auid>=${AUM_UID_MIN}/ &&/ -F *perm=x/ &&/ -F *path=\/usr\/sbin\/usermod/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" /etc/audit/rules.d/*.rules 2>/dev/null || true)
+    get_effective_audit_rules
+    if [ "$FNRET" != 0 ]; then
+        crit "Unable to read $AUDIT_RULES_EFFECTIVE_FILE"
+        return
+    fi
 
-    # Check running audit rules
-    local running_rules
-    running_rules=$($SUDO_CMD auditctl -l 2>/dev/null | awk "/^ *-a *always,exit/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&/ -F *auid>=${AUM_UID_MIN}/ &&/ -F *perm=x/ &&/ -F *path=\/usr\/sbin\/usermod/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" || true)
+    # "-a always,exit" rule on the command path, with perm=x, auid>=UID_MIN, auid!=unset and a key
+    l_result=$(awk -v path="$AUM_CMD_PATH" -v uid_min="$AUM_UID_MIN" '
+        $1 == "-a" && ($2 == "always,exit" || $2 == "exit,always") {
+            p = 0; perm = 0; auid_min = 0; auid_set = 0; key = 0
+            for (i = 3; i < NF; i++) {
+                if ($i == "-F") {
+                    f = $(i + 1)
+                    if (f == "path=" path) p = 1
+                    else if (f == "perm=x") perm = 1
+                    else if (f == "auid>=" uid_min) auid_min = 1
+                    else if (f ~ /^auid!=(unset|-1|4294967295)$/) auid_set = 1
+                    else if (f ~ /^key=[!-~]+$/) key = 1
+                } else if ($i == "-k") {
+                    key = 1
+                }
+            }
+            if (p && perm && auid_min && auid_set && key) print
+        }' <<<"$AUDIT_RULES_CONTENT")
 
-    # Validate results
-    if [ -n "$on_disk_rules" ] && [ -n "$running_rules" ]; then
-        ok "usermod command auditing is properly configured"
+    if [ -n "$l_result" ]; then
+        ok "usermod command auditing is properly configured in $AUDIT_RULES_EFFECTIVE_FILE"
         AUM_RULES_OK=0
     else
-        if [ -z "$on_disk_rules" ]; then
-            crit "usermod command auditing is not configured in /etc/audit/rules.d/"
-        fi
-        if [ -z "$running_rules" ]; then
-            crit "usermod command auditing is not loaded in running configuration"
-        fi
-        AUM_RULES_OK=1
+        crit "usermod command auditing is not configured in $AUDIT_RULES_EFFECTIVE_FILE"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$AUM_RULES_OK" -eq 0 ]; then
+    if [ "$AUM_RULES_OK" = 0 ]; then
         ok "usermod command auditing is already configured"
         return
     fi
@@ -67,29 +79,19 @@ apply() {
         return
     fi
 
-    # Create audit rules directory if needed
-    if [ ! -d /etc/audit/rules.d ]; then
-        info "Creating /etc/audit/rules.d directory"
-        mkdir -p /etc/audit/rules.d
+    info "Adding usermod audit rule to $AUM_RULES_FILE"
+    mkdir -p "$(dirname "$AUM_RULES_FILE")"
+    if [ -f "$AUM_RULES_FILE" ]; then
+        backup_file "$AUM_RULES_FILE"
+        # remove previous rules for this command to avoid duplicates
+        sed -i -E "\\#path=${AUM_CMD_PATH}([[:space:]]|$)#d" "$AUM_RULES_FILE"
+    else
+        echo "# Audit rules for usermod command - CIS Benchmark" >"$AUM_RULES_FILE"
+        chmod 0640 "$AUM_RULES_FILE"
     fi
+    echo "-a always,exit -F path=${AUM_CMD_PATH} -F perm=x -F auid>=${AUM_UID_MIN} -F auid!=unset -k usermod" >>"$AUM_RULES_FILE"
 
-    # Remove existing usermod rules to avoid duplicates
-    if [ -f "$AUDIT_RULES_FILE" ]; then
-        sed -i '/usermod/d' "$AUDIT_RULES_FILE"
-    fi
-
-    # Create file with header if it doesn't exist
-    if [ ! -f "$AUDIT_RULES_FILE" ]; then
-        echo "# Audit rules for usermod command - CIS Benchmark" >"$AUDIT_RULES_FILE"
-    fi
-
-    # Add the audit rule
-    info "Adding usermod audit rule to $AUDIT_RULES_FILE"
-    echo "-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=${AUM_UID_MIN} -F auid!=unset -k usermod" >>"$AUDIT_RULES_FILE"
-
-    # Load the rules
-    info "Loading audit rules"
-    augenrules --load
+    load_audit_rules
 }
 
 # This function will check config parameters required

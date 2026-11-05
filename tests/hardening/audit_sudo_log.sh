@@ -6,87 +6,102 @@ test_audit() {
         return
     fi
 
-    # auditctl runtime access requires kernel audit capabilities (for example CAP_AUDIT_CONTROL),
-    # which may be unavailable in some environments (containers, restricted CI, hardened hosts).
-    if ! command -v auditctl >/dev/null 2>&1 || ! auditctl -s >/dev/null 2>&1; then
-        skip "SKIPPED: audit runtime not available"
+    if ! command -v augenrules >/dev/null 2>&1; then
+        skip "SKIPPED: augenrules not available (auditd not installed)"
         return
     fi
 
-    local audit_rules_file="/etc/audit/rules.d/50-sudo.rules"
-    # shellcheck disable=2154
-    local audit_rules_backup="/tmp/${script}.50-sudo.rules.bak"
+    local audit_rules="/etc/audit/audit.rules"
+    local rules_file="/etc/audit/rules.d/50-sudo.rules"
     local sudoers_test_file="/etc/sudoers.d/cis_test_logfile"
     # shellcheck disable=2154
-    local sudoers_test_backup="/tmp/${script}.cis_test_logfile.bak"
-    local login_defs_backup="/tmp/${script}.login.defs.bak"
+    local script_cfg="${CIS_CONF_DIR}/conf.d/${script}.cfg"
+    local sudo_logfile="/var/log/sudo.log"
+    local backup_dir f
 
-    if [ -f "$audit_rules_file" ]; then
-        cp "$audit_rules_file" "$audit_rules_backup"
+    backup_dir=$(mktemp -d)
+    for f in "$audit_rules" "$rules_file" "$sudoers_test_file" "$script_cfg"; do
+        if [ -f "$f" ]; then
+            cp -p "$f" "$backup_dir/"
+        fi
+    done
+    rm -f "$rules_file"
+
+    # Lines that must not be taken for a logfile setting
+    cat >"$sudoers_test_file" <<'EOF'
+root ALL=(root) NOPASSWD: /usr/lib/nagios/plugins/check_logfiles
+# Defaults logfile="/var/log/commented.log"
+EOF
+    chmod 0440 "$sudoers_test_file"
+
+    describe Test case: no logfile in sudoers, only check_logfiles and comments
+    if grep -hPq -- '^\h*Defaults\b[^#]*\blogfile\h*=' /etc/sudoers /etc/sudoers.d/* 2>/dev/null; then
+        skip "SKIPPED: a sudo logfile is already configured on this host"
+    else
+        # not applicable: missing sudo logfile is covered by logfile_sudo
+        register_test retvalshouldbe 0
+        register_test contain "No sudo logfile configured in sudoers"
+        # shellcheck disable=2154
+        run no_logfile "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
     fi
-    if [ -f "$sudoers_test_file" ]; then
-        cp "$sudoers_test_file" "$sudoers_test_backup"
-    fi
-    cp /etc/login.defs "$login_defs_backup"
 
-    # Setup sudo log file for all tests
-    echo "Defaults logfile=\"/var/log/sudo.log\"" >"$sudoers_test_file"
+    echo "Defaults logfile=\"${sudo_logfile}\"" >>"$sudoers_test_file"
 
-    # Test 1: UID_MIN missing from /etc/login.defs
-    describe Test case: UID_MIN absent
-    sed -i '/^UID_MIN/d' /etc/login.defs
-    rm -f "$audit_rules_file"
+    describe Test case: effective audit rules file absent
+    rm -f "$audit_rules"
     register_test retvalshouldbe 1
-    # shellcheck disable=2154
-    run uid_min_absent "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
-    # Restore for next test
-    cp "$login_defs_backup" /etc/login.defs
+    register_test contain "Unable to read $audit_rules"
+    run audit_rules_absent "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    # Test 2: Rules file missing (on-disk config absent)
-    describe Test case: audit rules file absent
-    rm -f "$audit_rules_file"
+    describe Test case: rule absent from effective audit rules
+    echo "-D" >"$audit_rules"
     register_test retvalshouldbe 1
-    # shellcheck disable=2154
-    run rules_file_absent "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    register_test contain "Sudo log file ${sudo_logfile} audit rule not found in $audit_rules"
+    run rule_absent "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    # Test 3: Rules on disk but incomplete/broken
-    describe Test case: broken/incomplete audit rule on disk
-    echo "-a always,exit -F path=/var/log/" >"$audit_rules_file"
+    describe Test case: rule missing attribute permission
+    echo "-w ${sudo_logfile} -p w -k sudo_log_file" >"$audit_rules"
     register_test retvalshouldbe 1
-    # shellcheck disable=2154
-    run rules_incomplete "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    run rule_missing_perm "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    # Test 4: Rules on disk but not yet loaded in runtime
-    describe Test case: rules on disk but not in running config
-    # Create valid rule on disk
-    # shellcheck disable=2154
-    UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
-    echo "-a always,exit -F path=/var/log/sudo.log -F auid>=${UID_MIN} -F auid!=unset -k sudo_log_file" >"$audit_rules_file"
-    # Remove from runtime
-    auditctl -W /var/log/sudo.log 2>/dev/null || true
-    auditctl -D 2>/dev/null || true
+    describe Test case: rule for another path with the same prefix
+    echo "-w ${sudo_logfile}.1 -p wa -k sudo_log_file" >"$audit_rules"
     register_test retvalshouldbe 1
-    # shellcheck disable=2154
-    run rules_not_loaded "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+    run rule_wrong_path "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    # Test 5: Apply fix and verify compliance
+    describe Test case: rule only in effective audit rules, not generated by augenrules
+    echo "-w ${sudo_logfile} -p wa -k sudo_log_file" >"$audit_rules"
+    register_test retvalshouldbe 0
+    register_test contain "Sudo log file ${sudo_logfile} audit rule found in $audit_rules"
+    run not_generated "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
+    describe Correcting situation with DISABLE_AUGENRULES
+    echo "-w ${sudo_logfile} -p w -k sudo_log_file" >"$audit_rules"
+    sed -i 's/audit/enabled/' "$script_cfg"
+    echo 'DISABLE_AUGENRULES=true' >>"$script_cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" || true
+
+    describe Checking effective audit rules have not been regenerated
+    register_test retvalshouldbe 1
+    run augenrules_disabled "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
+
     describe Correcting situation
-    # shellcheck disable=2154
-    sed -i 's/audit/enabled/' "${CIS_CONF_DIR}/conf.d/${script}.cfg"
-    "${CIS_CHECKS_DIR}/${script}.sh" --apply || true
+    sed -i '/^DISABLE_AUGENRULES=/d' "$script_cfg"
+    "${CIS_CHECKS_DIR}/${script}.sh" || true
 
     describe Checking resolved state
     register_test retvalshouldbe 0
+    register_test contain "Sudo log file ${sudo_logfile} audit rule found in $audit_rules"
     run resolved "${CIS_CHECKS_DIR}/${script}.sh" --audit-all
 
-    # Cleanup
-    rm -f "$audit_rules_file" "$sudoers_test_file"
-    if [ -f "$audit_rules_backup" ]; then
-        mv "$audit_rules_backup" "$audit_rules_file"
-    fi
-    if [ -f "$sudoers_test_backup" ]; then
-        mv "$sudoers_test_backup" "$sudoers_test_file"
-    fi
-    cp "$login_defs_backup" /etc/login.defs
-    rm -f "$login_defs_backup"
+    describe Restoring host state
+    for f in "$audit_rules" "$rules_file" "$sudoers_test_file" "$script_cfg"; do
+        if [ -f "$backup_dir/$(basename "$f")" ]; then
+            cp -p "$backup_dir/$(basename "$f")" "$f"
+        else
+            rm -f "$f"
+        fi
+    done
+    rm -rf "$backup_dir"
+    auditctl -R "$audit_rules" >/dev/null 2>&1 || true
 }

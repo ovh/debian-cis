@@ -17,8 +17,8 @@ HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Ensure audit rules for chacl command are configured."
 
-AUDIT_RULES_FILE='/etc/audit/rules.d/50-perm_chng.rules'
-AUDIT_RULES_DIR='/etc/audit/rules.d'
+AC_RULES_FILE='/etc/audit/rules.d/50-perm_chng.rules'
+AC_CMD_PATH='/usr/bin/chacl'
 
 # Global state
 AC_RULES_OK=1
@@ -26,45 +26,51 @@ AC_UID_MIN=""
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    local l_result
 
-    # Get UID_MIN
     AC_UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
     if [ -z "$AC_UID_MIN" ]; then
         crit "Unable to determine UID_MIN from /etc/login.defs"
         return
     fi
 
-    # Check on disk configuration
-    local l_ondisk_result
-    l_ondisk_result=$(awk "/^ *-a *always,exit/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&/ -F *auid>=${AC_UID_MIN}/ &&/ -F *perm=x/ &&/ -F *path=\/usr\/bin\/chacl/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" "$AUDIT_RULES_DIR"/*.rules 2>/dev/null || true)
+    get_effective_audit_rules
+    if [ "$FNRET" != 0 ]; then
+        crit "Unable to read $AUDIT_RULES_EFFECTIVE_FILE"
+        return
+    fi
 
-    # Check running configuration
-    local l_running_result
-    l_running_result=$($SUDO_CMD auditctl -l 2>/dev/null | awk "/^ *-a *always,exit/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&/ -F *auid>=${AC_UID_MIN}/ &&/ -F *perm=x/ &&/ -F *path=\/usr\/bin\/chacl/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" || true)
+    # "-a always,exit" rule on the command path, with perm=x, auid>=UID_MIN, auid!=unset and a key
+    l_result=$(awk -v path="$AC_CMD_PATH" -v uid_min="$AC_UID_MIN" '
+        $1 == "-a" && ($2 == "always,exit" || $2 == "exit,always") {
+            p = 0; perm = 0; auid_min = 0; auid_set = 0; key = 0
+            for (i = 3; i < NF; i++) {
+                if ($i == "-F") {
+                    f = $(i + 1)
+                    if (f == "path=" path) p = 1
+                    else if (f == "perm=x") perm = 1
+                    else if (f == "auid>=" uid_min) auid_min = 1
+                    else if (f ~ /^auid!=(unset|-1|4294967295)$/) auid_set = 1
+                    else if (f ~ /^key=[!-~]+$/) key = 1
+                } else if ($i == "-k") {
+                    key = 1
+                }
+            }
+            if (p && perm && auid_min && auid_set && key) print
+        }' <<<"$AUDIT_RULES_CONTENT")
 
-    if [ -n "$l_ondisk_result" ] && [ -n "$l_running_result" ]; then
-        ok "chacl audit rules are correctly configured on disk and running"
+    if [ -n "$l_result" ]; then
+        ok "chacl audit rule found in $AUDIT_RULES_EFFECTIVE_FILE"
         AC_RULES_OK=0
     else
-        if [ -z "$l_ondisk_result" ]; then
-            crit "chacl audit rule not found in on-disk configuration"
-        fi
-        if [ -z "$l_running_result" ]; then
-            crit "chacl audit rule not found in running configuration"
-        fi
-        AC_RULES_OK=1
+        crit "chacl audit rule not found in $AUDIT_RULES_EFFECTIVE_FILE"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$(id -u)" -ne 0 ]; then
-        crit "This function must be run as root (current user: $(whoami))"
-        return 1
-    fi
-
-    if [ "$AC_RULES_OK" -eq 0 ]; then
-        ok "chacl audit rules already correctly configured"
+    if [ "$AC_RULES_OK" = 0 ]; then
+        ok "chacl audit rule already configured"
         return
     fi
 
@@ -73,26 +79,19 @@ apply() {
         return
     fi
 
-    info "Configuring chacl audit rules"
-    mkdir -p "$AUDIT_RULES_DIR"
-
-    # Remove any existing chacl rules to avoid duplicates
-    if [ -f "$AUDIT_RULES_FILE" ]; then
-        sed -i '/path=\/usr\/bin\/chacl/d' "$AUDIT_RULES_FILE"
+    info "Adding chacl audit rule to $AC_RULES_FILE"
+    mkdir -p "$(dirname "$AC_RULES_FILE")"
+    if [ -f "$AC_RULES_FILE" ]; then
+        backup_file "$AC_RULES_FILE"
+        # remove previous rules for this command to avoid duplicates
+        sed -i -E "\\#path=${AC_CMD_PATH}([[:space:]]|$)#d" "$AC_RULES_FILE"
+    else
+        echo "## Permission modification" >"$AC_RULES_FILE"
+        chmod 0640 "$AC_RULES_FILE"
     fi
+    echo "-a always,exit -F path=${AC_CMD_PATH} -F perm=x -F auid>=${AC_UID_MIN} -F auid!=unset -k perm_chng" >>"$AC_RULES_FILE"
 
-    # Create file with header if it doesn't exist
-    if [ ! -f "$AUDIT_RULES_FILE" ]; then
-        echo "## Permission modification" >"$AUDIT_RULES_FILE"
-    fi
-
-    # Add the rule
-    echo "-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=${AC_UID_MIN} -F auid!=unset -k perm_chng" >>"$AUDIT_RULES_FILE"
-
-    # Load the rules
-    info "Loading audit rules"
-    augenrules --load
-    ok "chacl audit rules configured and loaded"
+    load_audit_rules
 }
 
 # This function will check config parameters required

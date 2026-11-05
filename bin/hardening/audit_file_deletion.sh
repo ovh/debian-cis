@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure file deletion events by users are collected
+# Ensure file deletion events by users are collected (Automated)
 #
 
 set -e # One error, it's over
@@ -17,92 +17,100 @@ HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Ensure file deletion events are audited"
 
-AUDIT_RULES_FILE="/etc/audit/rules.d/50-delete.rules"
-AUDIT_RULES_DIR='/etc/audit/rules.d'
+AFD_RULES_FILE='/etc/audit/rules.d/50-delete.rules'
+AFD_RULES_KEY='delete'
+# print each architecture (b32/b64) for which unlink, unlinkat, rename and renameat are all audited
+# by "-a always,exit" rules filtering on auid>=UID_MIN and auid!=unset, with a key
+# shellcheck disable=2016
+AFD_AWK_FILTER='$1 == "-a" && ($2 == "always,exit" || $2 == "exit,always") {
+    arch = ""; auid_min = 0; auid_set = 0; key = 0
+    split("", syscalls)
+    for (i = 3; i < NF; i++) {
+        if ($i == "-F") {
+            f = $(i + 1)
+            if (f ~ /^arch=b(32|64)$/) arch = substr(f, 6)
+            else if (f == "auid>=" uid_min) auid_min = 1
+            else if (f ~ /^auid!=(unset|-1|4294967295)$/) auid_set = 1
+            else if (f ~ /^key=[!-~]+$/) key = 1
+        } else if ($i == "-k") {
+            key = 1
+        } else if ($i == "-S") {
+            n = split($(i + 1), s, ",")
+            for (j = 1; j <= n; j++) syscalls[s[j]] = 1
+        }
+    }
+    if (arch != "" && auid_min && auid_set && key)
+        for (sc in syscalls) found[arch "," sc] = 1
+}
+END {
+    split("b32 b64", archs, " ")
+    split("unlink unlinkat rename renameat", required, " ")
+    for (a = 1; a <= 2; a++) {
+        complete = 1
+        for (r = 1; r <= 4; r++)
+            if (!((archs[a] "," required[r]) in found)) complete = 0
+        if (complete) print archs[a]
+    }
+}'
 
 # Global state
-AFD_RULES_OK=1
 AFD_UID_MIN=""
+AFD_RULES_OK=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    local l_archs
 
-    # Get UID_MIN
     AFD_UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
     if [ -z "$AFD_UID_MIN" ]; then
         crit "Unable to determine UID_MIN from /etc/login.defs"
         return
     fi
 
-    # Check on disk configuration
-    local l_ondisk_result
-    l_ondisk_result=$(awk "/^ *-a *always,exit/ &&/ -F *arch=b(32|64)/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&/ -F *auid>=${AFD_UID_MIN}/ &&/ -S/ &&(/unlink/||/rename/||/unlinkat/||/renameat/) &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" "$AUDIT_RULES_DIR"/*.rules 2>/dev/null || true)
+    get_effective_audit_rules
+    if [ "$FNRET" != 0 ]; then
+        crit "Unable to read $AUDIT_RULES_EFFECTIVE_FILE"
+        return
+    fi
 
-    # Check running configuration
-    local l_running_result
-    l_running_result=$($SUDO_CMD auditctl -l 2>/dev/null | awk "/^ *-a *always,exit/ &&/ -F *arch=b(32|64)/ &&(/ -F *auid!=unset/||/ -F *auid!=-1/||/ -F *auid!=4294967295/) &&/ -F *auid>=${AFD_UID_MIN}/ &&/ -S/ &&(/unlink/||/rename/||/unlinkat/||/renameat/) &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" || true)
-
-    # We need both b64 and b32 rules in both configurations
-    local l_ondisk_b64 l_ondisk_b32 l_running_b64 l_running_b32
-    l_ondisk_b64=$(echo "$l_ondisk_result" | grep -c "b64" || true)
-    l_ondisk_b32=$(echo "$l_ondisk_result" | grep -c "b32" || true)
-    l_running_b64=$(echo "$l_running_result" | grep -c "b64" || true)
-    l_running_b32=$(echo "$l_running_result" | grep -c "b32" || true)
-
-    if [ "$l_ondisk_b64" -ge 1 ] && [ "$l_ondisk_b32" -ge 1 ] && [ "$l_running_b64" -ge 1 ] && [ "$l_running_b32" -ge 1 ]; then
-        ok "File deletion events are correctly configured on disk and running"
+    l_archs=$(awk -v uid_min="$AFD_UID_MIN" "$AFD_AWK_FILTER" <<<"$AUDIT_RULES_CONTENT" | xargs)
+    if [ "$l_archs" = "b32 b64" ]; then
+        ok "File deletion audit rules found in $AUDIT_RULES_EFFECTIVE_FILE"
         AFD_RULES_OK=0
     else
-        if [ "$l_ondisk_b64" -eq 0 ] || [ "$l_ondisk_b32" -eq 0 ]; then
-            crit "File deletion audit rules not found or incomplete in on-disk configuration"
-        fi
-        if [ "$l_running_b64" -eq 0 ] || [ "$l_running_b32" -eq 0 ]; then
-            crit "File deletion audit rules not found or incomplete in running configuration"
-        fi
-        AFD_RULES_OK=1
+        crit "File deletion audit rules not found or incomplete in $AUDIT_RULES_EFFECTIVE_FILE (complete arch: ${l_archs:-none})"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$(id -u)" -ne 0 ]; then
-        crit "This function must be run as root (current user: $(whoami))"
-        return 1
-    fi
-
-    if [ "$AFD_RULES_OK" -eq 0 ]; then
-        ok "File deletion audit rules already correctly configured"
-        return
-    fi
-
     if [ -z "$AFD_UID_MIN" ]; then
         crit "Unable to determine UID_MIN, cannot apply"
         return
     fi
 
-    info "Configuring file deletion audit rules"
-    mkdir -p "$AUDIT_RULES_DIR"
-
-    # Remove any existing delete rules to avoid duplicates
-    if [ -f "$AUDIT_RULES_FILE" ]; then
-        sed -i '/\-k delete/d' "$AUDIT_RULES_FILE"
+    if [ "$AFD_RULES_OK" = 0 ]; then
+        ok "File deletion audit rules already correctly configured"
+        return
     fi
 
-    # Create file with header if it doesn't exist
-    if [ ! -f "$AUDIT_RULES_FILE" ]; then
-        echo "## File deletion events" >"$AUDIT_RULES_FILE"
+    info "Adding file deletion audit rules to $AFD_RULES_FILE"
+    mkdir -p "$(dirname "$AFD_RULES_FILE")"
+    if [ -f "$AFD_RULES_FILE" ]; then
+        backup_file "$AFD_RULES_FILE"
+        # remove previous rules with the same key to avoid duplicates
+        sed -i -E "/(-k[[:space:]]+|key=)${AFD_RULES_KEY}([[:space:]]|$)/d" "$AFD_RULES_FILE"
+    else
+        echo "## File deletion events" >"$AFD_RULES_FILE"
+        chmod 0640 "$AFD_RULES_FILE"
     fi
-
-    # Add the rules
     {
-        echo "-a always,exit -F arch=b64 -S rename,unlink,unlinkat,renameat -F auid>=${AFD_UID_MIN} -F auid!=unset -k delete"
-        echo "-a always,exit -F arch=b32 -S rename,unlink,unlinkat,renameat -F auid>=${AFD_UID_MIN} -F auid!=unset -k delete"
-    } >>"$AUDIT_RULES_FILE"
+        echo "-a always,exit -F arch=b64 -S rename,unlink,unlinkat,renameat -F auid>=${AFD_UID_MIN} -F auid!=unset -k ${AFD_RULES_KEY}"
+        echo "-a always,exit -F arch=b32 -S rename,unlink,unlinkat,renameat -F auid>=${AFD_UID_MIN} -F auid!=unset -k ${AFD_RULES_KEY}"
+    } >>"$AFD_RULES_FILE"
 
-    # Load the rules
-    info "Loading audit rules"
-    augenrules --load
-    ok "File deletion audit rules configured and loaded"
+    load_audit_rules
+
 }
 
 # This function will check config parameters required

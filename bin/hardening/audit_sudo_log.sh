@@ -6,7 +6,7 @@
 #
 
 #
-# Ensure sudo log file is audited (Automated)
+# Ensure events that modify the sudo log file are collected (Automated)
 #
 
 set -e # One error, it's over
@@ -17,87 +17,86 @@ HARDENING_LEVEL=4
 # shellcheck disable=2034
 DESCRIPTION="Ensure audit rules for sudo log file are configured."
 
-AUDIT_RULES_FILE='/etc/audit/rules.d/50-sudo.rules'
-AUDIT_RULES_DIR='/etc/audit/rules.d'
+ASL_RULES_FILE='/etc/audit/rules.d/50-sudo.rules'
+ASL_RULES_KEY='sudo_log_file'
+# value of the "logfile" option in a "Defaults" entry, "check_logfiles" or comments must not match
+ASL_LOGFILE_PATTERN='^\h*Defaults\b[^#]*\blogfile\h*=\h*"?\K[^",\h#]+'
+# keep "-w <path>" rules with write and attribute permissions, and a key
+# shellcheck disable=2016
+ASL_AWK_FILTER='$1 == "-w" && $2 == path {
+    perm = ""; key = 0
+    for (i = 3; i <= NF; i++) {
+        if ($i == "-p" && i < NF) perm = $(i + 1)
+        if (($i == "-k" && i < NF) || $i ~ /^key=[!-~]+$/) key = 1
+    }
+    if (perm ~ /w/ && perm ~ /a/ && key) print
+}'
 
 # Global state
-ASL_RULES_OK=1
 ASL_SUDO_LOG_FILE=""
+ASL_RULES_OK=1
 
 # This function will be called if the script status is on enabled / audit mode
 audit() {
+    local l_sudoers_files l_result
 
-    # Find sudo log file from sudoers configuration
-    ASL_SUDO_LOG_FILE=$($SUDO_CMD grep -r logfile /etc/sudoers* 2>/dev/null | sed -e 's/.*logfile=//;s/,.*//;s/"//g' | head -n1)
+    # sudo reads /etc/sudoers then /etc/sudoers.d (lexical order, ignoring files containing "." or ending with "~"),
+    # the last logfile setting wins
+    l_sudoers_files=$($SUDO_CMD find /etc/sudoers.d -maxdepth 1 -type f ! -name '*.*' ! -name '*~' 2>/dev/null | sort || true)
+    # shellcheck disable=2086
+    ASL_SUDO_LOG_FILE=$($SUDO_CMD grep -hPo -- "$ASL_LOGFILE_PATTERN" /etc/sudoers $l_sudoers_files 2>/dev/null | tail -n1 || true)
 
     if [ -z "$ASL_SUDO_LOG_FILE" ]; then
-        warn "No sudo logfile configured in sudoers, skipping audit rule check"
+        warn "No sudo logfile configured in sudoers, cannot audit its modifications"
         return
     fi
 
-    # Escape path for grep
-    local l_escaped_path
-    l_escaped_path="${ASL_SUDO_LOG_FILE//\//\\/}"
+    get_effective_audit_rules
+    if [ "$FNRET" != 0 ]; then
+        crit "Unable to read $AUDIT_RULES_EFFECTIVE_FILE"
+        return
+    fi
 
-    # Check on disk configuration
-    local l_ondisk_result
-    l_ondisk_result=$(awk "/^ *-w/ &&/${l_escaped_path}/ &&/ -p *wa/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" "$AUDIT_RULES_DIR"/*.rules 2>/dev/null || true)
-
-    # Check running configuration
-    local l_running_result
-    l_running_result=$($SUDO_CMD auditctl -l 2>/dev/null | awk "/^ *-w/ &&/${l_escaped_path}/ &&/ -p *wa/ &&(/ key= *[!-~]* *$/||/ -k *[!-~]* *$/)" || true)
-
-    if [ -n "$l_ondisk_result" ] && [ -n "$l_running_result" ]; then
-        ok "Sudo log file $ASL_SUDO_LOG_FILE is correctly audited on disk and running"
+    l_result=$(awk -v path="$ASL_SUDO_LOG_FILE" "$ASL_AWK_FILTER" <<<"$AUDIT_RULES_CONTENT")
+    if [ -n "$l_result" ]; then
+        ok "Sudo log file $ASL_SUDO_LOG_FILE audit rule found in $AUDIT_RULES_EFFECTIVE_FILE"
         ASL_RULES_OK=0
     else
-        if [ -z "$l_ondisk_result" ]; then
-            crit "Sudo log file $ASL_SUDO_LOG_FILE audit rule not found in on-disk configuration"
-        fi
-        if [ -z "$l_running_result" ]; then
-            crit "Sudo log file $ASL_SUDO_LOG_FILE audit rule not found in running configuration"
-        fi
-        ASL_RULES_OK=1
+        crit "Sudo log file $ASL_SUDO_LOG_FILE audit rule not found in $AUDIT_RULES_EFFECTIVE_FILE"
     fi
 }
 
 # This function will be called if the script status is on enabled mode
 apply() {
-    if [ "$(id -u)" -ne 0 ]; then
-        crit "This function must be run as root (current user: $(whoami))"
-        return 1
-    fi
+    local l_tmpfile
 
     if [ -z "$ASL_SUDO_LOG_FILE" ]; then
-        warn "No sudo logfile configured in sudoers, cannot create audit rule"
+        warn "No sudo logfile configured in sudoers, configure it first (see logfile_sudo)"
         return
     fi
 
-    if [ "$ASL_RULES_OK" -eq 0 ]; then
+    if [ "$ASL_RULES_OK" = 0 ]; then
         ok "Sudo log audit rules already correctly configured"
         return
     fi
 
-    info "Configuring sudo log audit rules for $ASL_SUDO_LOG_FILE"
-    mkdir -p "$AUDIT_RULES_DIR"
-
-    # Remove any existing sudo_log_file rules to avoid duplicates
-    if [ -f "$AUDIT_RULES_FILE" ]; then
-        sed -i '/\-k sudo_log_file/d' "$AUDIT_RULES_FILE"
+    info "Adding sudo log audit rule for $ASL_SUDO_LOG_FILE to $ASL_RULES_FILE"
+    mkdir -p "$(dirname "$ASL_RULES_FILE")"
+    if [ -f "$ASL_RULES_FILE" ]; then
+        backup_file "$ASL_RULES_FILE"
+        # remove previous rules for this path or key to avoid duplicates
+        l_tmpfile=$(mktemp)
+        awk -v path="$ASL_SUDO_LOG_FILE" -v key="$ASL_RULES_KEY" \
+            '!($1 == "-w" && $2 == path) && $NF != key && $NF != "key=" key' "$ASL_RULES_FILE" >"$l_tmpfile"
+        cat "$l_tmpfile" >"$ASL_RULES_FILE"
+        rm -f "$l_tmpfile"
+    else
+        echo "## Sudo log file" >"$ASL_RULES_FILE"
+        chmod 0640 "$ASL_RULES_FILE"
     fi
+    echo "-w $ASL_SUDO_LOG_FILE -p wa -k $ASL_RULES_KEY" >>"$ASL_RULES_FILE"
 
-    # Create file with header if it doesn't exist
-    if [ ! -f "$AUDIT_RULES_FILE" ]; then
-        echo "## Sudo log file" >"$AUDIT_RULES_FILE"
-    fi
-
-    # Add the rule
-    echo "-w $ASL_SUDO_LOG_FILE -p wa -k sudo_log_file" >>"$AUDIT_RULES_FILE"
-
-    # Load the rules
-    info "Loading audit rules"
-    augenrules --load
-    ok "Sudo log audit rules configured and loaded"
+    load_audit_rules
 }
 
 # This function will check config parameters required
